@@ -270,3 +270,11 @@ export default function Upsell1Page() {
     </div>
   );
 }
+
+export default function Upsell1Page() {
+  return (
+    <ABTestProvider>
+      <Upsell1Content />
+    </ABTestProvider>
+  );
+}

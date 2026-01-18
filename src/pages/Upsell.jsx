@@ -1,23 +1,32 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, X, TrendingUp, Users, BarChart3, MessageSquare, Calendar, Zap } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
+import { ABTestProvider, useABTest } from '@/components/abtest/ABTestProvider';
 
-export default function UpsellPage() {
+function UpsellContent() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { trackView, trackConversion } = useABTest();
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('dfy');
   const [leadData, setLeadData] = useState(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const stored = sessionStorage.getItem('quizLead');
     if (stored) {
       setLeadData(JSON.parse(stored));
     }
-  }, []);
+    
+    trackView('upsell2', 'headline');
+
+    if (searchParams.get('upsell_accepted') === 'true') {
+      base44.analytics.track({ eventName: 'upsell1_payment_completed' });
+    }
+  }, [searchParams]);
 
   const plans = {
     monthly: {
@@ -53,6 +62,7 @@ export default function UpsellPage() {
 
   const handleAccept = async () => {
     setIsProcessing(true);
+    trackConversion('upsell2', 'headline', plans[selectedPlan].price);
     
     try {
       base44.analytics.track({ 
@@ -254,5 +264,13 @@ export default function UpsellPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function UpsellPage() {
+  return (
+    <ABTestProvider>
+      <UpsellContent />
+    </ABTestProvider>
   );
 }

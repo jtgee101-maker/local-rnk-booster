@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { createPageUrl } from '@/utils';
+import { ABTestProvider, useABTest } from '@/components/abtest/ABTestProvider';
 
 import CountdownTimer from '@/components/pricing/CountdownTimer';
 import PricingCard from '@/components/pricing/PricingCard';
@@ -67,11 +68,10 @@ const pricingPlans = [
   }
 ];
 
-export default function PricingPage() {
+function PricingContent() {
   const navigate = useNavigate();
+  const { trackView, trackConversion } = useABTest();
   const [selectedPlan, setSelectedPlan] = useState(null);
-
-  // Get lead data from session
   const [leadData, setLeadData] = useState(null);
 
   useEffect(() => {
@@ -79,15 +79,14 @@ export default function PricingPage() {
     if (storedLead) {
       setLeadData(JSON.parse(storedLead));
     }
+    trackView('pricing', 'headline');
   }, []);
 
   const handleSelectPlan = (plan) => {
     setSelectedPlan(plan);
+    trackConversion('pricing', 'headline', parseFloat(plan.totalPrice));
     
-    // Store selected plan
     sessionStorage.setItem('selectedPlan', JSON.stringify(plan));
-    
-    // Navigate to checkout
     navigate(createPageUrl('Checkout'));
   };
 
@@ -202,5 +201,13 @@ export default function PricingPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PricingPage() {
+  return (
+    <ABTestProvider>
+      <PricingContent />
+    </ABTestProvider>
   );
 }
