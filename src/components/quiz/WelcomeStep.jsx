@@ -30,9 +30,9 @@ export default function WelcomeStep({ onStart }) {
         transition={{ delay: 0.3 }}
         className="text-4xl md:text-6xl font-bold text-white mb-5 leading-tight"
       >
-        Your Competitors Are Stealing
+        Stop Losing <span className="text-red-400">15 Calls a Day</span>
         <br />
-        <span className="text-[#c8ff00]">80% of Your Local Leads</span>
+        <span className="text-[#c8ff00]">To Your Competitors</span>
       </motion.h1>
 
       {/* Subheadline - Pain + Promise */}
@@ -42,7 +42,7 @@ export default function WelcomeStep({ onStart }) {
         transition={{ delay: 0.4 }}
         className="text-gray-300 text-xl md:text-2xl mb-4 leading-relaxed font-medium"
       >
-        Discover the 3 Critical Errors Keeping You Out of the Map Pack
+        Don't Read a 100-Page Blueprint. Run Our 60-Second AI Scan.
       </motion.p>
 
       <motion.p
@@ -51,7 +51,7 @@ export default function WelcomeStep({ onStart }) {
         transition={{ delay: 0.45 }}
         className="text-gray-500 text-base mb-10"
       >
-        See exactly why customers find them first — and get the step-by-step fix in under 60 seconds
+        Auto-fix the $2,000/mo agency errors for the price of a coffee — no technical skills required
       </motion.p>
 
       {/* Serotonin - Social Proof */}
@@ -94,12 +94,12 @@ export default function WelcomeStep({ onStart }) {
       >
         <h3 className="text-white font-bold text-lg mb-4">Your Personalized Audit Reveals:</h3>
         <div className="grid md:grid-cols-2 gap-4 text-left">
-          {[
-            { icon: TrendingUp, text: 'Your exact Map Pack health score vs. competitors' },
-            { icon: MapPin, text: 'The #1 reason you\'re invisible to local customers' },
-            { icon: CheckCircle, text: '3 critical fixes you can apply today' },
-            { icon: Award, text: 'Custom strategy for your business category' }
-          ].map((item, i) => (
+              {[
+                { icon: TrendingUp, text: 'Instant "Map Pack Gap" analysis showing lost revenue' },
+                { icon: MapPin, text: 'AI-powered scan of 40+ directories in 60 seconds' },
+                { icon: CheckCircle, text: '1-click automated optimization (not a homework manual)' },
+                { icon: Award, text: 'Same software $2,000/mo agencies use — for $0.11/day' }
+              ].map((item, i) => (
             <div key={i} className="flex items-start gap-3">
               <div className="w-5 h-5 rounded-full bg-[#c8ff00]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                 <item.icon className="w-3 h-3 text-[#c8ff00]" />
