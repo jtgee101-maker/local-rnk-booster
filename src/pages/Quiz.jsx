@@ -19,6 +19,7 @@ import DiscountUnlockStep from '@/components/quiz/DiscountUnlockStep';
 import StatsCommitmentStep from '@/components/quiz/StatsCommitmentStep';
 import VisualizeFutureStep from '@/components/quiz/VisualizeFutureStep';
 import ResultsStep from '@/components/quiz/ResultsStep';
+import ExitIntentModal from '@/components/shared/ExitIntentModal';
 import { Target, Rocket } from 'lucide-react';
 
 const TOTAL_STEPS = 6;
@@ -77,6 +78,7 @@ export default function QuizPage() {
   };
 
   const handlePainPointSelect = (painPoint) => {
+    base44.analytics.track({ eventName: 'quiz_painpoint_selected', properties: { painPoint } });
     setQuizData(prev => ({ ...prev, pain_point: painPoint }));
     
     // Show transition screen
@@ -102,6 +104,7 @@ export default function QuizPage() {
   };
 
   const handleTimelineSelect = (timeline) => {
+    base44.analytics.track({ eventName: 'quiz_timeline_selected', properties: { timeline } });
     setQuizData(prev => ({ ...prev, timeline }));
     
     // Show transition screen before business search
@@ -219,9 +222,7 @@ export default function QuizPage() {
   };
 
   const handleCTA = () => {
-    // Store lead data for pricing page
-    sessionStorage.setItem('quizLead', JSON.stringify(quizData));
-    
+    base44.analytics.track({ eventName: 'results_view_pricing_clicked' });
     // Navigate to pricing
     window.location.href = createPageUrl('Pricing');
   };
@@ -287,6 +288,14 @@ export default function QuizPage() {
             <ProgressBar currentStep={currentStepNumber} totalSteps={TOTAL_STEPS} />
           </div>
         )}
+
+        {/* Exit Intent Modal */}
+        <ExitIntentModal 
+          onAccept={() => {
+            base44.analytics.track({ eventName: 'exit_intent_accepted' });
+            window.location.href = createPageUrl('Pricing');
+          }}
+        />
 
         {/* Main Content */}
         <main className="flex-1 flex items-center justify-center py-8">
