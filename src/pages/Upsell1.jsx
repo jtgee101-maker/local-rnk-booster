@@ -29,29 +29,29 @@ export default function Upsell1Page() {
     setIsProcessing(true);
     
     try {
-      const stored = sessionStorage.getItem('quizLead');
-      const leadEmail = stored ? JSON.parse(stored).email : 'customer@example.com';
-      
       base44.analytics.track({ 
         eventName: 'upsell1_accepted', 
         properties: { price: 197 } 
       });
-      
-      await base44.entities.Order.create({
-        email: leadEmail,
-        lead_id: leadData?.id,
-        upsells: [{
-          product: 'Google Authority Engine (48hr Fix)',
+
+      const response = await base44.functions.invoke('createStripeUpsell', {
+        upsellData: {
+          name: 'Google Authority Engine (48hr Fix)',
           price: 197,
-          accepted: true
-        }],
-        total_amount: 197,
-        status: 'completed'
+          description: 'Emergency 48-hour GMB optimization service'
+        },
+        leadData,
+        upsellNumber: 1
       });
-      
-      navigate(createPageUrl('Upsell'));
+
+      if (response.data.url) {
+        window.location.href = response.data.url;
+      } else {
+        throw new Error('Failed to create upsell checkout');
+      }
     } catch (error) {
       console.error('Upsell error:', error);
+      alert('Payment setup failed. Please try again.');
       setIsProcessing(false);
     }
   };

@@ -55,8 +55,6 @@ export default function UpsellPage() {
     setIsProcessing(true);
     
     try {
-      const leadEmail = leadData?.email || 'customer@example.com';
-      
       base44.analytics.track({ 
         eventName: 'upsell2_accepted', 
         properties: { 
@@ -64,24 +62,25 @@ export default function UpsellPage() {
           price: plans[selectedPlan].price 
         } 
       });
-      
-      const orderData = {
-        email: leadEmail,
-        lead_id: leadData?.id,
-        upsells: [{
-          product: plans[selectedPlan].name,
+
+      const response = await base44.functions.invoke('createStripeUpsell', {
+        upsellData: {
+          name: plans[selectedPlan].name,
           price: plans[selectedPlan].price,
-          accepted: true
-        }],
-        total_amount: plans[selectedPlan].price,
-        status: 'completed'
-      };
-      
-      await base44.entities.Order.create(orderData);
-      
-      navigate(createPageUrl('ThankYou'));
+          description: plans[selectedPlan].features.join(', ')
+        },
+        leadData,
+        upsellNumber: 2
+      });
+
+      if (response.data.url) {
+        window.location.href = response.data.url;
+      } else {
+        throw new Error('Failed to create upsell checkout');
+      }
     } catch (error) {
       console.error('Upsell error:', error);
+      alert('Payment setup failed. Please try again.');
       setIsProcessing(false);
     }
   };

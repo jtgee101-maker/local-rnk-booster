@@ -5,6 +5,7 @@ import Quiz from './pages/Quiz';
 import ThankYou from './pages/ThankYou';
 import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
+import Admin from './pages/Admin';
 
 
 export const PAGES = {
@@ -15,6 +16,7 @@ export const PAGES = {
     "ThankYou": ThankYou,
     "Upsell": Upsell,
     "Upsell1": Upsell1,
+    "Admin": Admin,
 }
 
 export const pagesConfig = {
