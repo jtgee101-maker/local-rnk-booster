@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { AlertTriangle, CheckCircle, Zap, X, ArrowRight, Clock, Shield } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
+import { ABTestProvider, useABTest } from '@/components/abtest/ABTestProvider';
 
 function Upsell1Content() {
   const navigate = useNavigate();
@@ -26,6 +27,26 @@ function Upsell1Content() {
     'Primary category not optimized for high-intent searches',
     'Keyword density 67% below top 3 competitors'
   ];
+
+  const headlineVariant = getVariant('upsell1', 'headline');
+  const isLogicVariant = !headlineVariant || headlineVariant.variantId === 'variant_a';
+
+  const content = {
+    logic: {
+      badge: 'Professional Optimization',
+      headline: 'Let Our Experts Fix Your Profile in <span class="text-[#c8ff00]">48 Hours</span>',
+      subheadline: 'We will manually sync your data to 40+ directories and fix all 3 critical errors',
+      cta: 'Yes! Fix My Profile Professionally'
+    },
+    fear: {
+      badge: 'CRITICAL VULNERABILITIES DETECTED',
+      headline: '⚠️ URGENT: Your Competitors Are Seeing Your <span class="text-red-400">Critical Vulnerabilities</span> Right Now',
+      subheadline: 'Fix them before you lose another $500 in calls today',
+      cta: 'Yes! Fix My Profile in 48 Hours'
+    }
+  };
+
+  const variantContent = isLogicVariant ? content.logic : content.fear;
 
   const handleAccept = async () => {
     setIsProcessing(true);
