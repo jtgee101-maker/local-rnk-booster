@@ -9,7 +9,15 @@ import { createPageUrl } from '@/utils';
 export default function UpsellPage() {
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState('monthly');
+  const [selectedPlan, setSelectedPlan] = useState('dfy');
+  const [leadData, setLeadData] = useState(null);
+
+  React.useEffect(() => {
+    const stored = sessionStorage.getItem('quizLead');
+    if (stored) {
+      setLeadData(JSON.parse(stored));
+    }
+  }, []);
 
   const plans = {
     monthly: {
@@ -47,20 +55,22 @@ export default function UpsellPage() {
     setIsProcessing(true);
     
     try {
-      // Track upsell acceptance
+      const leadEmail = leadData?.email || 'customer@example.com';
+      
       const orderData = {
-        email: 'customer@example.com',
+        email: leadEmail,
+        lead_id: leadData?.id,
         upsells: [{
           product: plans[selectedPlan].name,
           price: plans[selectedPlan].price,
           accepted: true
         }],
+        total_amount: plans[selectedPlan].price,
         status: 'completed'
       };
       
       await base44.entities.Order.create(orderData);
       
-      // Navigate to thank you page
       navigate(createPageUrl('ThankYou'));
     } catch (error) {
       console.error('Upsell error:', error);
@@ -113,16 +123,24 @@ export default function UpsellPage() {
               transition={{ delay: 0.1 }}
               className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight"
             >
-              Want Us To <span className="text-[#c8ff00]">Manage Everything</span> For You?
+              What If We <span className="text-[#c8ff00]">Maintained Your #1 Ranking</span> For You... Forever?
             </motion.h1>
             
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="text-gray-400 text-xl max-w-2xl mx-auto"
+              className="text-gray-400 text-xl max-w-2xl mx-auto mb-2"
             >
-              Let our team handle your GMB profile daily while you focus on running your business
+              Let our team dominate your local market on autopilot while you cash the checks
+            </motion.p>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.25 }}
+              className="text-gray-600 text-sm max-w-xl mx-auto"
+            >
+              🏆 Our clients average <span className="text-[#c8ff00] font-semibold">247% more profile views</span> and <span className="text-[#c8ff00] font-semibold">3.2x higher rankings</span> in just 90 days
             </motion.p>
           </div>
 

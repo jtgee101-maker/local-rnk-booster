@@ -2,11 +2,13 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
-import { Users, DollarSign, TrendingUp, Mail, Calendar } from 'lucide-react';
+import { Users, DollarSign, TrendingUp, Mail, Calendar, MapPin, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+import GMBHealthCard from '@/components/dashboard/GMBHealthCard';
+import CriticalIssuesCard from '@/components/dashboard/CriticalIssuesCard';
 
 export default function DashboardPage() {
   const { data: leads = [], isLoading: leadsLoading } = useQuery({
@@ -94,57 +96,91 @@ export default function DashboardPage() {
           </motion.div>
         </div>
 
-        {/* Recent Leads */}
+        {/* Latest Lead Details */}
+        {leads.length > 0 && leads[0].health_score && (
+          <div className="mb-8">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Latest Lead: {leads[0].business_name}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <GMBHealthCard lead={leads[0]} />
+              <CriticalIssuesCard issues={leads[0].critical_issues} />
+            </div>
+          </div>
+        )}
+
+        {/* Recent Leads Table */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Recent Leads</CardTitle>
+            <CardTitle>All Leads</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Business</TableHead>
-                  <TableHead>Email</TableHead>
+                  <TableHead>Location</TableHead>
                   <TableHead>Category</TableHead>
-                  <TableHead>Score</TableHead>
+                  <TableHead>GMB Score</TableHead>
+                  <TableHead>Rating</TableHead>
+                  <TableHead>Reviews</TableHead>
                   <TableHead>Date</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {leadsLoading ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center">Loading...</TableCell>
+                    <TableCell colSpan={7} className="text-center">Loading...</TableCell>
                   </TableRow>
                 ) : leads.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center text-gray-500">No leads yet</TableCell>
+                    <TableCell colSpan={7} className="text-center text-gray-500">No leads yet</TableCell>
                   </TableRow>
                 ) : (
                   leads.slice(0, 10).map((lead) => (
                     <TableRow key={lead.id}>
-                      <TableCell className="font-medium">{lead.business_name || '-'}</TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Mail className="w-4 h-4 text-gray-400" />
-                          {lead.email}
+                        <div>
+                          <div className="font-medium">{lead.business_name || '-'}</div>
+                          <div className="text-xs text-gray-500">{lead.email}</div>
                         </div>
                       </TableCell>
                       <TableCell>
+                        {lead.address ? (
+                          <div className="flex items-start gap-2 max-w-xs">
+                            <MapPin className="w-3 h-3 text-gray-400 mt-0.5 flex-shrink-0" />
+                            <span className="text-xs text-gray-600">{lead.address}</span>
+                          </div>
+                        ) : '-'}
+                      </TableCell>
+                      <TableCell>
                         <Badge className={categoryColors[lead.business_category] || 'bg-gray-100'}>
-                          {lead.business_category?.replace(/_/g, ' ')}
+                          {lead.business_category?.replace(/_/g, ' ') || '-'}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <span className={`font-semibold ${
-                          lead.health_score >= 70 ? 'text-green-600' : 
-                          lead.health_score >= 50 ? 'text-yellow-600' : 'text-red-600'
-                        }`}>
-                          {lead.health_score}/100
-                        </span>
+                        {lead.health_score ? (
+                          <span className={`font-semibold ${
+                            lead.health_score >= 70 ? 'text-green-600' : 
+                            lead.health_score >= 50 ? 'text-yellow-600' : 'text-red-600'
+                          }`}>
+                            {lead.health_score}/100
+                          </span>
+                        ) : '-'}
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
-                          <Calendar className="w-4 h-4" />
+                        {lead.gmb_rating ? (
+                          <div className="flex items-center gap-1">
+                            <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                            <span className="text-sm font-medium">{lead.gmb_rating.toFixed(1)}</span>
+                          </div>
+                        ) : '-'}
+                      </TableCell>
+                      <TableCell>
+                        {lead.gmb_reviews_count !== undefined ? (
+                          <span className="text-sm">{lead.gmb_reviews_count}</span>
+                        ) : '-'}
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-xs text-gray-500">
                           {format(new Date(lead.created_date), 'MMM d, yyyy')}
                         </div>
                       </TableCell>
