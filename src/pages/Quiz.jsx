@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 
 import ProgressBar from '@/components/quiz/ProgressBar';
+import SectionProgress from '@/components/quiz/SectionProgress';
 import WelcomeStep from '@/components/quiz/WelcomeStep';
 import CategoryStep from '@/components/quiz/CategoryStep';
 import PainPointStep from '@/components/quiz/PainPointStep';
@@ -14,6 +15,9 @@ import TransitionStep from '@/components/quiz/TransitionStep';
 import TimelineStep from '@/components/quiz/TimelineStep';
 import BusinessInfoStep from '@/components/quiz/BusinessInfoStep';
 import ProcessingStep from '@/components/quiz/ProcessingStep';
+import EmailCaptureStep from '@/components/quiz/EmailCaptureStep';
+import DiscountUnlockStep from '@/components/quiz/DiscountUnlockStep';
+import StatsCommitmentStep from '@/components/quiz/StatsCommitmentStep';
 import ResultsStep from '@/components/quiz/ResultsStep';
 import { Target, Rocket } from 'lucide-react';
 
@@ -142,8 +146,21 @@ export default function QuizPage() {
   };
 
   const handleProcessingComplete = useCallback(() => {
-    setStep('results');
+    setStep('emailCapture');
   }, []);
+
+  const handleEmailSubmit = (email) => {
+    setQuizData(prev => ({ ...prev, email }));
+    setStep('discountUnlock');
+  };
+
+  const handleDiscountUnlockComplete = () => {
+    setStep('statsCommitment');
+  };
+
+  const handleStatsCommitmentContinue = () => {
+    setStep('results');
+  };
 
   const handleCTA = () => {
     // Store lead data for pricing page
@@ -260,6 +277,28 @@ export default function QuizPage() {
                     key="processing" 
                     onComplete={handleProcessingComplete}
                     businessName={quizData.business_name}
+                  />
+                )}
+                
+                {step === 'emailCapture' && (
+                  <EmailCaptureStep
+                    key="emailCapture"
+                    businessName={quizData.business_name}
+                    onSubmit={handleEmailSubmit}
+                  />
+                )}
+                
+                {step === 'discountUnlock' && (
+                  <DiscountUnlockStep
+                    key="discountUnlock"
+                    onComplete={handleDiscountUnlockComplete}
+                  />
+                )}
+                
+                {step === 'statsCommitment' && (
+                  <StatsCommitmentStep
+                    key="statsCommitment"
+                    onContinue={handleStatsCommitmentContinue}
                   />
                 )}
                 
