@@ -1,12 +1,20 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, Mail, Calendar, ArrowRight } from 'lucide-react';
+import { CheckCircle, Mail, Calendar, ArrowRight, Star, Users, Gift, Download, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function ThankYouPage() {
+  const [leadData, setLeadData] = useState(null);
+  const [showReferral, setShowReferral] = useState(false);
+
   useEffect(() => {
-    // Clear session storage
-    sessionStorage.removeItem('quizLead');
+    const stored = sessionStorage.getItem('quizLead');
+    if (stored) {
+      setLeadData(JSON.parse(stored));
+    }
+    
+    // Don't clear immediately - keep for referral program
+    // sessionStorage.removeItem('quizLead');
   }, []);
 
   return (
@@ -29,24 +37,46 @@ export default function ThankYouPage() {
             </div>
           </motion.div>
 
-          {/* Headline */}
+          {/* Headline - Personalized */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
             className="text-4xl md:text-5xl font-bold text-white mb-4"
           >
-            Welcome to <span className="text-[#c8ff00]">LocalRank.ai</span>!
+            {leadData?.business_name ? (
+              <>
+                🎉 Congratulations, <span className="text-[#c8ff00]">{leadData.business_name}</span>!
+              </>
+            ) : (
+              <>
+                Welcome to <span className="text-[#c8ff00]">LocalRank.ai</span>!
+              </>
+            )}
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="text-xl text-gray-400 mb-12"
+            className="text-xl text-gray-400 mb-3"
           >
-            Your order has been confirmed. Here's what happens next:
+            Your order is confirmed. We're already working on your GMB transformation.
           </motion.p>
+
+          {leadData?.health_score && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4 }}
+              className="inline-flex items-center gap-2 bg-[#c8ff00]/10 border border-[#c8ff00]/30 rounded-full px-4 py-2 mb-8"
+            >
+              <Zap className="w-4 h-4 text-[#c8ff00]" />
+              <span className="text-sm text-[#c8ff00]">
+                Current Score: {leadData.health_score}/100 • Target: 85+
+              </span>
+            </motion.div>
+          )}
 
           {/* Next Steps */}
           <motion.div
@@ -90,11 +120,12 @@ export default function ThankYouPage() {
             ))}
           </motion.div>
 
-          {/* CTA */}
+          {/* CTA Buttons */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center mb-12"
           >
             <Button
               onClick={() => window.open('https://calendly.com', '_blank')}
@@ -103,13 +134,94 @@ export default function ThankYouPage() {
               Schedule Your Kickoff Call
               <Calendar className="ml-2 w-5 h-5" />
             </Button>
+            
+            <Button
+              variant="outline"
+              onClick={() => window.open(`mailto:${leadData?.email || ''}?subject=My GMB Audit Report`, '_blank')}
+              className="border-gray-700 text-gray-300 hover:bg-gray-800 px-10 py-6 text-lg rounded-full"
+            >
+              <Download className="mr-2 w-5 h-5" />
+              Download Audit PDF
+            </Button>
+          </motion.div>
+
+          {/* Social Proof - Oxytocin */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 }}
+            className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6 mb-8 max-w-xl mx-auto"
+          >
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <Users className="w-5 h-5 text-[#c8ff00]" />
+              <span className="text-white font-semibold">Join 8,900+ Local Business Owners</span>
+            </div>
+            <div className="flex justify-center gap-1 mb-2">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-4 h-4 text-[#c8ff00] fill-[#c8ff00]" />
+              ))}
+            </div>
+            <p className="text-gray-400 text-sm text-center italic">
+              "LocalRank.ai took us from invisible to #1 in the Map Pack in 28 days. Our calls tripled!"
+            </p>
+            <p className="text-gray-500 text-xs text-center mt-2">
+              — Sarah M., HVAC Owner
+            </p>
+          </motion.div>
+
+          {/* Referral Program - Gamification */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className="text-center"
+          >
+            <Button
+              variant="ghost"
+              onClick={() => setShowReferral(!showReferral)}
+              className="text-gray-400 hover:text-[#c8ff00] transition-colors"
+            >
+              <Gift className="mr-2 w-4 h-4" />
+              🎁 Refer a Friend, Get $100 Credit
+              <ArrowRight className="ml-2 w-4 h-4" />
+            </Button>
+
+            {showReferral && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="mt-4 bg-gradient-to-br from-[#c8ff00]/10 to-green-500/10 border border-[#c8ff00]/30 rounded-xl p-6"
+              >
+                <h3 className="text-white font-bold mb-2">Share the Love 💚</h3>
+                <p className="text-gray-400 text-sm mb-4">
+                  Know another business struggling with local SEO? Refer them and earn $100 in service credits when they sign up!
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={`https://localrank.ai?ref=${leadData?.email || 'friend'}`}
+                    readOnly
+                    className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-sm text-gray-300"
+                  />
+                  <Button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`https://localrank.ai?ref=${leadData?.email || 'friend'}`);
+                      alert('Referral link copied!');
+                    }}
+                    className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black"
+                  >
+                    Copy Link
+                  </Button>
+                </div>
+              </motion.div>
+            )}
           </motion.div>
 
           {/* Footer */}
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.9 }}
+            transition={{ delay: 1.1 }}
             className="text-gray-600 text-sm mt-12"
           >
             Questions? Email us at <span className="text-[#c8ff00]">support@localrank.ai</span>
