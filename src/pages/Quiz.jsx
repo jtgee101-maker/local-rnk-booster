@@ -146,11 +146,11 @@ export default function QuizPage() {
   }, []);
 
   const handleCTA = () => {
-    // Store lead data for checkout page
+    // Store lead data for pricing page
     sessionStorage.setItem('quizLead', JSON.stringify(quizData));
     
-    // Navigate to checkout
-    window.location.href = createPageUrl('Checkout');
+    // Navigate to pricing
+    window.location.href = createPageUrl('Pricing');
   };
 
   const handleBack = () => {

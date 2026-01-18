@@ -20,11 +20,14 @@ export default function CheckoutPage() {
     phone: ''
   });
 
-  // Get lead data from session storage (set during quiz)
+  // Get lead and plan data from session storage
   const [leadData, setLeadData] = useState(null);
+  const [selectedPlan, setSelectedPlan] = useState(null);
 
   useEffect(() => {
     const storedLead = sessionStorage.getItem('quizLead');
+    const storedPlan = sessionStorage.getItem('selectedPlan');
+    
     if (storedLead) {
       const lead = JSON.parse(storedLead);
       setLeadData(lead);
@@ -33,6 +36,10 @@ export default function CheckoutPage() {
         email: lead.email || '',
         full_name: lead.business_name || ''
       }));
+    }
+    
+    if (storedPlan) {
+      setSelectedPlan(JSON.parse(storedPlan));
     }
   }, []);
 
@@ -186,10 +193,18 @@ export default function CheckoutPage() {
             {/* Right Column - Summary */}
             <div className="space-y-6">
               <PricingSummary
-                basePrice={99}
+                basePrice={selectedPlan ? parseFloat(selectedPlan.totalPrice) : 99}
                 orderBumpPrice={49}
                 includeOrderBump={orderBumpSelected}
               />
+
+              {selectedPlan && (
+                <div className="mb-4 p-4 bg-gray-900/30 rounded-xl border border-gray-800">
+                  <div className="text-sm text-gray-400 mb-1">Selected Plan</div>
+                  <div className="text-lg font-bold text-white">{selectedPlan.name}</div>
+                  <div className="text-sm text-[#c8ff00]">${selectedPlan.dailyPrice}/day</div>
+                </div>
+              )}
 
               <Button
                 onClick={handleCheckout}
