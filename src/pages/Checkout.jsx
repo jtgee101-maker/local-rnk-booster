@@ -65,8 +65,8 @@ export default function CheckoutPage() {
     try {
       await base44.entities.Order.create(orderData);
       
-      // Navigate to upsell page
-      navigate(createPageUrl('Upsell'));
+      // Navigate to first upsell
+      navigate(createPageUrl('Upsell1'));
     } catch (error) {
       console.error('Checkout error:', error);
       setIsProcessing(false);
