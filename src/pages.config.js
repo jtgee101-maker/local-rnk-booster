@@ -8,6 +8,7 @@ import Upsell1 from './pages/Upsell1';
 import Admin from './pages/Admin';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
+import ABTestDashboard from './pages/ABTestDashboard';
 
 
 export const PAGES = {
@@ -21,6 +22,7 @@ export const PAGES = {
     "Admin": Admin,
     "Privacy": Privacy,
     "Terms": Terms,
+    "ABTestDashboard": ABTestDashboard,
 }
 
 export const pagesConfig = {

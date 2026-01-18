@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
+import { ABTestProvider, useABTest } from '@/components/abtest/ABTestProvider';
 
 import ProgressBar from '@/components/quiz/ProgressBar';
 import SectionProgress from '@/components/quiz/SectionProgress';
@@ -47,7 +48,7 @@ const criticalIssuesByPainPoint = {
   ]
 };
 
-export default function QuizPage() {
+function QuizContent() {
   const [step, setStep] = useState('welcome');
   const [currentStepNumber, setCurrentStepNumber] = useState(0);
   const [quizData, setQuizData] = useState({
@@ -221,8 +222,17 @@ export default function QuizPage() {
     setStep('results');
   };
 
-  const handleCTA = () => {
+  const handleCTA = async () => {
     base44.analytics.track({ eventName: 'results_view_pricing_clicked' });
+    
+    // Track A/B test conversion if headline test is active
+    try {
+      const { trackConversion } = useABTest();
+      await trackConversion('quiz', 'headline');
+    } catch (e) {
+      // Ignore if not in ABTest context
+    }
+    
     // Navigate to pricing
     window.location.href = createPageUrl('Pricing');
   };
@@ -389,5 +399,13 @@ export default function QuizPage() {
         </footer>
       </div>
     </div>
+  );
+}
+
+export default function QuizPage() {
+  return (
+    <ABTestProvider>
+      <QuizContent />
+    </ABTestProvider>
   );
 }

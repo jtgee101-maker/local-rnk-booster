@@ -1,10 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Zap, MapPin, Star, Shield, TrendingUp, CheckCircle, Clock, Award } from 'lucide-react';
 import FlowPreview from './FlowPreview';
+import { useABTest } from '@/components/abtest/ABTestProvider';
 
 export default function WelcomeStep({ onStart }) {
+  const { getVariant, trackView } = useABTest();
+  const headlineVariant = getVariant('quiz', 'headline');
+
+  useEffect(() => {
+    trackView('quiz', 'headline');
+  }, []);
+
+  const headline = headlineVariant?.variant?.content?.headline || 'Stop Losing 15 Calls a Day To Your Competitors';
+  const subheadline = headlineVariant?.variant?.content?.subheadline || "Don't Read a 100-Page Blueprint. Run Our 60-Second AI Scan.";
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -29,11 +40,8 @@ export default function WelcomeStep({ onStart }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
         className="text-4xl md:text-6xl font-bold text-white mb-5 leading-tight"
-      >
-        Stop Losing <span className="text-red-400">15 Calls a Day</span>
-        <br />
-        <span className="text-[#c8ff00]">To Your Competitors</span>
-      </motion.h1>
+        dangerouslySetInnerHTML={{ __html: headline }}
+      />
 
       {/* Subheadline - Pain + Promise */}
       <motion.p
@@ -42,7 +50,7 @@ export default function WelcomeStep({ onStart }) {
         transition={{ delay: 0.4 }}
         className="text-gray-300 text-xl md:text-2xl mb-4 leading-relaxed font-medium"
       >
-        Don't Read a 100-Page Blueprint. Run Our 60-Second AI Scan.
+        {subheadline}
       </motion.p>
 
       <motion.p
