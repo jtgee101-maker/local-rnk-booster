@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { createPageUrl } from '@/utils';
 
 import ProgressBar from '@/components/quiz/ProgressBar';
 import WelcomeStep from '@/components/quiz/WelcomeStep';
@@ -101,8 +102,11 @@ export default function QuizPage() {
   }, []);
 
   const handleCTA = () => {
-    // You can replace this with your actual checkout/booking URL
-    window.open('https://calendly.com', '_blank');
+    // Store lead data for checkout page
+    sessionStorage.setItem('quizLead', JSON.stringify(quizData));
+    
+    // Navigate to checkout
+    window.location.href = createPageUrl('Checkout');
   };
 
   const handleBack = () => {
