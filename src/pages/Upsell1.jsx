@@ -32,6 +32,11 @@ export default function Upsell1Page() {
       const stored = sessionStorage.getItem('quizLead');
       const leadEmail = stored ? JSON.parse(stored).email : 'customer@example.com';
       
+      base44.analytics.track({ 
+        eventName: 'upsell1_accepted', 
+        properties: { price: 197 } 
+      });
+      
       await base44.entities.Order.create({
         email: leadEmail,
         lead_id: leadData?.id,
@@ -52,8 +57,11 @@ export default function Upsell1Page() {
   };
 
   const handleDecline = () => {
+    base44.analytics.track({ eventName: 'upsell1_declined' });
     navigate(createPageUrl('Upsell'));
   };
+
+
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden flex items-center justify-center py-12 px-4">

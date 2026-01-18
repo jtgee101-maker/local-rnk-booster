@@ -70,6 +70,7 @@ export default function QuizPage() {
   };
 
   const handleCategorySelect = (category) => {
+    base44.analytics.track({ eventName: 'quiz_category_selected', properties: { category } });
     setQuizData(prev => ({ ...prev, business_category: category }));
     setStep('painpoint');
     setCurrentStepNumber(2);
@@ -94,6 +95,7 @@ export default function QuizPage() {
   };
 
   const handleGoalsSelect = (goals) => {
+    base44.analytics.track({ eventName: 'quiz_goals_selected', properties: { goals_count: goals.length } });
     setQuizData(prev => ({ ...prev, goals }));
     setStep('timeline');
     setCurrentStepNumber(4);
@@ -181,7 +183,18 @@ export default function QuizPage() {
 
     // Save lead to database
     try {
-      await base44.entities.Lead.create(finalData);
+      const createdLead = await base44.entities.Lead.create(finalData);
+      base44.analytics.track({ 
+        eventName: 'quiz_completed', 
+        properties: { 
+          health_score: healthScore,
+          business_category: finalData.business_category,
+          has_gmb_data: true
+        } 
+      });
+      
+      // Store lead with ID for later use
+      sessionStorage.setItem('quizLead', JSON.stringify({ ...finalData, id: createdLead.id }));
     } catch (error) {
       console.error('Error saving lead:', error);
     }

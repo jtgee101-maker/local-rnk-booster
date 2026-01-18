@@ -57,6 +57,14 @@ export default function UpsellPage() {
     try {
       const leadEmail = leadData?.email || 'customer@example.com';
       
+      base44.analytics.track({ 
+        eventName: 'upsell2_accepted', 
+        properties: { 
+          plan: selectedPlan,
+          price: plans[selectedPlan].price 
+        } 
+      });
+      
       const orderData = {
         email: leadEmail,
         lead_id: leadData?.id,
@@ -79,6 +87,7 @@ export default function UpsellPage() {
   };
 
   const handleDecline = () => {
+    base44.analytics.track({ eventName: 'upsell2_declined' });
     navigate(createPageUrl('ThankYou'));
   };
 
