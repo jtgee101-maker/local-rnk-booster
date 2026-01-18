@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Zap, MapPin, Star, Shield, TrendingUp, CheckCircle, Clock, Award } from 'lucide-react';
+import FlowPreview from './FlowPreview';
 
 export default function WelcomeStep({ onStart }) {
   return (
@@ -167,6 +168,9 @@ export default function WelcomeStep({ onStart }) {
           </div>
         </div>
       </motion.div>
+
+      {/* Flow Preview */}
+      <FlowPreview />
     </motion.div>
   );
 }

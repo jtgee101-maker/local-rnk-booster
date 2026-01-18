@@ -14,7 +14,7 @@ import GoalsStep from '@/components/quiz/GoalsStep';
 import TransitionStep from '@/components/quiz/TransitionStep';
 import TimelineStep from '@/components/quiz/TimelineStep';
 import BusinessInfoStep from '@/components/quiz/BusinessInfoStep';
-import ProcessingStep from '@/components/quiz/ProcessingStep';
+import ProcessingStepEnhanced from '@/components/quiz/ProcessingStepEnhanced';
 import EmailCaptureStep from '@/components/quiz/EmailCaptureStep';
 import DiscountUnlockStep from '@/components/quiz/DiscountUnlockStep';
 import StatsCommitmentStep from '@/components/quiz/StatsCommitmentStep';
@@ -273,7 +273,7 @@ export default function QuizPage() {
                 )}
                 
                 {step === 'processing' && (
-                  <ProcessingStep 
+                  <ProcessingStepEnhanced 
                     key="processing" 
                     onComplete={handleProcessingComplete}
                     businessName={quizData.business_name}
