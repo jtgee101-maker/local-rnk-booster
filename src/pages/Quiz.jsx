@@ -18,6 +18,7 @@ import ProcessingStepEnhanced from '@/components/quiz/ProcessingStepEnhanced';
 import EmailCaptureStep from '@/components/quiz/EmailCaptureStep';
 import DiscountUnlockStep from '@/components/quiz/DiscountUnlockStep';
 import StatsCommitmentStep from '@/components/quiz/StatsCommitmentStep';
+import VisualizeFutureStep from '@/components/quiz/VisualizeFutureStep';
 import ResultsStep from '@/components/quiz/ResultsStep';
 import { Target, Rocket } from 'lucide-react';
 
@@ -159,6 +160,10 @@ export default function QuizPage() {
   };
 
   const handleStatsCommitmentContinue = () => {
+    setStep('visualizeFuture');
+  };
+
+  const handleVisualizeContinue = () => {
     setStep('results');
   };
 
@@ -299,6 +304,14 @@ export default function QuizPage() {
                   <StatsCommitmentStep
                     key="statsCommitment"
                     onContinue={handleStatsCommitmentContinue}
+                  />
+                )}
+
+                {step === 'visualizeFuture' && (
+                  <VisualizeFutureStep
+                    key="visualizeFuture"
+                    onContinue={handleVisualizeContinue}
+                    businessName={quizData.business_name}
                   />
                 )}
                 
