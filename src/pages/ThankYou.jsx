@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, Mail, Calendar, ArrowRight, Star, Users, Gift, Download, Zap } from 'lucide-react';
+import { CheckCircle, Mail, Calendar, ArrowRight, Star, Users, Gift, Download, Zap, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import SocialShareButton from '@/components/shared/SocialShareButton';
 
 export default function ThankYouPage() {
   const [leadData, setLeadData] = useState(null);
@@ -169,11 +170,28 @@ export default function ThankYouPage() {
             </p>
           </motion.div>
 
-          {/* Referral Program - Gamification */}
+          {/* Social Sharing */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
+            className="mb-8"
+          >
+            <p className="text-gray-400 text-sm mb-3">
+              <Share2 className="w-4 h-4 inline mr-1" />
+              Help other business owners discover their GMB score:
+            </p>
+            <SocialShareButton 
+              businessName={leadData?.business_name}
+              healthScore={leadData?.health_score}
+            />
+          </motion.div>
+
+          {/* Referral Program - Gamification */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.1 }}
             className="text-center"
           >
             <Button
