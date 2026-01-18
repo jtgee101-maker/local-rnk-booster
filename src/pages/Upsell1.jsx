@@ -6,8 +6,9 @@ import { AlertTriangle, CheckCircle, Zap, X, ArrowRight, Clock, Shield } from 'l
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
 
-export default function Upsell1Page() {
+function Upsell1Content() {
   const navigate = useNavigate();
+  const { getVariant, trackView, trackConversion } = useABTest();
   const [isProcessing, setIsProcessing] = useState(false);
 
   const [leadData, setLeadData] = React.useState(null);
@@ -17,6 +18,7 @@ export default function Upsell1Page() {
     if (stored) {
       setLeadData(JSON.parse(stored));
     }
+    trackView('upsell1', 'headline');
   }, []);
 
   const criticalIssues = leadData?.critical_issues || [
@@ -27,6 +29,7 @@ export default function Upsell1Page() {
 
   const handleAccept = async () => {
     setIsProcessing(true);
+    trackConversion('upsell1', 'headline', 197);
     
     try {
       base44.analytics.track({ 
@@ -99,9 +102,15 @@ export default function Upsell1Page() {
             transition={{ type: "spring", delay: 0.2 }}
             className="flex justify-center mb-6"
           >
-            <div className="inline-flex items-center gap-2 bg-red-500/20 border border-red-500/50 rounded-full px-5 py-2">
-              <AlertTriangle className="w-5 h-5 text-red-400 animate-pulse" />
-              <span className="text-red-400 font-bold text-sm">CRITICAL VULNERABILITIES DETECTED</span>
+            <div className={`inline-flex items-center gap-2 rounded-full px-5 py-2 ${
+              isLogicVariant 
+                ? 'bg-[#c8ff00]/10 border border-[#c8ff00]/30' 
+                : 'bg-red-500/20 border border-red-500/50'
+            }`}>
+              <AlertTriangle className={`w-5 h-5 ${isLogicVariant ? 'text-[#c8ff00]' : 'text-red-400 animate-pulse'}`} />
+              <span className={`font-bold text-sm ${isLogicVariant ? 'text-[#c8ff00]' : 'text-red-400'}`}>
+                {variantContent.badge}
+              </span>
             </div>
           </motion.div>
 
@@ -112,14 +121,12 @@ export default function Upsell1Page() {
             transition={{ delay: 0.3 }}
             className="text-center mb-8"
           >
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">
-              ⚠️ URGENT: {leadData?.business_name || 'Your Business'} Is Losing <span className="text-red-400">$4,300/Month</span> to These Errors
-            </h1>
+            <h1 
+              className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight"
+              dangerouslySetInnerHTML={{ __html: variantContent.headline }}
+            />
             <p className="text-gray-400 text-lg mb-2">
-              Your audit revealed {criticalIssues.length} critical vulnerabilities costing you customers <span className="text-red-400 font-semibold">right now</span>
-            </p>
-            <p className="text-gray-500 text-sm">
-              Every day you wait = 18 more customers going to competitors
+              {variantContent.subheadline}
             </p>
           </motion.div>
 
@@ -240,11 +247,11 @@ export default function Upsell1Page() {
               {isProcessing ? (
                 'Processing...'
               ) : (
-                <>
-                  <Clock className="mr-2 w-5 h-5" />
-                  Yes! Fix My Profile in 48 Hours
-                  <ArrowRight className="ml-2 w-6 h-6" />
-                </>
+              <>
+                <Clock className="mr-2 w-5 h-5" />
+                {variantContent.cta}
+                <ArrowRight className="ml-2 w-6 h-6" />
+              </>
               )}
             </Button>
 
