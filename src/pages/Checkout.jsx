@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowRight, Shield, Clock, Award } from 'lucide-react';
+import { ArrowRight, Shield, Clock, Award, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
 
 import OrderBump from '@/components/checkout/OrderBump';
 import PricingSummary from '@/components/checkout/PricingSummary';
+import CountdownTimer from '@/components/shared/CountdownTimer';
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
@@ -47,28 +48,39 @@ export default function CheckoutPage() {
     e.preventDefault();
     setIsProcessing(true);
 
-    const orderData = {
-      email: formData.email,
-      base_offer: {
-        product: 'GMB Optimization & Audit',
-        price: 99
-      },
-      order_bumps: orderBumpSelected ? [{
-        product: '5 Geo-Tagged Photos',
-        price: 49,
-        selected: true
-      }] : [],
-      total_amount: 99 + (orderBumpSelected ? 49 : 0) - (orderBumpSelected ? 10 : 0),
-      status: 'checkout'
-    };
-
     try {
-      await base44.entities.Order.create(orderData);
-      
-      // Navigate to first upsell
-      navigate(createPageUrl('Upsell1'));
+      const planData = selectedPlan || { product: 'GMB Optimization & Audit', price: 99 };
+      const totalAmount = orderBumpSelected ? planData.price + 49 : planData.price;
+
+      base44.analytics.track({ 
+        eventName: 'checkout_initiated', 
+        properties: { 
+          total_amount: totalAmount,
+          order_bump_accepted: orderBumpSelected,
+          plan_name: planData.product
+        } 
+      });
+
+      // Create Stripe checkout session
+      const response = await base44.functions.invoke('createStripeCheckout', {
+        planData,
+        orderBumpAccepted: orderBumpSelected,
+        leadData
+      });
+
+      if (response.data.url) {
+        // Redirect to Stripe checkout
+        window.location.href = response.data.url;
+      } else {
+        throw new Error('Failed to create checkout session');
+      }
     } catch (error) {
       console.error('Checkout error:', error);
+      base44.analytics.track({ 
+        eventName: 'checkout_error', 
+        properties: { error: error.message } 
+      });
+      alert('Payment setup failed. Please try again.');
       setIsProcessing(false);
     }
   };
@@ -85,10 +97,9 @@ export default function CheckoutPage() {
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2 bg-[#c8ff00]/10 border border-[#c8ff00]/30 rounded-full px-4 py-2 mb-4"
+              className="mb-4"
             >
-              <Clock className="w-4 h-4 text-[#c8ff00]" />
-              <span className="text-sm text-[#c8ff00] font-medium">Limited Time Offer</span>
+              <CountdownTimer minutes={14} />
             </motion.div>
             
             <motion.h1
@@ -209,10 +220,19 @@ export default function CheckoutPage() {
               <Button
                 onClick={handleCheckout}
                 disabled={isProcessing}
-                className="w-full bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold py-7 text-lg rounded-xl transition-all duration-300 hover:shadow-[0_0_40px_rgba(200,255,0,0.3)]"
+                className="w-full bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold py-7 text-lg rounded-xl transition-all duration-300 hover:shadow-[0_0_40px_rgba(200,255,0,0.3)] disabled:opacity-70"
               >
-                {isProcessing ? 'Processing...' : 'Complete Order'}
-                <ArrowRight className="ml-2 w-5 h-5" />
+                {isProcessing ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Creating Secure Checkout...
+                  </span>
+                ) : (
+                  <>
+                    Complete Order
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </>
+                )}
               </Button>
 
               {/* What's Included */}
