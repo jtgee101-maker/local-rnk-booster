@@ -18,11 +18,18 @@ export default function TimelineStep({ onSelect }) {
       className="max-w-2xl mx-auto px-4"
     >
       <div className="text-center mb-10">
-        <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
-          When do you want to see results?
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="inline-flex items-center gap-2 bg-[#c8ff00]/10 border border-[#c8ff00]/30 rounded-full px-4 py-2 mb-4"
+        >
+          <span className="text-xs text-[#c8ff00] font-semibold">STEP 4 OF 5</span>
+        </motion.div>
+        <h2 className="text-2xl md:text-4xl font-bold text-white mb-3">
+          How <span className="text-[#c8ff00]">Urgent</span> Is This For You?
         </h2>
-        <p className="text-gray-400">
-          This helps us customize your implementation plan
+        <p className="text-gray-400 text-lg">
+          We'll match your timeline with the perfect action plan
         </p>
       </div>
 

@@ -38,11 +38,18 @@ export default function PainPointStep({ onSelect }) {
       className="max-w-2xl mx-auto px-4"
     >
       <div className="text-center mb-10">
-        <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
-          What's your biggest challenge?
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="inline-flex items-center gap-2 bg-[#c8ff00]/10 border border-[#c8ff00]/30 rounded-full px-4 py-2 mb-4"
+        >
+          <span className="text-xs text-[#c8ff00] font-semibold">STEP 2 OF 5</span>
+        </motion.div>
+        <h2 className="text-2xl md:text-4xl font-bold text-white mb-3">
+          What's the <span className="text-[#c8ff00]">#1 Thing</span> Holding You Back?
         </h2>
-        <p className="text-gray-400">
-          We'll focus on solving this first
+        <p className="text-gray-400 text-lg">
+          Your audit will prioritize this pain point with an instant fix
         </p>
       </div>
 

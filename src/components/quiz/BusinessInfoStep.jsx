@@ -37,11 +37,21 @@ export default function BusinessInfoStep({ onSubmit, isLoading }) {
       className="max-w-md mx-auto px-4"
     >
       <div className="text-center mb-10">
-        <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
-          Almost there! Tell us about your business
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="inline-flex items-center gap-2 bg-[#c8ff00]/10 border border-[#c8ff00]/30 rounded-full px-4 py-2 mb-4"
+        >
+          <span className="text-xs text-[#c8ff00] font-semibold">FINAL STEP</span>
+        </motion.div>
+        <h2 className="text-2xl md:text-4xl font-bold text-white mb-3">
+          Ready to See What's <span className="text-[#c8ff00]">Costing You Leads?</span>
         </h2>
-        <p className="text-gray-400">
-          So our AI can run the scan
+        <p className="text-gray-400 text-lg mb-2">
+          Enter your details to unlock your personalized audit
+        </p>
+        <p className="text-gray-500 text-sm">
+          🔒 Your info is 100% secure — we never share or spam
         </p>
       </div>
 

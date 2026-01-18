@@ -37,11 +37,21 @@ export default function GoalsStep({ onContinue }) {
       className="max-w-3xl mx-auto px-4"
     >
       <div className="text-center mb-10">
-        <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
-          What are your main goals?
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="inline-flex items-center gap-2 bg-[#c8ff00]/10 border border-[#c8ff00]/30 rounded-full px-4 py-2 mb-4"
+        >
+          <span className="text-xs text-[#c8ff00] font-semibold">STEP 3 OF 5</span>
+        </motion.div>
+        <h2 className="text-2xl md:text-4xl font-bold text-white mb-3">
+          Where Do You Want to Be in <span className="text-[#c8ff00]">30 Days?</span>
         </h2>
-        <p className="text-gray-400">
-          Select all that apply — we'll prioritize these in your audit
+        <p className="text-gray-400 text-lg mb-2">
+          Select all that apply — your custom strategy will focus here
+        </p>
+        <p className="text-gray-500 text-sm">
+          💡 Most successful businesses pick 2-3 goals
         </p>
       </div>
 
