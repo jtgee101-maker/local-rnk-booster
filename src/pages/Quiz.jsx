@@ -15,7 +15,6 @@ import TransitionStep from '@/components/quiz/TransitionStep';
 import TimelineStep from '@/components/quiz/TimelineStep';
 import BusinessInfoStep from '@/components/quiz/BusinessInfoStep';
 import ProcessingStepEnhanced from '@/components/quiz/ProcessingStepEnhanced';
-import EmailCaptureStep from '@/components/quiz/EmailCaptureStep';
 import DiscountUnlockStep from '@/components/quiz/DiscountUnlockStep';
 import StatsCommitmentStep from '@/components/quiz/StatsCommitmentStep';
 import VisualizeFutureStep from '@/components/quiz/VisualizeFutureStep';
@@ -147,13 +146,8 @@ export default function QuizPage() {
   };
 
   const handleProcessingComplete = useCallback(() => {
-    setStep('emailCapture');
-  }, []);
-
-  const handleEmailSubmit = (email) => {
-    setQuizData(prev => ({ ...prev, email }));
     setStep('discountUnlock');
-  };
+  }, []);
 
   const handleDiscountUnlockComplete = () => {
     setStep('statsCommitment');
@@ -282,14 +276,6 @@ export default function QuizPage() {
                     key="processing" 
                     onComplete={handleProcessingComplete}
                     businessName={quizData.business_name}
-                  />
-                )}
-                
-                {step === 'emailCapture' && (
-                  <EmailCaptureStep
-                    key="emailCapture"
-                    businessName={quizData.business_name}
-                    onSubmit={handleEmailSubmit}
                   />
                 )}
                 
