@@ -13,7 +13,7 @@ import PainPointStep from '@/components/quiz/PainPointStep';
 import GoalsStep from '@/components/quiz/GoalsStep';
 import TransitionStep from '@/components/quiz/TransitionStep';
 import TimelineStep from '@/components/quiz/TimelineStep';
-import BusinessInfoStep from '@/components/quiz/BusinessInfoStep';
+import BusinessSearchStep from '@/components/quiz/BusinessSearchStep';
 import ProcessingStepEnhanced from '@/components/quiz/ProcessingStepEnhanced';
 import DiscountUnlockStep from '@/components/quiz/DiscountUnlockStep';
 import StatsCommitmentStep from '@/components/quiz/StatsCommitmentStep';
@@ -102,33 +102,77 @@ export default function QuizPage() {
   const handleTimelineSelect = (timeline) => {
     setQuizData(prev => ({ ...prev, timeline }));
     
-    // Show transition screen before business info
+    // Show transition screen before business search
     setTransitionConfig({
       title: "Almost There!",
-      description: "Based on your answers, we're preparing a custom local SEO strategy. Just need a few details to run your personalized audit.",
+      description: "Based on your answers, we're preparing a custom local SEO strategy. Let's find your business on Google Maps for real-time insights.",
       icon: Rocket
     });
     setShowTransition(true);
     
     setTimeout(() => {
       setShowTransition(false);
-      setStep('businessinfo');
+      setStep('businessSearch');
       setCurrentStepNumber(5);
     }, 2500);
   };
 
-  const handleBusinessInfoSubmit = async (info) => {
+  const handleBusinessSearchSelect = async (businessData) => {
     setIsLoading(true);
     
-    // Generate a "random" score between 54-72 to feel custom
-    const healthScore = Math.floor(Math.random() * 19) + 54;
-    const criticalIssues = criticalIssuesByPainPoint[quizData.pain_point] || criticalIssuesByPainPoint.not_optimized;
+    // Calculate health score based on real GMB data
+    let healthScore = 50;
+    
+    // Add points for rating
+    if (businessData.gmb_rating >= 4.5) healthScore += 15;
+    else if (businessData.gmb_rating >= 4.0) healthScore += 10;
+    else if (businessData.gmb_rating >= 3.5) healthScore += 5;
+    
+    // Add points for reviews
+    if (businessData.gmb_reviews_count >= 50) healthScore += 15;
+    else if (businessData.gmb_reviews_count >= 20) healthScore += 10;
+    else if (businessData.gmb_reviews_count >= 10) healthScore += 5;
+    
+    // Add points for photos
+    if (businessData.gmb_photos_count >= 20) healthScore += 10;
+    else if (businessData.gmb_photos_count >= 10) healthScore += 7;
+    else if (businessData.gmb_photos_count >= 5) healthScore += 4;
+    
+    // Add points for having hours
+    if (businessData.gmb_has_hours) healthScore += 5;
+    
+    // Add points for having website
+    if (businessData.website) healthScore += 5;
+    
+    // Generate critical issues based on real data
+    const criticalIssues = [];
+    
+    if (businessData.gmb_rating < 4.0) {
+      criticalIssues.push('Your rating is below 4.0 - this is costing you 40% of potential customers');
+    }
+    if (businessData.gmb_reviews_count < 20) {
+      criticalIssues.push(`Only ${businessData.gmb_reviews_count} reviews - competitors with 50+ reviews get 3x more clicks`);
+    }
+    if (businessData.gmb_photos_count < 10) {
+      criticalIssues.push('Missing geo-tagged photos - businesses with 20+ photos get 42% more direction requests');
+    }
+    if (!businessData.gmb_has_hours) {
+      criticalIssues.push('No business hours set - losing customers who search outside regular hours');
+    }
+    if (!businessData.website) {
+      criticalIssues.push('No website listed - missing 35% of potential web traffic from Google Maps');
+    }
+    
+    // If no critical issues, use generic ones
+    if (criticalIssues.length === 0) {
+      criticalIssues.push(...(criticalIssuesByPainPoint[quizData.pain_point] || criticalIssuesByPainPoint.not_optimized));
+    }
 
     const finalData = {
       ...quizData,
-      ...info,
+      ...businessData,
       health_score: healthScore,
-      critical_issues: criticalIssues
+      critical_issues: criticalIssues.slice(0, 3)
     };
 
     setQuizData(finalData);
@@ -182,14 +226,14 @@ export default function QuizPage() {
     } else if (step === 'timeline') {
       setStep('goals');
       setCurrentStepNumber(3);
-    } else if (step === 'businessinfo') {
+    } else if (step === 'businessSearch') {
       setStep('timeline');
       setCurrentStepNumber(4);
     }
   };
 
-  const showBackButton = ['category', 'painpoint', 'goals', 'timeline', 'businessinfo'].includes(step);
-  const showProgress = ['category', 'painpoint', 'goals', 'timeline', 'businessinfo', 'processing'].includes(step);
+  const showBackButton = ['category', 'painpoint', 'goals', 'timeline', 'businessSearch'].includes(step);
+  const showProgress = ['category', 'painpoint', 'goals', 'timeline', 'businessSearch', 'processing'].includes(step);
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden">
@@ -263,10 +307,10 @@ export default function QuizPage() {
                   <TimelineStep key="timeline" onSelect={handleTimelineSelect} />
                 )}
                 
-                {step === 'businessinfo' && (
-                  <BusinessInfoStep 
-                    key="businessinfo" 
-                    onSubmit={handleBusinessInfoSubmit}
+                {step === 'businessSearch' && (
+                  <BusinessSearchStep 
+                    key="businessSearch" 
+                    onSelect={handleBusinessSearchSelect}
                     isLoading={isLoading}
                   />
                 )}
