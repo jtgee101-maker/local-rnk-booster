@@ -222,17 +222,8 @@ function QuizContent() {
     setStep('results');
   };
 
-  const handleCTA = async () => {
+  const handleCTA = () => {
     base44.analytics.track({ eventName: 'results_view_pricing_clicked' });
-    
-    // Track A/B test conversion if headline test is active
-    try {
-      const { trackConversion } = useABTest();
-      await trackConversion('quiz', 'headline');
-    } catch (e) {
-      // Ignore if not in ABTest context
-    }
-    
     // Navigate to pricing
     window.location.href = createPageUrl('Pricing');
   };

@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, CheckCircle, ArrowRight, Zap } from 'lucide-react';
+import { AlertTriangle, CheckCircle, ArrowRight, Zap, DollarSign } from 'lucide-react';
+import CompetitorComparison from './CompetitorComparison';
+import { useABTest } from '@/components/abtest/ABTestProvider';
 
 export default function ResultsStep({ healthScore, criticalIssues, businessName, onCTA }) {
+  const { trackConversion } = useABTest();
+
   const getScoreColor = (score) => {
     if (score >= 80) return 'text-green-400';
     if (score >= 60) return 'text-yellow-400';
@@ -14,6 +18,19 @@ export default function ResultsStep({ healthScore, criticalIssues, businessName,
     if (score >= 80) return 'Good';
     if (score >= 60) return 'Needs Work';
     return 'Critical';
+  };
+
+  const calculateRevenueLoss = () => {
+    const lossPercentage = (100 - healthScore) / 100;
+    const baseLoss = 2000;
+    return Math.round(baseLoss * (1 + lossPercentage * 7));
+  };
+
+  const estimatedLoss = calculateRevenueLoss();
+
+  const handleCTAClick = () => {
+    trackConversion('quiz', 'headline');
+    onCTA();
   };
 
   return (
@@ -36,9 +53,37 @@ export default function ResultsStep({ healthScore, criticalIssues, businessName,
         </motion.div>
         
         <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
-          {businessName}'s GMB Health Report
+          {businessName}'s AI-Powered Revenue Gap Report
         </h2>
+        <p className="text-gray-400 text-sm">
+          60-second scan complete — here's what competitors don't want you to know
+        </p>
       </div>
+
+      {/* Revenue Loss Alert */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.2 }}
+        className="bg-red-500/10 border-2 border-red-500/50 rounded-2xl p-6 mb-8"
+      >
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
+            <DollarSign className="w-8 h-8 text-red-400" />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold text-white mb-1">
+              Estimated Monthly Revenue Loss
+            </h3>
+            <div className="text-3xl font-bold text-red-400">
+              ${estimatedLoss.toLocaleString()}+
+            </div>
+            <p className="text-gray-400 text-sm mt-1">
+              Based on your Map Pack visibility gaps vs. competitors
+            </p>
+          </div>
+        </div>
+      </motion.div>
 
       {/* Score Card */}
       <motion.div
@@ -106,8 +151,12 @@ export default function ResultsStep({ healthScore, criticalIssues, businessName,
       >
         <div className="flex items-center gap-2 mb-4">
           <AlertTriangle className="w-5 h-5 text-red-400" />
-          <h3 className="font-semibold text-white">Critical Issues Found</h3>
+          <h3 className="font-semibold text-white">AI-Detected Ranking Sabotage</h3>
         </div>
+        
+        <p className="text-gray-400 text-sm mb-6">
+          These errors would take 40+ hours to find manually. Our AI found them in 60 seconds.
+        </p>
 
         <div className="space-y-3">
           {criticalIssues.map((issue, index) => (
@@ -127,6 +176,24 @@ export default function ResultsStep({ healthScore, criticalIssues, businessName,
         </div>
       </motion.div>
 
+      {/* Competitor Comparison */}
+      <CompetitorComparison />
+
+      {/* Kill-Shot Messaging */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.85 }}
+        className="bg-[#c8ff00]/10 border border-[#c8ff00]/30 rounded-2xl p-6 mb-8 text-center"
+      >
+        <p className="text-[#c8ff00] font-semibold text-lg mb-2">
+          💡 Why pay a $2,000/mo agency for "insider tricks"...
+        </p>
+        <p className="text-white text-xl font-bold">
+          When you can use the same AI software they use for $0.11/day?
+        </p>
+      </motion.div>
+
       {/* CTA */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -135,16 +202,16 @@ export default function ResultsStep({ healthScore, criticalIssues, businessName,
         className="text-center"
       >
         <Button
-          onClick={onCTA}
+          onClick={handleCTAClick}
           className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold px-10 py-6 text-lg rounded-full transition-all duration-300 hover:shadow-[0_0_40px_rgba(200,255,0,0.3)]"
         >
           <Zap className="mr-2 w-5 h-5" />
-          Fix My Profile Now
+          Get Automated Fix for $0.11/Day
           <ArrowRight className="ml-2 w-5 h-5" />
         </Button>
 
         <p className="text-gray-500 text-sm mt-4">
-          Get a custom optimization plan in 24 hours
+          82% off expires in 14 minutes • Zero technical skills required
         </p>
       </motion.div>
     </motion.div>
