@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, MapPin, Star, Building2, Loader2, CheckCircle } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { useDebounce } from '@/utils/performanceOptimization';
 
 export default function BusinessSearchStep({ onSelect, isLoading: parentLoading }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -14,7 +15,7 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
-  const performSearch = async (query) => {
+  const performSearch = useCallback(async (query) => {
     if (!query.trim()) return;
 
     setIsSearching(true);
@@ -44,7 +45,10 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
     } finally {
       setIsSearching(false);
     }
-  };
+  }, []);
+  
+  // Debounced search for better performance
+  const debouncedSearch = useDebounce(performSearch, 800);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -55,14 +59,10 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
   React.useEffect(() => {
     if (!searchQuery.trim()) return;
     
-    const timer = setTimeout(() => {
-      if (!hasSearched || searchResults.length === 0) {
-        performSearch(searchQuery);
-      }
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
+    if (!hasSearched || searchResults.length === 0) {
+      debouncedSearch(searchQuery);
+    }
+  }, [searchQuery, hasSearched, searchResults.length, debouncedSearch]);
 
   const handleSelectBusiness = async (business) => {
     setSelectedBusiness(business);
