@@ -13,8 +13,8 @@ import OrderBump from '@/components/checkout/OrderBump';
 import PricingSummary from '@/components/checkout/PricingSummary';
 import CountdownTimer from '@/components/shared/CountdownTimer';
 
-// Initialize Stripe - using test publishable key for development
-const stripePromise = loadStripe('pk_test_51QdVqxP5bN7rNnPy1TQNcjXlp2IiCIrZTy7NkwZy7W0k4AoZXLsZVw4kpHsI9sLdmLLiO9BhQ3AJLnvnPjc9iCjP00qwx5M5xU');
+// MOCK MODE - NULL STRIPE FOR TESTING UI WITHOUT REAL PAYMENT
+const stripePromise = null;
 
 function CheckoutForm({ leadData, selectedPlan, orderBumpSelected, onOrderBumpToggle }) {
   const stripe = useStripe();
@@ -25,10 +25,6 @@ function CheckoutForm({ leadData, selectedPlan, orderBumpSelected, onOrderBumpTo
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!stripe || !elements) {
-      return;
-    }
 
     setIsProcessing(true);
     setPaymentError(null);
@@ -45,38 +41,19 @@ function CheckoutForm({ leadData, selectedPlan, orderBumpSelected, onOrderBumpTo
         } 
       });
 
-      const { error: submitError, paymentIntent } = await stripe.confirmPayment({
-        elements,
-        redirect: 'if_required',
-        confirmParams: {
-          return_url: `${window.location.origin}${createPageUrl('ThankYou')}`,
-        },
+      // MOCK MODE - SIMULATE PAYMENT SUCCESS
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      base44.analytics.track({ 
+        eventName: 'payment_success', 
+        properties: { 
+          amount: totalAmount,
+          payment_intent_id: 'mock_test_' + Date.now()
+        } 
       });
 
-      if (submitError) {
-        throw submitError;
-      }
-
-      if (paymentIntent && paymentIntent.status === 'succeeded') {
-        // Confirm payment on backend
-        await base44.functions.invoke('confirmPayment', {
-          paymentIntentId: paymentIntent.id,
-          leadData,
-          planData,
-          orderBumpAccepted
-        });
-
-        base44.analytics.track({ 
-          eventName: 'payment_success', 
-          properties: { 
-            amount: totalAmount,
-            payment_intent_id: paymentIntent.id
-          } 
-        });
-
-        // Redirect to thank you page
-        navigate(createPageUrl('ThankYou'));
-      }
+      // Redirect to thank you page
+      navigate(createPageUrl('ThankYou'));
     } catch (error) {
       console.error('Payment error:', error);
       setPaymentError(error.message || 'Payment failed. Please try again.');
@@ -92,7 +69,7 @@ function CheckoutForm({ leadData, selectedPlan, orderBumpSelected, onOrderBumpTo
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Payment Element */}
+      {/* MOCK Payment Form */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -104,21 +81,13 @@ function CheckoutForm({ leadData, selectedPlan, orderBumpSelected, onOrderBumpTo
           </div>
           <div>
             <h2 className="text-xl font-bold text-white">Payment Details</h2>
-            <p className="text-xs text-gray-500">Secured by Stripe • PCI Compliant</p>
+            <p className="text-xs text-gray-500">MOCK MODE - Testing UI Flow</p>
           </div>
         </div>
 
-        <div className="mb-6">
-          <PaymentElement 
-            options={{
-              layout: 'tabs',
-              defaultValues: {
-                billingDetails: {
-                  email: leadData?.email
-                }
-              }
-            }}
-          />
+        <div className="mb-6 p-6 bg-green-500/10 border border-green-500/30 rounded-lg">
+          <p className="text-sm text-green-400 font-medium mb-2">🧪 Test Mode Active</p>
+          <p className="text-xs text-gray-400">Click "Pay Securely" below to simulate a successful payment and proceed to Thank You page.</p>
         </div>
 
         {paymentError && (
@@ -133,7 +102,7 @@ function CheckoutForm({ leadData, selectedPlan, orderBumpSelected, onOrderBumpTo
 
         <div className="flex items-center gap-2 text-xs text-gray-500">
           <Lock className="w-3.5 h-3.5" />
-          <span>Your payment information is encrypted and secure</span>
+          <span>Mock payment gateway for testing checkout flow</span>
         </div>
       </motion.div>
 
@@ -153,18 +122,18 @@ function CheckoutForm({ leadData, selectedPlan, orderBumpSelected, onOrderBumpTo
       {/* Submit Button */}
       <Button
         type="submit"
-        disabled={!stripe || isProcessing}
+        disabled={isProcessing}
         className="w-full bg-gradient-to-r from-[#c8ff00] to-[#d4ff33] hover:from-[#d4ff33] hover:to-[#c8ff00] text-black font-bold py-7 text-lg rounded-xl transition-all duration-300 hover:shadow-[0_0_50px_rgba(200,255,0,0.4)] disabled:opacity-70 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
       >
         {isProcessing ? (
           <span className="flex items-center justify-center gap-2">
             <Loader2 className="w-5 h-5 animate-spin" />
-            Processing Payment...
+            Processing Mock Payment...
           </span>
         ) : (
           <span className="flex items-center justify-center gap-2">
             <Shield className="w-5 h-5" />
-            Pay Securely
+            Pay Securely (Mock Mode)
             <ArrowRight className="w-5 h-5" />
           </span>
         )}
@@ -172,11 +141,11 @@ function CheckoutForm({ leadData, selectedPlan, orderBumpSelected, onOrderBumpTo
       
       <div className="flex items-center justify-center gap-2 pt-2">
         <Shield className="w-4 h-4 text-gray-600" />
-        <span className="text-xs text-gray-600">Powered by Stripe • PCI DSS Compliant</span>
+        <span className="text-xs text-gray-600">Mock Mode - No real payment processed</span>
       </div>
 
       <div className="text-center text-xs text-gray-600">
-        Test card: 4242 4242 4242 4242 • Any future date • Any CVC
+        Click button to simulate successful payment → Navigate to Thank You page
       </div>
     </form>
   );
@@ -297,30 +266,12 @@ export default function CheckoutPage() {
                   <p className="text-gray-400">Initializing secure payment...</p>
                 </motion.div>
               ) : (
-                <Elements 
-                  stripe={stripePromise} 
-                  options={{ 
-                    clientSecret,
-                    appearance: {
-                      theme: 'night',
-                      variables: {
-                        colorPrimary: '#c8ff00',
-                        colorBackground: '#0a0a0f',
-                        colorText: '#ffffff',
-                        colorDanger: '#ef4444',
-                        fontFamily: 'system-ui, sans-serif',
-                        borderRadius: '12px',
-                      },
-                    }
-                  }}
-                >
-                  <CheckoutForm
-                    leadData={leadData}
-                    selectedPlan={selectedPlan}
-                    orderBumpSelected={orderBumpSelected}
-                    onOrderBumpToggle={() => setOrderBumpSelected(!orderBumpSelected)}
-                  />
-                </Elements>
+                <CheckoutForm
+                  leadData={leadData}
+                  selectedPlan={selectedPlan}
+                  orderBumpSelected={orderBumpSelected}
+                  onOrderBumpToggle={() => setOrderBumpSelected(!orderBumpSelected)}
+                />
               )}
 
               {/* Enhanced Trust Badges */}

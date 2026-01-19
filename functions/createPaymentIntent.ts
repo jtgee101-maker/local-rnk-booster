@@ -11,25 +11,14 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Amount and email required' }, { status: 400 });
     }
 
-    // HARDCODED TEST KEY - WORKS WITHOUT SECRETS
-    const stripeKey = 'sk_test_51QdVqxP5bN7rNnPyKkXZ8kLmJ0jYvH8X9xGdW4NnrPqJ5vTcS2mE1aF3bR6gD9kL7wN4hV8pQ2yZ5tM3nB1xC0oJ00KZ5vT8mE';
-
-    const stripe = new Stripe(stripeKey);
-
-    // Create payment intent
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convert to cents
-      currency: 'usd',
-      receipt_email: email,
-      metadata: metadata || {},
-      automatic_payment_methods: {
-        enabled: true,
-      },
-    });
+    // MOCK MODE - NO STRIPE CALLS, RETURN FAKE DATA FOR TESTING
+    const mockClientSecret = `pi_test_${Date.now()}_secret_${Math.random().toString(36).substring(7)}`;
+    const mockPaymentIntentId = `pi_test_${Date.now()}`;
 
     return Response.json({ 
-      clientSecret: paymentIntent.client_secret,
-      paymentIntentId: paymentIntent.id
+      clientSecret: mockClientSecret,
+      paymentIntentId: mockPaymentIntentId,
+      mock: true
     });
   } catch (error) {
     console.error('Payment intent error:', error);
