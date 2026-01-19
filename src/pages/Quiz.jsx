@@ -348,7 +348,7 @@ function QuizContent() {
         />
 
         {/* Main Content */}
-        <main className="flex-1 flex items-center justify-center py-8">
+        <main className="flex-1 flex items-center justify-center py-4">
           <AnimatePresence mode="wait">
             {showTransition ? (
               <TransitionStep 
