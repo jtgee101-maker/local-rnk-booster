@@ -5,6 +5,9 @@ import { logError, handleFunctionError } from './utils/errorLogging.js';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    
+    // INTERNAL FUNCTION ONLY - Service role required
+    // This should only be called from backend automations, not client
     const payload = await req.json();
     
     let leadData;
@@ -16,12 +19,12 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Lead data required' }, { status: 400 });
     }
 
-    if (!leadData) {
-      return Response.json({ error: 'Lead data required' }, { status: 400 });
+    if (!leadData || !leadData.email) {
+      return Response.json({ error: 'Lead data with email required' }, { status: 400 });
     }
 
-    // Get admin email from AppSettings
-    let adminEmail = 'jtgee101@gmail.com';
+    // Get admin email from AppSettings (no hardcoded default)
+    let adminEmail = null;
     try {
       const settings = await base44.asServiceRole.entities.AppSettings.filter({
         setting_key: 'admin_email'
@@ -30,7 +33,11 @@ Deno.serve(async (req) => {
         adminEmail = settings[0].setting_value.email;
       }
     } catch (settingsError) {
-      console.warn('Could not load admin email from AppSettings, using default:', settingsError.message);
+      console.warn('Could not load admin email from AppSettings:', settingsError.message);
+    }
+
+    if (!adminEmail) {
+      return Response.json({ error: 'Admin email not configured in AppSettings' }, { status: 500 });
     }
 
     const emailBody = adminLeadNotificationTemplate(leadData);
