@@ -232,7 +232,7 @@ function QuizV2Content() {
 
   const handleVisualizeContinue = () => {
     setStep('results');
-    setCurrentStepNumber(5);
+    setCurrentStepNumber(6);
   };
 
   const handleCTA = () => {
