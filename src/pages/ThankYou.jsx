@@ -19,7 +19,13 @@ export default function ThankYouPage() {
   useEffect(() => {
     const stored = sessionStorage.getItem('quizLead');
     if (stored) {
-      setLeadData(JSON.parse(stored));
+      const lead = JSON.parse(stored);
+      setLeadData(lead);
+      
+      // Send quiz submission email
+      base44.functions.invoke('sendQuizSubmissionEmail', { leadData: lead }).catch(err => {
+        console.error('Failed to send quiz submission email:', err);
+      });
     }
   }, []);
 
