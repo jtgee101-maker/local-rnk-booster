@@ -571,3 +571,73 @@ export const upsellConversionTemplate = (businessName, upsellProduct, amount, to
      </div>
    `;
 };
+
+export const abandonedCartTemplate = (businessName, healthScore, discountPercent = 20) => {
+   const styles = getEmailStyles();
+
+   return `
+     <div style="${styles.container}">
+       <div style="${styles.header}">
+         <h1 style="${styles.title}">LocalRank.ai</h1>
+       </div>
+
+       <div style="${styles.wrapper}">
+         <div style="text-align: center; margin-bottom: 20px;">
+           <div style="display: inline-block; background: rgba(239, 68, 68, 0.2); border-radius: 50%; padding: 20px;">
+             <span style="font-size: 48px;">⏰</span>
+           </div>
+         </div>
+
+         <h2 style="${styles.secondaryTitle}">Wait, You Forgot Your Free Audit!</h2>
+
+         <p style="color: #ccc; line-height: 1.6; text-align: center;">
+           Hi ${businessName || 'there'}! Your GMB audit revealed critical issues costing you real money every single day.
+         </p>
+
+         <div style="${styles.highlight}">
+           <p style="margin: 0 0 15px 0; color: #999; font-size: 12px;">YOUR RESULTS</p>
+           <div style="text-align: center;">
+             <div style="font-size: 48px; color: #c8ff00; font-weight: bold; margin: 10px 0;">${healthScore}/100</div>
+             <p style="margin: 5px 0; color: #ccc;">GMB Health Score</p>
+             <p style="margin: 10px 0 0 0; color: #ef4444; font-weight: bold;">
+               Estimated Loss: $${Math.round((100 - healthScore) * 150)}/month
+             </p>
+           </div>
+         </div>
+
+         <h3 style="color: #fff; margin-top: 30px;">The 3 Critical Issues Costing You Calls:</h3>
+         <div style="color: #ccc; line-height: 1.8;">
+           <p>❌ Incomplete profile losing 40% of potential visibility</p>
+           <p>❌ Competitors ranking above you with simple optimizations</p>
+           <p>❌ Missing review strategy costing you $500+ per month</p>
+         </div>
+
+         <div style="text-align: center; margin: 30px 0;">
+           <a href="https://localrnk.com/Pricing" style="${styles.ctaButton}">
+             Get ${discountPercent}% Off - Starts at Only $29/month
+           </a>
+         </div>
+
+         <p style="text-align: center; color: #999; font-size: 13px; margin: 15px 0;">
+           <strong style="color: #ef4444;">⏳ This ${discountPercent}% discount expires in 24 hours</strong>
+         </p>
+
+         <div style="${styles.infoBox}">
+           <p style="margin: 0; color: #ccc; font-size: 14px; line-height: 1.6;">
+             <strong>💡 What You'll Get:</strong> Full profile optimization, competitor analysis, ranking boost + ongoing support. ROI typically in 30 days.
+           </p>
+         </div>
+
+         <div style="${styles.footer}">
+           <p style="color: #999; font-size: 14px; text-align: center; line-height: 1.6;">
+             Questions? Reply to this email or contact us at support@localrnk.com
+           </p>
+         </div>
+       </div>
+
+       <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
+         <p>© 2026 LocalRank.ai • Privacy Policy</p>
+       </div>
+     </div>
+   `;
+};
