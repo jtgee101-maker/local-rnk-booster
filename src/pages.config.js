@@ -14,6 +14,7 @@ import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import V2Start from './pages/V2Start';
 import Testing from './pages/Testing';
+import TestingChecklist from './pages/TestingChecklist';
 
 
 export const PAGES = {
@@ -33,6 +34,7 @@ export const PAGES = {
     "Upsell1": Upsell1,
     "V2Start": V2Start,
     "Testing": Testing,
+    "TestingChecklist": TestingChecklist,
 }
 
 export const pagesConfig = {
