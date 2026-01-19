@@ -15,6 +15,7 @@ import ProcessingStepEnhanced from '@/components/quiz/ProcessingStepEnhanced';
 import DiscountUnlockStep from '@/components/quiz/DiscountUnlockStep';
 import StatsCommitmentStep from '@/components/quiz/StatsCommitmentStep';
 import VisualizeFutureStep from '@/components/quiz/VisualizeFutureStep';
+import ContactInfoStep from '@/components/quiz/ContactInfoStep';
 
 // V2-specific components
 import V2WelcomeStep from '@/components/quizv2/V2WelcomeStep';
