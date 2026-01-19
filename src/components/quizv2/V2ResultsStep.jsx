@@ -193,60 +193,123 @@ export default function V2ResultsStep({
         </div>
       </motion.div>
 
-      {/* The Solution */}
+      {/* The Freedom Path - Premium Design */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8 }}
-        className="bg-gradient-to-br from-[#c8ff00]/10 to-green-500/10 border-2 border-[#c8ff00] rounded-2xl p-4 md:p-8 text-center"
+        className="bg-gradient-to-br from-[#c8ff00]/15 via-emerald-500/10 to-teal-500/5 border-2 border-[#c8ff00]/40 rounded-3xl p-6 md:p-10 backdrop-blur-sm"
       >
-        <div className="mb-6">
-          <div className="inline-flex items-center gap-2 bg-[#c8ff00]/20 rounded-full px-4 py-2 mb-4">
+        {/* Header */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#c8ff00]/20 to-emerald-500/20 rounded-full px-5 py-2 mb-6 border border-[#c8ff00]/30">
             <Shield className="w-4 h-4 text-[#c8ff00]" />
-            <span className="text-[#c8ff00] font-semibold text-xs md:text-sm">THE SOLUTION</span>
+            <span className="text-[#c8ff00] font-bold text-sm">LEAD INDEPENDENCE PATH</span>
           </div>
-          <h2 className="text-xl md:text-3xl font-bold text-white mb-3 leading-tight">
-            Stop Renting. Start <span className="text-[#c8ff00]">Owning</span>.
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">
+            Your Path to <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#c8ff00] to-emerald-400">Complete Freedom</span>
           </h2>
-          <p className="text-gray-400 max-w-2xl mx-auto mb-6 text-sm md:text-base leading-relaxed px-2">
-            Our AI builds permanent digital equity on Google. No more $100+ shared leads. 
-            No more $2,000/mo agency retainers. Just ownership.
+          <p className="text-gray-400 max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
+            Stop renting visibility. Start building permanent digital equity that compounds every single month.
           </p>
         </div>
 
-        {/* Comparison */}
-        <div className="grid md:grid-cols-2 gap-3 md:gap-4 mb-8">
-          <div className="bg-gray-900/50 border border-red-500/30 rounded-xl p-4 md:p-6">
-            <div className="text-red-400 font-bold mb-3 text-sm md:text-base">❌ Old Way (Renting)</div>
-            <div className="space-y-2 text-xs md:text-sm text-gray-400 text-left">
-              <div className="break-words">• Pay $100+ per shared lead</div>
-              <div className="break-words">• Compete on price with 5 others</div>
-              <div className="break-words">• Zero ownership or equity</div>
-              <div className="break-words">• Stop paying = invisible</div>
+        {/* Comparison - Redesigned */}
+        <div className="grid md:grid-cols-2 gap-5 md:gap-6 mb-10">
+          {/* Left: Old Way */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.9 }}
+            className="bg-gray-900/50 border border-red-500/30 rounded-2xl p-6 md:p-8"
+          >
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">
+                <span className="text-red-400 font-bold text-sm">✗</span>
+              </div>
+              <h3 className="text-red-400 font-bold text-lg">The Old Way (Lead Renting)</h3>
             </div>
-          </div>
-          <div className="bg-[#c8ff00]/10 border border-[#c8ff00]/30 rounded-xl p-4 md:p-6">
-            <div className="text-[#c8ff00] font-bold mb-3 text-sm md:text-base">✅ New Way (Owning)</div>
-            <div className="space-y-2 text-xs md:text-sm text-gray-300 text-left">
-              <div className="break-words">• $0.11/day for AI automation</div>
-              <div className="break-words">• Exclusive leads from Map Pack</div>
-              <div className="break-words">• Build permanent digital assets</div>
-              <div className="break-words">• Rankings compound over time</div>
+            <div className="space-y-3 text-sm md:text-base text-gray-400">
+              <div className="flex items-start gap-3">
+                <span className="text-red-400 mt-1 flex-shrink-0">•</span>
+                <span>Pay $100+ per shared lead</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-red-400 mt-1 flex-shrink-0">•</span>
+                <span>Competitors bid on same leads</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-red-400 mt-1 flex-shrink-0">•</span>
+                <span>Zero ownership or equity building</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-red-400 mt-1 flex-shrink-0">•</span>
+                <span>Stop paying = instant invisibility</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-red-400 mt-1 flex-shrink-0">•</span>
+                <span>No customer data ownership</span>
+              </div>
             </div>
-          </div>
+          </motion.div>
+
+          {/* Right: New Way */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.9 }}
+            className="bg-gradient-to-br from-[#c8ff00]/20 to-emerald-500/10 border border-[#c8ff00]/40 rounded-2xl p-6 md:p-8"
+          >
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-8 h-8 rounded-full bg-emerald-500/30 flex items-center justify-center">
+                <span className="text-emerald-400 font-bold text-sm">✓</span>
+              </div>
+              <h3 className="text-[#c8ff00] font-bold text-lg">The New Way (Lead Ownership)</h3>
+            </div>
+            <div className="space-y-3 text-sm md:text-base text-gray-300">
+              <div className="flex items-start gap-3">
+                <span className="text-[#c8ff00] mt-1 flex-shrink-0 font-bold">+</span>
+                <span>Exclusive Map Pack leads ($0.11/day automation)</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-[#c8ff00] mt-1 flex-shrink-0 font-bold">+</span>
+                <span>Zero competition for your customers</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-[#c8ff00] mt-1 flex-shrink-0 font-bold">+</span>
+                <span>Build permanent digital assets</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-[#c8ff00] mt-1 flex-shrink-0 font-bold">+</span>
+                <span>Rankings compound & strengthen over time</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-[#c8ff00] mt-1 flex-shrink-0 font-bold">+</span>
+                <span>Own all customer data & relationships</span>
+              </div>
+            </div>
+          </motion.div>
         </div>
 
-        <Button
-          onClick={onCTA}
-          className="w-full md:w-auto bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-bold text-base md:text-xl px-8 md:px-16 py-6 md:py-8 rounded-xl shadow-[0_0_60px_rgba(200,255,0,0.4)] hover:scale-105 transition-all"
+        {/* CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1 }}
+          className="text-center space-y-4"
         >
-          <Zap className="w-5 h-5 md:w-6 md:h-6 mr-2 md:mr-3" />
-          <span className="break-words">Claim Lead Independence Now</span>
-        </Button>
-        
-        <p className="text-gray-600 text-xs md:text-sm mt-4 px-4">
-          Join 7M+ businesses who stopped renting and started owning
-        </p>
+          <Button
+            onClick={onCTA}
+            className="w-full md:w-auto bg-gradient-to-r from-[#c8ff00] to-emerald-400 hover:from-[#d4ff33] hover:to-emerald-300 text-black font-bold text-base md:text-xl px-10 md:px-20 py-6 md:py-8 rounded-full shadow-[0_0_80px_rgba(200,255,0,0.4)] hover:shadow-[0_0_120px_rgba(200,255,0,0.6)] hover:scale-105 transition-all duration-300 transform active:scale-95"
+          >
+            <Zap className="w-5 h-5 md:w-6 md:h-6 mr-2 md:mr-3" />
+            Start My Lead Independence Plan
+          </Button>
+          
+          <p className="text-gray-600 text-sm md:text-base">
+            <span className="font-semibold text-gray-400">45,000+ businesses</span> have claimed lead independence this year.
+          </p>
+        </motion.div>
       </motion.div>
     </motion.div>
   );
