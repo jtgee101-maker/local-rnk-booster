@@ -1,29 +1,36 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, lazy, Suspense, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Target, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import { ABTestProvider, useABTest } from '@/components/abtest/ABTestProvider';
 import LegalFooter from '@/components/shared/LegalFooter';
+import { prefetchResources, sessionCache } from '@/components/utils/performanceHooks';
 
-import ProgressBar from '@/components/quiz/ProgressBar';
-import SectionProgress from '@/components/quiz/SectionProgress';
-import WelcomeStep from '@/components/quiz/WelcomeStep';
-import CategoryStep from '@/components/quiz/CategoryStep';
-import PainPointStep from '@/components/quiz/PainPointStep';
-import GoalsStep from '@/components/quiz/GoalsStep';
-import TransitionStep from '@/components/quiz/TransitionStep';
-import TimelineStep from '@/components/quiz/TimelineStep';
-import BusinessSearchStep from '@/components/quiz/BusinessSearchStep';
-import ProcessingStepEnhanced from '@/components/quiz/ProcessingStepEnhanced';
-import DiscountUnlockStep from '@/components/quiz/DiscountUnlockStep';
-import StatsCommitmentStep from '@/components/quiz/StatsCommitmentStep';
-import VisualizeFutureStep from '@/components/quiz/VisualizeFutureStep';
-import ResultsStep from '@/components/quiz/ResultsStep';
-import ExitIntentModal from '@/components/shared/ExitIntentModal';
-import { Target, Rocket } from 'lucide-react';
+// Lazy load non-critical steps
+const ProgressBar = lazy(() => import('@/components/quiz/ProgressBar'));
+const SectionProgress = lazy(() => import('@/components/quiz/SectionProgress'));
+const WelcomeStep = lazy(() => import('@/components/quiz/WelcomeStep'));
+const CategoryStep = lazy(() => import('@/components/quiz/CategoryStep'));
+const PainPointStep = lazy(() => import('@/components/quiz/PainPointStep'));
+const GoalsStep = lazy(() => import('@/components/quiz/GoalsStep'));
+const TransitionStep = lazy(() => import('@/components/quiz/TransitionStep'));
+const TimelineStep = lazy(() => import('@/components/quiz/TimelineStep'));
+const BusinessSearchStep = lazy(() => import('@/components/quiz/BusinessSearchStep'));
+const ProcessingStepEnhanced = lazy(() => import('@/components/quiz/ProcessingStepEnhanced'));
+const DiscountUnlockStep = lazy(() => import('@/components/quiz/DiscountUnlockStep'));
+const StatsCommitmentStep = lazy(() => import('@/components/quiz/StatsCommitmentStep'));
+const VisualizeFutureStep = lazy(() => import('@/components/quiz/VisualizeFutureStep'));
+const ResultsStep = lazy(() => import('@/components/quiz/ResultsStep'));
+const ExitIntentModal = lazy(() => import('@/components/shared/ExitIntentModal'));
+
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center min-h-[60vh]">
+    <div className="w-8 h-8 border-4 border-[#c8ff00] border-t-transparent rounded-full animate-spin" />
+  </div>
+);
 
 const TOTAL_STEPS = 6;
 
@@ -51,9 +58,10 @@ const criticalIssuesByPainPoint = {
 };
 
 function QuizContent() {
-  const [step, setStep] = useState('welcome');
-  const [currentStepNumber, setCurrentStepNumber] = useState(0);
-  const [quizData, setQuizData] = useState({
+  // Restore quiz state from cache on mount
+  const [step, setStep] = useState(() => sessionCache.get('quiz_step') || 'welcome');
+  const [currentStepNumber, setCurrentStepNumber] = useState(() => sessionCache.get('quiz_step_number') || 0);
+  const [quizData, setQuizData] = useState(() => sessionCache.get('quiz_data') || {
     business_category: '',
     pain_point: '',
     goals: [],
@@ -67,6 +75,20 @@ function QuizContent() {
   const [showTransition, setShowTransition] = useState(false);
   const [transitionConfig, setTransitionConfig] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+
+  // Prefetch next pages as user progresses
+  useEffect(() => {
+    if (currentStepNumber > 2) {
+      prefetchResources([createPageUrl('Pricing'), createPageUrl('Checkout')]);
+    }
+  }, [currentStepNumber]);
+
+  // Cache quiz progress
+  useEffect(() => {
+    sessionCache.set('quiz_step', step);
+    sessionCache.set('quiz_step_number', currentStepNumber);
+    sessionCache.set('quiz_data', quizData);
+  }, [step, currentStepNumber, quizData]);
 
   const handleStart = () => {
     setStep('category');
@@ -349,19 +371,20 @@ function QuizContent() {
 
         {/* Main Content */}
         <main className="flex-1 flex items-center justify-center py-4">
-          <AnimatePresence mode="wait">
-            {showTransition ? (
-              <TransitionStep 
-                key="transition"
-                title={transitionConfig.title}
-                description={transitionConfig.description}
-                icon={transitionConfig.icon}
-              />
-            ) : (
-              <>
-                {step === 'welcome' && (
-                  <WelcomeStep key="welcome" onStart={handleStart} />
-                )}
+          <Suspense fallback={<LoadingSpinner />}>
+            <AnimatePresence mode="wait">
+              {showTransition ? (
+                <TransitionStep 
+                  key="transition"
+                  title={transitionConfig.title}
+                  description={transitionConfig.description}
+                  icon={transitionConfig.icon}
+                />
+              ) : (
+                <>
+                  {step === 'welcome' && (
+                    <WelcomeStep key="welcome" onStart={handleStart} />
+                  )}
                 
                 {step === 'category' && (
                   <CategoryStep key="category" onSelect={handleCategorySelect} />
@@ -427,9 +450,10 @@ function QuizContent() {
                   />
                 )}
               </>
-            )}
-          </AnimatePresence>
-        </main>
+              )}
+              </AnimatePresence>
+              </Suspense>
+              </main>
       </div>
       </div>
 

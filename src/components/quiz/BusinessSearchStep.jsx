@@ -4,11 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, MapPin, Star, Building2, Loader2, CheckCircle } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { useDebounce } from '@/utils/performanceOptimization';
+import { useDebounce, sessionCache } from '@/components/utils/performanceHooks';
 
 export default function BusinessSearchStep({ onSelect, isLoading: parentLoading }) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState(() => sessionCache.get('search_results') || []);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedBusiness, setSelectedBusiness] = useState(null);
   const [businessDetails, setBusinessDetails] = useState(null);
@@ -31,6 +31,7 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
 
       if (response.data.success && response.data.results.length > 0) {
         setSearchResults(response.data.results);
+        sessionCache.set('search_results', response.data.results);
         
         // Auto-select if only one result
         if (response.data.results.length === 1) {
