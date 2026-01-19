@@ -212,8 +212,15 @@ function QuizV2Content() {
   };
 
   const handleProcessingComplete = useCallback(() => {
-    setStep('discountUnlock');
+    setStep('contactInfo');
+    setCurrentStepNumber(5);
   }, []);
+
+  const handleContactInfoSubmit = (contactData) => {
+    base44.analytics.track({ eventName: 'v2_contact_info_submitted', properties: { email: contactData.email } });
+    setQuizData(prev => ({ ...prev, ...contactData }));
+    setStep('discountUnlock');
+  };
 
   const handleDiscountUnlockComplete = () => {
     setStep('statsCommitment');
