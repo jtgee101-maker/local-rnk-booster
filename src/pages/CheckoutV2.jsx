@@ -13,7 +13,7 @@ const plans = [
     originalPrice: 4.35,
     dailyPrice: 0.13,
     totalPrice: 3.90,
-    discount: 82,
+    discount: 10,
     stripePriceId: 'price_1month'
   },
   {
@@ -29,9 +29,9 @@ const plans = [
   {
     id: '12_month',
     duration: '12 Month',
-    originalPrice: 40.15,
+    originalPrice: 39.60,
     dailyPrice: 0.11,
-    totalPrice: 40.15,
+    totalPrice: 39.60,
     discount: 82,
     bestOffer: true,
     stripePriceId: 'price_12month'
@@ -178,9 +178,9 @@ export default function CheckoutV2() {
         >
           <div className="flex items-center justify-center gap-2 mb-1">
             <Zap className="w-5 h-5" />
-            <span className="font-semibold">Get your personal audit plan with</span>
+            <span className="font-semibold">Get your personal plan with</span>
           </div>
-          <div className="text-2xl font-bold">51%-82% discount</div>
+          <div className="text-2xl font-bold">70%-82% discount</div>
         </motion.div>
 
         {/* Choose Plan */}
@@ -310,7 +310,7 @@ export default function CheckoutV2() {
             <div className="text-2xl">🏆</div>
           </div>
           <div className="text-2xl font-bold mb-1">+7 million</div>
-          <div className="text-gray-600 text-sm">users have started improving<br />their lives with us.</div>
+          <div className="text-gray-600 text-sm">businesses have started improving<br />their local rankings with us.</div>
         </div>
 
         {/* App Store Ratings */}
@@ -379,7 +379,7 @@ export default function CheckoutV2() {
         {/* Community */}
         <div className="text-center py-8 mb-8 bg-gray-50 rounded-2xl">
           <div className="text-sm text-gray-600 mb-2">Become a member of our global community of</div>
-          <div className="text-2xl font-bold">7 million people</div>
+          <div className="text-2xl font-bold">7 million businesses</div>
         </div>
 
         {/* Final CTA */}
