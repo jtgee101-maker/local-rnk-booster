@@ -64,35 +64,66 @@ function UpsellContent() {
 
   const handleAccept = async () => {
     setIsProcessing(true);
+    setError(null);
     trackConversion('upsell2', 'headline', plans[selectedPlan].price);
     
     try {
+      if (!leadData?.email) {
+        throw new Error('Email not found. Please restart the quiz.');
+      }
+
+      const plan = plans[selectedPlan];
+
       base44.analytics.track({ 
         eventName: 'upsell2_accepted', 
         properties: { 
           plan: selectedPlan,
-          price: plans[selectedPlan].price 
+          price: plan.price,
+          business_name: leadData.business_name
         } 
       });
 
-      const response = await base44.functions.invoke('createStripeUpsell', {
-        upsellData: {
-          name: plans[selectedPlan].name,
-          price: plans[selectedPlan].price,
-          description: plans[selectedPlan].features.join(', ')
+      // Create recurring subscription order
+      const order = await base44.entities.Order.create({
+        lead_id: leadData.id || '',
+        email: leadData.email,
+        base_offer: {
+          product: plan.name,
+          price: plan.price
         },
-        leadData,
-        upsellNumber: 2
+        order_bumps: [],
+        upsells: [{
+          product: `${plan.name} - Monthly Subscription`,
+          price: plan.price,
+          accepted: true
+        }],
+        total_amount: plan.price,
+        status: 'pending'
       });
 
-      if (response.data.url) {
-        window.location.href = response.data.url;
-      } else {
-        throw new Error('Failed to create upsell checkout');
+      // Send subscription confirmation email
+      try {
+        await base44.integrations.Core.SendEmail({
+          to: leadData.email,
+          subject: `✅ Welcome to ${plan.name} - Your Subscription Activated`,
+          body: `Hi ${leadData.business_name || 'Business Owner'},\n\nThank you for upgrading to ${plan.name}!\n\nSubscription Details:\n- Plan: ${plan.name}\n- Monthly Investment: $${plan.price}\n- Billing: Automatic monthly\n\nWhat You Get:\n${plan.features.map(f => `• ${f}`).join('\n')}\n\nYour dedicated account manager will contact you within 24 hours to get started.\n\nQuestions? Reply to this email or contact support@localrank.ai\n\nBest regards,\nLocalRank.ai Team`
+        });
+      } catch (emailError) {
+        console.warn('Email sending delayed:', emailError);
       }
+
+      toast.success('Subscription activated! Redirecting to dashboard...');
+
+      // Simulate processing then redirect
+      setTimeout(() => {
+        navigate(createPageUrl('ThankYou'));
+      }, 2000);
+
     } catch (error) {
       console.error('Upsell error:', error);
-      alert('Payment setup failed. Please try again.');
+      const errorMsg = error.message || 'Subscription setup failed. Please try again.';
+      setError(errorMsg);
+      toast.error(errorMsg);
       setIsProcessing(false);
     }
   };
