@@ -246,11 +246,21 @@ export default function ThankYouPage() {
             </Button>
             
             <Button
-              onClick={() => window.open(`mailto:${leadData?.email || ''}?subject=My GMB Audit Report`, '_blank')}
-              className="border-2 border-[#c8ff00] bg-transparent text-[#c8ff00] hover:bg-[#c8ff00] hover:text-black px-10 py-6 text-lg rounded-full font-semibold transition-all duration-300"
+              onClick={downloadAuditPDF}
+              disabled={isDownloadingPDF || !leadData}
+              className="border-2 border-[#c8ff00] bg-transparent text-[#c8ff00] hover:bg-[#c8ff00] hover:text-black px-10 py-6 text-lg rounded-full font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Download className="mr-2 w-5 h-5" />
-              Download Audit PDF
+              {isDownloadingPDF ? (
+                <>
+                  <span className="animate-spin inline-block mr-2">⏳</span>
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Download className="mr-2 w-5 h-5" />
+                  Download Audit PDF
+                </>
+              )}
             </Button>
           </motion.div>
 
