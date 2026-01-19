@@ -431,6 +431,7 @@ function QuizContent() {
           </AnimatePresence>
         </main>
       </div>
+      </div>
 
       {/* Legal Footer - Only show on welcome step */}
       {step === 'welcome' && <LegalFooter />}
