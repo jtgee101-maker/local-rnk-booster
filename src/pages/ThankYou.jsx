@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
-import { CheckCircle, Mail, Calendar, ArrowRight, Star, Users, Gift, Download, Zap, Share2 } from 'lucide-react';
+import { CheckCircle, Mail, Calendar, ArrowRight, Star, Users, Gift, Download, Zap, Share2, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import SocialShareButton from '@/components/shared/SocialShareButton';
+import { toast } from 'sonner';
 
 export default function ThankYouPage() {
   const [leadData, setLeadData] = useState(null);
   const [showReferral, setShowReferral] = useState(false);
+  const [referralCode, setReferralCode] = useState(null);
+  const [referralStats, setReferralStats] = useState({ total: 0, converted: 0, credits: 0 });
+  const [isCopied, setIsCopied] = useState(false);
+  const [isLoadingReferral, setIsLoadingReferral] = useState(false);
 
   useEffect(() => {
     const stored = sessionStorage.getItem('quizLead');
