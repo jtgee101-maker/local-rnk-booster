@@ -51,46 +51,57 @@ export default function V2ResultsStep({
         </p>
       </motion.div>
 
-      {/* Thumbtack Tax Calculator */}
+      {/* Annual Cost Calculator - Premium Design */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="bg-gradient-to-br from-red-500/20 to-orange-500/20 border-2 border-red-500/50 rounded-2xl p-4 md:p-8 mb-8"
+        className="bg-gradient-to-br from-red-500/15 via-orange-500/10 to-red-500/5 border-2 border-red-500/40 rounded-3xl p-6 md:p-10 mb-10 backdrop-blur-sm"
       >
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-6">
-          <div className="p-3 rounded-xl bg-red-500/20 flex-shrink-0">
-            <DollarSign className="w-6 h-6 md:w-8 md:h-8 text-red-400" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-xs md:text-sm text-gray-400">Annual {platformName}</div>
-            <div className="text-3xl md:text-5xl font-bold text-red-400 break-words">
-              ${thumbtackTax.toLocaleString()}
+        <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-start">
+          {/* Left: The Cost */}
+          <div>
+            <div className="flex items-start gap-3 mb-6">
+              <div className="p-3 rounded-xl bg-red-500/20 flex-shrink-0">
+                <DollarSign className="w-6 h-6 md:w-8 md:h-8 text-red-400" />
+              </div>
+              <div>
+                <div className="text-sm text-gray-400 font-medium">Your Annual {platformName}</div>
+                <div className="text-4xl md:text-5xl font-bold text-red-400 mt-2">
+                  ${thumbtackTax.toLocaleString()}
+                </div>
+                <div className="text-gray-500 text-xs mt-2">
+                  That's ${(thumbtackTax/12).toLocaleString(undefined, {maximumFractionDigits: 0})}/month on platforms that don't own you any leads
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <div className="bg-gray-900/50 rounded-xl p-4 md:p-6 mb-4">
-          <h3 className="text-white font-semibold mb-3 text-sm md:text-base">What You Could Do With This Money:</h3>
-          <div className="space-y-2 text-gray-300 text-sm md:text-base">
-            <div className="flex items-start gap-2">
-              <div className="w-2 h-2 rounded-full bg-[#c8ff00] flex-shrink-0 mt-1.5" />
-              <span className="flex-1">Hire 2 full-time team members</span>
-            </div>
-            <div className="flex items-start gap-2">
-              <div className="w-2 h-2 rounded-full bg-[#c8ff00] flex-shrink-0 mt-1.5" />
-              <span className="flex-1">Buy 3 work vehicles</span>
-            </div>
-            <div className="flex items-start gap-2">
-              <div className="w-2 h-2 rounded-full bg-[#c8ff00] flex-shrink-0 mt-1.5" />
-              <span className="flex-1">Own your digital assets forever</span>
+
+          {/* Right: What You Could Buy */}
+          <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-5 md:p-6">
+            <h3 className="text-white font-bold mb-4 text-base md:text-lg flex items-center gap-2">
+              <Lightbulb className="w-5 h-5 text-[#c8ff00]" />
+              What This Money Could Buy:
+            </h3>
+            <div className="space-y-3 text-sm md:text-base">
+              {[
+                '2 Full-time team members earning $45k/year',
+                '3 branded work vehicles for your crew',
+                'Permanent, appreciating digital assets',
+                'Real customer relationships that scale'
+              ].map((item, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0 mt-2" />
+                  <span className="text-gray-300">{item}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        <div className="text-center">
-          <p className="text-gray-400 text-xs md:text-sm leading-relaxed">
-            Instead, you're <span className="text-red-400 font-semibold">renting</span> leads that your competitors also get
+        <div className="mt-6 pt-6 border-t border-gray-800">
+          <p className="text-gray-400 text-center text-sm md:text-base">
+            But instead, you're paying this every single year for leads that <span className="text-red-400 font-semibold">your 4 competitors also get</span>.
           </p>
         </div>
       </motion.div>
