@@ -267,19 +267,33 @@ export default function ThankYouPage() {
             className="w-full max-w-2xl mx-auto"
           >
             {!referralCode ? (
-              <Button
-                onClick={() => {
-                  generateReferralCode();
-                  setShowReferral(true);
-                }}
-                disabled={isLoadingReferral}
-                className="w-full bg-gradient-to-r from-[#c8ff00] to-green-400 hover:from-[#d4ff33] hover:to-green-300 text-black font-bold py-6 px-8 text-lg rounded-xl transition-all duration-300 hover:shadow-[0_0_50px_rgba(200,255,0,0.4)] disabled:opacity-70"
-              >
-                <Gift className="mr-2 w-5 h-5" />
-                🎁 Unlock $100 Referral Program
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            ) : null}
+               <Button
+                 onClick={generateReferralCode}
+                 disabled={isLoadingReferral || !leadData?.email}
+                 className="w-full bg-gradient-to-r from-[#c8ff00] to-green-400 hover:from-[#d4ff33] hover:to-green-300 text-black font-bold py-6 px-8 text-lg rounded-xl transition-all duration-300 hover:shadow-[0_0_50px_rgba(200,255,0,0.4)] disabled:opacity-70"
+               >
+                 {isLoadingReferral ? (
+                   <>
+                     <span className="animate-spin inline-block mr-2">⏳</span>
+                     Activating...
+                   </>
+                 ) : (
+                   <>
+                     <Gift className="mr-2 w-5 h-5" />
+                     🎁 Unlock $100 Referral Program
+                     <ArrowRight className="ml-2 w-5 h-5" />
+                   </>
+                 )}
+               </Button>
+             ) : (
+               <motion.div
+                 initial={{ opacity: 0, scale: 0.95 }}
+                 animate={{ opacity: 1, scale: 1 }}
+                 className="p-4 bg-gradient-to-r from-[#c8ff00]/10 to-green-400/10 border border-[#c8ff00]/30 rounded-lg text-center"
+               >
+                 <p className="text-[#c8ff00] font-semibold">✓ Referral Program Active!</p>
+               </motion.div>
+             )}
 
             {showReferral && referralCode && (
               <motion.div
