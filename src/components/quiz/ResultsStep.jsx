@@ -65,20 +65,20 @@ export default function ResultsStep({ healthScore, criticalIssues, businessName,
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.2 }}
-        className="bg-red-500/10 border-2 border-red-500/50 rounded-2xl p-6 mb-8"
+        className="bg-red-500/10 border-2 border-red-500/50 rounded-2xl p-4 md:p-6 mb-8"
       >
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
-            <DollarSign className="w-8 h-8 text-red-400" />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
+            <DollarSign className="w-6 h-6 md:w-8 md:h-8 text-red-400" />
           </div>
-          <div>
-            <h3 className="text-xl font-bold text-white mb-1">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg md:text-xl font-bold text-white mb-1 break-words">
               Estimated Monthly Revenue Loss
             </h3>
-            <div className="text-3xl font-bold text-red-400">
+            <div className="text-2xl md:text-3xl font-bold text-red-400 break-words">
               ${estimatedLoss.toLocaleString()}+
             </div>
-            <p className="text-gray-400 text-sm mt-1">
+            <p className="text-gray-400 text-xs md:text-sm mt-1 leading-relaxed">
               Based on your Map Pack visibility gaps vs. competitors
             </p>
           </div>
@@ -90,7 +90,7 @@ export default function ResultsStep({ healthScore, criticalIssues, businessName,
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.3 }}
-        className="bg-gray-900/70 backdrop-blur border border-gray-800 rounded-3xl p-8 mb-6"
+        className="bg-gray-900/70 backdrop-blur border border-gray-800 rounded-2xl md:rounded-3xl p-4 md:p-8 mb-6"
       >
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="text-center md:text-left">
@@ -147,14 +147,14 @@ export default function ResultsStep({ healthScore, criticalIssues, businessName,
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="bg-gray-900/50 backdrop-blur border border-gray-800 rounded-2xl p-6 mb-8"
+        className="bg-gray-900/50 backdrop-blur border border-gray-800 rounded-2xl p-4 md:p-6 mb-8"
       >
-        <div className="flex items-center gap-2 mb-4">
-          <AlertTriangle className="w-5 h-5 text-red-400" />
-          <h3 className="font-semibold text-white">AI-Detected Ranking Sabotage</h3>
+        <div className="flex items-start gap-2 mb-4">
+          <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+          <h3 className="font-semibold text-white text-sm md:text-base leading-tight">AI-Detected Ranking Sabotage</h3>
         </div>
         
-        <p className="text-gray-400 text-sm mb-6">
+        <p className="text-gray-400 text-xs md:text-sm mb-6 leading-relaxed">
           These errors would take 40+ hours to find manually. Our AI found them in 60 seconds.
         </p>
 
@@ -170,7 +170,7 @@ export default function ResultsStep({ healthScore, criticalIssues, businessName,
               <div className="w-6 h-6 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="text-red-400 text-xs font-bold">{index + 1}</span>
               </div>
-              <p className="text-gray-300 text-sm">{issue}</p>
+              <p className="text-gray-300 text-xs md:text-sm leading-relaxed flex-1">{issue}</p>
             </motion.div>
           ))}
         </div>
@@ -184,12 +184,12 @@ export default function ResultsStep({ healthScore, criticalIssues, businessName,
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.85 }}
-        className="bg-[#c8ff00]/10 border border-[#c8ff00]/30 rounded-2xl p-6 mb-8 text-center"
+        className="bg-[#c8ff00]/10 border border-[#c8ff00]/30 rounded-2xl p-4 md:p-6 mb-8 text-center"
       >
-        <p className="text-[#c8ff00] font-semibold text-lg mb-2">
+        <p className="text-[#c8ff00] font-semibold text-sm md:text-lg mb-2 leading-tight">
           💡 Why pay a $2,000/mo agency for "insider tricks"...
         </p>
-        <p className="text-white text-xl font-bold">
+        <p className="text-white text-base md:text-xl font-bold leading-tight">
           When you can use the same AI software they use for $0.11/day?
         </p>
       </motion.div>
@@ -203,14 +203,14 @@ export default function ResultsStep({ healthScore, criticalIssues, businessName,
       >
         <Button
           onClick={handleCTAClick}
-          className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold px-10 py-6 text-lg rounded-full transition-all duration-300 hover:shadow-[0_0_40px_rgba(200,255,0,0.3)]"
+          className="w-full md:w-auto bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold px-6 md:px-10 py-5 md:py-6 text-base md:text-lg rounded-full transition-all duration-300 hover:shadow-[0_0_40px_rgba(200,255,0,0.3)]"
         >
-          <Zap className="mr-2 w-5 h-5" />
-          Get Automated Fix for $0.11/Day
-          <ArrowRight className="ml-2 w-5 h-5" />
+          <Zap className="mr-2 w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+          <span className="break-words">Get Automated Fix for $0.11/Day</span>
+          <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
         </Button>
 
-        <p className="text-gray-500 text-sm mt-4">
+        <p className="text-gray-500 text-xs md:text-sm mt-4 px-4 leading-relaxed">
           82% off expires in 14 minutes • Zero technical skills required
         </p>
       </motion.div>
