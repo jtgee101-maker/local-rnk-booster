@@ -274,6 +274,18 @@ function UpsellContent() {
             ))}
           </motion.div>
 
+          {/* Error Display */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="max-w-lg mx-auto mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg flex items-start gap-3"
+            >
+              <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+              <p className="text-red-300 text-sm">{error}</p>
+            </motion.div>
+          )}
+
           {/* CTA */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -283,11 +295,20 @@ function UpsellContent() {
           >
             <Button
               onClick={handleAccept}
-              disabled={isProcessing}
-              className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold px-12 py-7 text-xl rounded-full transition-all duration-300 hover:shadow-[0_0_40px_rgba(200,255,0,0.3)]"
+              disabled={isProcessing || !leadData}
+              className="bg-gradient-to-r from-[#c8ff00] to-green-400 hover:from-[#d4ff33] hover:to-green-300 text-black font-bold px-12 py-7 text-xl rounded-full transition-all duration-300 hover:shadow-[0_0_50px_rgba(200,255,0,0.4)] disabled:opacity-70 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
             >
-              {isProcessing ? 'Processing...' : `Yes! Add ${plans[selectedPlan].name}`}
-              <ArrowRight className="ml-2 w-6 h-6" />
+              {isProcessing ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Processing Subscription...
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  Yes! Add {plans[selectedPlan].name}
+                  <ArrowRight className="w-6 h-6" />
+                </span>
+              )}
             </Button>
 
             <p className="text-gray-500 text-sm mt-4">
