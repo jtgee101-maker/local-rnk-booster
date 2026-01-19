@@ -33,18 +33,18 @@ export default function FAQSection() {
   ];
 
   return (
-    <div className="max-w-3xl mx-auto mt-16 mb-12">
+    <div className="max-w-2xl mx-auto mt-12 mb-8 px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1 }}
-        className="text-center mb-8"
+        className="text-center mb-6"
       >
-        <h2 className="text-3xl font-bold text-white mb-3">Frequently Asked Questions</h2>
-        <p className="text-gray-400">Everything you need to know before starting your free audit</p>
+        <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Frequently Asked Questions</h2>
+        <p className="text-gray-400 text-sm">Everything you need to know before starting</p>
       </motion.div>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {faqs.map((faq, index) => (
           <motion.div
             key={index}
@@ -54,12 +54,12 @@ export default function FAQSection() {
           >
             <button
               onClick={() => setOpenIndex(openIndex === index ? null : index)}
-              className="w-full bg-gray-900/50 border border-gray-800 rounded-xl p-5 text-left hover:border-gray-700 transition-colors"
+              className="w-full bg-gray-900/50 border border-gray-800 rounded-lg p-4 text-left hover:border-gray-700 transition-colors"
             >
-              <div className="flex justify-between items-start gap-4">
-                <h3 className="text-white font-semibold text-lg">{faq.question}</h3>
+              <div className="flex justify-between items-start gap-3">
+                <h3 className="text-white font-semibold text-sm md:text-base">{faq.question}</h3>
                 <ChevronDown
-                  className={`w-5 h-5 text-gray-400 flex-shrink-0 transition-transform ${
+                  className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform mt-0.5 ${
                     openIndex === index ? 'rotate-180' : ''
                   }`}
                 />
@@ -74,7 +74,7 @@ export default function FAQSection() {
                     transition={{ duration: 0.2 }}
                     className="overflow-hidden"
                   >
-                    <p className="text-gray-400 mt-3 leading-relaxed">{faq.answer}</p>
+                    <p className="text-gray-400 text-sm mt-2 leading-relaxed">{faq.answer}</p>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -87,9 +87,9 @@ export default function FAQSection() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5 }}
-        className="text-center mt-8"
+        className="text-center mt-6"
       >
-        <p className="text-gray-500 text-sm">
+        <p className="text-gray-500 text-xs">
           Still have questions? Email us at{' '}
           <a href="mailto:support@localrank.ai" className="text-[#c8ff00] hover:underline">
             support@localrank.ai
