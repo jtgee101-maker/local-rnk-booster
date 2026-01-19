@@ -38,24 +38,24 @@ export default function ResultsStep({ healthScore, criticalIssues, businessName,
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="max-w-2xl mx-auto px-4"
+      className="max-w-2xl mx-auto px-3 md:px-4 w-full"
     >
       {/* Header */}
-      <div className="text-center mb-8">
+      <div className="text-center mb-6 md:mb-8">
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", delay: 0.2 }}
-          className="inline-flex items-center gap-2 bg-[#c8ff00]/10 border border-[#c8ff00]/30 rounded-full px-4 py-2 mb-4"
+          className="inline-flex items-center gap-2 bg-[#c8ff00]/10 border border-[#c8ff00]/30 rounded-full px-3 md:px-4 py-1.5 md:py-2 mb-3 md:mb-4"
         >
-          <CheckCircle className="w-4 h-4 text-[#c8ff00]" />
-          <span className="text-sm text-[#c8ff00] font-medium">Scan Complete</span>
+          <CheckCircle className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#c8ff00]" />
+          <span className="text-xs md:text-sm text-[#c8ff00] font-medium">Scan Complete</span>
         </motion.div>
         
-        <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
+        <h2 className="text-xl md:text-3xl font-bold text-white mb-2 px-2 leading-tight">
           {businessName}'s AI-Powered Revenue Gap Report
         </h2>
-        <p className="text-gray-400 text-sm">
+        <p className="text-gray-400 text-xs md:text-sm px-2 leading-relaxed">
           60-second scan complete — here's what competitors don't want you to know
         </p>
       </div>
@@ -65,17 +65,17 @@ export default function ResultsStep({ healthScore, criticalIssues, businessName,
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.2 }}
-        className="bg-red-500/10 border-2 border-red-500/50 rounded-2xl p-4 md:p-6 mb-8"
+        className="bg-red-500/10 border-2 border-red-500/50 rounded-xl md:rounded-2xl p-3 md:p-6 mb-6 md:mb-8"
       >
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
-            <DollarSign className="w-6 h-6 md:w-8 md:h-8 text-red-400" />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4">
+          <div className="w-10 h-10 md:w-16 md:h-16 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
+            <DollarSign className="w-5 h-5 md:w-8 md:h-8 text-red-400" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg md:text-xl font-bold text-white mb-1 break-words">
+            <h3 className="text-base md:text-xl font-bold text-white mb-1 break-words">
               Estimated Monthly Revenue Loss
             </h3>
-            <div className="text-2xl md:text-3xl font-bold text-red-400 break-words">
+            <div className="text-xl md:text-3xl font-bold text-red-400 break-words">
               ${estimatedLoss.toLocaleString()}+
             </div>
             <p className="text-gray-400 text-xs md:text-sm mt-1 leading-relaxed">
@@ -90,41 +90,67 @@ export default function ResultsStep({ healthScore, criticalIssues, businessName,
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.3 }}
-        className="bg-gray-900/70 backdrop-blur border border-gray-800 rounded-2xl md:rounded-3xl p-4 md:p-8 mb-6"
+        className="bg-gray-900/70 backdrop-blur border border-gray-800 rounded-xl md:rounded-3xl p-4 md:p-8 mb-4 md:mb-6"
       >
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6">
           <div className="text-center md:text-left">
-            <p className="text-gray-400 text-sm mb-1">Your GMB Health Score</p>
-            <div className="flex items-baseline gap-2">
+            <p className="text-gray-400 text-xs md:text-sm mb-1">Your GMB Health Score</p>
+            <div className="flex items-baseline gap-2 justify-center md:justify-start">
               <motion.span
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
-                className={`text-6xl font-bold ${getScoreColor(healthScore)}`}
+                className={`text-4xl md:text-6xl font-bold ${getScoreColor(healthScore)}`}
               >
                 {healthScore}
               </motion.span>
-              <span className="text-2xl text-gray-500">/100</span>
+              <span className="text-xl md:text-2xl text-gray-500">/100</span>
             </div>
-            <p className={`text-sm font-medium mt-1 ${getScoreColor(healthScore)}`}>
+            <p className={`text-xs md:text-sm font-medium mt-1 ${getScoreColor(healthScore)}`}>
               {getScoreLabel(healthScore)}
             </p>
           </div>
 
           {/* Score Gauge */}
-          <div className="relative w-32 h-32">
+          <div className="relative w-24 h-24 md:w-32 md:h-32">
             <svg className="w-full h-full transform -rotate-90">
               <circle
-                cx="64"
-                cy="64"
+                cx="50%"
+                cy="50%"
+                r="44"
+                stroke="#1f2937"
+                strokeWidth="6"
+                fill="none"
+                className="md:hidden"
+              />
+              <motion.circle
+                cx="50%"
+                cy="50%"
+                r="44"
+                stroke="#c8ff00"
+                strokeWidth="6"
+                fill="none"
+                strokeLinecap="round"
+                strokeDasharray={`${2 * Math.PI * 44}`}
+                initial={{ strokeDashoffset: 2 * Math.PI * 44 }}
+                animate={{ 
+                  strokeDashoffset: 2 * Math.PI * 44 * (1 - healthScore / 100) 
+                }}
+                transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
+                className="md:hidden"
+              />
+              <circle
+                cx="50%"
+                cy="50%"
                 r="56"
                 stroke="#1f2937"
                 strokeWidth="8"
                 fill="none"
+                className="hidden md:block"
               />
               <motion.circle
-                cx="64"
-                cy="64"
+                cx="50%"
+                cy="50%"
                 r="56"
                 stroke="#c8ff00"
                 strokeWidth="8"
@@ -136,6 +162,7 @@ export default function ResultsStep({ healthScore, criticalIssues, businessName,
                   strokeDashoffset: 2 * Math.PI * 56 * (1 - healthScore / 100) 
                 }}
                 transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
+                className="hidden md:block"
               />
             </svg>
           </div>
@@ -147,7 +174,7 @@ export default function ResultsStep({ healthScore, criticalIssues, businessName,
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="bg-gray-900/50 backdrop-blur border border-gray-800 rounded-2xl p-4 md:p-6 mb-8"
+        className="bg-gray-900/50 backdrop-blur border border-gray-800 rounded-xl md:rounded-2xl p-3 md:p-6 mb-6 md:mb-8"
       >
         <div className="flex items-start gap-2 mb-4">
           <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
@@ -184,12 +211,12 @@ export default function ResultsStep({ healthScore, criticalIssues, businessName,
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.85 }}
-        className="bg-[#c8ff00]/10 border border-[#c8ff00]/30 rounded-2xl p-4 md:p-6 mb-8 text-center"
+        className="bg-[#c8ff00]/10 border border-[#c8ff00]/30 rounded-xl md:rounded-2xl p-3 md:p-6 mb-6 md:mb-8 text-center"
       >
-        <p className="text-[#c8ff00] font-semibold text-sm md:text-lg mb-2 leading-tight">
+        <p className="text-[#c8ff00] font-semibold text-xs md:text-lg mb-2 leading-tight px-2">
           💡 Why pay a $2,000/mo agency for "insider tricks"...
         </p>
-        <p className="text-white text-base md:text-xl font-bold leading-tight">
+        <p className="text-white text-sm md:text-xl font-bold leading-tight px-2">
           When you can use the same AI software they use for $0.11/day?
         </p>
       </motion.div>
@@ -203,14 +230,14 @@ export default function ResultsStep({ healthScore, criticalIssues, businessName,
       >
         <Button
           onClick={handleCTAClick}
-          className="w-full md:w-auto bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold px-6 md:px-10 py-5 md:py-6 text-base md:text-lg rounded-full transition-all duration-300 hover:shadow-[0_0_40px_rgba(200,255,0,0.3)]"
+          className="w-full bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold px-4 md:px-10 py-4 md:py-6 text-sm md:text-lg rounded-full transition-all duration-300 hover:shadow-[0_0_40px_rgba(200,255,0,0.3)]"
         >
-          <Zap className="mr-2 w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+          <Zap className="mr-1 md:mr-2 w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
           <span className="break-words">Get Automated Fix for $0.11/Day</span>
-          <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
+          <ArrowRight className="ml-1 md:ml-2 w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
         </Button>
 
-        <p className="text-gray-500 text-xs md:text-sm mt-4 px-4 leading-relaxed">
+        <p className="text-gray-500 text-[10px] md:text-sm mt-3 md:mt-4 px-3 md:px-4 leading-relaxed">
           82% off expires in 14 minutes • Zero technical skills required
         </p>
       </motion.div>
