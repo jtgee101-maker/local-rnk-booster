@@ -20,7 +20,17 @@ function UpsellContent() {
   useEffect(() => {
     const stored = sessionStorage.getItem('quizLead');
     if (stored) {
-      setLeadData(JSON.parse(stored));
+      const parsed = JSON.parse(stored);
+      // Validate email and required contact fields
+      if (!parsed.email || !parsed.phone || !parsed.consent) {
+        setError('Required contact information missing. Please restart the quiz.');
+        setTimeout(() => navigate(createPageUrl('QuizV2')), 2000);
+        return;
+      }
+      setLeadData(parsed);
+    } else {
+      setError('No quiz data found. Please restart the quiz.');
+      setTimeout(() => navigate(createPageUrl('QuizV2')), 2000);
     }
     
     trackView('upsell2', 'headline');
@@ -28,7 +38,7 @@ function UpsellContent() {
     if (searchParams.get('upsell_accepted') === 'true') {
       base44.analytics.track({ eventName: 'upsell1_payment_completed' });
     }
-  }, [searchParams]);
+  }, [searchParams, navigate]);
 
   const plans = {
     monthly: {
