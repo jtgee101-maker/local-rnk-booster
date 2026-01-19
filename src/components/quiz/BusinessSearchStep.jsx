@@ -69,19 +69,47 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
     setSelectedBusiness(business);
     setIsLoadingDetails(true);
 
-    try {
-      const response = await base44.functions.invoke('getGoogleBusinessDetails', {
-        placeId: business.place_id
-      });
+    const maxRetries = 3;
+    let lastError;
 
-      if (response.data.success) {
-        setBusinessDetails(response.data.business);
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        const response = await base44.functions.invoke('getGoogleBusinessDetails', {
+          placeId: business.place_id
+        });
+
+        if (response?.data?.success && response?.data?.business) {
+          setBusinessDetails(response.data.business);
+          setIsLoadingDetails(false);
+          return;
+        }
+        lastError = 'Invalid response format';
+      } catch (error) {
+        lastError = error;
+        // Wait before retrying (exponential backoff)
+        if (attempt < maxRetries - 1) {
+          await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
+        }
       }
-    } catch (error) {
-      console.error('Error getting business details:', error);
-    } finally {
-      setIsLoadingDetails(false);
     }
+
+    // If all retries failed, use minimal fallback from search result
+    console.error('Failed to fetch details after retries:', lastError);
+    setBusinessDetails({
+      name: business.name,
+      address: business.address,
+      rating: business.rating || 0,
+      total_reviews: business.user_ratings_total || 0,
+      photos_count: 0,
+      has_hours: false,
+      types: business.types || [],
+      place_id: business.place_id,
+      website: '',
+      phone: '',
+      reviews: [],
+      location: business.geometry?.location || {}
+    });
+    setIsLoadingDetails(false);
   };
 
   const handleConfirm = () => {
