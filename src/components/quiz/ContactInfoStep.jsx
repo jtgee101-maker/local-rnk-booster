@@ -30,6 +30,12 @@ export default function ContactInfoStep({ onSubmit, businessName }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
+      // Save contact info to sessionStorage merged with existing lead data
+      const stored = sessionStorage.getItem('quizLead');
+      const existingLead = stored ? JSON.parse(stored) : {};
+      const updatedLead = { ...existingLead, email, phone, consent };
+      sessionStorage.setItem('quizLead', JSON.stringify(updatedLead));
+      
       onSubmit({ email, phone, consent });
     }
   };
