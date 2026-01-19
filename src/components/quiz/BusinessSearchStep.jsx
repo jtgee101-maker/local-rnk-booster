@@ -12,32 +12,57 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
   const [selectedBusiness, setSelectedBusiness] = useState(null);
   const [businessDetails, setBusinessDetails] = useState(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
+  const performSearch = async (query) => {
+    if (!query.trim()) return;
 
     setIsSearching(true);
     setSearchResults([]);
     setSelectedBusiness(null);
     setBusinessDetails(null);
+    setHasSearched(true);
 
     try {
       const response = await base44.functions.invoke('searchGoogleBusiness', {
-        searchQuery: searchQuery
+        searchQuery: query
       });
 
       if (response.data.success && response.data.results.length > 0) {
         setSearchResults(response.data.results);
+        
+        // Auto-select if only one result
+        if (response.data.results.length === 1) {
+          setTimeout(() => handleSelectBusiness(response.data.results[0]), 300);
+        }
       } else {
         setSearchResults([]);
       }
     } catch (error) {
       console.error('Error searching business:', error);
+      setSearchResults([]);
     } finally {
       setIsSearching(false);
     }
   };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    performSearch(searchQuery);
+  };
+
+  // Auto-search on Enter or after typing pause
+  React.useEffect(() => {
+    if (!searchQuery.trim()) return;
+    
+    const timer = setTimeout(() => {
+      if (!hasSearched || searchResults.length === 0) {
+        performSearch(searchQuery);
+      }
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const handleSelectBusiness = async (business) => {
     setSelectedBusiness(business);
@@ -116,7 +141,11 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
             <Input
               placeholder="e.g., Joe's Pizza Brooklyn NY"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setHasSearched(false);
+              }}
+              autoFocus
               className="pl-12 pr-32 py-6 bg-gray-900/50 border-gray-800 text-white placeholder:text-gray-500 rounded-xl focus:border-[#c8ff00]/50 focus:ring-[#c8ff00]/20"
             />
             <Button
@@ -131,6 +160,15 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
               )}
             </Button>
           </div>
+          {isSearching && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center text-gray-400 text-sm mt-3"
+            >
+              Searching Google Maps...
+            </motion.p>
+          )}
         </motion.form>
       )}
 
@@ -245,15 +283,15 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
         </motion.div>
       )}
 
-      {/* No Results */}
-      {searchResults.length === 0 && !isSearching && searchQuery && !selectedBusiness && (
+      {/* No Results - Only show if actually searched */}
+      {searchResults.length === 0 && !isSearching && hasSearched && searchQuery && !selectedBusiness && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="text-center py-8 bg-gray-900/30 border border-gray-800 rounded-xl"
         >
-          <p className="text-gray-400 mb-2">No businesses found</p>
-          <p className="text-gray-600 text-sm">Try a different search query</p>
+          <p className="text-gray-400 mb-2">No matches found for "{searchQuery}"</p>
+          <p className="text-gray-600 text-sm">Try including your city or state (e.g., "Business Name New York")</p>
         </motion.div>
       )}
     </motion.div>
