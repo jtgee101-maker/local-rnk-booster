@@ -296,13 +296,13 @@ function QuizContent() {
         </script>
       </Helmet>
 
-      <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden">
+      <div className="min-h-screen bg-[#0a0a0f] relative overflow-x-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f]" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-[#c8ff00]/5 rounded-full blur-[120px]" />
         <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-[100px]" />
 
         <div className="relative z-10 min-h-screen flex flex-col">
-          <header className="p-6">
+          <header className="p-4 md:p-6">
             <div className="max-w-4xl mx-auto flex items-center justify-between">
               {showBackButton ? (
                 <Button
@@ -326,7 +326,7 @@ function QuizContent() {
           </header>
 
           {showProgress && (
-            <div className="px-6">
+            <div className="px-4 md:px-6">
               <ProgressBar currentStep={currentStepNumber} totalSteps={TOTAL_STEPS} />
             </div>
           )}
@@ -338,7 +338,7 @@ function QuizContent() {
             }}
           />
 
-          <main className="flex-1 flex items-center justify-center py-4">
+          <main className="flex-1 flex items-center justify-center py-4 px-2 md:px-4 overflow-x-hidden">
             <AnimatePresence mode="wait">
               {showTransition ? (
                 <Suspense fallback={<LoadingSpinner />}>

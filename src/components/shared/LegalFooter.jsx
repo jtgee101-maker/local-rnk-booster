@@ -5,10 +5,10 @@ import { Shield, Lock, FileText } from 'lucide-react';
 
 export default function LegalFooter() {
   return (
-    <footer className="border-t border-gray-800 bg-[#0a0a0f] mt-0 will-change-contents">
+    <footer className="border-t border-gray-800 bg-[#0a0a0f] mt-0 w-full">
       {/* Trust Badges */}
-      <div className="max-w-6xl mx-auto px-4 py-4 border-b border-gray-800">
-        <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-xs">
+      <div className="max-w-6xl mx-auto px-3 md:px-4 py-3 md:py-4 border-b border-gray-800">
+        <div className="flex flex-wrap justify-center gap-3 md:gap-6 text-xs">
           <div className="flex items-center gap-1.5 text-gray-400">
             <Shield className="w-3.5 h-3.5 text-green-500" />
             <span>SSL Secured</span>
@@ -29,8 +29,8 @@ export default function LegalFooter() {
       </div>
 
       {/* Main Footer */}
-      <div className="max-w-6xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+      <div className="max-w-6xl mx-auto px-3 md:px-4 py-4 md:py-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-4 md:mb-6">
           {/* Company */}
           <div>
             <h3 className="text-white font-bold text-sm mb-3">LocalRank.ai</h3>
