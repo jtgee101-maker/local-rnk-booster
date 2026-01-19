@@ -15,6 +15,7 @@ function UpsellContent() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('dfy');
   const [leadData, setLeadData] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const stored = sessionStorage.getItem('quizLead');
