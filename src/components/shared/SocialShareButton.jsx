@@ -26,39 +26,31 @@ export default function SocialShareButton({ businessName, healthScore }) {
   };
 
   return (
-    <div className="flex flex-wrap gap-2 justify-center">
+    <div className="flex flex-wrap gap-3 justify-center">
       <Button
-        variant="outline"
-        size="sm"
         onClick={() => handleShare('facebook')}
-        className="border-gray-700 text-gray-300 hover:bg-gray-800"
+        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg"
       >
         <Facebook className="w-4 h-4 mr-2" />
         Share
       </Button>
       <Button
-        variant="outline"
-        size="sm"
         onClick={() => handleShare('twitter')}
-        className="border-gray-700 text-gray-300 hover:bg-gray-800"
+        className="bg-sky-500 hover:bg-sky-600 text-white font-semibold px-6 py-2 rounded-lg"
       >
         <Twitter className="w-4 h-4 mr-2" />
         Tweet
       </Button>
       <Button
-        variant="outline"
-        size="sm"
         onClick={() => handleShare('linkedin')}
-        className="border-gray-700 text-gray-300 hover:bg-gray-800"
+        className="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-6 py-2 rounded-lg"
       >
         <Linkedin className="w-4 h-4 mr-2" />
         Post
       </Button>
       <Button
-        variant="outline"
-        size="sm"
         onClick={() => handleShare('email')}
-        className="border-gray-700 text-gray-300 hover:bg-gray-800"
+        className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold px-6 py-2 rounded-lg"
       >
         <Mail className="w-4 h-4 mr-2" />
         Email
