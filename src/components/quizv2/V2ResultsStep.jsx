@@ -161,31 +161,33 @@ export default function V2ResultsStep({
         </div>
       </motion.div>
 
-      {/* Critical Ranking Issues */}
+      {/* Why The Cycle Trap - Premium Design */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="bg-gray-900/50 border border-gray-800 rounded-2xl p-4 md:p-8 mb-8"
+        className="bg-gray-900/40 border border-gray-800 rounded-3xl p-6 md:p-8 mb-10"
       >
-        <div className="flex items-start gap-3 mb-6">
-          <AlertTriangle className="w-5 h-5 md:w-6 md:h-6 text-red-400 flex-shrink-0 mt-1" />
-          <h3 className="text-lg md:text-xl font-bold text-white leading-tight">Why You're Trapped in the Lead-Buying Cycle</h3>
+        <div className="flex items-center gap-3 mb-7">
+          <div className="p-3 rounded-xl bg-red-500/20">
+            <Target className="w-6 h-6 text-red-400" />
+          </div>
+          <h3 className="text-xl md:text-2xl font-bold text-white">Why You're Trapped in the Lead-Buying Cycle</h3>
         </div>
         
-        <div className="space-y-4">
+        <div className="space-y-3">
           {criticalIssues.map((issue, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.6 + index * 0.1 }}
-              className="flex items-start gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl"
+              className="flex items-start gap-4 p-4 md:p-5 bg-gradient-to-r from-red-500/15 to-transparent border border-red-500/25 rounded-2xl hover:border-red-500/40 transition-colors"
             >
-              <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0 mt-1">
-                <span className="text-red-400 font-bold text-xs md:text-sm">{index + 1}</span>
+              <div className="w-8 h-8 rounded-full bg-red-500/30 flex items-center justify-center flex-shrink-0 mt-0.5 font-bold text-red-300 text-sm">
+                {index + 1}
               </div>
-              <p className="text-gray-300 leading-relaxed pt-1 text-sm md:text-base flex-1">{issue}</p>
+              <p className="text-gray-300 text-sm md:text-base leading-relaxed flex-1 pt-0.5">{issue}</p>
             </motion.div>
           ))}
         </div>
