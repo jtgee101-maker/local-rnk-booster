@@ -23,20 +23,29 @@ export default function ThankYouPage() {
   }, []);
 
   const generateReferralCode = async () => {
-    if (!leadData?.email) return;
+    if (!leadData?.email) {
+      toast.error('Email not found. Please contact support.');
+      return;
+    }
+
     setIsLoadingReferral(true);
 
     try {
       const code = `REF_${leadData.email.split('@')[0]}_${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
       
-      await base44.entities.Referral.create({
+      const referral = await base44.entities.Referral.create({
         referrer_email: leadData.email,
         referrer_business: leadData.business_name || 'Business',
         referral_code: code,
         expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
       });
 
+      if (!referral) {
+        throw new Error('Failed to create referral');
+      }
+
       setReferralCode(code);
+      setShowReferral(true);
       
       const stats = await base44.entities.Referral.filter({
         referrer_email: leadData.email
@@ -49,10 +58,10 @@ export default function ThankYouPage() {
         credits: converted * 100
       });
 
-      toast.success('Referral program activated!');
+      toast.success('🎉 Referral program activated!');
     } catch (error) {
       console.error('Error generating referral code:', error);
-      toast.error('Failed to activate referral program');
+      toast.error(error.message || 'Failed to activate referral program');
     } finally {
       setIsLoadingReferral(false);
     }
