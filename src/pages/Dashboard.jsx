@@ -11,14 +11,30 @@ import GMBHealthCard from '@/components/dashboard/GMBHealthCard';
 import CriticalIssuesCard from '@/components/dashboard/CriticalIssuesCard';
 
 export default function DashboardPage() {
+  const [user, setUser] = React.useState(null);
+
+  React.useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const currentUser = await base44.auth.me();
+        setUser(currentUser);
+      } catch (error) {
+        console.error('Auth error:', error);
+      }
+    };
+    checkAuth();
+  }, []);
+
   const { data: leads = [], isLoading: leadsLoading } = useQuery({
     queryKey: ['leads'],
     queryFn: () => base44.entities.Lead.list('-created_date'),
+    enabled: !!user
   });
 
   const { data: orders = [], isLoading: ordersLoading } = useQuery({
     queryKey: ['orders'],
     queryFn: () => base44.entities.Order.list('-created_date'),
+    enabled: !!user
   });
 
   const stats = {
