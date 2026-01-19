@@ -135,6 +135,35 @@ export default function CheckoutV2() {
         checkoutVersion: 'V2_BETA'
       });
 
+      // Send upsell email to customer
+      if (leadData?.email) {
+        base44.functions.invoke('sendUpsellEmail', {
+          email: leadData.email,
+          businessName: leadData.business_name,
+          selectedPlan: plan.duration,
+          amount: plan.totalPrice
+        }).catch(err => {
+          console.error('Failed to send upsell email:', err);
+        });
+      }
+
+      // Send admin notification
+      if (leadData?.email) {
+        base44.functions.invoke('sendAdminUpsellNotification', {
+          orderData: {
+            email: leadData.email,
+            lead_id: leadData.id,
+            base_offer: {
+              product: `LocalRank ${plan.duration} Plan`,
+              price: plan.totalPrice
+            },
+            total_amount: plan.totalPrice
+          }
+        }).catch(err => {
+          console.error('Failed to send admin notification:', err);
+        });
+      }
+
       if (response.data?.url) {
         window.location.href = response.data.url;
       } else {
