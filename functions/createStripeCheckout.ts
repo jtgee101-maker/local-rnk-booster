@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { planData, orderBumpAccepted, leadData } = await req.json();
+    const { planData, orderBumpAccepted, leadData, checkoutVersion } = await req.json();
 
     if (!planData) {
       return Response.json({ error: 'Plan data required' }, { status: 400 });
@@ -69,7 +69,8 @@ Deno.serve(async (req) => {
         lead_id: leadData?.id || '',
         business_name: leadData?.business_name || '',
         plan_name: planData.product || 'GMB Optimization',
-        order_bump: orderBumpAccepted ? 'yes' : 'no'
+        order_bump: orderBumpAccepted ? 'yes' : 'no',
+        checkout_version: checkoutVersion || 'V1'
       }
     });
 

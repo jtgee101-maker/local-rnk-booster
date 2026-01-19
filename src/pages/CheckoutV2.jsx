@@ -122,12 +122,16 @@ export default function CheckoutV2() {
 
     try {
       const response = await base44.functions.invoke('createStripeCheckout', {
-        planId: plan.id,
-        planName: plan.duration,
-        amount: plan.totalPrice,
-        leadId: leadData?.id,
-        businessName: leadData?.business_name,
-        email: leadData?.email,
+        planData: {
+          product: `LocalRank ${plan.duration} Plan`,
+          price: plan.totalPrice
+        },
+        orderBumpAccepted: false,
+        leadData: {
+          id: leadData?.id,
+          business_name: leadData?.business_name,
+          email: leadData?.email
+        },
         checkoutVersion: 'V2_BETA'
       });
 
