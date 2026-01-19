@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import { ABTestProvider } from '@/components/abtest/ABTestProvider';
 import LegalFooter from '@/components/shared/LegalFooter';
+import V2FAQSection from '@/components/quizv2/V2FAQSection';
 
 import ProgressBar from '@/components/quiz/ProgressBar';
 import TransitionStep from '@/components/quiz/TransitionStep';
