@@ -17,7 +17,7 @@ import AdminAutomations from '@/components/admin/AdminAutomations';
 import AdminSettings from '@/components/admin/AdminSettings';
 import AdminSecurityAudit from '@/components/admin/AdminSecurityAudit';
 import UserManagement from '@/components/admin/UserManagement';
-import EmailTracking from '@/components/admin/EmailTracking';
+import EmailAnalyticsDashboard from '@/components/admin/EmailAnalyticsDashboard';
 import ErrorMonitoring from '@/components/admin/ErrorMonitoring';
 import LeadNurture from '@/components/admin/LeadNurture';
 import AdminABTests from '@/components/admin/AdminABTests';
@@ -178,7 +178,7 @@ export default function AdminControlCenter() {
 
           {/* Emails Tab */}
           <TabsContent value="emails">
-            <EmailTracking />
+            <EmailAnalyticsDashboard />
           </TabsContent>
 
           {/* Nurture Tab */}
