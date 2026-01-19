@@ -90,7 +90,7 @@ export default function ContactInfoStep({ onSubmit, businessName }) {
                 setEmail(e.target.value);
                 if (errors.email) setErrors({ ...errors, email: '' });
               }}
-              className={`w-full pl-12 pr-4 py-6 text-lg bg-gray-900 border rounded-xl focus:ring-[#c8ff00] ${
+              className={`w-full pl-12 pr-4 py-6 text-lg bg-gray-900 border rounded-xl focus:ring-[#c8ff00] text-white placeholder:text-gray-500 ${
                 errors.email ? 'border-red-500 focus:border-red-500' : 'border-gray-800 focus:border-[#c8ff00]'
               }`}
             />
@@ -110,7 +110,7 @@ export default function ContactInfoStep({ onSubmit, businessName }) {
                 setPhone(e.target.value);
                 if (errors.phone) setErrors({ ...errors, phone: '' });
               }}
-              className={`w-full pl-12 pr-4 py-6 text-lg bg-gray-900 border rounded-xl focus:ring-[#c8ff00] ${
+              className={`w-full pl-12 pr-4 py-6 text-lg bg-gray-900 border rounded-xl focus:ring-[#c8ff00] text-white placeholder:text-gray-500 ${
                 errors.phone ? 'border-red-500 focus:border-red-500' : 'border-gray-800 focus:border-[#c8ff00]'
               }`}
             />
