@@ -11,6 +11,8 @@ import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import Settings from './pages/Settings';
 import CheckoutV2 from './pages/CheckoutV2';
+import V2Start from './pages/V2Start';
+import QuizV2 from './pages/QuizV2';
 
 
 export const PAGES = {
@@ -27,6 +29,8 @@ export const PAGES = {
     "Upsell1": Upsell1,
     "Settings": Settings,
     "CheckoutV2": CheckoutV2,
+    "V2Start": V2Start,
+    "QuizV2": QuizV2,
 }
 
 export const pagesConfig = {
