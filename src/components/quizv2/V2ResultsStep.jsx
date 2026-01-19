@@ -31,22 +31,23 @@ export default function V2ResultsStep({
       animate={{ opacity: 1 }}
       className="max-w-4xl mx-auto px-4 pb-12"
     >
-      {/* Scan Complete */}
+      {/* Header */}
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ type: "spring", delay: 0.2 }}
-        className="text-center mb-8"
+        className="text-center mb-10"
       >
-        <div className="inline-flex items-center gap-2 bg-[#c8ff00]/10 border border-[#c8ff00]/30 rounded-full px-6 py-3 mb-4">
+        <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#c8ff00]/20 to-emerald-500/20 border border-[#c8ff00]/40 rounded-full px-6 py-3 mb-6">
           <CheckCircle className="w-5 h-5 text-[#c8ff00]" />
-          <span className="text-[#c8ff00] font-bold">SCAN COMPLETE</span>
+          <span className="text-[#c8ff00] font-bold">ANALYSIS COMPLETE</span>
         </div>
-        <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">
-          {businessName}'s <span className="text-red-400">Revenue Leak</span> Report
+        <h1 className="text-3xl md:text-5xl font-bold text-white mb-3 leading-tight">
+          Your Lead Independence<br />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#c8ff00] to-emerald-400">Recovery Plan</span>
         </h1>
-        <p className="text-gray-400">
-          Here's exactly how much you're losing to lead-gen platforms
+        <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+          Here's exactly how much revenue you could reclaim by owning your rankings instead of renting from platforms.
         </p>
       </motion.div>
 
