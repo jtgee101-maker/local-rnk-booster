@@ -12,7 +12,7 @@ export default function AdminOrdersSection({ expanded = false }) {
   const queryClient = useQueryClient();
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ['admin-orders-section'],
-    queryFn: () => base44.entities.Order.list('-created_date', 500),
+    queryFn: () => base44.entities.Order.list('-created_date', expanded ? 200 : 50),
   });
 
   const refundMutation = useMutation({

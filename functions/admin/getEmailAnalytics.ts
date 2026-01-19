@@ -12,14 +12,20 @@ Deno.serve(async (req) => {
     const payload = await req.json();
     const { type, startDate, endDate } = payload;
 
-    // Get email logs
-    const allLogs = await base44.asServiceRole.entities.EmailLog.list('-created_date', 10000);
+    // Validate date range (max 90 days to prevent massive fetches)
+    const start = startDate ? new Date(startDate) : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+    const end = endDate ? new Date(endDate) : new Date();
+    
+    if ((end - start) > 90 * 24 * 60 * 60 * 1000) {
+      return Response.json({ error: 'Date range cannot exceed 90 days' }, { status: 400 });
+    }
+
+    // Get email logs with limit (max 5000 for performance)
+    const allLogs = await base44.asServiceRole.entities.EmailLog.list('-created_date', 5000);
 
     // Filter by date range
     const filteredLogs = allLogs.filter(log => {
       const logDate = new Date(log.created_date);
-      const start = startDate ? new Date(startDate) : new Date(0);
-      const end = endDate ? new Date(endDate) : new Date();
       return logDate >= start && logDate <= end;
     });
 

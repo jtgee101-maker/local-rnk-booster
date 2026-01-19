@@ -12,7 +12,7 @@ export default function AdminLeadsSection({ expanded = false }) {
   const [searchTerm, setSearchTerm] = useState('');
   const { data: leads = [], isLoading } = useQuery({
     queryKey: ['admin-leads-section'],
-    queryFn: () => base44.entities.Lead.list('-created_date', 500),
+    queryFn: () => base44.entities.Lead.list('-created_date', expanded ? 200 : 50),
   });
 
   const filteredLeads = leads.filter(lead =>
