@@ -15,6 +15,7 @@ import Upsell1 from './pages/Upsell1';
 import V2Start from './pages/V2Start';
 import Testing from './pages/Testing';
 import TestingChecklist from './pages/TestingChecklist';
+import AdminControlCenter from './pages/AdminControlCenter';
 
 
 export const PAGES = {
@@ -35,6 +36,7 @@ export const PAGES = {
     "V2Start": V2Start,
     "Testing": Testing,
     "TestingChecklist": TestingChecklist,
+    "AdminControlCenter": AdminControlCenter,
 }
 
 export const pagesConfig = {
