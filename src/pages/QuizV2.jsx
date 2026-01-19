@@ -253,8 +253,8 @@ function QuizV2Content() {
     }
   };
 
-  const showBackButton = ['leadSource', 'leadsLost', 'businessSearch'].includes(step);
-  const showProgress = ['leadSource', 'leadsLost', 'businessSearch', 'processing'].includes(step);
+  const showBackButton = ['leadSource', 'leadsLost', 'businessSearch', 'contactInfo'].includes(step);
+  const showProgress = ['leadSource', 'leadsLost', 'businessSearch', 'processing', 'contactInfo'].includes(step);
 
   return (
     <>
