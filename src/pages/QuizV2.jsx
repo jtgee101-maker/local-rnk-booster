@@ -63,6 +63,8 @@ function QuizV2Content() {
     leads_lost_weekly: 0,
     business_name: '',
     email: '',
+    phone: '',
+    consent: false,
     health_score: 0,
     critical_issues: [],
     thumbtack_tax: 0
