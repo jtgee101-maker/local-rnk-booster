@@ -354,70 +354,220 @@ export const adminLeadNotificationTemplate = (leadData) => {
 };
 
 export const adminUpsellNotificationTemplate = (orderData) => {
-  const adminStyles = getAdminEmailStyles();
-  
-  return `
-    <div style="${adminStyles.container}">
-      <h2 style="color: #333; border-bottom: 2px solid #c8ff00; padding-bottom: 10px;">
-        🎉 New Upsell Conversion
-      </h2>
-      
-      <div style="${adminStyles.wrapper}">
-        <div style="${adminStyles.highlight}">
-          <p style="margin: 0; color: #333; font-weight: bold; font-size: 18px;">
-            💰 ${orderData.total_amount ? '$' + orderData.total_amount : 'New Upsell'}
-          </p>
-        </div>
-        
-        <table style="width: 100%; margin: 10px 0;">
-          <tr>
-            <td style="padding: 8px 0; color: #666; width: 40%; font-weight: bold;">Email:</td>
-            <td style="padding: 8px 0;">${orderData.email || 'N/A'}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #666; font-weight: bold;">Lead ID:</td>
-            <td style="padding: 8px 0;">${orderData.lead_id || 'N/A'}</td>
-          </tr>
-          <tr>
-            <td style="padding: 8px 0; color: #666; font-weight: bold;">Base Offer:</td>
-            <td style="padding: 8px 0;">${orderData.base_offer?.product || 'GMB Optimization & Audit'} - $${orderData.base_offer?.price || '99'}</td>
-          </tr>
-          ${orderData.upsells && orderData.upsells.length > 0 ? `
-          <tr>
-            <td style="padding: 8px 0; color: #666; font-weight: bold;">Upsells Accepted:</td>
-            <td style="padding: 8px 0;">
-              ${orderData.upsells.filter(u => u.accepted).map(u => `${u.product} ($${u.price})`).join(', ')}
-            </td>
-          </tr>
-          ` : ''}
-          <tr>
-            <td style="padding: 8px 0; color: #666; font-weight: bold;">Total Value:</td>
-            <td style="padding: 8px 0; color: #c8ff00; font-weight: bold; font-size: 16px;">$${orderData.total_amount || '0'}</td>
-          </tr>
-          ${orderData.stripe_payment_intent ? `
-          <tr>
-            <td style="padding: 8px 0; color: #666; font-weight: bold;">Payment Intent:</td>
-            <td style="padding: 8px 0; font-family: monospace; font-size: 12px;">${orderData.stripe_payment_intent}</td>
-          </tr>
-          ` : ''}
-        </table>
-        
-        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-          <a href="https://localrnk.com/Admin" style="${adminStyles.ctaButton}">
-            View in Admin Dashboard
-          </a>
-        </div>
-      </div>
-      
-      <div style="background: #fffbeb; border: 1px solid #fcd34d; border-radius: 6px; padding: 15px; margin: 20px 0;">
-        <p style="margin: 0; color: #333; font-size: 14px;">
-          <strong>📋 Action Items:</strong> Send welcome call, schedule kickoff, assign account manager
-        </p>
-      </div>
-      
-      <p style="color: #666; font-size: 12px; margin-top: 20px;">
-        This is an automated notification from LocalRank.ai
-      </p>
-    </div>
-  `;
+   const adminStyles = getAdminEmailStyles();
+
+   return `
+     <div style="${adminStyles.container}">
+       <h2 style="color: #333; border-bottom: 2px solid #c8ff00; padding-bottom: 10px;">
+         🎉 New Upsell Conversion
+       </h2>
+
+       <div style="${adminStyles.wrapper}">
+         <div style="${adminStyles.highlight}">
+           <p style="margin: 0; color: #333; font-weight: bold; font-size: 18px;">
+             💰 ${orderData.total_amount ? '$' + orderData.total_amount : 'New Upsell'}
+           </p>
+         </div>
+
+         <table style="width: 100%; margin: 10px 0;">
+           <tr>
+             <td style="padding: 8px 0; color: #666; width: 40%; font-weight: bold;">Email:</td>
+             <td style="padding: 8px 0;">${orderData.email || 'N/A'}</td>
+           </tr>
+           <tr>
+             <td style="padding: 8px 0; color: #666; font-weight: bold;">Lead ID:</td>
+             <td style="padding: 8px 0;">${orderData.lead_id || 'N/A'}</td>
+           </tr>
+           <tr>
+             <td style="padding: 8px 0; color: #666; font-weight: bold;">Base Offer:</td>
+             <td style="padding: 8px 0;">${orderData.base_offer?.product || 'GMB Optimization & Audit'} - $${orderData.base_offer?.price || '99'}</td>
+           </tr>
+           ${orderData.upsells && orderData.upsells.length > 0 ? `
+           <tr>
+             <td style="padding: 8px 0; color: #666; font-weight: bold;">Upsells Accepted:</td>
+             <td style="padding: 8px 0;">
+               ${orderData.upsells.filter(u => u.accepted).map(u => `${u.product} ($${u.price})`).join(', ')}
+             </td>
+           </tr>
+           ` : ''}
+           <tr>
+             <td style="padding: 8px 0; color: #666; font-weight: bold;">Total Value:</td>
+             <td style="padding: 8px 0; color: #c8ff00; font-weight: bold; font-size: 16px;">$${orderData.total_amount || '0'}</td>
+           </tr>
+           ${orderData.stripe_payment_intent ? `
+           <tr>
+             <td style="padding: 8px 0; color: #666; font-weight: bold;">Payment Intent:</td>
+             <td style="padding: 8px 0; font-family: monospace; font-size: 12px;">${orderData.stripe_payment_intent}</td>
+           </tr>
+           ` : ''}
+         </table>
+
+         <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+           <a href="https://localrnk.com/Admin" style="${adminStyles.ctaButton}">
+             View in Admin Dashboard
+           </a>
+         </div>
+       </div>
+
+       <div style="background: #fffbeb; border: 1px solid #fcd34d; border-radius: 6px; padding: 15px; margin: 20px 0;">
+         <p style="margin: 0; color: #333; font-size: 14px;">
+           <strong>📋 Action Items:</strong> Send welcome call, schedule kickoff, assign account manager
+         </p>
+       </div>
+
+       <p style="color: #666; font-size: 12px; margin-top: 20px;">
+         This is an automated notification from LocalRank.ai
+       </p>
+     </div>
+   `;
+};
+
+export const paymentConfirmationTemplate = (businessName, productName, amount, invoiceId) => {
+   const styles = getEmailStyles();
+
+   return `
+     <div style="${styles.container}">
+       <div style="${styles.header}">
+         <h1 style="${styles.title}">LocalRank.ai</h1>
+       </div>
+
+       <div style="${styles.wrapper}">
+         <div style="text-align: center; margin-bottom: 20px;">
+           <div style="display: inline-block; background: rgba(16, 185, 129, 0.2); border-radius: 50%; padding: 20px;">
+             <span style="font-size: 48px;">💳</span>
+           </div>
+         </div>
+
+         <h2 style="${styles.secondaryTitle}">Payment Confirmed!</h2>
+
+         <p style="color: #ccc; line-height: 1.6; text-align: center;">
+           Thank you, ${businessName || 'valued customer'}! Your payment has been successfully processed.
+         </p>
+
+         <div style="${styles.highlight}">
+           <table style="width: 100%;">
+             <tr>
+               <td style="padding: 8px 0; color: #999;">Service:</td>
+               <td style="padding: 8px 0; color: #fff; text-align: right; font-weight: bold;">${productName || 'GMB Optimization'}</td>
+             </tr>
+             <tr>
+               <td style="padding: 8px 0; color: #999;">Amount Charged:</td>
+               <td style="padding: 8px 0; color: #c8ff00; text-align: right; font-size: 20px; font-weight: bold;">$${amount || '0'}</td>
+             </tr>
+             ${invoiceId ? `
+             <tr>
+               <td style="padding: 8px 0; color: #999;">Invoice ID:</td>
+               <td style="padding: 8px 0; color: #fff; text-align: right; font-family: monospace; font-size: 12px;">${invoiceId}</td>
+             </tr>
+             ` : ''}
+           </table>
+         </div>
+
+         <h3 style="color: #fff; margin-top: 30px;">Your Service Begins Now</h3>
+         <div style="color: #ccc; line-height: 1.8;">
+           <p>✅ Your account is now active and ready</p>
+           <p>✅ Check your email for onboarding instructions</p>
+           <p>✅ Your dedicated team is already working on your optimization</p>
+           <p>✅ Access your dashboard to monitor progress</p>
+         </div>
+
+         <div style="text-align: center; margin: 30px 0;">
+           <a href="https://localrnk.com/Dashboard" style="${styles.ctaButton}">
+             View Your Dashboard
+           </a>
+         </div>
+
+         <div style="${styles.infoBox}">
+           <p style="margin: 0; color: #ccc; font-size: 14px; line-height: 1.6;">
+             <strong>📧 Next Step:</strong> Watch for an email from your account manager with your personalized optimization timeline.
+           </p>
+         </div>
+
+         <div style="${styles.footer}">
+           <p style="color: #999; font-size: 14px; text-align: center; line-height: 1.6;">
+             Questions? Reply to this email or contact us at support@localrnk.com
+           </p>
+         </div>
+       </div>
+
+       <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
+         <p>© 2026 LocalRank.ai • Privacy Policy</p>
+       </div>
+     </div>
+   `;
+};
+
+export const upsellConversionTemplate = (businessName, upsellProduct, amount, totalValue) => {
+   const styles = getEmailStyles();
+
+   return `
+     <div style="${styles.container}">
+       <div style="${styles.header}">
+         <h1 style="${styles.title}">LocalRank.ai</h1>
+       </div>
+
+       <div style="${styles.wrapper}">
+         <div style="text-align: center; margin-bottom: 20px;">
+           <div style="display: inline-block; background: rgba(168, 85, 247, 0.2); border-radius: 50%; padding: 20px;">
+             <span style="font-size: 48px;">🎉</span>
+           </div>
+         </div>
+
+         <h2 style="${styles.secondaryTitle}">Premium Upgrade Confirmed!</h2>
+
+         <p style="color: #ccc; line-height: 1.6; text-align: center;">
+           Excellent choice, ${businessName || 'valued customer'}! You've unlocked premium features.
+         </p>
+
+         <div style="${styles.highlight}">
+           <p style="margin: 0 0 15px 0; color: #999; font-size: 12px;">UPGRADE DETAILS</p>
+           <table style="width: 100%;">
+             <tr>
+               <td style="padding: 8px 0; color: #999;">Premium Service:</td>
+               <td style="padding: 8px 0; color: #fff; text-align: right; font-weight: bold;">${upsellProduct || 'Premium Tier'}</td>
+             </tr>
+             <tr>
+               <td style="padding: 8px 0; color: #999;">Upgrade Cost:</td>
+               <td style="padding: 8px 0; color: #a855f7; text-align: right; font-size: 20px; font-weight: bold;">$${amount || '0'}</td>
+             </tr>
+             <tr style="border-top: 1px solid rgba(200,255,0,0.2);">
+               <td style="padding: 8px 0; color: #999; font-weight: bold;">Total Subscription Value:</td>
+               <td style="padding: 8px 0; color: #c8ff00; text-align: right; font-size: 20px; font-weight: bold;">$${totalValue || '0'}</td>
+             </tr>
+           </table>
+         </div>
+
+         <h3 style="color: #fff; margin-top: 30px;">What You Get Now</h3>
+         <div style="color: #ccc; line-height: 1.8;">
+           <p>✅ Advanced competitor analysis</p>
+           <p>✅ Priority support & dedicated account manager</p>
+           <p>✅ Custom strategy sessions (bi-weekly)</p>
+           <p>✅ Comprehensive monthly performance reports</p>
+           <p>✅ Access to advanced optimization tools</p>
+         </div>
+
+         <div style="text-align: center; margin: 30px 0;">
+           <a href="https://localrnk.com/Dashboard" style="${styles.ctaButton}">
+             Access Premium Dashboard
+           </a>
+         </div>
+
+         <div style="${styles.infoBox}">
+           <p style="margin: 0; color: #ccc; font-size: 14px; line-height: 1.6;">
+             <strong>🚀 Pro Tip:</strong> Your premium onboarding call is scheduled within 24 hours. Look for a calendar invite!
+           </p>
+         </div>
+
+         <div style="${styles.footer}">
+           <p style="color: #999; font-size: 14px; text-align: center; line-height: 1.6;">
+             Questions? Reply to this email or contact us at support@localrnk.com
+           </p>
+         </div>
+       </div>
+
+       <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
+         <p>© 2026 LocalRank.ai • Privacy Policy</p>
+       </div>
+     </div>
+   `;
 };
