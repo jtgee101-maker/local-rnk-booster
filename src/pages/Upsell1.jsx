@@ -289,6 +289,17 @@ function Upsell1Content() {
             </div>
           </motion.div>
 
+          {/* Error Display */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg"
+            >
+              <p className="text-red-300 text-sm font-semibold">{error}</p>
+            </motion.div>
+          )}
+
           {/* CTA Buttons */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -298,26 +309,31 @@ function Upsell1Content() {
           >
             <Button
               onClick={handleAccept}
-              disabled={isProcessing}
-              className="w-full bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-bold py-7 text-xl rounded-full transition-all duration-300 hover:shadow-[0_0_40px_rgba(200,255,0,0.4)] hover:scale-105"
+              disabled={isProcessing || !leadData}
+              className="w-full bg-gradient-to-r from-[#c8ff00] to-green-400 hover:from-[#d4ff33] hover:to-green-300 text-black font-bold py-7 text-xl rounded-full transition-all duration-300 hover:shadow-[0_0_50px_rgba(200,255,0,0.4)] disabled:opacity-70 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
             >
               {isProcessing ? (
-                'Processing...'
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Processing Order...
+                </span>
               ) : (
-              <>
-                <Clock className="mr-2 w-5 h-5" />
-                {variantContent.cta}
-                <ArrowRight className="ml-2 w-6 h-6" />
-              </>
+                <span className="flex items-center justify-center gap-2">
+                  <Clock className="w-5 h-5" />
+                  {variantContent.cta}
+                  <ArrowRight className="w-6 h-6" />
+                </span>
               )}
             </Button>
 
-            <button
+            <Button
               onClick={handleDecline}
-              className="text-gray-500 hover:text-gray-400 text-sm py-3 transition-colors"
+              disabled={isProcessing}
+              variant="ghost"
+              className="text-gray-500 hover:text-gray-400 hover:bg-gray-800/50 text-sm py-3 transition-all"
             >
               No thanks, I'll risk losing more customers while I figure this out myself
-            </button>
+            </Button>
           </motion.div>
 
           {/* Trust Line */}
