@@ -1,10 +1,12 @@
 import React, { useState, useCallback } from 'react';
+import { Helmet } from 'react-helmet';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import { ABTestProvider, useABTest } from '@/components/abtest/ABTestProvider';
+import LegalFooter from '@/components/shared/LegalFooter';
 
 import ProgressBar from '@/components/quiz/ProgressBar';
 import SectionProgress from '@/components/quiz/SectionProgress';
@@ -251,9 +253,56 @@ function QuizContent() {
   const showProgress = ['category', 'painpoint', 'goals', 'timeline', 'businessSearch', 'processing'].includes(step);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f]" />
+    <>
+      <Helmet>
+        <title>Free GMB Audit - Find Hidden Ranking Errors in 60 Seconds | LocalRank.ai</title>
+        <meta name="description" content="Discover why you're losing 15+ calls a day to competitors. Free AI-powered audit reveals $15,000+ in lost revenue. Used by 7M+ businesses. No credit card required." />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Free GMB Audit - Stop Losing Calls to Competitors" />
+        <meta property="og:description" content="60-second AI scan reveals hidden ranking errors costing you $15,000/year. 7M+ businesses trust LocalRank.ai" />
+        <meta property="og:image" content="https://localrank.ai/og-image.png" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Free GMB Audit - Stop Losing Calls to Competitors" />
+        <meta name="twitter:description" content="60-second AI scan reveals hidden ranking errors costing you $15,000/year" />
+        
+        {/* Mobile Optimization */}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+        <meta name="theme-color" content="#c8ff00" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        
+        {/* SEO */}
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href="https://localrank.ai" />
+        
+        {/* Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "LocalRank.ai",
+            "applicationCategory": "BusinessApplication",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": "4.9",
+              "ratingCount": "89000"
+            }
+          })}
+        </script>
+      </Helmet>
+
+      <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden">
+        {/* Background Effects */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f]" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-[#c8ff00]/5 rounded-full blur-[120px]" />
       <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-[100px]" />
 
@@ -382,14 +431,11 @@ function QuizContent() {
           </AnimatePresence>
         </main>
 
-        {/* Footer */}
-        <footer className="p-6">
-          <div className="text-center text-gray-600 text-xs">
-            © 2024 LocalRank.ai • Privacy Policy • Terms
-          </div>
-        </footer>
       </div>
-    </div>
+
+      {/* Legal Footer - Only show on welcome step */}
+      {step === 'welcome' && <LegalFooter />}
+    </>
   );
 }
 
