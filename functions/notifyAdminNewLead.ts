@@ -3,13 +3,24 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const { leadData } = await req.json();
+    const payload = await req.json();
+    
+    // Handle both direct invocation and entity automation trigger
+    let leadData;
+    if (payload.leadData) {
+      leadData = payload.leadData;
+    } else if (payload.event && payload.data) {
+      // Entity automation payload
+      leadData = payload.data;
+    } else {
+      return Response.json({ error: 'Lead data required' }, { status: 400 });
+    }
 
     if (!leadData) {
       return Response.json({ error: 'Lead data required' }, { status: 400 });
     }
 
-    const adminEmail = 'admin@localrank.ai'; // Replace with actual admin email
+    const adminEmail = 'jtgee101@gmail.com'; // Admin email
 
     const scoreColor = leadData.health_score >= 70 ? '#10b981' : 
                        leadData.health_score >= 50 ? '#f59e0b' : '#ef4444';
@@ -70,9 +81,9 @@ Deno.serve(async (req) => {
           ` : ''}
           
           <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-            <a href="https://your-app.base44.com/Dashboard" 
+            <a href="https://localrank.ai/Admin" 
                style="display: inline-block; background: #c8ff00; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
-              View in Dashboard
+              View in Admin Dashboard
             </a>
           </div>
         </div>

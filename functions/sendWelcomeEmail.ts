@@ -3,7 +3,18 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const { leadData } = await req.json();
+    const payload = await req.json();
+    
+    // Handle both direct invocation and entity automation trigger
+    let leadData;
+    if (payload.leadData) {
+      leadData = payload.leadData;
+    } else if (payload.event && payload.data) {
+      // Entity automation payload
+      leadData = payload.data;
+    } else {
+      return Response.json({ error: 'Lead data required' }, { status: 400 });
+    }
 
     if (!leadData || !leadData.email) {
       return Response.json({ error: 'Lead data and email required' }, { status: 400 });
