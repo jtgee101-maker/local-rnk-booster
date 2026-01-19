@@ -14,6 +14,7 @@ export default function ThankYouPage() {
   const [referralStats, setReferralStats] = useState({ total: 0, converted: 0, credits: 0 });
   const [isCopied, setIsCopied] = useState(false);
   const [isLoadingReferral, setIsLoadingReferral] = useState(false);
+  const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
 
   useEffect(() => {
     const stored = sessionStorage.getItem('quizLead');
