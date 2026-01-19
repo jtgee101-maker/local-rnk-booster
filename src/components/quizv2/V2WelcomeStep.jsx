@@ -43,7 +43,7 @@ export default function V2WelcomeStep({ onStart }) {
         <p className="text-xl md:text-2xl text-gray-300 font-medium">
           Discover how much revenue you're <span className="text-red-400">actually losing</span> to Thumbtack, HomeAdvisor, Angi, and Scorpion
         </p>
-        <p className="text-lg text-gray-500">
+        <p className="text-lg text-white font-medium">
           The same lead you pay $100 for is being sold to 4 of your competitors right now.
         </p>
       </motion.div>
