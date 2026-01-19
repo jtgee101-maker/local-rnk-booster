@@ -3,7 +3,14 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const { leadId } = await req.json();
+    
+    let leadId;
+    try {
+      const payload = await req.json();
+      leadId = payload.leadId || payload.event?.entity_id;
+    } catch {
+      return Response.json({ error: 'Invalid request' }, { status: 400 });
+    }
 
     if (!leadId) {
       return Response.json({ error: 'Lead ID required' }, { status: 400 });
