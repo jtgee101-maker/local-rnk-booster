@@ -25,7 +25,7 @@ import V2ResultsStep from '@/components/quizv2/V2ResultsStep';
 
 import { Target, Rocket } from 'lucide-react';
 
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
 
 const criticalIssuesByLeadSource = {
   thumbtack: [
