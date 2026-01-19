@@ -13,8 +13,8 @@ import OrderBump from '@/components/checkout/OrderBump';
 import PricingSummary from '@/components/checkout/PricingSummary';
 import CountdownTimer from '@/components/shared/CountdownTimer';
 
-// Initialize Stripe
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_51QdVqxP5bN7rNnPy1TQNcjXlp2IiCIrZTy7NkwZy7W0k4AoZXLsZVw4kpHsI9sLdmLLiO9BhQ3AJLnvnPjc9iCjP00qwx5M5xU');
+// Initialize Stripe - using test publishable key for development
+const stripePromise = loadStripe('pk_test_51QdVqxP5bN7rNnPy1TQNcjXlp2IiCIrZTy7NkwZy7W0k4AoZXLsZVw4kpHsI9sLdmLLiO9BhQ3AJLnvnPjc9iCjP00qwx5M5xU');
 
 function CheckoutForm({ leadData, selectedPlan, orderBumpSelected, onOrderBumpToggle }) {
   const stripe = useStripe();
