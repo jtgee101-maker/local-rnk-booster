@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, CheckCircle, Zap, X, ArrowRight, Clock, Shield } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Zap, X, ArrowRight, Clock, Shield, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
 import { ABTestProvider, useABTest } from '@/components/abtest/ABTestProvider';
+import { toast } from 'sonner';
 
 function Upsell1Content() {
   const navigate = useNavigate();
