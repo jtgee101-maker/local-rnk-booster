@@ -250,49 +250,121 @@ export default function ThankYouPage() {
             />
           </motion.div>
 
-          {/* Referral Program - Gamification */}
+          {/* Referral Program - Fully Functional */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.1 }}
-            className="text-center"
+            className="w-full max-w-2xl mx-auto"
           >
-            <Button
-              variant="ghost"
-              onClick={() => setShowReferral(!showReferral)}
-              className="text-gray-400 hover:text-[#c8ff00] transition-colors"
-            >
-              <Gift className="mr-2 w-4 h-4" />
-              🎁 Refer a Friend, Get $100 Credit
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </Button>
-
-            {showReferral && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                className="mt-4 bg-gradient-to-br from-[#c8ff00]/10 to-green-500/10 border border-[#c8ff00]/30 rounded-xl p-6"
+            {!referralCode ? (
+              <Button
+                onClick={() => {
+                  generateReferralCode();
+                  setShowReferral(true);
+                }}
+                disabled={isLoadingReferral}
+                className="w-full bg-gradient-to-r from-[#c8ff00] to-green-400 hover:from-[#d4ff33] hover:to-green-300 text-black font-bold py-6 px-8 text-lg rounded-xl transition-all duration-300 hover:shadow-[0_0_50px_rgba(200,255,0,0.4)] disabled:opacity-70"
               >
-                <h3 className="text-white font-bold mb-2">Share the Love 💚</h3>
-                <p className="text-gray-400 text-sm mb-4">
-                  Know another business struggling with local SEO? Refer them and earn $100 in service credits when they sign up!
-                </p>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={`https://localrank.ai?ref=${leadData?.email || 'friend'}`}
-                    readOnly
-                    className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-sm text-gray-300"
-                  />
-                  <Button
-                    onClick={() => {
-                      navigator.clipboard.writeText(`https://localrank.ai?ref=${leadData?.email || 'friend'}`);
-                      alert('Referral link copied!');
-                    }}
-                    className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black"
-                  >
-                    Copy Link
-                  </Button>
+                <Gift className="mr-2 w-5 h-5" />
+                🎁 Unlock $100 Referral Program
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            ) : null}
+
+            {showReferral && referralCode && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-6 bg-gradient-to-br from-[#c8ff00]/15 via-green-500/10 to-[#c8ff00]/5 border-2 border-[#c8ff00]/50 rounded-2xl p-8 shadow-2xl"
+              >
+                {/* Header */}
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-3 rounded-lg bg-[#c8ff00]/20">
+                    <Gift className="w-6 h-6 text-[#c8ff00]" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="text-2xl font-bold text-white">Your Referral Program</h3>
+                    <p className="text-sm text-gray-400">Earn $100 for every referred client who signs up</p>
+                  </div>
+                </div>
+
+                {/* Stats */}
+                <div className="grid grid-cols-3 gap-4 mb-8 p-4 bg-gray-900/40 rounded-lg border border-gray-800">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-[#c8ff00]">{referralStats.total}</div>
+                    <div className="text-xs text-gray-400 mt-1">Referrals Sent</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-400">{referralStats.converted}</div>
+                    <div className="text-xs text-gray-400 mt-1">Converted</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-white">${referralStats.credits}</div>
+                    <div className="text-xs text-gray-400 mt-1">Earned Credits</div>
+                  </div>
+                </div>
+
+                {/* Referral Code */}
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold text-gray-300 mb-2">Your Unique Referral Code</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={referralCode}
+                      readOnly
+                      className="flex-1 bg-gray-900 border-2 border-[#c8ff00]/30 rounded-lg px-4 py-3 text-sm text-[#c8ff00] font-mono font-bold"
+                    />
+                    <Button
+                      onClick={copyReferralLink}
+                      className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-bold px-6 py-3 rounded-lg transition-all"
+                    >
+                      {isCopied ? (
+                        <><Check className="w-4 h-4 mr-2" />Copied</>
+                      ) : (
+                        <><Copy className="w-4 h-4 mr-2" />Copy</>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Share Options */}
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold text-gray-300 mb-3">Share With Friends</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <Button
+                      onClick={shareReferralViaEmail}
+                      className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-all"
+                    >
+                      <Mail className="w-4 h-4 mr-2" />
+                      Email Invite
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        const link = `https://localrank.ai?ref=${referralCode}`;
+                        if (navigator.share) {
+                          navigator.share({
+                            title: 'Free GMB Audit',
+                            text: 'Check out this free tool that scores your Google My Business profile!',
+                            url: link
+                          });
+                        } else {
+                          toast.info('Use email or copy link to share');
+                        }
+                      }}
+                      className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-lg transition-all"
+                    >
+                      <Share2 className="w-4 h-4 mr-2" />
+                      Share Link
+                    </Button>
+                  </div>
+                </div>
+
+                {/* CTA */}
+                <div className="p-4 bg-[#c8ff00]/10 border border-[#c8ff00]/30 rounded-lg">
+                  <p className="text-sm text-gray-300">
+                    💡 <span className="font-semibold">Pro Tip:</span> Share with business owners in your network. Credits apply to future services!
+                  </p>
                 </div>
               </motion.div>
             )}
