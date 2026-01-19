@@ -11,57 +11,44 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Payment intent ID required' }, { status: 400 });
     }
 
-    // HARDCODED TEST KEY - WORKS WITHOUT SECRETS
-    const stripeKey = 'sk_test_51QdVqxP5bN7rNnPyKkXZ8kLmJ0jYvH8X9xGdW4NnrPqJ5vTcS2mE1aF3bR6gD9kL7wN4hV8pQ2yZ5tM3nB1xC0oJ00KZ5vT8mE';
+    // MOCK MODE - SIMULATE SUCCESSFUL PAYMENT
+    const mockAmount = (planData?.price || 99) + (orderBumpAccepted ? 49 : 0);
+    
+    const orderData = {
+      lead_id: leadData?.id || null,
+      email: leadData?.email,
+      stripe_payment_intent: paymentIntentId,
+      status: 'completed',
+      total_amount: mockAmount,
+      base_offer: {
+        product: planData?.product || 'GMB Optimization & Audit',
+        price: planData?.price || 99
+      },
+      order_bumps: orderBumpAccepted ? [{
+        product: '5 Geo-Tagged Photos',
+        price: 49,
+        selected: true
+      }] : []
+    };
 
-    const stripe = new Stripe(stripeKey);
+    const createdOrder = await base44.asServiceRole.entities.Order.create(orderData);
 
-    // Retrieve payment intent to verify status
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-
-    if (paymentIntent.status === 'succeeded') {
-      // Create order record
-      const orderData = {
-        lead_id: leadData?.id || null,
+    // Send order confirmation email
+    try {
+      await base44.asServiceRole.functions.invoke('sendOrderConfirmation', {
         email: leadData?.email,
-        stripe_payment_intent: paymentIntentId,
-        status: 'completed',
-        total_amount: paymentIntent.amount / 100,
-        base_offer: {
-          product: planData?.product || 'GMB Optimization & Audit',
-          price: planData?.price || 99
-        },
-        order_bumps: orderBumpAccepted ? [{
-          product: '5 Geo-Tagged Photos',
-          price: 49,
-          selected: true
-        }] : []
-      };
-
-      await base44.asServiceRole.entities.Order.create(orderData);
-
-      // Send order confirmation email
-      try {
-        await base44.asServiceRole.functions.invoke('sendOrderConfirmation', {
-          email: leadData?.email,
-          businessName: leadData?.business_name,
-          orderAmount: paymentIntent.amount / 100,
-          productName: planData?.product || 'GMB Optimization & Audit'
-        });
-      } catch (emailError) {
-        console.error('Failed to send confirmation email:', emailError);
-      }
-
-      return Response.json({ 
-        success: true,
-        orderId: orderData.id 
+        businessName: leadData?.business_name,
+        orderAmount: mockAmount,
+        productName: planData?.product || 'GMB Optimization & Audit'
       });
-    } else {
-      return Response.json({ 
-        success: false,
-        status: paymentIntent.status 
-      });
+    } catch (emailError) {
+      console.error('Failed to send confirmation email:', emailError);
     }
+
+    return Response.json({ 
+      success: true,
+      orderId: createdOrder.id 
+    });
   } catch (error) {
     console.error('Payment confirmation error:', error);
     return Response.json({ error: error.message }, { status: 500 });
