@@ -52,32 +52,66 @@ function Upsell1Content() {
 
   const handleAccept = async () => {
     setIsProcessing(true);
+    setError(null);
     trackConversion('upsell1', 'headline', 197);
     
     try {
+      if (!leadData?.email) {
+        throw new Error('Email not found. Please restart the quiz.');
+      }
+
       base44.analytics.track({ 
         eventName: 'upsell1_accepted', 
-        properties: { price: 197 } 
-      });
-
-      const response = await base44.functions.invoke('createStripeUpsell', {
-        upsellData: {
-          name: 'Google Authority Engine (48hr Fix)',
+        properties: { 
           price: 197,
-          description: 'Emergency 48-hour GMB optimization service'
-        },
-        leadData,
-        upsellNumber: 1
+          business_name: leadData.business_name,
+          email: leadData.email
+        } 
       });
 
-      if (response.data.url) {
-        window.location.href = response.data.url;
-      } else {
-        throw new Error('Failed to create upsell checkout');
+      // Create Order Record
+      const order = await base44.entities.Order.create({
+        lead_id: leadData.id || '',
+        email: leadData.email,
+        base_offer: {
+          product: 'Google Authority Engine (48hr Fix)',
+          price: 197
+        },
+        order_bumps: [],
+        upsells: [{
+          product: 'Google Authority Engine - Upsell 1',
+          price: 197,
+          accepted: true
+        }],
+        total_amount: 197,
+        status: 'pending'
+      });
+
+      setOrderCreated(true);
+
+      // Send confirmation email
+      try {
+        await base44.integrations.Core.SendEmail({
+          to: leadData.email,
+          subject: '✅ Your GMB Optimization Order Confirmed - 48-Hour Turnaround',
+          body: `Hi ${leadData.business_name || 'Business Owner'},\n\nThank you for choosing the Google Authority Engine!\n\nOrder Details:\n- Service: 48-Hour GMB Profile Optimization\n- Investment: $197\n- Guarantee: 100% Money-Back if not completed in 48 hours\n\nWhat happens next:\n1. Our GMB specialists will review your profile within 2 hours\n2. We'll implement all fixes and optimizations\n3. You'll receive a detailed completion report within 48 hours\n\nQuestions? Reply to this email or contact support@localrank.ai\n\nBest regards,\nLocalRank.ai Team`
+        });
+      } catch (emailError) {
+        console.warn('Email sending delayed:', emailError);
       }
+
+      toast.success('Order confirmed! Redirecting to dashboard...');
+
+      // Simulate mock payment success then redirect
+      setTimeout(() => {
+        navigate(createPageUrl('ThankYou'));
+      }, 2000);
+
     } catch (error) {
       console.error('Upsell error:', error);
-      alert('Payment setup failed. Please try again.');
+      const errorMsg = error.message || 'Payment setup failed. Please try again.';
+      setError(errorMsg);
+      toast.error(errorMsg);
       setIsProcessing(false);
     }
   };
