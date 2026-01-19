@@ -92,6 +92,41 @@ export default function ThankYouPage() {
     toast.success('Email compose opened!');
   };
 
+  const downloadAuditPDF = async () => {
+    if (!leadData) {
+      toast.error('Lead data not available');
+      return;
+    }
+
+    setIsDownloadingPDF(true);
+
+    try {
+      const response = await base44.functions.invoke('generateAuditPDF', leadData);
+      
+      if (response.status === 200) {
+        // Create blob from response data
+        const blob = new Blob([response.data], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `GMB-Audit-Report-${leadData.business_name?.replace(/\s+/g, '-') || 'Report'}-${Date.now()}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+        
+        toast.success('✅ Audit report downloaded!');
+      } else {
+        throw new Error('Failed to generate PDF');
+      }
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      toast.error('Failed to download audit report');
+    } finally {
+      setIsDownloadingPDF(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden">
       {/* Background */}
