@@ -28,7 +28,7 @@ const TOTAL_STEPS = 5;
 
 const criticalIssuesByLeadSource = {
   thumbtack: [
-    'You\'re paying $100+ per lead that\'s sold to 5 competitors',
+    'Paying $100+ per lead sold to 5 competitors - zero exclusivity',
     'No lead exclusivity - competitors get the same contact instantly',
     'Fake phone numbers and unqualified leads costing you time and money'
   ],
@@ -38,9 +38,9 @@ const criticalIssuesByLeadSource = {
     'Zero transparency - you have no idea who else is getting your leads'
   ],
   angi: [
-    'Lead-sharing model means you\'re competing on price, not quality',
+    'Lead-sharing model means competing on price, not quality',
     'Customer data belongs to Angi, not you - no repeat business',
-    'Forced to accept leads or lose your "pro" status'
+    'Forced to accept leads or lose your pro status'
   ],
   scorpion: [
     '$24,000/year contract lock-in with no ownership',
@@ -114,23 +114,51 @@ function QuizV2Content() {
   const handleBusinessSearchSelect = async (businessData) => {
     setIsLoading(true);
     
-    // Calculate health score
-    let healthScore = 45; // Start lower for V2
+    // Start with baseline score of 25 (everyone has issues)
+    let healthScore = 25;
     
-    if (businessData.gmb_rating >= 4.5) healthScore += 15;
-    else if (businessData.gmb_rating >= 4.0) healthScore += 10;
-    else if (businessData.gmb_rating >= 3.5) healthScore += 5;
+    // Rating scoring - much stricter thresholds
+    if (businessData.gmb_rating >= 4.8) healthScore += 12;
+    else if (businessData.gmb_rating >= 4.5) healthScore += 8;
+    else if (businessData.gmb_rating >= 4.0) healthScore += 4;
+    else healthScore -= 5; // Penalty for low rating
     
-    if (businessData.gmb_reviews_count >= 50) healthScore += 15;
-    else if (businessData.gmb_reviews_count >= 20) healthScore += 10;
-    else if (businessData.gmb_reviews_count >= 10) healthScore += 5;
+    // Reviews count - significantly stricter
+    if (businessData.gmb_reviews_count >= 100) healthScore += 15;
+    else if (businessData.gmb_reviews_count >= 50) healthScore += 10;
+    else if (businessData.gmb_reviews_count >= 25) healthScore += 5;
+    else if (businessData.gmb_reviews_count < 10) healthScore -= 5; // Penalty
     
-    if (businessData.gmb_photos_count >= 20) healthScore += 10;
-    else if (businessData.gmb_photos_count >= 10) healthScore += 7;
-    else if (businessData.gmb_photos_count >= 5) healthScore += 4;
+    // Photos - much higher requirements
+    if (businessData.gmb_photos_count >= 50) healthScore += 10;
+    else if (businessData.gmb_photos_count >= 30) healthScore += 6;
+    else if (businessData.gmb_photos_count >= 15) healthScore += 3;
+    else healthScore -= 3; // Penalty for few photos
     
-    if (businessData.gmb_has_hours) healthScore += 5;
+    // Business hours
+    if (businessData.gmb_has_hours) healthScore += 4;
+    else healthScore -= 6; // Major penalty for missing hours
+    
+    // Website presence
     if (businessData.website) healthScore += 5;
+    else healthScore -= 5; // Penalty for no website
+    
+    // Additional penalties for missing critical data
+    if (!businessData.phone) healthScore -= 8;
+    if (!businessData.gmb_types || businessData.gmb_types.length === 0) healthScore -= 5;
+    
+    // Recent review activity penalty (if available)
+    if (businessData.gmb_reviews && businessData.gmb_reviews.length > 0) {
+      const recentReviews = businessData.gmb_reviews.filter(r => {
+        const reviewDate = new Date(r.time * 1000);
+        const monthsAgo = (Date.now() - reviewDate.getTime()) / (1000 * 60 * 60 * 24 * 30);
+        return monthsAgo <= 3;
+      });
+      if (recentReviews.length < 3) healthScore -= 8; // Penalty for low review velocity
+    }
+    
+    // Cap score between 15-72 to ensure everyone needs improvement
+    healthScore = Math.max(15, Math.min(72, healthScore));
     
     // Calculate "Thumbtack Tax"
     const avgLeadCost = quizData.lead_source === 'scorpion' ? 2000 : 100;
