@@ -8,9 +8,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, DollarSign, TrendingUp, AlertCircle, Download, Search, RefreshCw, BarChart3, UserCog, Mail } from 'lucide-react';
+import { Users, DollarSign, TrendingUp, AlertCircle, Download, Search, RefreshCw, BarChart3, UserCog, Mail, Bug } from 'lucide-react';
 import UserManagement from '@/components/admin/UserManagement';
 import EmailTracking from '@/components/admin/EmailTracking';
+import ErrorMonitoring from '@/components/admin/ErrorMonitoring';
 
 export default function AdminPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -202,6 +203,10 @@ export default function AdminPage() {
               <Mail className="w-4 h-4 mr-2" />
               Emails
             </TabsTrigger>
+            <TabsTrigger value="errors" className="data-[state=active]:bg-gray-700">
+              <Bug className="w-4 h-4 mr-2" />
+              Errors
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="leads">
@@ -382,6 +387,10 @@ export default function AdminPage() {
 
           <TabsContent value="emails">
             <EmailTracking />
+          </TabsContent>
+
+          <TabsContent value="errors">
+            <ErrorMonitoring />
           </TabsContent>
         </Tabs>
       </div>
