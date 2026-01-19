@@ -430,7 +430,6 @@ function QuizContent() {
             )}
           </AnimatePresence>
         </main>
-
       </div>
 
       {/* Legal Footer - Only show on welcome step */}
