@@ -20,10 +20,67 @@ export default function ThankYouPage() {
     if (stored) {
       setLeadData(JSON.parse(stored));
     }
-    
-    // Don't clear immediately - keep for referral program
-    // sessionStorage.removeItem('quizLead');
   }, []);
+
+  const generateReferralCode = async () => {
+    if (!leadData?.email) return;
+    setIsLoadingReferral(true);
+
+    try {
+      const code = `REF_${leadData.email.split('@')[0]}_${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
+      
+      await base44.entities.Referral.create({
+        referrer_email: leadData.email,
+        referrer_business: leadData.business_name || 'Business',
+        referral_code: code,
+        expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
+      });
+
+      setReferralCode(code);
+      
+      const stats = await base44.entities.Referral.filter({
+        referrer_email: leadData.email
+      });
+      
+      const converted = stats.filter(r => r.status === 'converted').length;
+      setReferralStats({
+        total: stats.length,
+        converted,
+        credits: converted * 100
+      });
+
+      toast.success('Referral program activated!');
+    } catch (error) {
+      console.error('Error generating referral code:', error);
+      toast.error('Failed to activate referral program');
+    } finally {
+      setIsLoadingReferral(false);
+    }
+  };
+
+  const copyReferralLink = () => {
+    if (!referralCode) return;
+    
+    const link = `https://localrank.ai?ref=${referralCode}`;
+    navigator.clipboard.writeText(link);
+    setIsCopied(true);
+    toast.success('Referral link copied to clipboard!');
+    
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
+  const shareReferralViaEmail = () => {
+    if (!referralCode) return;
+    
+    const link = `https://localrank.ai?ref=${referralCode}`;
+    const subject = encodeURIComponent('I Found This Free GMB Score Tool - You Should Try It');
+    const body = encodeURIComponent(
+      `Hey!\n\nI just got my free GMB (Google My Business) audit score from LocalRank.ai and wanted to share it with you.\n\nCheck it out here: ${link}\n\nIt's completely free and gives you a detailed report on your local search visibility. I'm already getting results!\n\nCheers!`
+    );
+    
+    window.open(`mailto:?subject=${subject}&body=${body}`);
+    toast.success('Email compose opened!');
+  };
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden">
