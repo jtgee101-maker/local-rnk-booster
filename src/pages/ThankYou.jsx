@@ -139,9 +139,8 @@ export default function ThankYouPage() {
             </Button>
             
             <Button
-              variant="outline"
               onClick={() => window.open(`mailto:${leadData?.email || ''}?subject=My GMB Audit Report`, '_blank')}
-              className="border-gray-700 text-gray-300 hover:bg-gray-800 px-10 py-6 text-lg rounded-full"
+              className="border-2 border-[#c8ff00] bg-transparent text-[#c8ff00] hover:bg-[#c8ff00] hover:text-black px-10 py-6 text-lg rounded-full font-semibold transition-all duration-300"
             >
               <Download className="mr-2 w-5 h-5" />
               Download Audit PDF
