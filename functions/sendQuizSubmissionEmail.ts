@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import { quizSubmissionTemplate } from './utils/emailTemplates.js';
+import { enhancedAuditTemplate } from './utils/enhancedEmailTemplates.js';
 import { logError, handleFunctionError } from './utils/errorLogging.js';
 
 Deno.serve(async (req) => {
@@ -20,7 +21,16 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Lead data and email required' }, { status: 400 });
     }
 
-    const emailBody = quizSubmissionTemplate(leadData);
+    // Try to get enhanced analysis if available
+    let analysis = null;
+    if (payload.analysis) {
+      analysis = payload.analysis;
+    }
+
+    // Use enhanced template if analysis available, fallback to standard
+    const emailBody = analysis 
+      ? enhancedAuditTemplate(leadData, analysis)
+      : quizSubmissionTemplate(leadData);
 
     await base44.asServiceRole.integrations.Core.SendEmail({
       to: leadData.email,
@@ -29,7 +39,11 @@ Deno.serve(async (req) => {
       body: emailBody
     });
 
-    return Response.json({ success: true, email: leadData.email });
+    return Response.json({ 
+      success: true, 
+      email: leadData.email,
+      enhanced: !!analysis 
+    });
   } catch (error) {
     const errorInfo = handleFunctionError(error, {
       functionName: 'sendQuizSubmissionEmail',
