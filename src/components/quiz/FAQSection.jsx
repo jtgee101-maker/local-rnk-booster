@@ -33,7 +33,7 @@ export default function FAQSection() {
   ];
 
   return (
-    <div className="max-w-2xl mx-auto mt-12 mb-8 px-4">
+    <div className="max-w-2xl mx-auto mt-12 mb-4 px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

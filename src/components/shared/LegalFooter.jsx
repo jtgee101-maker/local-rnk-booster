@@ -5,9 +5,9 @@ import { Shield, Lock, FileText } from 'lucide-react';
 
 export default function LegalFooter() {
   return (
-    <footer className="border-t border-gray-800 bg-[#0a0a0f] mt-16">
+    <footer className="border-t border-gray-800 bg-[#0a0a0f] mt-8">
       {/* Trust Badges */}
-      <div className="max-w-6xl mx-auto px-4 py-6 border-b border-gray-800">
+      <div className="max-w-6xl mx-auto px-4 py-4 border-b border-gray-800">
         <div className="flex flex-wrap justify-center gap-6 text-xs">
           <div className="flex items-center gap-1.5 text-gray-400">
             <Shield className="w-3.5 h-3.5 text-green-500" />
@@ -29,7 +29,7 @@ export default function LegalFooter() {
       </div>
 
       {/* Main Footer */}
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto px-4 py-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
           {/* Company */}
           <div>
