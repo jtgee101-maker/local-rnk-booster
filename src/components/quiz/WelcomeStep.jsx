@@ -70,9 +70,26 @@ export default function WelcomeStep({ onStart }) {
         className="flex flex-wrap justify-center gap-8 mb-10 text-sm"
       >
         <div className="flex items-center gap-2">
-          <div className="flex -space-x-2">
+          <div className="flex -space-x-3">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 border-2 border-[#0a0a0f]" />
+              <motion.div 
+                key={i}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.5 + i * 0.05 }}
+                className="relative"
+              >
+                <div className="w-10 h-10 rounded-full border-3 border-[#0a0a0f] overflow-hidden shadow-lg">
+                  <div className={`w-full h-full ${
+                    i === 0 ? 'bg-gradient-to-br from-blue-400 to-blue-600' :
+                    i === 1 ? 'bg-gradient-to-br from-[#c8ff00] to-yellow-400' :
+                    i === 2 ? 'bg-gradient-to-br from-purple-400 to-pink-500' :
+                    'bg-gradient-to-br from-green-400 to-emerald-500'
+                  } flex items-center justify-center text-white font-bold text-xs`}>
+                    {i === 0 ? '👨‍💼' : i === 1 ? '👩‍💼' : i === 2 ? '🏪' : '🔧'}
+                  </div>
+                </div>
+              </motion.div>
             ))}
           </div>
           <div className="text-left">
