@@ -1,22 +1,76 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, DollarSign, TrendingUp, AlertCircle, Mail, Calendar } from 'lucide-react';
+import { Users, DollarSign, TrendingUp, AlertCircle, Download, Search, RefreshCw, BarChart3 } from 'lucide-react';
 
 export default function AdminPage() {
-  const { data: leads = [] } = useQuery({
+  const [searchTerm, setSearchTerm] = useState('');
+  const [refundingOrderId, setRefundingOrderId] = useState(null);
+  const queryClient = useQueryClient();
+
+  const { data: leads = [], isLoading: leadsLoading } = useQuery({
     queryKey: ['leads'],
-    queryFn: () => base44.entities.Lead.list('-created_date', 100)
+    queryFn: () => base44.entities.Lead.list('-created_date', 500)
   });
 
-  const { data: orders = [] } = useQuery({
+  const { data: orders = [], isLoading: ordersLoading } = useQuery({
     queryKey: ['orders'],
-    queryFn: () => base44.entities.Order.list('-created_date', 100)
+    queryFn: () => base44.entities.Order.list('-created_date', 500)
+  });
+
+  const { data: analytics } = useQuery({
+    queryKey: ['analytics'],
+    queryFn: async () => {
+      const response = await base44.functions.invoke('admin/getAnalytics', {});
+      return response.data;
+    },
+    refetchInterval: 30000 // Refresh every 30s
+  });
+
+  // Export functions
+  const handleExportLeads = async () => {
+    const response = await base44.functions.invoke('admin/exportLeads', {});
+    const blob = new Blob([response.data], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `leads-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+  };
+
+  const handleExportOrders = async () => {
+    const response = await base44.functions.invoke('admin/exportOrders', {});
+    const blob = new Blob([response.data], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `orders-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+  };
+
+  const refundMutation = useMutation({
+    mutationFn: async (orderId) => {
+      const response = await base44.functions.invoke('admin/processRefund', { orderId });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['analytics'] });
+      setRefundingOrderId(null);
+    }
   });
 
   // Calculate metrics
@@ -25,6 +79,19 @@ export default function AdminPage() {
   const completedOrders = orders.filter(o => o.status === 'completed').length;
   const conversionRate = totalLeads > 0 ? ((completedOrders / totalLeads) * 100).toFixed(1) : 0;
   const avgOrderValue = completedOrders > 0 ? (totalRevenue / completedOrders).toFixed(2) : 0;
+
+  // Filter data
+  const filteredLeads = leads.filter(lead => 
+    !searchTerm || 
+    lead.business_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    lead.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredOrders = orders.filter(order =>
+    !searchTerm ||
+    order.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.id?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const getScoreBadge = (score) => {
     if (score >= 70) return <Badge className="bg-green-500">Good</Badge>;
@@ -39,6 +106,22 @@ export default function AdminPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Admin Dashboard</h1>
           <p className="text-gray-400">Monitor leads, conversions, and revenue</p>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="flex gap-4 mb-6">
+          <Button onClick={() => queryClient.invalidateQueries()} variant="outline" className="gap-2">
+            <RefreshCw className="w-4 h-4" />
+            Refresh Data
+          </Button>
+          <Button onClick={handleExportLeads} variant="outline" className="gap-2">
+            <Download className="w-4 h-4" />
+            Export Leads
+          </Button>
+          <Button onClick={handleExportOrders} variant="outline" className="gap-2">
+            <Download className="w-4 h-4" />
+            Export Orders
+          </Button>
         </div>
 
         {/* Metrics */}
@@ -84,11 +167,31 @@ export default function AdminPage() {
           </Card>
         </div>
 
+        {/* Search */}
+        <div className="mb-6">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              placeholder="Search leads or orders..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 bg-gray-800 border-gray-700 text-white"
+            />
+          </div>
+        </div>
+
         {/* Tabs */}
         <Tabs defaultValue="leads" className="space-y-4">
           <TabsList className="bg-gray-800 border-gray-700">
-            <TabsTrigger value="leads" className="data-[state=active]:bg-gray-700">Leads</TabsTrigger>
-            <TabsTrigger value="orders" className="data-[state=active]:bg-gray-700">Orders</TabsTrigger>
+            <TabsTrigger value="leads" className="data-[state=active]:bg-gray-700">
+              Leads ({filteredLeads.length})
+            </TabsTrigger>
+            <TabsTrigger value="orders" className="data-[state=active]:bg-gray-700">
+              Orders ({filteredOrders.length})
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="data-[state=active]:bg-gray-700">
+              Analytics
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="leads">
@@ -108,7 +211,7 @@ export default function AdminPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {leads.slice(0, 20).map((lead) => (
+                    {filteredLeads.slice(0, 50).map((lead) => (
                       <TableRow key={lead.id} className="border-gray-700">
                         <TableCell className="text-white font-medium">{lead.business_name || 'N/A'}</TableCell>
                         <TableCell className="text-gray-300">{lead.email}</TableCell>
@@ -137,26 +240,130 @@ export default function AdminPage() {
                       <TableHead className="text-gray-400">Amount</TableHead>
                       <TableHead className="text-gray-400">Status</TableHead>
                       <TableHead className="text-gray-400">Date</TableHead>
+                      <TableHead className="text-gray-400">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {orders.slice(0, 20).map((order) => (
+                    {filteredOrders.slice(0, 50).map((order) => (
                       <TableRow key={order.id} className="border-gray-700">
                         <TableCell className="text-gray-300">{order.email}</TableCell>
                         <TableCell className="text-white">{order.base_offer?.product || order.upsells?.[0]?.product || 'N/A'}</TableCell>
                         <TableCell className="text-green-400 font-bold">${order.total_amount}</TableCell>
                         <TableCell>
-                          <Badge className={order.status === 'completed' ? 'bg-green-500' : 'bg-yellow-500'}>
+                          <Badge className={
+                            order.status === 'completed' ? 'bg-green-500' : 
+                            order.status === 'refunded' ? 'bg-red-500' : 
+                            'bg-yellow-500'
+                          }>
                             {order.status}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-gray-400">{new Date(order.created_date).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                          {order.status === 'completed' && (
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => {
+                                if (confirm('Are you sure you want to refund this order?')) {
+                                  setRefundingOrderId(order.id);
+                                  refundMutation.mutate(order.id);
+                                }
+                              }}
+                              disabled={refundingOrderId === order.id}
+                            >
+                              {refundingOrderId === order.id ? 'Processing...' : 'Refund'}
+                            </Button>
+                          )}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <div className="grid gap-6">
+              {/* Today's Stats */}
+              <Card className="bg-gray-800 border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-white">Today's Performance</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div>
+                      <div className="text-gray-400 text-sm mb-1">Leads</div>
+                      <div className="text-2xl font-bold text-white">{analytics?.today?.leads || 0}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-400 text-sm mb-1">Orders</div>
+                      <div className="text-2xl font-bold text-white">{analytics?.today?.orders || 0}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-400 text-sm mb-1">Revenue</div>
+                      <div className="text-2xl font-bold text-green-400">${analytics?.today?.revenue || 0}</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* A/B Test Results */}
+              {analytics?.abTests && analytics.abTests.length > 0 && (
+                <Card className="bg-gray-800 border-gray-700">
+                  <CardHeader>
+                    <CardTitle className="text-white">A/B Test Results</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6">
+                      {analytics.abTests.map((test) => (
+                        <div key={test.testId} className="border-b border-gray-700 pb-4 last:border-0">
+                          <div className="mb-3">
+                            <h4 className="text-white font-semibold">{test.testName}</h4>
+                            <div className="text-sm text-gray-400">{test.page} - {test.element}</div>
+                          </div>
+                          <div className="grid md:grid-cols-3 gap-4">
+                            {Object.entries(test.variants).map(([variantId, stats]) => (
+                              <div key={variantId} className="bg-gray-900 rounded-lg p-4">
+                                <div className="text-gray-300 font-medium mb-2">{stats.name}</div>
+                                <div className="text-sm text-gray-400 space-y-1">
+                                  <div>Views: {stats.views}</div>
+                                  <div>Conversions: {stats.conversions}</div>
+                                  <div className="text-[#c8ff00] font-bold">CR: {stats.conversionRate}%</div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Revenue Chart Data */}
+              {analytics?.revenueByDay && Object.keys(analytics.revenueByDay).length > 0 && (
+                <Card className="bg-gray-800 border-gray-700">
+                  <CardHeader>
+                    <CardTitle className="text-white">Revenue Last 30 Days</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      {Object.entries(analytics.revenueByDay)
+                        .sort(([a], [b]) => b.localeCompare(a))
+                        .slice(0, 10)
+                        .map(([date, revenue]) => (
+                          <div key={date} className="flex justify-between items-center py-2 border-b border-gray-700 last:border-0">
+                            <span className="text-gray-400">{new Date(date).toLocaleDateString()}</span>
+                            <span className="text-green-400 font-bold">${revenue.toFixed(2)}</span>
+                          </div>
+                        ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </TabsContent>
         </Tabs>
       </div>
