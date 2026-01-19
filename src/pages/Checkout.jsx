@@ -3,23 +3,190 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowRight, Shield, Clock, Award, Loader2 } from 'lucide-react';
+import { ArrowRight, Shield, Clock, Award, Loader2, CreditCard, Lock } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
+import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 
 import OrderBump from '@/components/checkout/OrderBump';
 import PricingSummary from '@/components/checkout/PricingSummary';
 import CountdownTimer from '@/components/shared/CountdownTimer';
 
+// Initialize Stripe
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_51QdVqxP5bN7rNnPy1TQNcjXlp2IiCIrZTy7NkwZy7W0k4AoZXLsZVw4kpHsI9sLdmLLiO9BhQ3AJLnvnPjc9iCjP00qwx5M5xU');
+
+function CheckoutForm({ leadData, selectedPlan, orderBumpSelected, onOrderBumpToggle }) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const navigate = useNavigate();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentError, setPaymentError] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!stripe || !elements) {
+      return;
+    }
+
+    setIsProcessing(true);
+    setPaymentError(null);
+
+    const planData = selectedPlan || { product: 'GMB Optimization & Audit', price: 99 };
+    const totalAmount = orderBumpSelected ? planData.price + 49 : planData.price;
+
+    try {
+      base44.analytics.track({ 
+        eventName: 'payment_submitted', 
+        properties: { 
+          total_amount: totalAmount,
+          order_bump_accepted: orderBumpSelected
+        } 
+      });
+
+      const { error: submitError, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        redirect: 'if_required',
+        confirmParams: {
+          return_url: `${window.location.origin}${createPageUrl('ThankYou')}`,
+        },
+      });
+
+      if (submitError) {
+        throw submitError;
+      }
+
+      if (paymentIntent && paymentIntent.status === 'succeeded') {
+        // Confirm payment on backend
+        await base44.functions.invoke('confirmPayment', {
+          paymentIntentId: paymentIntent.id,
+          leadData,
+          planData,
+          orderBumpAccepted
+        });
+
+        base44.analytics.track({ 
+          eventName: 'payment_success', 
+          properties: { 
+            amount: totalAmount,
+            payment_intent_id: paymentIntent.id
+          } 
+        });
+
+        // Redirect to thank you page
+        navigate(createPageUrl('ThankYou'));
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      setPaymentError(error.message || 'Payment failed. Please try again.');
+      
+      base44.analytics.track({ 
+        eventName: 'payment_error', 
+        properties: { error: error.message } 
+      });
+      
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Payment Element */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gradient-to-br from-gray-900/80 to-gray-900/40 backdrop-blur-xl border border-gray-800/50 rounded-2xl p-6 md:p-8 shadow-2xl"
+      >
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 rounded-lg bg-[#c8ff00]/10">
+            <CreditCard className="w-5 h-5 text-[#c8ff00]" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-white">Payment Details</h2>
+            <p className="text-xs text-gray-500">Secured by Stripe • PCI Compliant</p>
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <PaymentElement 
+            options={{
+              layout: 'tabs',
+              defaultValues: {
+                billingDetails: {
+                  email: leadData?.email
+                }
+              }
+            }}
+          />
+        </div>
+
+        {paymentError && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg"
+          >
+            <p className="text-sm text-red-400">{paymentError}</p>
+          </motion.div>
+        )}
+
+        <div className="flex items-center gap-2 text-xs text-gray-500">
+          <Lock className="w-3.5 h-3.5" />
+          <span>Your payment information is encrypted and secure</span>
+        </div>
+      </motion.div>
+
+      {/* Order Bump */}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <OrderBump
+          type="photos"
+          selected={orderBumpSelected}
+          onToggle={onOrderBumpToggle}
+        />
+      </motion.div>
+
+      {/* Submit Button */}
+      <Button
+        type="submit"
+        disabled={!stripe || isProcessing}
+        className="w-full bg-gradient-to-r from-[#c8ff00] to-[#d4ff33] hover:from-[#d4ff33] hover:to-[#c8ff00] text-black font-bold py-7 text-lg rounded-xl transition-all duration-300 hover:shadow-[0_0_50px_rgba(200,255,0,0.4)] disabled:opacity-70 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
+      >
+        {isProcessing ? (
+          <span className="flex items-center justify-center gap-2">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            Processing Payment...
+          </span>
+        ) : (
+          <span className="flex items-center justify-center gap-2">
+            <Shield className="w-5 h-5" />
+            Pay Securely
+            <ArrowRight className="w-5 h-5" />
+          </span>
+        )}
+      </Button>
+      
+      <div className="flex items-center justify-center gap-2 pt-2">
+        <Shield className="w-4 h-4 text-gray-600" />
+        <span className="text-xs text-gray-600">Powered by Stripe • PCI DSS Compliant</span>
+      </div>
+
+      <div className="text-center text-xs text-gray-600">
+        Test card: 4242 4242 4242 4242 • Any future date • Any CVC
+      </div>
+    </form>
+  );
+}
+
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const [orderBumpSelected, setOrderBumpSelected] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [formData, setFormData] = useState({
-    full_name: '',
-    email: '',
-    phone: ''
-  });
+  const [clientSecret, setClientSecret] = useState(null);
+  const [isLoadingIntent, setIsLoadingIntent] = useState(true);
 
   // Get lead and plan data from session storage
   const [leadData, setLeadData] = useState(null);
@@ -30,13 +197,7 @@ export default function CheckoutPage() {
     const storedPlan = sessionStorage.getItem('selectedPlan');
     
     if (storedLead) {
-      const lead = JSON.parse(storedLead);
-      setLeadData(lead);
-      setFormData(prev => ({
-        ...prev,
-        email: lead.email || '',
-        full_name: lead.business_name || ''
-      }));
+      setLeadData(JSON.parse(storedLead));
     }
     
     if (storedPlan) {
@@ -44,52 +205,36 @@ export default function CheckoutPage() {
     }
   }, []);
 
-  const handleCheckout = async (e) => {
-    e.preventDefault();
-    setIsProcessing(true);
+  useEffect(() => {
+    if (!leadData) return;
 
-    try {
-      const planData = selectedPlan || { product: 'GMB Optimization & Audit', price: 99 };
-      const totalAmount = orderBumpSelected ? planData.price + 49 : planData.price;
+    const createPaymentIntent = async () => {
+      try {
+        const planData = selectedPlan || { product: 'GMB Optimization & Audit', price: 99 };
+        const totalAmount = orderBumpSelected ? planData.price + 49 : planData.price;
 
-      base44.analytics.track({ 
-        eventName: 'checkout_initiated', 
-        properties: { 
-          total_amount: totalAmount,
-          order_bump_accepted: orderBumpSelected,
-          plan_name: planData.product
-        } 
-      });
+        const response = await base44.functions.invoke('createPaymentIntent', {
+          amount: totalAmount,
+          email: leadData.email,
+          metadata: {
+            lead_id: leadData.id || '',
+            business_name: leadData.business_name || '',
+            plan_name: planData.product || 'GMB Optimization',
+            order_bump: orderBumpSelected ? 'yes' : 'no'
+          }
+        });
 
-      // Create Stripe checkout session
-      const response = await base44.functions.invoke('createStripeCheckout', {
-        planData,
-        orderBumpAccepted: orderBumpSelected,
-        leadData
-      });
-
-      if (response.data?.url) {
-        // Redirect to Stripe checkout
-        window.location.href = response.data.url;
-      } else {
-        throw new Error(response.data?.error || 'Failed to create checkout session');
+        setClientSecret(response.data.clientSecret);
+        setIsLoadingIntent(false);
+      } catch (error) {
+        console.error('Error creating payment intent:', error);
+        alert('Failed to initialize payment. Please refresh and try again.');
+        setIsLoadingIntent(false);
       }
-    } catch (error) {
-      console.error('Checkout error:', error);
-      base44.analytics.track({ 
-        eventName: 'checkout_error', 
-        properties: { error: error.message } 
-      });
-      
-      const errorMsg = error.response?.data?.error || error.message || 'Unknown error';
-      if (errorMsg.includes('Stripe not configured')) {
-        alert('Payment system is being configured. Please contact support or try again in a few minutes.');
-      } else {
-        alert('Payment setup failed: ' + errorMsg);
-      }
-      setIsProcessing(false);
-    }
-  };
+    };
+
+    createPaymentIntent();
+  }, [leadData, orderBumpSelected, selectedPlan]);
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden">
@@ -140,79 +285,43 @@ export default function CheckoutPage() {
           </div>
 
           <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
-            {/* Left Column - Form & Order Bump */}
+            {/* Left Column - Payment Form */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Contact Form */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="bg-gradient-to-br from-gray-900/80 to-gray-900/40 backdrop-blur-xl border border-gray-800/50 rounded-2xl p-6 md:p-8 shadow-2xl"
-              >
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 rounded-lg bg-[#c8ff00]/10">
-                    <Shield className="w-5 h-5 text-[#c8ff00]" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-white">Secure Checkout</h2>
-                    <p className="text-xs text-gray-500">256-bit SSL encrypted</p>
-                  </div>
-                </div>
-                
-                <form onSubmit={handleCheckout} className="space-y-5">
-                  <div>
-                    <label className="text-sm font-medium text-gray-300 mb-2 block">Full Name *</label>
-                    <Input
-                      required
-                      value={formData.full_name}
-                      onChange={(e) => setFormData({...formData, full_name: e.target.value})}
-                      className="bg-gray-950/60 border-gray-700/50 text-white py-6 focus:border-[#c8ff00]/50 focus:ring-[#c8ff00]/20 transition-all"
-                      placeholder="John Smith"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-gray-300 mb-2 block">Email Address *</label>
-                    <Input
-                      required
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      className="bg-gray-950/60 border-gray-700/50 text-white py-6 focus:border-[#c8ff00]/50 focus:ring-[#c8ff00]/20 transition-all"
-                      placeholder="john@business.com"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-gray-300 mb-2 block">Phone Number *</label>
-                    <Input
-                      required
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                      className="bg-gray-950/60 border-gray-700/50 text-white py-6 focus:border-[#c8ff00]/50 focus:ring-[#c8ff00]/20 transition-all"
-                      placeholder="(555) 123-4567"
-                    />
-                  </div>
-                  
-                  <div className="pt-2 flex items-center gap-2 text-xs text-gray-500">
-                    <Shield className="w-3.5 h-3.5" />
-                    <span>Your information is secure and will never be shared</span>
-                  </div>
-                </form>
-              </motion.div>
-
-              {/* Order Bump */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 }}
-              >
-                <OrderBump
-                  type="photos"
-                  selected={orderBumpSelected}
-                  onToggle={() => setOrderBumpSelected(!orderBumpSelected)}
-                />
-              </motion.div>
+              {isLoadingIntent || !clientSecret ? (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="bg-gradient-to-br from-gray-900/80 to-gray-900/40 backdrop-blur-xl border border-gray-800/50 rounded-2xl p-8 text-center"
+                >
+                  <Loader2 className="w-8 h-8 text-[#c8ff00] animate-spin mx-auto mb-4" />
+                  <p className="text-gray-400">Initializing secure payment...</p>
+                </motion.div>
+              ) : (
+                <Elements 
+                  stripe={stripePromise} 
+                  options={{ 
+                    clientSecret,
+                    appearance: {
+                      theme: 'night',
+                      variables: {
+                        colorPrimary: '#c8ff00',
+                        colorBackground: '#0a0a0f',
+                        colorText: '#ffffff',
+                        colorDanger: '#ef4444',
+                        fontFamily: 'system-ui, sans-serif',
+                        borderRadius: '12px',
+                      },
+                    }
+                  }}
+                >
+                  <CheckoutForm
+                    leadData={leadData}
+                    selectedPlan={selectedPlan}
+                    orderBumpSelected={orderBumpSelected}
+                    onOrderBumpToggle={() => setOrderBumpSelected(!orderBumpSelected)}
+                  />
+                </Elements>
+              )}
 
               {/* Enhanced Trust Badges */}
               <motion.div
@@ -255,30 +364,6 @@ export default function CheckoutPage() {
                   <div className="text-sm text-[#c8ff00]">${selectedPlan.dailyPrice}/day</div>
                 </div>
               )}
-
-              <Button
-                onClick={handleCheckout}
-                disabled={isProcessing}
-                className="w-full bg-gradient-to-r from-[#c8ff00] to-[#d4ff33] hover:from-[#d4ff33] hover:to-[#c8ff00] text-black font-bold py-7 text-lg rounded-xl transition-all duration-300 hover:shadow-[0_0_50px_rgba(200,255,0,0.4)] disabled:opacity-70 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
-              >
-                {isProcessing ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Processing Secure Payment...
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    <Shield className="w-5 h-5" />
-                    Complete Secure Checkout
-                    <ArrowRight className="w-5 h-5" />
-                  </span>
-                )}
-              </Button>
-              
-              <div className="flex items-center justify-center gap-2 pt-2">
-                <Shield className="w-4 h-4 text-gray-600" />
-                <span className="text-xs text-gray-600">Powered by Stripe • PCI DSS Compliant</span>
-              </div>
 
               {/* What's Included */}
               <motion.div
