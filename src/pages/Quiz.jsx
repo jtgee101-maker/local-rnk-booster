@@ -6,7 +6,6 @@ import { ArrowLeft, Target, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import { ABTestProvider, useABTest } from '@/components/abtest/ABTestProvider';
-import LegalFooter from '@/components/shared/LegalFooter';
 import { prefetchResources, sessionCache } from '@/components/utils/performanceHooks';
 
 // Import critical first-view components directly (no lazy loading)
