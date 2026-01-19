@@ -9,6 +9,7 @@ import Terms from './pages/Terms';
 import ThankYou from './pages/ThankYou';
 import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
+import Settings from './pages/Settings';
 
 
 export const PAGES = {
@@ -23,6 +24,7 @@ export const PAGES = {
     "ThankYou": ThankYou,
     "Upsell": Upsell,
     "Upsell1": Upsell1,
+    "Settings": Settings,
 }
 
 export const pagesConfig = {
