@@ -9,12 +9,13 @@ import { ABTestProvider, useABTest } from '@/components/abtest/ABTestProvider';
 import LegalFooter from '@/components/shared/LegalFooter';
 import { prefetchResources, sessionCache } from '@/components/utils/performanceHooks';
 
-// Import always-visible components directly to avoid Suspense issues
+// Import critical first-view components directly (no lazy loading)
 import ProgressBar from '@/components/quiz/ProgressBar';
 import ExitIntentModal from '@/components/shared/ExitIntentModal';
+import WelcomeStep from '@/components/quiz/WelcomeStep';
+import LegalFooter from '@/components/shared/LegalFooter';
 
 // Lazy load step components that are conditionally rendered
-const WelcomeStep = lazy(() => import('@/components/quiz/WelcomeStep'));
 const CategoryStep = lazy(() => import('@/components/quiz/CategoryStep'));
 const PainPointStep = lazy(() => import('@/components/quiz/PainPointStep'));
 const GoalsStep = lazy(() => import('@/components/quiz/GoalsStep'));
@@ -372,21 +373,23 @@ function QuizContent() {
 
         {/* Main Content */}
         <main className="flex-1 flex items-center justify-center py-4">
-          <Suspense fallback={<LoadingSpinner />}>
-            <AnimatePresence mode="wait">
-              {showTransition ? (
+          <AnimatePresence mode="wait">
+            {showTransition ? (
+              <Suspense fallback={<LoadingSpinner />}>
                 <TransitionStep 
                   key="transition"
                   title={transitionConfig.title}
                   description={transitionConfig.description}
                   icon={transitionConfig.icon}
                 />
-              ) : (
-                <>
-                  {step === 'welcome' && (
-                    <WelcomeStep key="welcome" onStart={handleStart} />
-                  )}
-                
+              </Suspense>
+            ) : (
+              <>
+                {step === 'welcome' && (
+                  <WelcomeStep key="welcome" onStart={handleStart} />
+                )}
+              
+              <Suspense fallback={<LoadingSpinner />}>
                 {step === 'category' && (
                   <CategoryStep key="category" onSelect={handleCategorySelect} />
                 )}
@@ -450,11 +453,11 @@ function QuizContent() {
                     onCTA={handleCTA}
                   />
                 )}
-              </>
-              )}
-              </AnimatePresence>
               </Suspense>
-              </main>
+            </>
+            )}
+          </AnimatePresence>
+        </main>
       </div>
       </div>
 
