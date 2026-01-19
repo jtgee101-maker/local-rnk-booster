@@ -68,11 +68,11 @@ export default function CheckoutPage() {
         leadData
       });
 
-      if (response.data.url) {
+      if (response.data?.url) {
         // Redirect to Stripe checkout
         window.location.href = response.data.url;
       } else {
-        throw new Error('Failed to create checkout session');
+        throw new Error(response.data?.error || 'Failed to create checkout session');
       }
     } catch (error) {
       console.error('Checkout error:', error);
@@ -80,7 +80,13 @@ export default function CheckoutPage() {
         eventName: 'checkout_error', 
         properties: { error: error.message } 
       });
-      alert('Payment setup failed. Please try again.');
+      
+      const errorMsg = error.response?.data?.error || error.message || 'Unknown error';
+      if (errorMsg.includes('Stripe not configured')) {
+        alert('Payment system is being configured. Please contact support or try again in a few minutes.');
+      } else {
+        alert('Payment setup failed: ' + errorMsg);
+      }
       setIsProcessing(false);
     }
   };

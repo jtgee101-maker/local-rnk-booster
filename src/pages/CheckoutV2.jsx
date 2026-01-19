@@ -137,9 +137,18 @@ export default function CheckoutV2() {
 
       if (response.data?.url) {
         window.location.href = response.data.url;
+      } else {
+        throw new Error(response.data?.error || 'Failed to create checkout session');
       }
     } catch (error) {
       console.error('Checkout error:', error);
+      
+      const errorMsg = error.response?.data?.error || error.message || 'Unknown error';
+      if (errorMsg.includes('Stripe not configured')) {
+        alert('Payment system is being configured. Please contact support or try again in a few minutes.');
+      } else {
+        alert('Payment setup failed: ' + errorMsg);
+      }
       setIsLoading(false);
     }
   };
