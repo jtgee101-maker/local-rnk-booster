@@ -23,10 +23,23 @@ Deno.serve(async (req) => {
     const searchResponse = await fetch(searchUrl);
     const searchData = await searchResponse.json();
 
-    if (searchData.status !== 'OK' || !searchData.results || searchData.results.length === 0) {
+    // Log the actual API response for debugging
+    console.log('Google API Response:', { status: searchData.status, error_message: searchData.error_message, results_count: searchData.results?.length || 0 });
+
+    if (searchData.status !== 'OK') {
+      console.error('Google Places API Error:', searchData.error_message || 'Unknown error');
       return Response.json({ 
         success: false,
-        results: [] 
+        results: [],
+        error: searchData.error_message || `API returned status: ${searchData.status}`
+      });
+    }
+
+    if (!searchData.results || searchData.results.length === 0) {
+      return Response.json({ 
+        success: false,
+        results: [],
+        error: 'No results found'
       });
     }
 
