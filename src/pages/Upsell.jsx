@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, X, TrendingUp, Users, BarChart3, MessageSquare, Calendar, Zap } from 'lucide-react';
+import { ArrowRight, X, TrendingUp, Users, BarChart3, MessageSquare, Calendar, Zap, Loader2, AlertCircle } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
 import { ABTestProvider, useABTest } from '@/components/abtest/ABTestProvider';
+import { toast } from 'sonner';
 
 function UpsellContent() {
   const navigate = useNavigate();
