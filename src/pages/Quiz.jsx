@@ -9,9 +9,11 @@ import { ABTestProvider, useABTest } from '@/components/abtest/ABTestProvider';
 import LegalFooter from '@/components/shared/LegalFooter';
 import { prefetchResources, sessionCache } from '@/components/utils/performanceHooks';
 
-// Lazy load non-critical steps
-const ProgressBar = lazy(() => import('@/components/quiz/ProgressBar'));
-const SectionProgress = lazy(() => import('@/components/quiz/SectionProgress'));
+// Import always-visible components directly to avoid Suspense issues
+import ProgressBar from '@/components/quiz/ProgressBar';
+import ExitIntentModal from '@/components/shared/ExitIntentModal';
+
+// Lazy load step components that are conditionally rendered
 const WelcomeStep = lazy(() => import('@/components/quiz/WelcomeStep'));
 const CategoryStep = lazy(() => import('@/components/quiz/CategoryStep'));
 const PainPointStep = lazy(() => import('@/components/quiz/PainPointStep'));
@@ -24,7 +26,6 @@ const DiscountUnlockStep = lazy(() => import('@/components/quiz/DiscountUnlockSt
 const StatsCommitmentStep = lazy(() => import('@/components/quiz/StatsCommitmentStep'));
 const VisualizeFutureStep = lazy(() => import('@/components/quiz/VisualizeFutureStep'));
 const ResultsStep = lazy(() => import('@/components/quiz/ResultsStep'));
-const ExitIntentModal = lazy(() => import('@/components/shared/ExitIntentModal'));
 
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center min-h-[60vh]">
