@@ -22,6 +22,7 @@ Deno.serve(async (req) => {
       gmb_photos_count = 0,
       gmb_has_hours = false,
       critical_issues = [],
+      analysis = null,
       email = user.email
     } = body;
 
@@ -127,6 +128,59 @@ Deno.serve(async (req) => {
 
     yPosition += 38;
 
+    // Competitive Insights Section (if analysis available)
+    if (analysis?.competitiveInsights) {
+      if (yPosition > pageHeight - 60) {
+        doc.addPage();
+        yPosition = 20;
+      }
+
+      doc.setTextColor(...textDark);
+      doc.setFontSize(12);
+      doc.setFont(undefined, 'bold');
+      doc.text('Competitive Analysis', 20, yPosition);
+
+      yPosition += 10;
+
+      doc.setFontSize(9);
+      doc.setFont(undefined, 'normal');
+      doc.setTextColor(100, 100, 100);
+      
+      const insights = analysis.competitiveInsights;
+      doc.text(`Rating Position: ${insights.ratingPosition}`, 20, yPosition);
+      yPosition += 6;
+      doc.text(`Review Volume: ${insights.reviewCountPosition}`, 20, yPosition);
+      yPosition += 6;
+      doc.text(`Visibility Gap: ${100 - insights.visibility}% of potential searches`, 20, yPosition);
+      yPosition += 12;
+    }
+
+    // Revenue Impact Section
+    if (analysis?.revenueImpact) {
+      if (yPosition > pageHeight - 50) {
+        doc.addPage();
+        yPosition = 20;
+      }
+
+      doc.setFillColor(255, 240, 240);
+      doc.rect(15, yPosition, pageWidth - 30, 25, 'F');
+
+      doc.setTextColor(...textDark);
+      doc.setFontSize(11);
+      doc.setFont(undefined, 'bold');
+      doc.text('Monthly Revenue Impact', 20, yPosition + 7);
+
+      doc.setFontSize(9);
+      doc.setFont(undefined, 'normal');
+      doc.setTextColor(200, 0, 0);
+      doc.text(`Loss: $${analysis.revenueImpact.currentMonthlyLoss?.toLocaleString() || '0'}/month`, 20, yPosition + 16);
+      
+      doc.setTextColor(100, 100, 100);
+      doc.text(`Annual: $${analysis.revenueImpact.annualRevenueLoss?.toLocaleString() || '0'}`, 20, yPosition + 22);
+
+      yPosition += 30;
+    }
+
     // Critical Issues Section
     if (critical_issues && critical_issues.length > 0) {
       doc.setTextColor(...textDark);
@@ -154,6 +208,43 @@ Deno.serve(async (req) => {
       });
 
       yPosition += 8;
+    }
+
+    // Recommendations Section (if analysis available)
+    if (analysis?.recommendations?.recommendations && analysis.recommendations.recommendations.length > 0) {
+      if (yPosition > pageHeight - 50) {
+        doc.addPage();
+        yPosition = 20;
+      }
+
+      doc.setTextColor(...textDark);
+      doc.setFontSize(12);
+      doc.setFont(undefined, 'bold');
+      doc.text('Top Recommendations', 20, yPosition);
+
+      yPosition += 10;
+
+      analysis.recommendations.recommendations.slice(0, 2).forEach((rec, idx) => {
+        if (yPosition > pageHeight - 30) {
+          doc.addPage();
+          yPosition = 20;
+        }
+
+        doc.setFillColor(255, 250, 240);
+        doc.rect(15, yPosition, pageWidth - 30, 18, 'F');
+
+        doc.setTextColor(200, 100, 0);
+        doc.setFontSize(9);
+        doc.setFont(undefined, 'bold');
+        doc.text(`Priority ${rec.priority}: ${rec.action}`, 20, yPosition + 6);
+
+        doc.setTextColor(100, 100, 100);
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'normal');
+        doc.text(`Timeline: ${rec.timeline} | Impact: ${rec.impact}`, 20, yPosition + 13);
+
+        yPosition += 22;
+      });
     }
 
     // Next Steps
