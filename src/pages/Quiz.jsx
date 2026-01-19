@@ -201,7 +201,7 @@ function QuizContent() {
     
     // Review count - much higher expectations
     if (businessData.gmb_reviews_count < 50) {
-      criticalIssues.push(`📊 Only ${businessData.gmb_reviews_count} reviews detected - top competitors average 100+ (you're losing 58% visibility)`);
+      criticalIssues.push(`📊 Only ${businessData.gmb_reviews_count} reviews detected - top competitors average 100+ (losing 58% visibility)`);
     }
     
     // Review velocity (recent activity)
@@ -212,7 +212,7 @@ function QuizContent() {
         return monthsAgo <= 3;
       });
       if (recentReviews.length < 5) {
-        criticalIssues.push(`🚨 Low review velocity: Only ${recentReviews.length} reviews in last 90 days - Google's algorithm penalizes stale profiles by 42%`);
+        criticalIssues.push(`🚨 Low review velocity: Only ${recentReviews.length} reviews in last 90 days - algorithm penalizes stale profiles by 42%`);
       }
     }
     
@@ -233,7 +233,7 @@ function QuizContent() {
     
     // Phone number
     if (!businessData.phone) {
-      criticalIssues.push('📞 Missing phone number - 89% of mobile users call directly from Maps, you're invisible');
+      criticalIssues.push('📞 Missing phone number - 89% of mobile users call directly from Maps, invisible to them');
     }
     
     // Category optimization
