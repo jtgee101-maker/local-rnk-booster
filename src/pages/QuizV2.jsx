@@ -339,7 +339,15 @@ function QuizV2Content() {
                       businessName={quizData.business_name}
                     />
                   )}
-                  
+
+                  {step === 'contactInfo' && (
+                    <ContactInfoStep
+                      key="contactInfo"
+                      onSubmit={handleContactInfoSubmit}
+                      businessName={quizData.business_name}
+                    />
+                  )}
+
                   {step === 'discountUnlock' && (
                     <DiscountUnlockStep
                       key="discountUnlock"
