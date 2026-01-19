@@ -261,15 +261,14 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
                     setBusinessDetails(null);
                     setSearchResults([]);
                   }}
-                  variant="outline"
-                  className="flex-1 border-gray-700 text-gray-300 hover:bg-gray-800"
+                  className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-semibold border-0"
                 >
                   Search Again
                 </Button>
                 <Button
                   onClick={handleConfirm}
                   disabled={parentLoading}
-                  className="flex-1 bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold"
+                  className="flex-1 bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-bold shadow-lg"
                 >
                   {parentLoading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
