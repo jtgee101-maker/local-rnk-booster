@@ -5,7 +5,7 @@ import { Shield, Lock, FileText } from 'lucide-react';
 
 export default function LegalFooter() {
   return (
-    <footer className="border-t border-gray-800 bg-[#0a0a0f] mt-2">
+    <footer className="border-t border-gray-800 bg-[#0a0a0f] mt-0">
       {/* Trust Badges */}
       <div className="max-w-6xl mx-auto px-4 py-4 border-b border-gray-800">
         <div className="flex flex-wrap justify-center gap-6 text-xs">
