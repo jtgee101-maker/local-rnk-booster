@@ -9,21 +9,30 @@ import { toast } from 'sonner';
 
 export default function ThankYouPage() {
   const [leadData, setLeadData] = useState(null);
-  const [showReferral, setShowReferral] = useState(false);
-  const [referralCode, setReferralCode] = useState(null);
-  const [referralStats, setReferralStats] = useState({ total: 0, converted: 0, credits: 0 });
-  const [isCopied, setIsCopied] = useState(false);
-  const [isLoadingReferral, setIsLoadingReferral] = useState(false);
-  const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
+   const [analysis, setAnalysis] = useState(null);
+   const [showReferral, setShowReferral] = useState(false);
+   const [referralCode, setReferralCode] = useState(null);
+   const [referralStats, setReferralStats] = useState({ total: 0, converted: 0, credits: 0 });
+   const [isCopied, setIsCopied] = useState(false);
+   const [isLoadingReferral, setIsLoadingReferral] = useState(false);
+   const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
 
   useEffect(() => {
     const stored = sessionStorage.getItem('quizLead');
+    const storedAnalysis = sessionStorage.getItem('quizAnalysis');
+
     if (stored) {
       const lead = JSON.parse(stored);
+      const analysisData = storedAnalysis ? JSON.parse(storedAnalysis) : null;
+
       setLeadData(lead);
-      
-      // Send quiz submission email
-      base44.functions.invoke('sendQuizSubmissionEmail', { leadData: lead }).catch(err => {
+      setAnalysis(analysisData);
+
+      // Send quiz submission email with analysis
+      base44.functions.invoke('sendQuizSubmissionEmail', { 
+        leadData: lead,
+        analysis: analysisData
+      }).catch(err => {
         console.error('Failed to send quiz submission email:', err);
       });
     }
@@ -107,7 +116,8 @@ export default function ThankYouPage() {
     setIsDownloadingPDF(true);
 
     try {
-      const response = await base44.functions.invoke('generateAuditPDF', leadData);
+      const pdfPayload = { ...leadData, analysis };
+      const response = await base44.functions.invoke('generateAuditPDF', pdfPayload);
       
       if (response.status === 200) {
         // Create blob from response data
