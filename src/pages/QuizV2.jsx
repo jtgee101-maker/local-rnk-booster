@@ -386,10 +386,13 @@ function QuizV2Content() {
               )}
             </AnimatePresence>
           </main>
-        </div>
-      </div>
 
-      {step === 'welcome' && <LegalFooter />}
+          {/* FAQ Section - Show on welcome step */}
+          {step === 'welcome' && <V2FAQSection />}
+          </div>
+          </div>
+
+          {step === 'welcome' && <LegalFooter />}
     </>
   );
 }
