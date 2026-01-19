@@ -39,6 +39,16 @@ Deno.serve(async (req) => {
       body: emailBody
     });
 
+    // Log email send to EmailLog
+    await base44.asServiceRole.entities.EmailLog.create({
+      to: leadData.email,
+      from: 'LocalRank.ai',
+      subject: `🎯 Your Lead Independence Audit Results - Score: ${leadData.health_score}/100`,
+      type: 'welcome',
+      status: 'sent',
+      metadata: { lead_id: leadData.id }
+    });
+
     return Response.json({ 
       success: true, 
       email: leadData.email,

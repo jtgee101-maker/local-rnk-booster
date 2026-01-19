@@ -52,6 +52,18 @@ function CheckoutForm({ leadData, selectedPlan, orderBumpSelected, onOrderBumpTo
         } 
       });
 
+      // Create Order record (MOCK MODE)
+      await base44.entities.Order.create({
+        lead_id: leadData?.id || null,
+        email: leadData?.email || '',
+        stripe_session_id: 'mock_' + Date.now(),
+        stripe_payment_intent: 'mock_pi_' + Date.now(),
+        status: 'completed',
+        total_amount: totalAmount,
+        base_offer: selectedPlan ? { product: selectedPlan.product || 'GMB Optimization & Audit', price: parseFloat(selectedPlan.price || 99) } : { product: 'GMB Optimization & Audit', price: 99 },
+        order_bumps: orderBumpSelected ? [{ product: 'Review Generation Campaign', price: 49, selected: true }] : []
+      });
+
       // Redirect to thank you page
       navigate(createPageUrl('ThankYou'));
     } catch (error) {
