@@ -12,8 +12,9 @@ function Upsell1Content() {
   const navigate = useNavigate();
   const { getVariant, trackView, trackConversion } = useABTest();
   const [isProcessing, setIsProcessing] = useState(false);
-
   const [leadData, setLeadData] = React.useState(null);
+  const [orderCreated, setOrderCreated] = React.useState(false);
+  const [error, setError] = React.useState(null);
 
   React.useEffect(() => {
     const stored = sessionStorage.getItem('quizLead');
