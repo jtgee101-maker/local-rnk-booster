@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Zap, MapPin, Star, Shield, TrendingUp, CheckCircle, Clock, Award } from 'lucide-react';
 import FlowPreview from './FlowPreview';
+import FAQSection from './FAQSection';
 import { useABTest } from '@/components/abtest/ABTestProvider';
 
 export default function WelcomeStep({ onStart }) {
@@ -196,6 +197,9 @@ export default function WelcomeStep({ onStart }) {
 
       {/* Flow Preview */}
       <FlowPreview />
+
+      {/* FAQ Section */}
+      <FAQSection />
     </motion.div>
   );
 }
