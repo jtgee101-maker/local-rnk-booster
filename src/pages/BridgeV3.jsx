@@ -4,17 +4,42 @@ import { Zap, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 
-const AFFILIATE_URL = 'https://www.merchynt.com/paige?fpr=mr22&fp_sid=sg';
-const REDIRECT_DELAY = 3000; // 3 seconds
+const DEFAULT_AFFILIATE_URL = 'https://www.merchynt.com/paige?fpr=mr22&fp_sid=sg';
+const DEFAULT_REDIRECT_DELAY = 3000; // 3 seconds
 
 export default function BridgeV3() {
   const [countdown, setCountdown] = useState(3);
   const [showExitModal, setShowExitModal] = useState(false);
   const [leadData, setLeadData] = useState(null);
+  const [affiliateUrl, setAffiliateUrl] = useState(DEFAULT_AFFILIATE_URL);
+  const [redirectDelay, setRedirectDelay] = useState(DEFAULT_REDIRECT_DELAY);
 
   useEffect(() => {
     // Track bridge page view
     base44.analytics.track({ eventName: 'bridge_v3_viewed' });
+
+    // Load settings
+    const loadSettings = async () => {
+      try {
+        const [linkSettings, timerSettings] = await Promise.all([
+          base44.entities.AppSettings.filter({ setting_key: 'affiliate_link' }),
+          base44.entities.AppSettings.filter({ setting_key: 'bridge_timer' })
+        ]);
+        
+        if (linkSettings.length > 0) {
+          setAffiliateUrl(linkSettings[0].setting_value.url || DEFAULT_AFFILIATE_URL);
+        }
+        if (timerSettings.length > 0) {
+          const seconds = timerSettings[0].setting_value.seconds || 3;
+          setCountdown(seconds);
+          setRedirectDelay(seconds * 1000);
+        }
+      } catch (error) {
+        console.error('Error loading settings:', error);
+      }
+    };
+    
+    loadSettings();
 
     // Get lead data
     const stored = sessionStorage.getItem('quizLead');
@@ -55,12 +80,13 @@ export default function BridgeV3() {
       eventName: 'affiliate_redirect_initiated',
       properties: { 
         business_name: leadData?.business_name,
-        health_score: leadData?.health_score
+        health_score: leadData?.health_score,
+        affiliate_url: affiliateUrl
       }
     });
 
     // Redirect to affiliate link
-    window.location.href = AFFILIATE_URL;
+    window.location.href = affiliateUrl;
   };
 
   const handleStay = () => {

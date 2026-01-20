@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
 import {
   BarChart3, Users, DollarSign, TrendingUp, AlertCircle, Mail, Bug, Repeat,
@@ -27,6 +28,10 @@ function FunnelModeSwitcher() {
   const [currentMode, setCurrentMode] = useState('v2'); // v2 = Stripe, v3 = Affiliate
   const [isLoading, setIsLoading] = useState(true);
   const [isSwitching, setIsSwitching] = useState(false);
+  const [affiliateLink, setAffiliateLink] = useState('https://www.merchynt.com/paige?fpr=mr22&fp_sid=sg');
+  const [bridgeTimer, setBridgeTimer] = useState(3);
+  const [isEditingLink, setIsEditingLink] = useState(false);
+  const [isEditingTimer, setIsEditingTimer] = useState(false);
 
   useEffect(() => {
     loadFunnelMode();
@@ -34,9 +39,20 @@ function FunnelModeSwitcher() {
 
   const loadFunnelMode = async () => {
     try {
-      const settings = await base44.entities.AppSettings.filter({ setting_key: 'funnel_mode' });
-      if (settings.length > 0) {
-        setCurrentMode(settings[0].setting_value.mode || 'v2');
+      const [modeSettings, linkSettings, timerSettings] = await Promise.all([
+        base44.entities.AppSettings.filter({ setting_key: 'funnel_mode' }),
+        base44.entities.AppSettings.filter({ setting_key: 'affiliate_link' }),
+        base44.entities.AppSettings.filter({ setting_key: 'bridge_timer' })
+      ]);
+      
+      if (modeSettings.length > 0) {
+        setCurrentMode(modeSettings[0].setting_value.mode || 'v2');
+      }
+      if (linkSettings.length > 0) {
+        setAffiliateLink(linkSettings[0].setting_value.url || 'https://www.merchynt.com/paige?fpr=mr22&fp_sid=sg');
+      }
+      if (timerSettings.length > 0) {
+        setBridgeTimer(timerSettings[0].setting_value.seconds || 3);
       }
     } catch (error) {
       console.error('Error loading funnel mode:', error);
@@ -70,6 +86,62 @@ function FunnelModeSwitcher() {
       alert('Failed to switch mode');
     } finally {
       setIsSwitching(false);
+    }
+  };
+
+  const updateAffiliateLink = async () => {
+    try {
+      const existing = await base44.entities.AppSettings.filter({ setting_key: 'affiliate_link' });
+      
+      if (existing.length > 0) {
+        await base44.entities.AppSettings.update(existing[0].id, {
+          setting_value: { url: affiliateLink, updated_at: new Date().toISOString() }
+        });
+      } else {
+        await base44.entities.AppSettings.create({
+          setting_key: 'affiliate_link',
+          setting_value: { url: affiliateLink, updated_at: new Date().toISOString() },
+          category: 'general',
+          description: 'Affiliate redirect URL for V3 funnel'
+        });
+      }
+      
+      setIsEditingLink(false);
+      base44.analytics.track({ eventName: 'affiliate_link_updated' });
+    } catch (error) {
+      console.error('Error updating affiliate link:', error);
+      alert('Failed to update link');
+    }
+  };
+
+  const updateBridgeTimer = async () => {
+    try {
+      const seconds = parseInt(bridgeTimer);
+      if (seconds < 1 || seconds > 10) {
+        alert('Timer must be between 1-10 seconds');
+        return;
+      }
+
+      const existing = await base44.entities.AppSettings.filter({ setting_key: 'bridge_timer' });
+      
+      if (existing.length > 0) {
+        await base44.entities.AppSettings.update(existing[0].id, {
+          setting_value: { seconds, updated_at: new Date().toISOString() }
+        });
+      } else {
+        await base44.entities.AppSettings.create({
+          setting_key: 'bridge_timer',
+          setting_value: { seconds, updated_at: new Date().toISOString() },
+          category: 'general',
+          description: 'Bridge page countdown timer in seconds'
+        });
+      }
+      
+      setIsEditingTimer(false);
+      base44.analytics.track({ eventName: 'bridge_timer_updated', properties: { seconds } });
+    } catch (error) {
+      console.error('Error updating timer:', error);
+      alert('Failed to update timer');
     }
   };
 
@@ -177,12 +249,89 @@ function FunnelModeSwitcher() {
         </div>
       </div>
 
-      {/* Affiliate Link */}
+      {/* V3 Advanced Controls */}
       {currentMode === 'v3' && (
-        <div className="p-4 bg-green-500/5 border border-green-500/30 rounded-lg">
-          <div className="text-sm text-gray-400 mb-2">Affiliate Redirect URL:</div>
-          <div className="font-mono text-xs text-green-400 break-all">
-            https://www.merchynt.com/paige?fpr=mr22&fp_sid=sg
+        <div className="space-y-4">
+          {/* Affiliate Link Manager */}
+          <div className="p-4 bg-green-500/5 border border-green-500/30 rounded-lg">
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-sm font-semibold text-white">Affiliate Redirect URL</div>
+              <Button
+                onClick={() => setIsEditingLink(!isEditingLink)}
+                variant="ghost"
+                size="sm"
+                className="text-green-400 hover:text-green-300"
+              >
+                {isEditingLink ? 'Cancel' : 'Edit'}
+              </Button>
+            </div>
+            
+            {isEditingLink ? (
+              <div className="space-y-2">
+                <Input
+                  value={affiliateLink}
+                  onChange={(e) => setAffiliateLink(e.target.value)}
+                  className="bg-gray-900/50 border-green-500/30 text-white font-mono text-xs"
+                  placeholder="https://..."
+                />
+                <Button
+                  onClick={updateAffiliateLink}
+                  className="w-full bg-green-500 hover:bg-green-600 text-black"
+                  size="sm"
+                >
+                  Save Link
+                </Button>
+              </div>
+            ) : (
+              <div className="font-mono text-xs text-green-400 break-all">
+                {affiliateLink}
+              </div>
+            )}
+          </div>
+
+          {/* Bridge Timer Control */}
+          <div className="p-4 bg-blue-500/5 border border-blue-500/30 rounded-lg">
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-sm font-semibold text-white">Bridge Page Timer</div>
+              <Button
+                onClick={() => setIsEditingTimer(!isEditingTimer)}
+                variant="ghost"
+                size="sm"
+                className="text-blue-400 hover:text-blue-300"
+              >
+                {isEditingTimer ? 'Cancel' : 'Edit'}
+              </Button>
+            </div>
+            
+            {isEditingTimer ? (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={bridgeTimer}
+                    onChange={(e) => setBridgeTimer(e.target.value)}
+                    className="bg-gray-900/50 border-blue-500/30 text-white"
+                  />
+                  <span className="text-gray-400 text-sm">seconds</span>
+                </div>
+                <Button
+                  onClick={updateBridgeTimer}
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-black"
+                  size="sm"
+                >
+                  Save Timer
+                </Button>
+              </div>
+            ) : (
+              <div className="text-blue-400 font-semibold">
+                {bridgeTimer} second{bridgeTimer !== 1 ? 's' : ''} countdown
+              </div>
+            )}
+            <p className="text-xs text-gray-500 mt-2">
+              How long the "Syncing" screen displays before redirect (1-10s)
+            </p>
           </div>
         </div>
       )}
