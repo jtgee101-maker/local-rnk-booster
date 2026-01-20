@@ -394,8 +394,5 @@ export default function AdminControlCenter() {
         </motion.div>
       </div>
     </div>
-        </Tabs>
-      </div>
-    </div>
   );
 }
