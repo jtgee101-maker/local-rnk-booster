@@ -47,7 +47,7 @@ export default function V2LeadSourceStep({ onSelect }) {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => onSelect(source.id)}
-            className="relative group bg-gray-900/50 border-2 border-red-500/20 hover:border-red-500/50 rounded-2xl p-6 text-left transition-all"
+            className="relative group bg-gray-900/50 border-2 border-red-500/20 hover:border-red-500/50 rounded-2xl p-6 text-left transition-all min-h-[120px] touch-manipulation"
           >
             {/* Red X Badge */}
             <div className="absolute -top-3 -right-3 w-10 h-10 bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">

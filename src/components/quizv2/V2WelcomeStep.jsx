@@ -90,7 +90,7 @@ export default function V2WelcomeStep({ onStart }) {
       >
         <Button
           onClick={onStart}
-          className="w-full md:w-auto bg-gradient-to-r from-[#c8ff00] to-emerald-400 hover:from-[#d4ff33] hover:to-emerald-300 text-black font-bold text-lg md:text-xl px-12 md:px-20 py-7 md:py-8 rounded-full shadow-[0_0_60px_rgba(200,255,0,0.3)] hover:shadow-[0_0_80px_rgba(200,255,0,0.5)] hover:scale-105 transition-all duration-300 transform active:scale-95"
+          className="w-full md:w-auto bg-gradient-to-r from-[#c8ff00] to-emerald-400 hover:from-[#d4ff33] hover:to-emerald-300 text-black font-bold text-lg md:text-xl px-12 md:px-20 py-7 md:py-8 rounded-full shadow-[0_0_60px_rgba(200,255,0,0.3)] hover:shadow-[0_0_80px_rgba(200,255,0,0.5)] hover:scale-105 transition-all duration-300 transform active:scale-95 min-h-[56px] touch-manipulation"
         >
           <Zap className="w-5 h-5 md:w-6 md:h-6 mr-2" />
           Start My Lead Independence Audit

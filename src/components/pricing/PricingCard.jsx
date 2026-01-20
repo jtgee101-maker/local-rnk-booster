@@ -77,7 +77,7 @@ export default function PricingCard({
       {/* CTA */}
       <Button
         onClick={() => onSelect(plan)}
-        className={`w-full py-6 text-lg font-semibold rounded-xl transition-all duration-300 ${
+        className={`w-full py-6 text-lg font-semibold rounded-xl transition-all duration-300 min-h-[56px] touch-manipulation ${
           isPopular
             ? 'bg-[#c8ff00] hover:bg-[#d4ff33] text-black hover:shadow-[0_0_40px_rgba(200,255,0,0.4)]'
             : 'bg-gray-800 hover:bg-gray-700 text-white'

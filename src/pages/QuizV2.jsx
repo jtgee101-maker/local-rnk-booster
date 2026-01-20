@@ -264,10 +264,10 @@ function QuizV2Content() {
         <meta name="description" content="Free AI scan reveals how much revenue Thumbtack, HomeAdvisor, and predatory agencies are stealing. Stop renting leads. Start owning the Map Pack." />
       </Helmet>
 
-      <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden">
-        {/* Background */}
+      <div className="min-h-screen bg-[#0a0a0f] relative overflow-x-hidden">
+        {/* Background - P1 FIX: Prevent horizontal scroll */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f]" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-[#c8ff00]/5 rounded-full blur-[120px]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[min(800px,100vw)] h-[800px] bg-[#c8ff00]/5 rounded-full blur-[120px]" />
 
         <div className="relative z-10 min-h-screen flex flex-col">
           {/* Header */}

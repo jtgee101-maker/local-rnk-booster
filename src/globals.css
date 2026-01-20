@@ -1,3 +1,4 @@
+css
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,12 +9,21 @@
     @apply border-border;
   }
   
+  html {
+    /* P1-1 FIX: Prevent horizontal scroll globally */
+    overflow-x: hidden;
+  }
+  
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    /* P1-1 FIX: Prevent horizontal scroll */
+    overflow-x: hidden;
+    /* P0-3 FIX: iOS Safari scroll fix */
+    -webkit-overflow-scrolling: touch;
   }
   
   /* Reduce motion for accessibility and performance */
@@ -51,6 +61,7 @@
   /* Touch optimizations */
   .touch-manipulation {
     touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
   
   /* Prevent layout shift */

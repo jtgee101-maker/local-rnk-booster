@@ -145,7 +145,7 @@ export default function WelcomeStep({ onStart }) {
       >
         <Button
           onClick={onStart}
-          className="w-full sm:w-auto bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-bold px-8 sm:px-12 py-5 sm:py-7 text-sm sm:text-xl rounded-full transition-all duration-300 hover:shadow-[0_0_50px_rgba(200,255,0,0.4)] hover:scale-105 active:scale-95"
+          className="w-full sm:w-auto bg-[#c8ff00] hover:bg-[#d4ff33] active:bg-[#b8e600] text-black font-bold px-8 sm:px-12 py-5 sm:py-7 text-sm sm:text-xl rounded-full transition-all duration-300 hover:shadow-[0_0_50px_rgba(200,255,0,0.4)] hover:scale-105 active:scale-95 min-h-[56px] touch-manipulation"
         >
           <Clock className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
           <span>Claim My Free Audit Now</span>
