@@ -21,6 +21,7 @@ import EmailAnalyticsDashboard from '@/components/admin/EmailAnalyticsDashboard'
 import ErrorMonitoring from '@/components/admin/ErrorMonitoring';
 import LeadNurture from '@/components/admin/LeadNurture';
 import AdminABTests from '@/components/admin/AdminABTests';
+import TestModeIndicator from '@/components/admin/TestModeIndicator';
 
 export default function AdminControlCenter() {
   const [user, setUser] = useState(null);
@@ -93,6 +94,9 @@ export default function AdminControlCenter() {
 
       {/* Main Content */}
       <div className="max-w-[1600px] mx-auto p-6">
+        {/* Test Mode Indicator */}
+        <TestModeIndicator isTestMode={true} />
+        
         {/* Quick Stats Row */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
