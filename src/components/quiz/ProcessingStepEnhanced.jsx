@@ -53,13 +53,31 @@ export default function ProcessingStepEnhanced({ onComplete, businessName }) {
 
   const totalDuration = scanSteps.reduce((sum, step) => sum + step.duration, 0);
 
+  // P0-2 FIX: Safety timeout to prevent stuck spinner
+  useEffect(() => {
+    const safetyTimeout = setTimeout(() => {
+      console.warn('ProcessingStep safety timeout triggered');
+      onComplete();
+    }, 20000); // 20 second max
+
+    return () => clearTimeout(safetyTimeout);
+  }, [onComplete]);
+
   useEffect(() => {
     // Show first engagement modal after 4 seconds
     const engagementTimer = setTimeout(() => {
       setShowEngagementModal(true);
     }, 4000);
 
-    return () => clearTimeout(engagementTimer);
+    // P0-1 FIX: Auto-dismiss modal after 15s if no interaction
+    const autoDismissTimer = setTimeout(() => {
+      setShowEngagementModal(false);
+    }, 19000);
+
+    return () => {
+      clearTimeout(engagementTimer);
+      clearTimeout(autoDismissTimer);
+    };
   }, []);
 
   useEffect(() => {
@@ -98,10 +116,10 @@ export default function ProcessingStepEnhanced({ onComplete, businessName }) {
   }, [currentStepIndex, onComplete]);
 
   useEffect(() => {
-    // Rotate testimonials every 5 seconds
+    // P2-1 FIX: Reduce rotation frequency to 8s (less repaints)
     const testimonialTimer = setInterval(() => {
       setCurrentTestimonialIndex((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
+    }, 8000);
 
     return () => clearInterval(testimonialTimer);
   }, []);
@@ -120,7 +138,7 @@ export default function ProcessingStepEnhanced({ onComplete, businessName }) {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4">
+    <div className="max-w-2xl mx-auto px-4 sm:px-6">
       {/* Main Processing UI */}
       <AnimatePresence mode="wait">
         <motion.div
@@ -130,14 +148,14 @@ export default function ProcessingStepEnhanced({ onComplete, businessName }) {
           exit={{ opacity: 0 }}
           className="text-center"
         >
-          {/* Scanner Animation */}
+          {/* Scanner Animation - P1-1 FIX: Replace rotation with pulse (GPU-accelerated) */}
           <motion.div
             className="relative w-32 h-32 mx-auto mb-8"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
           >
             <div className="absolute inset-0 rounded-full border-4 border-gray-800" />
-            <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#c8ff00] border-r-[#c8ff00]" />
+            <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#c8ff00] border-r-[#c8ff00] animate-spin" style={{ animationDuration: '3s' }} />
             <div className="absolute inset-4 rounded-full bg-[#c8ff00]/10 flex items-center justify-center">
               <Loader2 className="w-12 h-12 text-[#c8ff00]" />
             </div>
@@ -236,7 +254,7 @@ export default function ProcessingStepEnhanced({ onComplete, businessName }) {
         </motion.div>
       </AnimatePresence>
 
-      {/* Engagement Modal */}
+      {/* Engagement Modal - P0-1 FIX: Add close button and auto-dismiss */}
       <AnimatePresence>
         {showEngagementModal && (
           <motion.div
@@ -251,9 +269,20 @@ export default function ProcessingStepEnhanced({ onComplete, businessName }) {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-gray-900 border-2 border-gray-800 rounded-2xl p-8 max-w-md w-full shadow-2xl"
+              className="bg-gray-900 border-2 border-gray-800 rounded-2xl p-8 max-w-md w-full shadow-2xl relative"
             >
-              <h3 className="text-white font-bold text-xl mb-6 text-center">
+              {/* P0-1: Explicit close button */}
+              <button
+                onClick={() => setShowEngagementModal(false)}
+                className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
+                aria-label="Close"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              
+              <h3 className="text-white font-bold text-xl mb-6 text-center pr-8">
                 {engagementQuestions[currentQuestionIndex].question}
               </h3>
               <div className="space-y-3">
@@ -262,7 +291,7 @@ export default function ProcessingStepEnhanced({ onComplete, businessName }) {
                     key={index}
                     onClick={() => handleEngagementAnswer(option)}
                     disabled={hasAnswered}
-                    className="w-full bg-gray-800 hover:bg-[#c8ff00] hover:text-black text-white py-4 rounded-xl transition-all duration-300 disabled:opacity-50"
+                    className="w-full bg-gray-800 hover:bg-[#c8ff00] hover:text-black text-white py-4 rounded-xl transition-all duration-300 disabled:opacity-50 min-h-[44px]"
                   >
                     {option}
                   </Button>
