@@ -15,26 +15,36 @@ const logError = async (base44, errorType, message, metadata) => {
 };
 
 Deno.serve(async (req) => {
+  const base44 = createClientFromRequest(req);
   const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') || Deno.env.get('STRIPE_TEST_KEY');
   const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
-  const base44 = createClientFromRequest(req);
+  
+  // TEST MODE RELAY - Allow webhook processing without Stripe key
+  const isTestMode = !stripeKey || stripeKey.startsWith('sk_test_');
 
-  if (!stripeKey) {
+  if (!isTestMode && !stripeKey) {
     await logError(base44, 'stripe_webhook', 'Stripe API key not configured', {});
     return Response.json({ error: 'Stripe not configured' }, { status: 500 });
   }
 
-  const stripe = new Stripe(stripeKey);
   const signature = req.headers.get('stripe-signature');
   const body = await req.text();
 
   let event;
 
   try {
-    // Verify webhook signature if secret is configured
-    if (webhookSecret && signature) {
+    // TEST MODE - Accept raw JSON without signature verification
+    if (isTestMode && !signature) {
+      console.log('[TEST MODE] Processing webhook without signature verification');
+      event = JSON.parse(body);
+    } 
+    // PRODUCTION MODE - Verify webhook signature
+    else if (webhookSecret && signature) {
+      const stripe = new Stripe(stripeKey);
       event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
-    } else {
+    } 
+    // Fallback - Parse as JSON
+    else {
       event = JSON.parse(body);
     }
   } catch (err) {
