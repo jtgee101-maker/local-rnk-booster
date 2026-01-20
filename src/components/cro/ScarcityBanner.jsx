@@ -36,34 +36,34 @@ export default function ScarcityBanner({
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
-          className="fixed bottom-6 right-6 z-50 max-w-sm"
+          className="hidden md:block fixed bottom-4 right-4 z-50 max-w-xs"
         >
-          <div className="bg-gradient-to-r from-red-600 to-orange-600 rounded-2xl p-6 shadow-2xl border-2 border-white/20">
+          <div className="bg-gradient-to-r from-red-600 to-orange-600 rounded-xl p-3 shadow-xl border border-white/20">
             <button
               onClick={handleDismiss}
-              className="absolute top-3 right-3 text-white/80 hover:text-white transition-colors min-w-[32px] min-h-[32px] flex items-center justify-center"
+              className="absolute top-2 right-2 text-white/80 hover:text-white transition-colors min-w-[28px] min-h-[28px] flex items-center justify-center"
               aria-label="Dismiss"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
 
-            <div className="flex items-start gap-4">
+            <div className="flex items-start gap-2">
               <motion.div
                 animate={{ rotate: [0, 10, -10, 10, 0] }}
                 transition={{ repeat: Infinity, duration: 2 }}
               >
-                <AlertTriangle className="w-8 h-8 text-white" />
+                <AlertTriangle className="w-5 h-5 text-white" />
               </motion.div>
               
               <div>
-                <h3 className="text-white font-bold text-lg mb-2">
+                <h3 className="text-white font-bold text-sm mb-1">
                   Limited Spots Available
                 </h3>
-                <p className="text-white/90 text-sm mb-3">
-                  Only <span className="font-bold text-xl">{spotsLeft}</span> discounted audits left today
+                <p className="text-white/90 text-xs mb-1">
+                  Only <span className="font-bold text-base">{spotsLeft}</span> discounted audits left
                 </p>
-                <p className="text-white/70 text-xs">
-                  Price increases to full $497 when spots fill up
+                <p className="text-white/70 text-[10px]">
+                  Price increases to $497 when full
                 </p>
               </div>
             </div>
