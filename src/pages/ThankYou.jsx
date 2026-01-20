@@ -144,10 +144,10 @@ export default function ThankYouPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden">
-      {/* Background */}
+    <div className="min-h-screen bg-[#0a0a0f] relative overflow-x-hidden">
+      {/* Background - P1 FIX: Prevent horizontal scroll */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f]" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#c8ff00]/10 rounded-full blur-[150px]" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(800px,100vw)] h-[800px] bg-[#c8ff00]/10 rounded-full blur-[150px]" />
       
       <div className="relative z-10 min-h-screen flex items-center justify-center py-12 px-4">
         <div className="max-w-2xl mx-auto text-center">
@@ -255,7 +255,7 @@ export default function ThankYouPage() {
           >
             <Button
               onClick={() => window.open('https://calendly.com', '_blank')}
-              className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold px-10 py-6 text-lg rounded-full transition-all duration-300 hover:shadow-[0_0_40px_rgba(200,255,0,0.3)]"
+              className="bg-[#c8ff00] hover:bg-[#d4ff33] active:bg-[#b8e600] text-black font-semibold px-10 py-6 text-lg rounded-full transition-all duration-300 hover:shadow-[0_0_40px_rgba(200,255,0,0.3)] min-h-[56px] touch-manipulation"
             >
               Schedule Your Kickoff Call
               <Calendar className="ml-2 w-5 h-5" />
@@ -264,7 +264,7 @@ export default function ThankYouPage() {
             <Button
               onClick={downloadAuditPDF}
               disabled={isDownloadingPDF || !leadData}
-              className="border-2 border-[#c8ff00] bg-transparent text-[#c8ff00] hover:bg-[#c8ff00] hover:text-black px-10 py-6 text-lg rounded-full font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="border-2 border-[#c8ff00] bg-transparent text-[#c8ff00] hover:bg-[#c8ff00] hover:text-black px-10 py-6 text-lg rounded-full font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px] touch-manipulation"
             >
               {isDownloadingPDF ? (
                 <>
@@ -332,7 +332,7 @@ export default function ThankYouPage() {
                <Button
                  onClick={generateReferralCode}
                  disabled={isLoadingReferral || !leadData?.email}
-                 className="w-full bg-gradient-to-r from-[#c8ff00] to-green-400 hover:from-[#d4ff33] hover:to-green-300 text-black font-bold py-6 px-8 text-lg rounded-xl transition-all duration-300 hover:shadow-[0_0_50px_rgba(200,255,0,0.4)] disabled:opacity-70"
+                 className="w-full bg-gradient-to-r from-[#c8ff00] to-green-400 hover:from-[#d4ff33] hover:to-green-300 text-black font-bold py-6 px-8 text-lg rounded-xl transition-all duration-300 hover:shadow-[0_0_50px_rgba(200,255,0,0.4)] disabled:opacity-70 min-h-[56px] touch-manipulation"
                >
                  {isLoadingReferral ? (
                    <>
@@ -402,7 +402,7 @@ export default function ThankYouPage() {
                     />
                     <Button
                       onClick={copyReferralLink}
-                      className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-bold px-6 py-3 rounded-lg transition-all"
+                      className="bg-[#c8ff00] hover:bg-[#d4ff33] active:bg-[#b8e600] text-black font-bold px-6 py-3 rounded-lg transition-all min-h-[44px] touch-manipulation"
                     >
                       {isCopied ? (
                         <><Check className="w-4 h-4 mr-2" />Copied</>
@@ -419,7 +419,7 @@ export default function ThankYouPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <Button
                       onClick={shareReferralViaEmail}
-                      className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-all"
+                      className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-3 rounded-lg transition-all min-h-[44px] touch-manipulation"
                     >
                       <Mail className="w-4 h-4 mr-2" />
                       Email Invite
@@ -437,7 +437,7 @@ export default function ThankYouPage() {
                           toast.info('Use email or copy link to share');
                         }
                       }}
-                      className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-lg transition-all"
+                      className="bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white font-semibold py-3 rounded-lg transition-all min-h-[44px] touch-manipulation"
                     >
                       <Share2 className="w-4 h-4 mr-2" />
                       Share Link

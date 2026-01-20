@@ -114,15 +114,15 @@ export default function AdminPage() {
 
         {/* Quick Actions */}
         <div className="flex gap-4 mb-6">
-          <Button onClick={() => queryClient.invalidateQueries()} variant="outline" className="gap-2">
+          <Button onClick={() => queryClient.invalidateQueries()} variant="outline" className="gap-2 min-h-[44px] touch-manipulation">
             <RefreshCw className="w-4 h-4" />
             Refresh Data
           </Button>
-          <Button onClick={handleExportLeads} variant="outline" className="gap-2">
+          <Button onClick={handleExportLeads} variant="outline" className="gap-2 min-h-[44px] touch-manipulation">
             <Download className="w-4 h-4" />
             Export Leads
           </Button>
-          <Button onClick={handleExportOrders} variant="outline" className="gap-2">
+          <Button onClick={handleExportOrders} variant="outline" className="gap-2 min-h-[44px] touch-manipulation">
             <Download className="w-4 h-4" />
             Export Orders
           </Button>
@@ -291,6 +291,7 @@ export default function AdminPage() {
                                 }
                               }}
                               disabled={refundingOrderId === order.id}
+                              className="min-h-[36px] touch-manipulation"
                             >
                               {refundingOrderId === order.id ? 'Processing...' : 'Refund'}
                             </Button>

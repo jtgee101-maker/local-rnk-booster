@@ -218,11 +218,11 @@ export default function CheckoutPage() {
   }, [leadData, orderBumpSelected, selectedPlan]);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden">
-      {/* Enhanced Background */}
+    <div className="min-h-screen bg-[#0a0a0f] relative overflow-x-hidden">
+      {/* Enhanced Background - P1 FIX: Prevent horizontal scroll */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f]" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[800px] bg-[#c8ff00]/5 rounded-full blur-[150px]" />
-      <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-[120px]" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[min(1000px,100vw)] h-[800px] bg-[#c8ff00]/5 rounded-full blur-[150px]" />
+      <div className="absolute bottom-0 right-0 w-[min(600px,100vw)] h-[600px] bg-purple-500/5 rounded-full blur-[120px]" />
       
       <div className="relative z-10 min-h-screen py-8 md:py-12 px-3 md:px-4">
         <div className="max-w-6xl mx-auto">
