@@ -29,28 +29,28 @@ export default function SocialShareButton({ businessName, healthScore }) {
     <div className="flex flex-wrap gap-3 justify-center">
       <Button
         onClick={() => handleShare('facebook')}
-        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg"
+        className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold px-6 py-2 rounded-lg min-h-[44px] touch-manipulation"
       >
         <Facebook className="w-4 h-4 mr-2" />
         Share
       </Button>
       <Button
         onClick={() => handleShare('twitter')}
-        className="bg-sky-500 hover:bg-sky-600 text-white font-semibold px-6 py-2 rounded-lg"
+        className="bg-sky-500 hover:bg-sky-600 active:bg-sky-700 text-white font-semibold px-6 py-2 rounded-lg min-h-[44px] touch-manipulation"
       >
         <Twitter className="w-4 h-4 mr-2" />
         Tweet
       </Button>
       <Button
         onClick={() => handleShare('linkedin')}
-        className="bg-blue-700 hover:bg-blue-800 text-white font-semibold px-6 py-2 rounded-lg"
+        className="bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-semibold px-6 py-2 rounded-lg min-h-[44px] touch-manipulation"
       >
         <Linkedin className="w-4 h-4 mr-2" />
         Post
       </Button>
       <Button
         onClick={() => handleShare('email')}
-        className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold px-6 py-2 rounded-lg"
+        className="bg-[#c8ff00] hover:bg-[#d4ff33] active:bg-[#b8e600] text-black font-semibold px-6 py-2 rounded-lg min-h-[44px] touch-manipulation"
       >
         <Mail className="w-4 h-4 mr-2" />
         Email

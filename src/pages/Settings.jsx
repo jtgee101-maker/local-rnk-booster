@@ -171,7 +171,7 @@ function EmailSettings({ getSetting, handleSave }) {
               handleSave('welcome_email_enabled', welcomeEnabled, 'email', 'Enable welcome emails');
               handleSave('abandoned_cart_enabled', abandonedCartEnabled, 'email', 'Enable abandoned cart emails');
             }}
-            className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black"
+            className="bg-[#c8ff00] hover:bg-[#d4ff33] active:bg-[#b8e600] text-black min-h-[44px] touch-manipulation"
           >
             <Save className="w-4 h-4 mr-2" />
             Save Email Settings
@@ -237,7 +237,7 @@ function PaymentSettings({ getSetting, handleSave }) {
             handleSave('currency', currency, 'payment', 'Default currency');
             handleSave('refund_policy_days', refundPolicy, 'payment', 'Refund policy days');
           }}
-          className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black"
+          className="bg-[#c8ff00] hover:bg-[#d4ff33] active:bg-[#b8e600] text-black min-h-[44px] touch-manipulation"
         >
           <Save className="w-4 h-4 mr-2" />
           Save Payment Settings
@@ -297,6 +297,7 @@ function ABTestSettings() {
                       const newStatus = test.status === 'active' ? 'paused' : 'active';
                       updateTestMutation.mutate({ testId: test.id, status: newStatus });
                     }}
+                    className="min-h-[36px] touch-manipulation"
                   >
                     {test.status === 'active' ? 'Pause' : 'Activate'}
                   </Button>
@@ -356,7 +357,7 @@ function GeneralSettings({ getSetting, handleSave }) {
             handleSave('support_email', supportEmail, 'general', 'Support email address');
             handleSave('maintenance_mode', maintenanceMode, 'general', 'Maintenance mode enabled');
           }}
-          className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black"
+          className="bg-[#c8ff00] hover:bg-[#d4ff33] active:bg-[#b8e600] text-black min-h-[44px] touch-manipulation"
         >
           <Save className="w-4 h-4 mr-2" />
           Save General Settings
