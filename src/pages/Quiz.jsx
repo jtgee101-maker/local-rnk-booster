@@ -64,15 +64,26 @@ const criticalIssuesByPainPoint = {
 function QuizContent() {
   const [step, setStep] = useState(() => sessionCache.get('quiz_step') || 'welcome');
   const [currentStepNumber, setCurrentStepNumber] = useState(() => sessionCache.get('quiz_step_number') || 0);
-  const [pageLoadTime] = useState(Date.now());
+  const [quizData, setQuizData] = useState(() => sessionCache.get('quiz_data') || {
+    business_category: '',
+    pain_point: '',
+    goals: [],
+    timeline: '',
+    business_name: '',
+    website: '',
+    email: '',
+    health_score: 0,
+    critical_issues: []
+  });
+  const [showTransition, setShowTransition] = useState(false);
+  const [transitionConfig, setTransitionConfig] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Track page view on mount
-  useEffect(() => {
+  React.useEffect(() => {
     base44.analytics.track({ eventName: 'quiz_page_viewed' });
   }, []);
 
-  // Track step views and time spent
-  useEffect(() => {
+  React.useEffect(() => {
     if (step !== 'welcome') {
       const stepStartTime = Date.now();
       base44.analytics.track({ 
@@ -89,20 +100,6 @@ function QuizContent() {
       };
     }
   }, [step, currentStepNumber]);
-  const [quizData, setQuizData] = useState(() => sessionCache.get('quiz_data') || {
-    business_category: '',
-    pain_point: '',
-    goals: [],
-    timeline: '',
-    business_name: '',
-    website: '',
-    email: '',
-    health_score: 0,
-    critical_issues: []
-  });
-  const [showTransition, setShowTransition] = useState(false);
-  const [transitionConfig, setTransitionConfig] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (currentStepNumber > 2) {
