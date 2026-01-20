@@ -233,8 +233,9 @@ export default function CheckoutV2() {
       {/* Main Content */}
       <div className="max-w-md mx-auto px-4 py-8">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="text-2xl font-bold">LocalRank.ai</div>
+        <div className="text-center mb-6">
+          <div className="text-2xl font-bold mb-4">LocalRank.ai</div>
+          <InlineSocialProof variant="compact" />
         </div>
 
         {/* Discount Banner */}
