@@ -18,16 +18,21 @@ export function ABTestProvider({ children }) {
 
   useEffect(() => {
     const initABTest = async () => {
-      // Get or create session ID
-      let sid = sessionStorage.getItem('ab_session_id');
-      if (!sid) {
-        sid = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        sessionStorage.setItem('ab_session_id', sid);
-      }
-      setSessionId(sid);
+      try {
+        // Get or create session ID
+        let sid = sessionStorage.getItem('ab_session_id');
+        if (!sid) {
+          sid = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          sessionStorage.setItem('ab_session_id', sid);
+        }
+        setSessionId(sid);
 
-      // Load active tests
-      await loadActiveTests();
+        // Load active tests
+        await loadActiveTests();
+      } catch (error) {
+        console.error('Error initializing A/B test:', error);
+        setIsLoading(false);
+      }
     };
     
     initABTest();
