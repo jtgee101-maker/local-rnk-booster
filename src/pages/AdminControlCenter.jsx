@@ -23,6 +23,7 @@ import ErrorMonitoring from '@/components/admin/ErrorMonitoring';
 import LeadNurture from '@/components/admin/LeadNurture';
 import AdminABTests from '@/components/admin/AdminABTests';
 import TestModeIndicator from '@/components/admin/TestModeIndicator';
+import V3Analytics from '@/components/admin/V3Analytics';
 
 function FunnelModeSwitcher() {
   const [currentMode, setCurrentMode] = useState('v2'); // v2 = Stripe, v3 = Affiliate
@@ -521,6 +522,26 @@ export default function AdminControlCenter() {
             <AdminSettings />
           </TabsContent>
         </Tabs>
+
+        {/* V3 Analytics Dashboard */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mt-8"
+        >
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-green-400" />
+                QuizV3 Affiliate Analytics
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <V3Analytics />
+            </CardContent>
+          </Card>
+        </motion.div>
 
         {/* Funnel Mode Switcher */}
         <motion.div

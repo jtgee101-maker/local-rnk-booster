@@ -78,7 +78,15 @@ function QuizV3Content() {
   const [isLoading, setIsLoading] = useState(false);
 
   React.useEffect(() => {
+    const sessionId = sessionStorage.getItem('ab_session_id') || `session_${Date.now()}`;
+    sessionStorage.setItem('ab_session_id', sessionId);
+    
     base44.analytics.track({ eventName: 'quizv3_page_viewed' });
+    base44.entities.ConversionEvent.create({
+      funnel_version: 'v3',
+      event_name: 'quizv3_page_viewed',
+      session_id: sessionId
+    }).catch(err => console.error('Error tracking event:', err));
   }, []);
 
   React.useEffect(() => {
@@ -112,7 +120,14 @@ function QuizV3Content() {
   }, [step, currentStepNumber, quizData]);
 
   const handleStart = () => {
+    const sessionId = sessionStorage.getItem('ab_session_id');
     base44.analytics.track({ eventName: 'quizv3_started' });
+    base44.entities.ConversionEvent.create({
+      funnel_version: 'v3',
+      event_name: 'quizv3_started',
+      session_id: sessionId
+    }).catch(err => console.error('Error tracking event:', err));
+    
     setStep('category');
     setCurrentStepNumber(1);
   };
@@ -232,6 +247,8 @@ function QuizV3Content() {
 
     try {
       const createdLead = await base44.entities.Lead.create(finalData);
+      const sessionId = sessionStorage.getItem('ab_session_id');
+      
       base44.analytics.track({ 
         eventName: 'quizv3_completed', 
         properties: { 
@@ -240,6 +257,18 @@ function QuizV3Content() {
           has_gmb_data: true
         } 
       });
+      
+      base44.entities.ConversionEvent.create({
+        funnel_version: 'v3',
+        event_name: 'quizv3_completed',
+        session_id: sessionId,
+        lead_id: createdLead.id,
+        properties: {
+          health_score: healthScore,
+          business_category: finalData.business_category,
+          critical_issues_count: finalIssues.length
+        }
+      }).catch(err => console.error('Error tracking event:', err));
       
       sessionStorage.setItem('quizLead', JSON.stringify({ ...finalData, id: createdLead.id }));
     } catch (error) {
@@ -254,7 +283,21 @@ function QuizV3Content() {
   }, []);
 
   const handleCTA = () => {
+    const sessionId = sessionStorage.getItem('ab_session_id');
+    const leadData = JSON.parse(sessionStorage.getItem('quizLead') || '{}');
+    
     base44.analytics.track({ eventName: 'quizv3_affiliate_cta_clicked' });
+    base44.entities.ConversionEvent.create({
+      funnel_version: 'v3',
+      event_name: 'quizv3_affiliate_cta_clicked',
+      session_id: sessionId,
+      lead_id: leadData.id,
+      properties: {
+        health_score: quizData.health_score,
+        business_name: quizData.business_name
+      }
+    }).catch(err => console.error('Error tracking event:', err));
+    
     window.location.href = createPageUrl('BridgeV3');
   };
 

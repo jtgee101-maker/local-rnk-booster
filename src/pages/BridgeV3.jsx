@@ -15,8 +15,15 @@ export default function BridgeV3() {
   const [redirectDelay, setRedirectDelay] = useState(DEFAULT_REDIRECT_DELAY);
 
   useEffect(() => {
+    const sessionId = sessionStorage.getItem('ab_session_id');
+    
     // Track bridge page view
     base44.analytics.track({ eventName: 'bridge_v3_viewed' });
+    base44.entities.ConversionEvent.create({
+      funnel_version: 'v3',
+      event_name: 'bridge_v3_viewed',
+      session_id: sessionId
+    }).catch(err => console.error('Error tracking event:', err));
 
     // Load settings
     const loadSettings = async () => {
@@ -76,6 +83,8 @@ export default function BridgeV3() {
   }, []);
 
   const handleRedirect = () => {
+    const sessionId = sessionStorage.getItem('ab_session_id');
+    
     base44.analytics.track({ 
       eventName: 'affiliate_redirect_initiated',
       properties: { 
@@ -84,6 +93,18 @@ export default function BridgeV3() {
         affiliate_url: affiliateUrl
       }
     });
+    
+    base44.entities.ConversionEvent.create({
+      funnel_version: 'v3',
+      event_name: 'affiliate_redirect_initiated',
+      session_id: sessionId,
+      lead_id: leadData?.id,
+      properties: {
+        business_name: leadData?.business_name,
+        health_score: leadData?.health_score,
+        affiliate_url: affiliateUrl
+      }
+    }).catch(err => console.error('Error tracking event:', err));
 
     // Redirect to affiliate link
     window.location.href = affiliateUrl;
