@@ -5,9 +5,9 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Shield, Star, Zap, TrendingUp, MapPin, Users } from 'lucide-react';
 import { createPageUrl } from '@/utils';
-import LiveActivityIndicator from '@/components/cro/LiveActivityIndicator';
 import ScarcityBanner from '@/components/cro/ScarcityBanner';
 import DeferredComponent from '@/components/optimized/DeferredComponent';
+import InlineSocialProof from '@/components/cro/InlineSocialProof';
 
 const plans = [
   {
@@ -210,9 +210,6 @@ export default function CheckoutV2() {
 
   return (
     <div className="min-h-screen bg-white">
-      <DeferredComponent delay={2000}>
-        <LiveActivityIndicator />
-      </DeferredComponent>
       <DeferredComponent delay={4000}>
         <ScarcityBanner spotsLeft={5} />
       </DeferredComponent>

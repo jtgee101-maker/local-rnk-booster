@@ -8,11 +8,11 @@ import CountdownTimer from '@/components/pricing/CountdownTimer';
 import PricingCard from '@/components/pricing/PricingCard';
 import FeaturesSection from '@/components/pricing/FeaturesSection';
 import TrustSection from '@/components/pricing/TrustSection';
-import LiveActivityIndicator from '@/components/cro/LiveActivityIndicator';
 import ViewersCounter from '@/components/cro/ViewersCounter';
 import StickyConversionBar from '@/components/cro/StickyConversionBar';
 import DeferredComponent from '@/components/optimized/DeferredComponent';
 import { SkeletonPricingCard } from '@/components/optimized/SkeletonLoader';
+import InlineSocialProof from '@/components/cro/InlineSocialProof';
 
 const pricingPlans = [
   {

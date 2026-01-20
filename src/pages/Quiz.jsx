@@ -13,10 +13,10 @@ import ProgressBar from '@/components/quiz/ProgressBar';
 import ExitIntentModal from '@/components/shared/ExitIntentModal';
 import WelcomeStep from '@/components/quiz/WelcomeStep';
 import LegalFooter from '@/components/shared/LegalFooter';
-import LiveActivityIndicator from '@/components/cro/LiveActivityIndicator';
 import ViewersCounter from '@/components/cro/ViewersCounter';
 import ScarcityBanner from '@/components/cro/ScarcityBanner';
 import DeferredComponent from '@/components/optimized/DeferredComponent';
+import InlineSocialProof from '@/components/cro/InlineSocialProof';
 
 // Lazy load step components that are conditionally rendered
 const CategoryStep = lazy(() => import('@/components/quiz/CategoryStep'));
@@ -434,9 +434,6 @@ function QuizContent() {
             }}
           />
 
-          <DeferredComponent delay={3000}>
-            <LiveActivityIndicator />
-          </DeferredComponent>
           <DeferredComponent delay={5000}>
             <ScarcityBanner spotsLeft={7} />
           </DeferredComponent>
