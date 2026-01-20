@@ -396,28 +396,36 @@ function QuizContent() {
 
         <div className="relative z-10 min-h-screen flex flex-col">
           <header className="p-4 md:p-6">
-            <div className="max-w-4xl mx-auto flex items-center justify-between">
-              {showBackButton ? (
-                <Button
-                  variant="ghost"
-                  onClick={handleBack}
-                  className="text-gray-400 hover:text-white hover:bg-gray-800/50"
-                >
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back
-                </Button>
-              ) : (
-                <div />
-              )}
-              
-              <div className="flex items-center gap-4">
-                <div className="text-[#c8ff00] font-bold text-xl tracking-tight">
-                  LocalRank<span className="text-white">.ai</span>
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-center justify-between mb-4">
+                {showBackButton ? (
+                  <Button
+                    variant="ghost"
+                    onClick={handleBack}
+                    className="text-gray-400 hover:text-white hover:bg-gray-800/50"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back
+                  </Button>
+                ) : (
+                  <div />
+                )}
+                
+                <div className="flex items-center gap-4">
+                  <div className="text-[#c8ff00] font-bold text-xl tracking-tight">
+                    LocalRank<span className="text-white">.ai</span>
+                  </div>
+                  <ViewersCounter baseCount={52} />
                 </div>
-                <ViewersCounter baseCount={52} />
+                
+                <div className="w-20" />
               </div>
               
-              <div className="w-20" />
+              {step !== 'welcome' && step !== 'processing' && step !== 'results' && (
+                <div className="flex justify-center">
+                  <InlineSocialProof variant="compact" />
+                </div>
+              )}
             </div>
           </header>
 
