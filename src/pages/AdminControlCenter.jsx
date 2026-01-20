@@ -392,6 +392,8 @@ export default function AdminControlCenter() {
             </CardContent>
           </Card>
         </motion.div>
+      </div>
+    </div>
         </Tabs>
       </div>
     </div>
