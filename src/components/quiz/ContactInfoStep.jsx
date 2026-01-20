@@ -134,7 +134,7 @@ export default function ContactInfoStep({ onSubmit, businessName }) {
                 setConsent(e.target.checked);
                 if (errors.consent) setErrors({ ...errors, consent: '' });
               }}
-              className="w-5 h-5 rounded accent-[#c8ff00] mt-1 flex-shrink-0"
+              className="w-5 h-5 min-w-[20px] min-h-[20px] rounded accent-[#c8ff00] mt-1 flex-shrink-0 touch-manipulation"
             />
             <span className="text-gray-300 text-sm">
               I consent to receive my GMB audit report and occasional updates about improving my local visibility. I can unsubscribe anytime.
@@ -145,7 +145,7 @@ export default function ContactInfoStep({ onSubmit, businessName }) {
 
         <Button
           type="submit"
-          className="w-full bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold py-6 text-lg rounded-xl transition-all duration-300 hover:shadow-[0_0_40px_rgba(200,255,0,0.3)]"
+          className="w-full bg-[#c8ff00] hover:bg-[#d4ff33] active:bg-[#b8e600] text-black font-semibold py-6 text-lg rounded-xl transition-all duration-300 hover:shadow-[0_0_40px_rgba(200,255,0,0.3)] min-h-[56px] touch-manipulation"
         >
           Get My Free Audit Report
         </Button>

@@ -67,7 +67,7 @@ export default function GoalsStep({ onContinue }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.08 }}
               onClick={() => toggleGoal(goal.id)}
-              className={`relative group border-2 rounded-2xl p-6 text-left transition-all duration-300 ${
+              className={`relative group border-2 rounded-2xl p-6 text-left transition-all duration-300 min-h-[100px] touch-manipulation ${
                 isSelected
                   ? 'border-[#c8ff00] bg-[#c8ff00]/5'
                   : 'border-gray-800 bg-gray-900/30 hover:border-gray-700'
@@ -113,7 +113,7 @@ export default function GoalsStep({ onContinue }) {
         <Button
           onClick={handleContinue}
           disabled={selectedGoals.length === 0}
-          className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold px-12 py-6 text-lg rounded-full transition-all duration-300 hover:shadow-[0_0_40px_rgba(200,255,0,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-[#c8ff00] hover:bg-[#d4ff33] active:bg-[#b8e600] text-black font-semibold px-12 py-6 text-lg rounded-full transition-all duration-300 hover:shadow-[0_0_40px_rgba(200,255,0,0.3)] disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px] touch-manipulation"
         >
           Continue
         </Button>

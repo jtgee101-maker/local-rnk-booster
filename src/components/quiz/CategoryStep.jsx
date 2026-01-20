@@ -42,7 +42,7 @@ export default function CategoryStep({ onSelect }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
             onClick={() => onSelect(cat.id)}
-            className="group relative bg-gray-900/50 backdrop-blur border border-gray-800 rounded-2xl p-6 text-left transition-all duration-300 hover:border-[#c8ff00]/50 hover:bg-gray-900/80"
+            className="group relative bg-gray-900/50 backdrop-blur border border-gray-800 rounded-2xl p-6 text-left transition-all duration-300 hover:border-[#c8ff00]/50 hover:bg-gray-900/80 min-h-[100px] touch-manipulation"
           >
             <div className="flex items-start gap-4">
               <div className="p-3 rounded-xl bg-gray-800 group-hover:bg-[#c8ff00]/10 transition-colors">
