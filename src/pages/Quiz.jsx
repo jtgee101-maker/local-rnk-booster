@@ -13,6 +13,9 @@ import ProgressBar from '@/components/quiz/ProgressBar';
 import ExitIntentModal from '@/components/shared/ExitIntentModal';
 import WelcomeStep from '@/components/quiz/WelcomeStep';
 import LegalFooter from '@/components/shared/LegalFooter';
+import LiveActivityIndicator from '@/components/cro/LiveActivityIndicator';
+import ViewersCounter from '@/components/cro/ViewersCounter';
+import ScarcityBanner from '@/components/cro/ScarcityBanner';
 
 // Lazy load step components that are conditionally rendered
 const CategoryStep = lazy(() => import('@/components/quiz/CategoryStep'));
@@ -409,8 +412,11 @@ function QuizContent() {
                 <div />
               )}
               
-              <div className="text-[#c8ff00] font-bold text-xl tracking-tight">
-                LocalRank<span className="text-white">.ai</span>
+              <div className="flex items-center gap-4">
+                <div className="text-[#c8ff00] font-bold text-xl tracking-tight">
+                  LocalRank<span className="text-white">.ai</span>
+                </div>
+                <ViewersCounter baseCount={52} />
               </div>
               
               <div className="w-20" />
@@ -429,6 +435,9 @@ function QuizContent() {
               window.location.href = createPageUrl('Pricing');
             }}
           />
+
+          <LiveActivityIndicator />
+          <ScarcityBanner spotsLeft={7} />
 
           <main className="flex-1 flex items-center justify-center py-4 px-2 md:px-4 overflow-x-hidden">
             <AnimatePresence mode="wait">

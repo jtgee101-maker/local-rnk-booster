@@ -8,6 +8,9 @@ import CountdownTimer from '@/components/pricing/CountdownTimer';
 import PricingCard from '@/components/pricing/PricingCard';
 import FeaturesSection from '@/components/pricing/FeaturesSection';
 import TrustSection from '@/components/pricing/TrustSection';
+import LiveActivityIndicator from '@/components/cro/LiveActivityIndicator';
+import ViewersCounter from '@/components/cro/ViewersCounter';
+import StickyConversionBar from '@/components/cro/StickyConversionBar';
 
 const pricingPlans = [
   {
@@ -128,6 +131,16 @@ function PricingContent() {
       {/* Countdown Timer */}
       <CountdownTimer minutes={15} />
 
+      {/* CRO Elements */}
+      <LiveActivityIndicator />
+      <StickyConversionBar 
+        onCTA={() => {
+          const topPlan = pricingPlans.find(p => p.popular) || pricingPlans[0];
+          handleSelectPlan(topPlan);
+        }}
+        price="0.14"
+      />
+
       {/* Content */}
       <div className="relative z-10">
         {/* Header */}
@@ -137,10 +150,13 @@ function PricingContent() {
             animate={{ opacity: 1, y: 0 }}
             className="max-w-4xl mx-auto"
           >
-            <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-full px-4 py-2 mb-6">
-              <span className="text-red-400 font-semibold text-sm animate-pulse">
-                ⚡ LIMITED TIME: 82% OFF
-              </span>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
+              <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-full px-4 py-2">
+                <span className="text-red-400 font-semibold text-sm animate-pulse">
+                  ⚡ LIMITED TIME: 82% OFF
+                </span>
+              </div>
+              <ViewersCounter baseCount={63} />
             </div>
             
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">
