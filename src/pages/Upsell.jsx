@@ -144,10 +144,10 @@ function UpsellContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden">
-      {/* Background */}
+    <div className="min-h-screen bg-[#0a0a0f] relative overflow-x-hidden">
+      {/* Background - P1 FIX: Prevent horizontal scroll */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f]" />
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#c8ff00]/10 rounded-full blur-[150px]" />
+      <div className="absolute top-0 right-0 w-[min(600px,100vw)] h-[600px] bg-[#c8ff00]/10 rounded-full blur-[150px]" />
       
       <div className="relative z-10 min-h-screen flex items-center justify-center py-12 px-4">
         <div className="max-w-5xl mx-auto w-full">
@@ -214,7 +214,7 @@ function UpsellContent() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 + index * 0.1 }}
                 onClick={() => setSelectedPlan(key)}
-                className={`relative cursor-pointer border-2 rounded-3xl p-8 transition-all ${
+                className={`relative cursor-pointer border-2 rounded-3xl p-8 transition-all min-h-[380px] touch-manipulation ${
                   selectedPlan === key
                     ? 'border-[#c8ff00] bg-[#c8ff00]/5 scale-105'
                     : 'border-gray-800 bg-gray-900/30 hover:border-gray-700'
@@ -306,7 +306,7 @@ function UpsellContent() {
             <Button
               onClick={handleAccept}
               disabled={isProcessing || !leadData}
-              className="bg-gradient-to-r from-[#c8ff00] to-green-400 hover:from-[#d4ff33] hover:to-green-300 text-black font-bold px-12 py-7 text-xl rounded-full transition-all duration-300 hover:shadow-[0_0_50px_rgba(200,255,0,0.4)] disabled:opacity-70 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
+              className="bg-gradient-to-r from-[#c8ff00] to-green-400 hover:from-[#d4ff33] hover:to-green-300 text-black font-bold px-12 py-7 text-xl rounded-full transition-all duration-300 hover:shadow-[0_0_50px_rgba(200,255,0,0.4)] disabled:opacity-70 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95 min-h-[56px] touch-manipulation"
             >
               {isProcessing ? (
                 <span className="flex items-center justify-center gap-2">

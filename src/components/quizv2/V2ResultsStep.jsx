@@ -300,7 +300,7 @@ export default function V2ResultsStep({
         >
           <Button
             onClick={onCTA}
-            className="w-full md:w-auto bg-gradient-to-r from-[#c8ff00] to-emerald-400 hover:from-[#d4ff33] hover:to-emerald-300 text-black font-bold text-base md:text-xl px-10 md:px-20 py-6 md:py-8 rounded-full shadow-[0_0_80px_rgba(200,255,0,0.4)] hover:shadow-[0_0_120px_rgba(200,255,0,0.6)] hover:scale-105 transition-all duration-300 transform active:scale-95"
+            className="w-full md:w-auto bg-gradient-to-r from-[#c8ff00] to-emerald-400 hover:from-[#d4ff33] hover:to-emerald-300 text-black font-bold text-base md:text-xl px-10 md:px-20 py-6 md:py-8 rounded-full shadow-[0_0_80px_rgba(200,255,0,0.4)] hover:shadow-[0_0_120px_rgba(200,255,0,0.6)] hover:scale-105 transition-all duration-300 transform active:scale-95 min-h-[56px] touch-manipulation"
           >
             <Zap className="w-5 h-5 md:w-6 md:h-6 mr-2 md:mr-3" />
             Start My Lead Independence Plan

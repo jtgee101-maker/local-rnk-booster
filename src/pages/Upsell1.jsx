@@ -124,10 +124,10 @@ function Upsell1Content() {
 
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden flex items-center justify-center py-12 px-4">
-      {/* Background */}
+    <div className="min-h-screen bg-[#0a0a0f] relative overflow-x-hidden flex items-center justify-center py-12 px-4">
+      {/* Background - P1 FIX: Prevent horizontal scroll */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f]" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-red-500/10 rounded-full blur-[150px]" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(800px,100vw)] h-[800px] bg-red-500/10 rounded-full blur-[150px]" />
       
       <div className="relative z-10 max-w-4xl mx-auto w-full">
         {/* Skip Button */}
@@ -310,7 +310,7 @@ function Upsell1Content() {
             <Button
               onClick={handleAccept}
               disabled={isProcessing || !leadData}
-              className="w-full bg-gradient-to-r from-[#c8ff00] to-green-400 hover:from-[#d4ff33] hover:to-green-300 text-black font-bold py-7 text-xl rounded-full transition-all duration-300 hover:shadow-[0_0_50px_rgba(200,255,0,0.4)] disabled:opacity-70 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
+              className="w-full bg-gradient-to-r from-[#c8ff00] to-green-400 hover:from-[#d4ff33] hover:to-green-300 text-black font-bold py-7 text-xl rounded-full transition-all duration-300 hover:shadow-[0_0_50px_rgba(200,255,0,0.4)] disabled:opacity-70 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95 min-h-[56px] touch-manipulation"
             >
               {isProcessing ? (
                 <span className="flex items-center justify-center gap-2">

@@ -230,7 +230,7 @@ export default function ResultsStep({ healthScore, criticalIssues, businessName,
       >
         <Button
           onClick={handleCTAClick}
-          className="w-full sm:w-auto bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold px-4 sm:px-6 md:px-10 py-4 sm:py-5 md:py-6 text-xs sm:text-sm md:text-lg rounded-full transition-all duration-300 hover:shadow-[0_0_40px_rgba(200,255,0,0.3)] active:scale-95"
+          className="w-full sm:w-auto bg-[#c8ff00] hover:bg-[#d4ff33] active:bg-[#b8e600] text-black font-semibold px-4 sm:px-6 md:px-10 py-4 sm:py-5 md:py-6 text-xs sm:text-sm md:text-lg rounded-full transition-all duration-300 hover:shadow-[0_0_40px_rgba(200,255,0,0.3)] active:scale-95 min-h-[56px] touch-manipulation"
         >
           <Zap className="mr-1 md:mr-2 w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 flex-shrink-0" />
           <span className="break-words">Get Automated Fix for $0.11/Day</span>
