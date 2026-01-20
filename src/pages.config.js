@@ -16,6 +16,8 @@ import ThankYou from './pages/ThankYou';
 import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import V2Start from './pages/V2Start';
+import BridgeV3 from './pages/BridgeV3';
+import QuizV3 from './pages/QuizV3';
 
 
 export const PAGES = {
@@ -37,6 +39,8 @@ export const PAGES = {
     "Upsell": Upsell,
     "Upsell1": Upsell1,
     "V2Start": V2Start,
+    "BridgeV3": BridgeV3,
+    "QuizV3": QuizV3,
 }
 
 export const pagesConfig = {
