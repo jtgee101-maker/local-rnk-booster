@@ -89,11 +89,17 @@ export default function CheckoutV2() {
   const [isLoading, setIsLoading] = useState(false);
   const [timeLeft, setTimeLeft] = useState(480); // 8 minutes in seconds
   const [leadData, setLeadData] = useState(null);
+  const [pageLoadTime] = useState(Date.now());
 
   useEffect(() => {
+    // Track page view
+    base44.analytics.track({ eventName: 'checkout_v2_page_viewed' });
+
     const storedLead = sessionStorage.getItem('quizLead');
     if (storedLead) {
       setLeadData(JSON.parse(storedLead));
+    } else {
+      base44.analytics.track({ eventName: 'checkout_v2_no_lead_data' });
     }
 
     // Countdown timer
@@ -101,8 +107,25 @@ export default function CheckoutV2() {
       setTimeLeft(prev => prev > 0 ? prev - 1 : 0);
     }, 1000);
 
-    return () => clearInterval(timer);
-  }, []);
+    // Track exit/drop-off
+    const handleBeforeUnload = () => {
+      const timeOnPage = (Date.now() - pageLoadTime) / 1000;
+      base44.analytics.track({ 
+        eventName: 'checkout_v2_exit', 
+        properties: { 
+          time_on_page: Math.round(timeOnPage),
+          selected_plan: selectedPlan
+        } 
+      });
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [pageLoadTime, selectedPlan]);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -229,7 +252,13 @@ export default function CheckoutV2() {
             {plans.map((plan) => (
               <motion.button
                 key={plan.id}
-                onClick={() => setSelectedPlan(plan.id)}
+                onClick={() => {
+                  base44.analytics.track({ 
+                    eventName: 'checkout_v2_plan_selected', 
+                    properties: { plan_id: plan.id, plan_duration: plan.duration, price: plan.totalPrice } 
+                  });
+                  setSelectedPlan(plan.id);
+                }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className={`w-full border-2 rounded-2xl p-4 text-left transition-all relative min-h-[88px] touch-manipulation ${

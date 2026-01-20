@@ -12,6 +12,7 @@ export default function ExitIntentModal({ onClose, onAccept }) {
     const handleMouseLeave = (e) => {
       if (hasShown) return;
       if (e.clientY <= 0) {
+        base44.analytics.track({ eventName: 'exit_intent_modal_triggered' });
         setIsVisible(true);
         sessionStorage.setItem('exitIntentShown', 'true');
       }
@@ -22,11 +23,13 @@ export default function ExitIntentModal({ onClose, onAccept }) {
   }, []);
 
   const handleClose = () => {
+    base44.analytics.track({ eventName: 'exit_intent_modal_dismissed' });
     setIsVisible(false);
     if (onClose) onClose();
   };
 
   const handleAccept = () => {
+    base44.analytics.track({ eventName: 'exit_intent_modal_accepted' });
     setIsVisible(false);
     if (onAccept) onAccept();
   };

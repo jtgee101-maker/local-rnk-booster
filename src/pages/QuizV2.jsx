@@ -59,6 +59,22 @@ const criticalIssuesByLeadSource = {
 function QuizV2Content() {
   const [step, setStep] = useState('welcome');
   const [currentStepNumber, setCurrentStepNumber] = useState(0);
+  const [pageLoadTime] = useState(Date.now());
+
+  // Track page view on mount
+  React.useEffect(() => {
+    base44.analytics.track({ eventName: 'v2_quiz_page_viewed' });
+  }, []);
+
+  // Track step changes
+  React.useEffect(() => {
+    if (step !== 'welcome') {
+      base44.analytics.track({ 
+        eventName: 'v2_quiz_step_viewed', 
+        properties: { step, step_number: currentStepNumber } 
+      });
+    }
+  }, [step, currentStepNumber]);
   const [quizData, setQuizData] = useState({
     lead_source: '',
     leads_lost_weekly: 0,
@@ -75,6 +91,7 @@ function QuizV2Content() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleStart = () => {
+    base44.analytics.track({ eventName: 'v2_quiz_started' });
     setStep('leadSource');
     setCurrentStepNumber(1);
   };
@@ -242,6 +259,8 @@ function QuizV2Content() {
   };
 
   const handleBack = () => {
+    base44.analytics.track({ eventName: 'v2_quiz_back_clicked', properties: { from_step: step } });
+    
     if (step === 'leadSource') {
       setStep('welcome');
       setCurrentStepNumber(0);

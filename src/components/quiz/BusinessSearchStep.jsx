@@ -33,12 +33,21 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
         setSearchResults(response.data.results);
         sessionCache.set('search_results', response.data.results);
         
+        base44.analytics.track({ 
+          eventName: 'business_search_results', 
+          properties: { results_count: response.data.results.length } 
+        });
+        
         // Auto-select if only one result
         if (response.data.results.length === 1) {
           setTimeout(() => handleSelectBusiness(response.data.results[0]), 300);
         }
       } else {
         setSearchResults([]);
+        base44.analytics.track({ 
+          eventName: 'business_search_no_results', 
+          properties: { query: query } 
+        });
       }
     } catch (error) {
       console.error('Error searching business:', error);
@@ -53,6 +62,10 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
 
   const handleSearch = (e) => {
     e.preventDefault();
+    base44.analytics.track({ 
+      eventName: 'business_search_initiated', 
+      properties: { query_length: searchQuery.length } 
+    });
     performSearch(searchQuery);
   };
 
@@ -66,6 +79,11 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
   }, [searchQuery, hasSearched, searchResults.length, debouncedSearch]);
 
   const handleSelectBusiness = async (business) => {
+    base44.analytics.track({ 
+      eventName: 'business_selected', 
+      properties: { business_name: business.name } 
+    });
+    
     setSelectedBusiness(business);
     setIsLoadingDetails(true);
 
@@ -114,6 +132,15 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
 
   const handleConfirm = () => {
     if (businessDetails) {
+      base44.analytics.track({ 
+        eventName: 'business_confirmed', 
+        properties: { 
+          business_name: businessDetails.name,
+          rating: businessDetails.rating,
+          reviews_count: businessDetails.total_reviews
+        } 
+      });
+      
       onSelect({
         business_name: businessDetails.name,
         website: businessDetails.website || '',
