@@ -16,8 +16,11 @@ function UpsellContent() {
   const [selectedPlan, setSelectedPlan] = useState('dfy');
   const [leadData, setLeadData] = useState(null);
   const [error, setError] = useState(null);
+  const [pageLoadTime] = useState(Date.now());
 
   useEffect(() => {
+    // Track page view
+    base44.analytics.track({ eventName: 'upsell_page_viewed' });
     const stored = sessionStorage.getItem('quizLead');
     if (stored) {
       const parsed = JSON.parse(stored);
@@ -38,7 +41,22 @@ function UpsellContent() {
     if (searchParams.get('upsell_accepted') === 'true') {
       base44.analytics.track({ eventName: 'upsell1_payment_completed' });
     }
-  }, [searchParams, navigate]);
+
+    // Track exit/drop-off
+    const handleBeforeUnload = () => {
+      const timeOnPage = (Date.now() - pageLoadTime) / 1000;
+      base44.analytics.track({ 
+        eventName: 'upsell_exit', 
+        properties: { 
+          time_on_page: Math.round(timeOnPage),
+          selected_plan: selectedPlan 
+        } 
+      });
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [searchParams, navigate, pageLoadTime, selectedPlan]);
 
   const plans = {
     monthly: {
@@ -213,7 +231,13 @@ function UpsellContent() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 + index * 0.1 }}
-                onClick={() => setSelectedPlan(key)}
+                onClick={() => {
+                  base44.analytics.track({ 
+                    eventName: 'upsell_plan_selected', 
+                    properties: { plan: key, price: plan.price } 
+                  });
+                  setSelectedPlan(key);
+                }}
                 className={`relative cursor-pointer border-2 rounded-3xl p-8 transition-all min-h-[380px] touch-manipulation ${
                   selectedPlan === key
                     ? 'border-[#c8ff00] bg-[#c8ff00]/5 scale-105'

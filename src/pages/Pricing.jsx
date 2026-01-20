@@ -73,16 +73,45 @@ function PricingContent() {
   const { trackView, trackConversion } = useABTest();
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [leadData, setLeadData] = useState(null);
+  const [pageLoadTime] = useState(Date.now());
 
   useEffect(() => {
+    // Track page view
+    base44.analytics.track({ eventName: 'pricing_page_viewed' });
+    
     const storedLead = sessionStorage.getItem('quizLead');
     if (storedLead) {
       setLeadData(JSON.parse(storedLead));
+    } else {
+      base44.analytics.track({ eventName: 'pricing_no_lead_data' });
     }
+    
     trackView('pricing', 'headline');
-  }, []);
+
+    // Track exit/drop-off
+    const handleBeforeUnload = () => {
+      const timeOnPage = (Date.now() - pageLoadTime) / 1000;
+      base44.analytics.track({ 
+        eventName: 'pricing_exit', 
+        properties: { time_on_page: Math.round(timeOnPage) } 
+      });
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [pageLoadTime]);
 
   const handleSelectPlan = (plan) => {
+    base44.analytics.track({ 
+      eventName: 'pricing_plan_selected', 
+      properties: { 
+        plan_id: plan.id, 
+        plan_name: plan.name,
+        price: parseFloat(plan.totalPrice),
+        duration: plan.billingPeriod
+      } 
+    });
+    
     setSelectedPlan(plan);
     trackConversion('pricing', 'headline', parseFloat(plan.totalPrice));
     

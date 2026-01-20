@@ -15,14 +15,32 @@ function Upsell1Content() {
   const [leadData, setLeadData] = React.useState(null);
   const [orderCreated, setOrderCreated] = React.useState(false);
   const [error, setError] = React.useState(null);
+  const [pageLoadTime] = React.useState(Date.now());
 
   React.useEffect(() => {
+    // Track page view
+    base44.analytics.track({ eventName: 'upsell1_page_viewed' });
     const stored = sessionStorage.getItem('quizLead');
     if (stored) {
       setLeadData(JSON.parse(stored));
+    } else {
+      base44.analytics.track({ eventName: 'upsell1_no_lead_data' });
     }
+    
     trackView('upsell1', 'headline');
-  }, []);
+
+    // Track exit/drop-off
+    const handleBeforeUnload = () => {
+      const timeOnPage = (Date.now() - pageLoadTime) / 1000;
+      base44.analytics.track({ 
+        eventName: 'upsell1_exit', 
+        properties: { time_on_page: Math.round(timeOnPage) } 
+      });
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [pageLoadTime]);
 
   const criticalIssues = leadData?.critical_issues || [
     'Missing geo-tagged photos reducing local relevance by 34%',

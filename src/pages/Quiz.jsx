@@ -61,6 +61,31 @@ const criticalIssuesByPainPoint = {
 function QuizContent() {
   const [step, setStep] = useState(() => sessionCache.get('quiz_step') || 'welcome');
   const [currentStepNumber, setCurrentStepNumber] = useState(() => sessionCache.get('quiz_step_number') || 0);
+  const [pageLoadTime] = useState(Date.now());
+
+  // Track page view on mount
+  useEffect(() => {
+    base44.analytics.track({ eventName: 'quiz_page_viewed' });
+  }, []);
+
+  // Track step views and time spent
+  useEffect(() => {
+    if (step !== 'welcome') {
+      const stepStartTime = Date.now();
+      base44.analytics.track({ 
+        eventName: 'quiz_step_viewed', 
+        properties: { step, step_number: currentStepNumber } 
+      });
+
+      return () => {
+        const timeOnStep = (Date.now() - stepStartTime) / 1000;
+        base44.analytics.track({ 
+          eventName: 'quiz_step_exit', 
+          properties: { step, time_spent: Math.round(timeOnStep) } 
+        });
+      };
+    }
+  }, [step, currentStepNumber]);
   const [quizData, setQuizData] = useState(() => sessionCache.get('quiz_data') || {
     business_category: '',
     pain_point: '',
@@ -89,6 +114,7 @@ function QuizContent() {
   }, [step, currentStepNumber, quizData]);
 
   const handleStart = () => {
+    base44.analytics.track({ eventName: 'quiz_started' });
     setStep('category');
     setCurrentStepNumber(1);
   };
@@ -301,6 +327,8 @@ function QuizContent() {
   };
 
   const handleBack = () => {
+    base44.analytics.track({ eventName: 'quiz_back_clicked', properties: { from_step: step } });
+    
     if (step === 'category') {
       setStep('welcome');
       setCurrentStepNumber(0);

@@ -10,6 +10,12 @@ import { toast } from 'sonner';
 export default function ThankYouPage() {
   const [leadData, setLeadData] = useState(null);
    const [analysis, setAnalysis] = useState(null);
+   const [pageLoadTime] = useState(Date.now());
+
+  // Track page view on mount
+  React.useEffect(() => {
+    base44.analytics.track({ eventName: 'thank_you_page_viewed' });
+  }, []);
    const [showReferral, setShowReferral] = useState(false);
    const [referralCode, setReferralCode] = useState(null);
    const [referralStats, setReferralStats] = useState({ total: 0, converted: 0, credits: 0 });
@@ -74,6 +80,7 @@ export default function ThankYouPage() {
         credits: converted * 100
       });
 
+      base44.analytics.track({ eventName: 'referral_program_activated' });
       toast.success('🎉 Referral program activated!');
     } catch (error) {
       console.error('Error generating referral code:', error);
@@ -86,6 +93,7 @@ export default function ThankYouPage() {
   const copyReferralLink = () => {
     if (!referralCode) return;
     
+    base44.analytics.track({ eventName: 'referral_link_copied' });
     const link = `https://localrank.ai?ref=${referralCode}`;
     navigator.clipboard.writeText(link);
     setIsCopied(true);
@@ -97,6 +105,7 @@ export default function ThankYouPage() {
   const shareReferralViaEmail = () => {
     if (!referralCode) return;
     
+    base44.analytics.track({ eventName: 'referral_email_share_clicked' });
     const link = `https://localrank.ai?ref=${referralCode}`;
     const subject = encodeURIComponent('I Found This Free GMB Score Tool - You Should Try It');
     const body = encodeURIComponent(
@@ -113,6 +122,7 @@ export default function ThankYouPage() {
       return;
     }
 
+    base44.analytics.track({ eventName: 'pdf_download_initiated' });
     setIsDownloadingPDF(true);
 
     try {
@@ -131,12 +141,14 @@ export default function ThankYouPage() {
         window.URL.revokeObjectURL(url);
         document.body.removeChild(link);
         
+        base44.analytics.track({ eventName: 'pdf_download_success' });
         toast.success('✅ Audit report downloaded!');
       } else {
         throw new Error('Failed to generate PDF');
       }
     } catch (error) {
       console.error('Error downloading PDF:', error);
+      base44.analytics.track({ eventName: 'pdf_download_failed', properties: { error: error.message } });
       toast.error('Failed to download audit report');
     } finally {
       setIsDownloadingPDF(false);
