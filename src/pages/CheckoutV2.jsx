@@ -7,6 +7,7 @@ import { Shield, Star, Zap, TrendingUp, MapPin, Users } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 import LiveActivityIndicator from '@/components/cro/LiveActivityIndicator';
 import ScarcityBanner from '@/components/cro/ScarcityBanner';
+import DeferredComponent from '@/components/optimized/DeferredComponent';
 
 const plans = [
   {
@@ -209,8 +210,12 @@ export default function CheckoutV2() {
 
   return (
     <div className="min-h-screen bg-white">
-      <LiveActivityIndicator />
-      <ScarcityBanner spotsLeft={5} />
+      <DeferredComponent delay={2000}>
+        <LiveActivityIndicator />
+      </DeferredComponent>
+      <DeferredComponent delay={4000}>
+        <ScarcityBanner spotsLeft={5} />
+      </DeferredComponent>
       {/* Sticky Countdown Timer - P0 FIX: Prevent overflow capture on mobile */}
       <div className="sticky top-0 z-50 bg-white border-b shadow-sm touch-none">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between gap-2">

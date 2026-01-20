@@ -48,6 +48,16 @@ css
   img {
     content-visibility: auto;
   }
+
+  /* Lazy load images by default */
+  img[loading="lazy"] {
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  img[loading="lazy"].loaded {
+    opacity: 1;
+  }
   
   /* Optimize animations */
   @media (prefers-reduced-motion: no-preference) {

@@ -16,6 +16,7 @@ import LegalFooter from '@/components/shared/LegalFooter';
 import LiveActivityIndicator from '@/components/cro/LiveActivityIndicator';
 import ViewersCounter from '@/components/cro/ViewersCounter';
 import ScarcityBanner from '@/components/cro/ScarcityBanner';
+import DeferredComponent from '@/components/optimized/DeferredComponent';
 
 // Lazy load step components that are conditionally rendered
 const CategoryStep = lazy(() => import('@/components/quiz/CategoryStep'));
@@ -433,8 +434,12 @@ function QuizContent() {
             }}
           />
 
-          <LiveActivityIndicator />
-          <ScarcityBanner spotsLeft={7} />
+          <DeferredComponent delay={3000}>
+            <LiveActivityIndicator />
+          </DeferredComponent>
+          <DeferredComponent delay={5000}>
+            <ScarcityBanner spotsLeft={7} />
+          </DeferredComponent>
 
           <main className="flex-1 flex items-center justify-center py-4 px-2 md:px-4 overflow-x-hidden">
             <AnimatePresence mode="wait">

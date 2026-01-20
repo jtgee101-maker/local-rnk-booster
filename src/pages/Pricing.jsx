@@ -11,6 +11,8 @@ import TrustSection from '@/components/pricing/TrustSection';
 import LiveActivityIndicator from '@/components/cro/LiveActivityIndicator';
 import ViewersCounter from '@/components/cro/ViewersCounter';
 import StickyConversionBar from '@/components/cro/StickyConversionBar';
+import DeferredComponent from '@/components/optimized/DeferredComponent';
+import { SkeletonPricingCard } from '@/components/optimized/SkeletonLoader';
 
 const pricingPlans = [
   {
@@ -172,24 +174,36 @@ function PricingContent() {
         {/* Pricing Cards */}
         <div className="max-w-7xl mx-auto px-4 pb-16">
           <div className="grid md:grid-cols-3 gap-8">
-            {pricingPlans.map((plan, index) => (
-              <PricingCard
-                key={plan.id}
-                plan={plan}
-                isPopular={plan.popular}
-                isBestValue={plan.bestValue}
-                onSelect={handleSelectPlan}
-                index={index}
-              />
-            ))}
+            <React.Suspense fallback={
+              <>
+                <SkeletonPricingCard />
+                <SkeletonPricingCard />
+                <SkeletonPricingCard />
+              </>
+            }>
+              {pricingPlans.map((plan, index) => (
+                <PricingCard
+                  key={plan.id}
+                  plan={plan}
+                  isPopular={plan.popular}
+                  isBestValue={plan.bestValue}
+                  onSelect={handleSelectPlan}
+                  index={index}
+                />
+              ))}
+            </React.Suspense>
           </div>
         </div>
 
-        {/* Features Section */}
-        <FeaturesSection />
+        {/* Features Section - Deferred for performance */}
+        <DeferredComponent delay={200}>
+          <FeaturesSection />
+        </DeferredComponent>
 
-        {/* Trust Section */}
-        <TrustSection />
+        {/* Trust Section - Deferred for performance */}
+        <DeferredComponent delay={400}>
+          <TrustSection />
+        </DeferredComponent>
 
         {/* Bottom CTA */}
         <div className="py-16 px-4">
