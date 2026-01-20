@@ -134,7 +134,6 @@ function PricingContent() {
       <CountdownTimer minutes={15} />
 
       {/* CRO Elements */}
-      <LiveActivityIndicator />
       <StickyConversionBar 
         onCTA={() => {
           const topPlan = pricingPlans.find(p => p.popular) || pricingPlans[0];
@@ -165,9 +164,13 @@ function PricingContent() {
               Unlock Your Business's <span className="text-[#c8ff00]">Hidden Ranking Power</span>
             </h1>
             
-            <p className="text-gray-400 text-xl max-w-2xl mx-auto">
+            <p className="text-gray-400 text-xl max-w-2xl mx-auto mb-6">
               For less than a cup of coffee, discover why your competitors are stealing 80% of your local leads
             </p>
+            
+            <div className="max-w-md mx-auto">
+              <InlineSocialProof variant="stats" />
+            </div>
           </motion.div>
         </div>
 
