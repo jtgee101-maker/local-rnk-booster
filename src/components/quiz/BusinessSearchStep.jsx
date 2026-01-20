@@ -16,7 +16,7 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
   const [hasSearched, setHasSearched] = useState(false);
 
   const performSearch = useCallback(async (query) => {
-    if (!query.trim()) return;
+    if (!query.trim() || isSearching) return;
 
     setIsSearching(true);
     setSearchResults([]);
@@ -37,11 +37,6 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
           eventName: 'business_search_results', 
           properties: { results_count: response.data.results.length } 
         });
-        
-        // Auto-select if only one result
-        if (response.data.results.length === 1) {
-          setTimeout(() => handleSelectBusiness(response.data.results[0]), 300);
-        }
       } else {
         setSearchResults([]);
         base44.analytics.track({ 
@@ -55,7 +50,7 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
     } finally {
       setIsSearching(false);
     }
-  }, []);
+  }, [isSearching]);
   
   // Debounced search for better performance
   const debouncedSearch = useDebounce(performSearch, 800);
@@ -69,16 +64,16 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
     performSearch(searchQuery);
   };
 
-  // Auto-search on Enter or after typing pause
-  React.useEffect(() => {
-    if (!searchQuery.trim()) return;
-    
-    if (!hasSearched || searchResults.length === 0) {
-      debouncedSearch(searchQuery);
-    }
-  }, [searchQuery, hasSearched, searchResults.length, debouncedSearch]);
+  // Manual search only - no auto-search to prevent loops
+  const handleInputChange = (e) => {
+    setSearchQuery(e.target.value);
+    setHasSearched(false);
+    setSearchResults([]);
+  };
 
-  const handleSelectBusiness = async (business) => {
+  const handleSelectBusiness = useCallback(async (business) => {
+    if (isLoadingDetails) return; // Prevent double-clicks
+    
     base44.analytics.track({ 
       eventName: 'business_selected', 
       properties: { business_name: business.name } 
@@ -87,48 +82,37 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
     setSelectedBusiness(business);
     setIsLoadingDetails(true);
 
-    const maxRetries = 3;
-    let lastError;
+    try {
+      const response = await base44.functions.invoke('getGoogleBusinessDetails', {
+        placeId: business.place_id
+      });
 
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
-      try {
-        const response = await base44.functions.invoke('getGoogleBusinessDetails', {
-          placeId: business.place_id
-        });
-
-        if (response?.data?.success && response?.data?.business) {
-          setBusinessDetails(response.data.business);
-          setIsLoadingDetails(false);
-          return;
-        }
-        lastError = 'Invalid response format';
-      } catch (error) {
-        lastError = error;
-        // Wait before retrying (exponential backoff)
-        if (attempt < maxRetries - 1) {
-          await new Promise(resolve => setTimeout(resolve, 500 * (attempt + 1)));
-        }
+      if (response?.data?.success && response?.data?.business) {
+        setBusinessDetails(response.data.business);
+      } else {
+        throw new Error('Invalid response');
       }
+    } catch (error) {
+      console.error('Error fetching details:', error);
+      // Use fallback from search result
+      setBusinessDetails({
+        name: business.name,
+        address: business.address,
+        rating: business.rating || 0,
+        total_reviews: business.user_ratings_total || 0,
+        photos_count: 0,
+        has_hours: false,
+        types: business.types || [],
+        place_id: business.place_id,
+        website: '',
+        phone: '',
+        reviews: [],
+        location: business.geometry?.location || {}
+      });
+    } finally {
+      setIsLoadingDetails(false);
     }
-
-    // If all retries failed, use minimal fallback from search result
-    console.error('Failed to fetch details after retries:', lastError);
-    setBusinessDetails({
-      name: business.name,
-      address: business.address,
-      rating: business.rating || 0,
-      total_reviews: business.user_ratings_total || 0,
-      photos_count: 0,
-      has_hours: false,
-      types: business.types || [],
-      place_id: business.place_id,
-      website: '',
-      phone: '',
-      reviews: [],
-      location: business.geometry?.location || {}
-    });
-    setIsLoadingDetails(false);
-  };
+  }, [isLoadingDetails]);
 
   const handleConfirm = () => {
     if (businessDetails) {
@@ -197,9 +181,12 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
             <Input
               placeholder="e.g., Joe's Pizza Brooklyn NY"
               value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setHasSearched(false);
+              onChange={handleInputChange}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSearch(e);
+                }
               }}
               autoFocus
               className="pl-12 pr-32 py-6 bg-gray-900/50 border-gray-800 text-white placeholder:text-gray-500 rounded-xl focus:border-[#c8ff00]/50 focus:ring-[#c8ff00]/20"
