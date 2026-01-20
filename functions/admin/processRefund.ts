@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import Stripe from 'npm:stripe';
+import { isStripeTestMode, mockRefund } from './utils/stripeTestRelay.js';
 
 Deno.serve(async (req) => {
   try {
@@ -24,23 +25,16 @@ Deno.serve(async (req) => {
 
     const orderData = order[0];
 
-    // TEST MODE RELAY - Check if Stripe is configured
-    const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
-    const isTestMode = !stripeKey || stripeKey.startsWith('sk_test_');
-
+    // TEST MODE RELAY
+    const isTestMode = isStripeTestMode();
     let refundData;
 
     if (isTestMode) {
-      // MOCK REFUND - No Stripe calls, simulate successful refund
-      console.log('[TEST MODE] Simulating refund for order:', orderId);
-      refundData = {
-        id: `re_test_${Date.now()}`,
-        amount: amount || orderData.total_amount,
-        status: 'succeeded',
-        test_mode: true
-      };
+      // MOCK REFUND - No Stripe API calls
+      refundData = mockRefund(orderId, amount || orderData.total_amount);
     } else {
       // PRODUCTION MODE - Real Stripe API call
+      const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
       const stripe = new Stripe(stripeKey, {
         apiVersion: '2023-10-16',
       });
