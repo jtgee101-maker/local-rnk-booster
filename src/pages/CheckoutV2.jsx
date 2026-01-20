@@ -184,17 +184,17 @@ export default function CheckoutV2() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Sticky Countdown Timer */}
-      <div className="sticky top-0 z-50 bg-white border-b shadow-sm">
-        <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="text-sm">
-            <span className="text-gray-600">Up to 82% discount reserved for:</span>
-            <div className="font-bold text-lg">{formatTime(timeLeft)}</div>
+      {/* Sticky Countdown Timer - P0 FIX: Prevent overflow capture on mobile */}
+      <div className="sticky top-0 z-50 bg-white border-b shadow-sm touch-none">
+        <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between gap-2">
+          <div className="text-sm flex-shrink min-w-0">
+            <span className="text-gray-600 text-xs sm:text-sm">Up to 82% discount reserved for:</span>
+            <div className="font-bold text-base sm:text-lg">{formatTime(timeLeft)}</div>
           </div>
           <Button
             onClick={handleContinue}
             disabled={isLoading}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
+            className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-4 sm:px-6 py-2 rounded-lg min-h-[44px] flex-shrink-0"
           >
             Continue
           </Button>
@@ -232,7 +232,7 @@ export default function CheckoutV2() {
                 onClick={() => setSelectedPlan(plan.id)}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className={`w-full border-2 rounded-2xl p-4 text-left transition-all relative ${
+                className={`w-full border-2 rounded-2xl p-4 text-left transition-all relative min-h-[88px] touch-manipulation ${
                   selectedPlan === plan.id
                     ? 'border-black bg-black text-white'
                     : 'border-gray-200 bg-white hover:border-gray-300'
@@ -293,11 +293,11 @@ export default function CheckoutV2() {
           </div>
         </div>
 
-        {/* Continue Button */}
+        {/* Continue Button - P0 FIX: iOS safe tap target */}
         <Button
           onClick={handleContinue}
           disabled={isLoading}
-          className="w-full bg-black hover:bg-gray-900 text-white py-6 text-lg font-semibold rounded-xl mb-3"
+          className="w-full bg-black hover:bg-gray-900 active:bg-gray-800 text-white py-6 text-lg font-semibold rounded-xl mb-3 min-h-[56px] touch-manipulation"
         >
           {isLoading ? 'Processing...' : 'Continue'}
         </Button>

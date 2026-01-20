@@ -38,7 +38,7 @@ export default function ExitIntentModal({ onClose, onAccept }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
           onClick={handleClose}
         >
           <motion.div
@@ -50,7 +50,8 @@ export default function ExitIntentModal({ onClose, onAccept }) {
           >
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-300"
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-300 p-2 min-w-[44px] min-h-[44px] touch-manipulation"
+              aria-label="Close"
             >
               <X className="w-5 h-5" />
             </button>
@@ -80,7 +81,7 @@ export default function ExitIntentModal({ onClose, onAccept }) {
               <div className="flex flex-col gap-3">
                 <Button
                   onClick={handleAccept}
-                  className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-bold py-6 text-lg rounded-full"
+                  className="bg-[#c8ff00] hover:bg-[#d4ff33] active:bg-[#b8e600] text-black font-bold py-6 text-lg rounded-full min-h-[56px] touch-manipulation"
                 >
                   <Zap className="mr-2 w-5 h-5" />
                   Claim My 82% OFF Now

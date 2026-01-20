@@ -180,7 +180,7 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
             <Button
               type="submit"
               disabled={isSearching || !searchQuery.trim()}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold px-6 rounded-lg"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#c8ff00] hover:bg-[#d4ff33] active:bg-[#b8e600] text-black font-semibold px-4 sm:px-6 rounded-lg min-h-[40px] touch-manipulation"
             >
               {isSearching ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -216,7 +216,7 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
               onClick={() => handleSelectBusiness(business)}
-              className="w-full bg-gray-900/50 border border-gray-800 rounded-xl p-4 text-left hover:border-[#c8ff00]/50 hover:bg-gray-900/80 transition-all"
+              className="w-full bg-gray-900/50 border border-gray-800 rounded-xl p-4 text-left hover:border-[#c8ff00]/50 hover:bg-gray-900/80 transition-all min-h-[80px] touch-manipulation"
             >
               <div className="flex items-start gap-4">
                 <div className="p-2 rounded-lg bg-gray-800">

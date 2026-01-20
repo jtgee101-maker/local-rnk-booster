@@ -131,11 +131,11 @@ function CheckoutForm({ leadData, selectedPlan, orderBumpSelected, onOrderBumpTo
         />
       </motion.div>
 
-      {/* Submit Button */}
+      {/* Submit Button - P0 FIX: iOS tap reliability */}
       <Button
         type="submit"
         disabled={isProcessing}
-        className="w-full bg-gradient-to-r from-[#c8ff00] to-[#d4ff33] hover:from-[#d4ff33] hover:to-[#c8ff00] text-black font-bold py-7 text-lg rounded-xl transition-all duration-300 hover:shadow-[0_0_50px_rgba(200,255,0,0.4)] disabled:opacity-70 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
+        className="w-full bg-gradient-to-r from-[#c8ff00] to-[#d4ff33] hover:from-[#d4ff33] hover:to-[#c8ff00] text-black font-bold py-7 text-lg rounded-xl transition-all duration-300 hover:shadow-[0_0_50px_rgba(200,255,0,0.4)] disabled:opacity-70 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98] min-h-[56px] touch-manipulation"
       >
         {isProcessing ? (
           <span className="flex items-center justify-center gap-2">
