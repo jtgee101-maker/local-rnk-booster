@@ -90,15 +90,25 @@ export default function ResultsV3({ healthScore, criticalIssues, businessName, o
         transition={{ delay: 0.8 }}
         className="bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/30 rounded-2xl p-6 md:p-8 mb-6"
       >
-        <h3 className="text-xl font-bold text-white mb-3">
-          💰 The Hidden Tax You're Paying
-        </h3>
-        <p className="text-gray-300 mb-4">
-          Aggregators like Thumbtack and Angi are charging you <span className="text-orange-400 font-bold">$25-$100 per lead</span> for customers who were already searching for businesses like yours on Google.
-        </p>
-        <p className="text-gray-400 text-sm">
-          <span className="text-[#c8ff00] font-semibold">The reality:</span> Those customers found YOU organically, but because your Google profile isn't optimized, they're being intercepted by lead-gen platforms who then charge you to "connect" you with your own customers.
-        </p>
+        <div className="flex items-start gap-3 mb-4">
+          <div className="text-4xl">💰</div>
+          <div>
+            <h3 className="text-xl font-bold text-white mb-2">
+              The "Aggregator Tax" You're Paying Monthly
+            </h3>
+            <p className="text-gray-300 mb-3">
+              Those customers on Thumbtack and Angi? <span className="text-orange-400 font-bold">They already found YOU on Google Maps.</span>
+            </p>
+          </div>
+        </div>
+        <div className="bg-gray-900/60 border border-orange-500/30 rounded-lg p-4">
+          <p className="text-gray-300 text-sm mb-2">
+            <span className="text-[#c8ff00] font-bold">Here's the scam:</span> These platforms intercept the customer journey, capture the lead data, then sell it back to you for <span className="text-orange-400 font-bold">$50-$150 each</span>.
+          </p>
+          <p className="text-gray-400 text-xs">
+            Meanwhile, your competitors with optimized Google profiles get those same customers <span className="text-[#c8ff00]">100% free</span>. No middleman. Direct call button clicks.
+          </p>
+        </div>
       </motion.div>
 
       {/* The Solution */}
@@ -113,17 +123,19 @@ export default function ResultsV3({ healthScore, criticalIssues, businessName, o
           <span className="text-[#c8ff00] font-semibold text-sm">SOLUTION FOUND</span>
         </div>
 
-        <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">
-          Fix These Errors <span className="text-[#c8ff00]">Automatically</span> (Free Trial)
+        <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">
+          Skip the $2,000/mo Agency.<br />
+          <span className="text-[#c8ff00]">AI Fixes This in 72 Hours.</span>
         </h3>
 
-        <p className="text-gray-300 mb-2 max-w-2xl mx-auto">
-          Our AI found 3 critical errors costing you ${lostRevenue.toLocaleString()}/mo. Usually, an agency charges <span className="line-through text-gray-500">$2,000/mo</span> to fix these.
-        </p>
-
-        <p className="text-[#c8ff00] font-semibold text-lg mb-6">
-          You can fix them yourself for FREE using the Paige AI Automation tool.
-        </p>
+        <div className="bg-gray-900/60 border border-gray-700 rounded-xl p-4 mb-4 max-w-2xl mx-auto">
+          <p className="text-gray-300 text-sm mb-2">
+            <span className="text-red-400 font-bold">Traditional Route:</span> Hire an SEO agency for <span className="line-through">$2,000/month</span> (12-month contract). Wait 3-6 months for results.
+          </p>
+          <p className="text-[#c8ff00] font-semibold text-sm">
+            <span className="text-white">Smart Route:</span> Let Paige AI automatically optimize everything. Start seeing calls in 72 hours. Free trial.
+          </p>
+        </div>
 
         {/* Trust Elements */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 max-w-2xl mx-auto">
@@ -144,15 +156,18 @@ export default function ResultsV3({ healthScore, criticalIssues, businessName, o
         {/* CTA Button */}
         <Button
           onClick={onCTA}
-          className="w-full max-w-md mx-auto bg-gradient-to-r from-[#c8ff00] to-green-400 hover:from-[#d4ff33] hover:to-green-300 text-black font-bold py-8 text-xl rounded-xl transition-all duration-300 hover:shadow-[0_0_60px_rgba(200,255,0,0.5)] transform hover:scale-105 active:scale-95 min-h-[64px] touch-manipulation"
+          className="w-full max-w-md mx-auto bg-gradient-to-r from-[#c8ff00] to-green-400 hover:from-[#d4ff33] hover:to-green-300 text-black font-bold py-8 text-xl rounded-xl transition-all duration-300 hover:shadow-[0_0_60px_rgba(200,255,0,0.5)] transform hover:scale-105 active:scale-95 min-h-[64px] touch-manipulation relative overflow-hidden group"
         >
-          <Zap className="w-6 h-6 mr-2" />
-          Activate My Free AI Fix
-          <ArrowRight className="w-6 h-6 ml-2" />
+          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+          <span className="relative flex items-center justify-center">
+            <Zap className="w-6 h-6 mr-2 animate-pulse" />
+            Yes, Auto-Fix My Rankings Now
+            <ArrowRight className="w-6 h-6 ml-2" />
+          </span>
         </Button>
 
-        <p className="text-gray-500 text-xs mt-4">
-          ⚡ Free trial • No credit card required • Cancel anytime
+        <p className="text-gray-400 text-sm mt-4 font-medium">
+          ✓ Free 7-day trial • ✓ No credit card • ✓ Results in 72hrs
         </p>
 
         {/* Scarcity */}
@@ -160,10 +175,19 @@ export default function ResultsV3({ healthScore, criticalIssues, businessName, o
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2 }}
-          className="mt-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg"
+          className="mt-6 p-4 bg-gradient-to-r from-red-500/10 via-orange-500/10 to-red-500/10 border border-red-500/40 rounded-lg"
         >
-          <p className="text-red-300 text-sm font-semibold">
-            ⏰ Free trials limited by zip code. Claim yours before your competitor does.
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+            </span>
+            <p className="text-red-300 text-sm font-bold">
+              TERRITORY PROTECTION ACTIVE
+            </p>
+          </div>
+          <p className="text-red-200 text-xs">
+            Only 1 free trial per zip code. Once claimed, competitors in your area are blocked for 90 days.
           </p>
         </motion.div>
       </motion.div>

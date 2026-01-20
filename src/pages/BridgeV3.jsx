@@ -139,11 +139,11 @@ export default function BridgeV3() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-3xl md:text-5xl font-bold text-white mb-4"
+            className="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight"
           >
-            Identity Confirmed.
+            ✓ Audit Complete.
             <br />
-            <span className="text-[#c8ff00]">Syncing Your Audit Results...</span>
+            <span className="text-[#c8ff00]">Connecting to Paige AI...</span>
           </motion.h1>
 
           {/* Transfer Message */}
@@ -158,15 +158,23 @@ export default function BridgeV3() {
               <span className="text-[#c8ff00] font-semibold">AUTHORIZED CONNECTION</span>
             </div>
             
-            <p className="text-gray-300 mb-4">
-              Our audit identified <span className="text-red-400 font-bold">3 critical ranking errors</span>. To save you the <span className="line-through text-gray-500">$2,000/mo agency fee</span>, we have authorized a direct connection to the <span className="text-[#c8ff00] font-semibold">Paige AI Automation Engine</span>.
+            <p className="text-gray-300 mb-4 text-base">
+              We found <span className="text-red-400 font-bold">3 fixable errors</span> causing ${leadData?.health_score ? Math.round((100 - leadData.health_score) * 150) : '3,000'}/mo in lost revenue.
             </p>
 
-            <div className="bg-[#c8ff00]/10 border border-[#c8ff00]/30 rounded-lg p-4 mb-4">
-              <p className="text-white font-semibold mb-2">📋 Next Step:</p>
-              <p className="text-gray-300 text-sm">
-                On the next page, click the <span className="text-[#c8ff00] font-bold">"Start Free Trial"</span> button. This will instantly apply our audit data to your Google Profile for an automated fix.
-              </p>
+            <div className="bg-gradient-to-r from-[#c8ff00]/15 to-green-500/10 border-2 border-[#c8ff00]/40 rounded-lg p-5 mb-4">
+              <div className="flex items-start gap-3">
+                <div className="text-3xl">🤖</div>
+                <div className="flex-1 text-left">
+                  <p className="text-white font-bold mb-2">Automated Fix Authorized</p>
+                  <p className="text-gray-300 text-sm mb-3">
+                    Your audit data has been pre-loaded into Paige AI's automation engine. <span className="text-[#c8ff00] font-semibold">No manual setup needed.</span>
+                  </p>
+                  <p className="text-xs text-gray-400 bg-gray-900/50 rounded px-3 py-2">
+                    <span className="text-[#c8ff00] font-bold">Next:</span> Click "Start Free Trial" and Paige AI applies fixes automatically (72-hour turnaround).
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Countdown */}
@@ -174,11 +182,14 @@ export default function BridgeV3() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
-              className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-full px-4 py-2"
+              className="inline-flex items-center gap-2 bg-red-500/20 border-2 border-red-500/50 rounded-full px-5 py-2.5 shadow-lg shadow-red-500/20"
             >
-              <AlertCircle className="w-4 h-4 text-red-400" />
-              <span className="text-red-300 text-sm font-semibold">
-                This direct-sync link expires in {countdown}:00
+              <div className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+              </div>
+              <span className="text-red-200 text-sm font-bold">
+                Pre-auth expires: {countdown}:00
               </span>
             </motion.div>
           </motion.div>
@@ -233,9 +244,9 @@ export default function BridgeV3() {
                 <AlertCircle className="w-8 h-8 text-red-400" />
               </div>
 
-              <h3 className="text-2xl font-bold text-white mb-3">Wait!</h3>
+              <h3 className="text-2xl font-bold text-white mb-3">You're So Close!</h3>
               <p className="text-gray-300 mb-6">
-                Your <span className="text-[#c8ff00] font-semibold">free automated fix</span> is ready. Don't leave your leads to your competitors.
+                Your <span className="text-[#c8ff00] font-bold">pre-authorized AI fix</span> is ready on the next page. Leaving now means manual setup later (or your competitor claims your territory).
               </p>
 
               <div className="flex gap-3">
