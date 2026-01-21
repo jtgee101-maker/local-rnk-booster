@@ -6,9 +6,11 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import { ABTestProvider } from '@/components/abtest/ABTestProvider';
-import { calculateHealthScore } from '@/components/utils/healthScoreCalculator';
+import { calculateHealthScore, generateCriticalIssues } from '@/components/utils/healthScoreCalculator';
 import { LEAD_COSTS } from '@/components/utils/constants';
 import { quizRateLimiter } from '@/components/utils/rateLimiter';
+import { checkDuplicateLead, getLeadAction, mergeLeadData } from '@/components/utils/leadDeduplication';
+import { errorLogger } from '@/components/utils/errorLogger';
 import LegalFooter from '@/components/shared/LegalFooter';
 import V2FAQSection from '@/components/quizv2/V2FAQSection';
 import MobileOptimizations from '@/components/quizv3/MobileOptimizations';
@@ -139,55 +141,42 @@ function QuizV2Content() {
   const handleBusinessSearchSelect = async (businessData) => {
     setIsLoading(true);
     
-    // Use centralized health score calculator
-    const healthScore = calculateHealthScore(businessData);
-    
-    // Calculate "Thumbtack Tax"
-    const avgLeadCost = quizData.lead_source === 'scorpion' ? LEAD_COSTS.SCORPION : LEAD_COSTS.STANDARD;
-    const weeklyLeads = quizData.leads_lost_weekly || 5;
-    const monthlyTax = avgLeadCost * weeklyLeads * LEAD_COSTS.WEEKS_PER_MONTH;
-    const yearlyTax = monthlyTax * LEAD_COSTS.MONTHS_PER_YEAR;
-    
-    const criticalIssues = criticalIssuesByLeadSource[quizData.lead_source] || criticalIssuesByLeadSource.other;
-
-    const finalData = {
-      ...quizData,
-      ...businessData,
-      health_score: healthScore,
-      critical_issues: criticalIssues,
-      thumbtack_tax: yearlyTax,
-      business_category: 'other', // Set a default for compatibility
-      pain_point: 'not_optimized'
-    };
-
-    setQuizData(finalData);
-    setStep('processing');
-    setCurrentStepNumber(4);
-
-    // Save lead
     try {
-      const createdLead = await base44.entities.Lead.create({
-        ...finalData,
-        status: 'new',
-        admin_notes: `V2 Quiz - Lead Source: ${quizData.lead_source}, Weekly Leads Lost: ${weeklyLeads}, Annual Tax: $${yearlyTax}`
-      });
+      // Use centralized health score calculator
+      const healthScore = calculateHealthScore(businessData);
       
-      base44.analytics.track({ 
-        eventName: 'v2_quiz_completed', 
-        properties: { 
-          health_score: healthScore,
-          lead_source: quizData.lead_source,
-          thumbtack_tax: yearlyTax
-        } 
-      });
+      // Calculate "Thumbtack Tax"
+      const avgLeadCost = quizData.lead_source === 'scorpion' ? LEAD_COSTS.SCORPION : LEAD_COSTS.STANDARD;
+      const weeklyLeads = quizData.leads_lost_weekly || 5;
+      const monthlyTax = avgLeadCost * weeklyLeads * LEAD_COSTS.WEEKS_PER_MONTH;
+      const yearlyTax = monthlyTax * LEAD_COSTS.MONTHS_PER_YEAR;
       
-      sessionStorage.setItem('quizLead', JSON.stringify({ ...finalData, id: createdLead.id }));
-      sessionStorage.setItem('quizVersion', 'v2');
-    } catch (error) {
-      console.error('Error saving lead:', error);
-    }
+      const criticalIssues = criticalIssuesByLeadSource[quizData.lead_source] || criticalIssuesByLeadSource.other;
 
-    setIsLoading(false);
+      const finalData = {
+        ...quizData,
+        ...businessData,
+        health_score: healthScore,
+        critical_issues: criticalIssues,
+        thumbtack_tax: yearlyTax,
+        business_category: 'other',
+        pain_point: 'not_optimized'
+      };
+
+      setQuizData(finalData);
+      setStep('processing');
+      setCurrentStepNumber(4);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error processing business data:', error);
+      errorLogger.systemError(error, {
+        context: 'quiz_v2_business_search',
+        business_name: businessData.business_name
+      });
+      setStep('processing');
+      setCurrentStepNumber(4);
+      setIsLoading(false);
+    }
   };
 
   const handleProcessingComplete = useCallback(() => {
@@ -195,7 +184,7 @@ function QuizV2Content() {
     setCurrentStepNumber(5);
   }, []);
 
-  const handleContactInfoSubmit = (contactData) => {
+  const handleContactInfoSubmit = async (contactData) => {
     // Rate limiting check
     if (!quizRateLimiter.canSubmit()) {
       const waitTime = quizRateLimiter.getTimeUntilAllowed();
@@ -204,8 +193,60 @@ function QuizV2Content() {
     }
     
     base44.analytics.track({ eventName: 'v2_contact_info_submitted', properties: { email: contactData.email } });
-    quizRateLimiter.recordSubmission();
-    setQuizData(prev => ({ ...prev, ...contactData }));
+    
+    const finalData = { ...quizData, ...contactData };
+    setQuizData(finalData);
+
+    // Check for duplicate leads and handle accordingly
+    try {
+      const duplicateCheck = await checkDuplicateLead(contactData.email);
+      const leadAction = getLeadAction(duplicateCheck);
+      
+      const avgLeadCost = finalData.lead_source === 'scorpion' ? LEAD_COSTS.SCORPION : LEAD_COSTS.STANDARD;
+      const weeklyLeads = finalData.leads_lost_weekly || 5;
+      const monthlyTax = avgLeadCost * weeklyLeads * LEAD_COSTS.WEEKS_PER_MONTH;
+      const yearlyTax = monthlyTax * LEAD_COSTS.MONTHS_PER_YEAR;
+      
+      const leadDataToSave = {
+        ...finalData,
+        status: 'new',
+        admin_notes: `V2 Quiz - Lead Source: ${finalData.lead_source}, Weekly Leads Lost: ${weeklyLeads}, Annual Tax: $${yearlyTax}`
+      };
+      
+      let savedLead;
+      
+      if (leadAction.action === 'update') {
+        const mergedData = mergeLeadData(duplicateCheck.existingLead, leadDataToSave);
+        savedLead = await base44.entities.Lead.update(leadAction.leadId, mergedData);
+        console.log('Updated existing lead:', leadAction.reason);
+      } else {
+        savedLead = await base44.entities.Lead.create(leadDataToSave);
+        console.log('Created new lead:', leadAction.reason);
+      }
+      
+      quizRateLimiter.recordSubmission();
+      
+      base44.analytics.track({ 
+        eventName: 'v2_quiz_completed', 
+        properties: { 
+          health_score: finalData.health_score,
+          lead_source: finalData.lead_source,
+          thumbtack_tax: yearlyTax,
+          is_duplicate: duplicateCheck.isDuplicate,
+          lead_action: leadAction.action
+        } 
+      });
+      
+      sessionStorage.setItem('quizLead', JSON.stringify({ ...finalData, id: savedLead.id }));
+      sessionStorage.setItem('quizVersion', 'v2');
+    } catch (error) {
+      console.error('Error saving lead:', error);
+      errorLogger.systemError(error, { 
+        context: 'quiz_v2_lead_submission',
+        email: contactData.email 
+      });
+    }
+    
     setStep('discountUnlock');
   };
 
