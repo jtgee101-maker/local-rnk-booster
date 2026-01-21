@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
 import {
   BarChart3, Users, DollarSign, TrendingUp, AlertCircle, Mail, Bug, Repeat,
-  Settings, Eye, Shield, RefreshCw, Download, Lock, Target
+  Settings, Eye, Shield, RefreshCw, Download, Lock, Target, Brain
 } from 'lucide-react';
 
 // Lazy load heavy components for performance
@@ -27,6 +27,7 @@ const V3Analytics = lazy(() => import('@/components/admin/V3Analytics'));
 const LeadScoringDashboard = lazy(() => import('@/components/admin/LeadScoringDashboard'));
 const RevenueAttribution = lazy(() => import('@/components/analytics/RevenueAttribution'));
 const AdvancedAnalytics = lazy(() => import('@/components/admin/AdvancedAnalytics'));
+const PredictiveAnalytics = lazy(() => import('@/components/admin/PredictiveAnalytics'));
 
 // Loading component
 const TabLoader = () => (
@@ -439,10 +440,14 @@ export default function AdminControlCenter() {
 
         {/* Main Tabs */}
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 lg:grid-cols-11 h-auto p-1 bg-gray-800/50 border border-gray-700">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 lg:grid-cols-12 h-auto p-1 bg-gray-800/50 border border-gray-700">
             <TabsTrigger value="overview" className="text-xs md:text-sm">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline ml-1">Overview</span>
+            </TabsTrigger>
+            <TabsTrigger value="predictive" className="text-xs md:text-sm">
+              <Brain className="w-4 h-4" />
+              <span className="hidden sm:inline ml-1">AI Insights</span>
             </TabsTrigger>
             <TabsTrigger value="analytics" className="text-xs md:text-sm">
               <TrendingUp className="w-4 h-4" />
@@ -502,6 +507,13 @@ export default function AdminControlCenter() {
                 <AdminOrdersSection />
                 <AdminSecurityAudit />
               </div>
+            </Suspense>
+          </TabsContent>
+
+          {/* Predictive Analytics Tab */}
+          <TabsContent value="predictive">
+            <Suspense fallback={<TabLoader />}>
+              <PredictiveAnalytics />
             </Suspense>
           </TabsContent>
 
