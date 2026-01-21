@@ -183,22 +183,24 @@ export default function ContractorsLanding() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="bg-gradient-to-br from-[#c8ff00] to-orange-500 rounded-3xl p-8 md:p-12 text-center"
+          className="bg-gradient-to-br from-[#c8ff00] to-orange-500 rounded-3xl p-6 md:p-12 text-center"
         >
-          <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h2 className="text-2xl md:text-5xl font-bold text-gray-900 mb-4">
             Get More High-Value Projects
           </h2>
-          <p className="text-xl text-gray-800 mb-8">
+          <p className="text-base md:text-xl text-gray-800 mb-8">
             Free audit reveals why homeowners pick other contractors + how to win premium jobs
           </p>
-          <Button
-            onClick={() => navigate(createPageUrl('QuizV3'))}
-            size="lg"
-            className="bg-gray-900 text-white hover:bg-gray-800 active:bg-gray-700 text-lg px-10 py-6 font-bold min-h-[56px] touch-manipulation"
-          >
-            <Shield className="w-5 h-5 mr-2" />
-            Start Getting Better Projects
-          </Button>
+          <div className="flex justify-center">
+            <Button
+              onClick={() => navigate(createPageUrl('QuizV3'))}
+              size="lg"
+              className="bg-gray-900 text-white hover:bg-gray-800 active:bg-gray-700 text-base md:text-lg px-6 md:px-10 py-5 md:py-6 font-bold min-h-[48px] md:min-h-[56px] w-full sm:w-auto touch-manipulation"
+            >
+              <Shield className="w-5 h-5 mr-2" />
+              Start Getting Better Projects
+            </Button>
+          </div>
         </motion.div>
       </div>
     </div>
