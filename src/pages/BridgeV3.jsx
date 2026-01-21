@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
+import MobileViewportFix from '@/components/utils/MobileViewportFix';
 
 const DEFAULT_AFFILIATE_URL = 'https://www.merchynt.com/paige?fpr=mr22&fp_sid=sg';
 const DEFAULT_REDIRECT_DELAY = 3000; // 3 seconds
