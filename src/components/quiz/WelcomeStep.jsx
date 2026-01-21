@@ -9,6 +9,7 @@ import { useABTest } from '@/components/abtest/ABTestProvider';
 export default function WelcomeStep({ onStart }) {
   const { getVariant, trackView } = useABTest();
   const headlineVariant = getVariant('quiz', 'headline');
+  const ctaVariant = getVariant('quiz', 'cta_button');
 
   useEffect(() => {
     trackView('quiz', 'headline');
@@ -145,11 +146,14 @@ export default function WelcomeStep({ onStart }) {
       >
         <Button
           onClick={onStart}
-          className="w-full sm:w-auto bg-[#c8ff00] hover:bg-[#d4ff33] active:bg-[#b8e600] text-black font-bold px-8 sm:px-12 py-5 sm:py-7 text-sm sm:text-xl rounded-full transition-all duration-300 hover:shadow-[0_0_50px_rgba(200,255,0,0.4)] hover:scale-105 active:scale-95 min-h-[56px] touch-manipulation"
+          className="w-full sm:w-auto bg-[#c8ff00] hover:bg-[#d4ff33] active:bg-[#b8e600] text-black font-bold px-8 sm:px-12 py-5 sm:py-7 text-sm sm:text-xl rounded-full transition-all duration-300 hover:shadow-[0_0_50px_rgba(200,255,0,0.4)] hover:scale-105 active:scale-95 min-h-[56px] touch-manipulation relative overflow-hidden group"
         >
-          <Clock className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-          <span>Claim My Free Audit Now</span>
-          </Button>
+          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
+          <span className="relative flex items-center">
+            <Clock className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+            <span>{ctaVariant?.variant?.content?.text || 'Claim My Free Audit Now'}</span>
+          </span>
+        </Button>
       </motion.div>
 
       {/* Endorphin - Ease + Guarantee */}

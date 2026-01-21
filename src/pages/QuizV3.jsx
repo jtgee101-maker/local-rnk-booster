@@ -17,6 +17,7 @@ import ViewersCounter from '@/components/cro/ViewersCounter';
 import ScarcityBanner from '@/components/cro/ScarcityBanner';
 import DeferredComponent from '@/components/optimized/DeferredComponent';
 import InlineSocialProof from '@/components/cro/InlineSocialProof';
+import ExitIntentV3 from '@/components/quizv3/ExitIntentV3';
 
 // Lazy load step components
 const CategoryStep = lazy(() => import('@/components/quiz/CategoryStep'));
@@ -76,6 +77,8 @@ function QuizV3Content() {
   const [showTransition, setShowTransition] = useState(false);
   const [transitionConfig, setTransitionConfig] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showExitIntent, setShowExitIntent] = useState(false);
+  const [exitIntentShown, setExitIntentShown] = useState(false);
 
   React.useEffect(() => {
     const sessionId = sessionStorage.getItem('ab_session_id') || `session_${Date.now()}`;
@@ -475,6 +478,20 @@ function QuizV3Content() {
       </div>
 
       {step === 'welcome' && <LegalFooter />}
+
+      {/* Exit Intent Modal */}
+      <AnimatePresence>
+        {showExitIntent && (
+          <ExitIntentV3
+            onClose={() => setShowExitIntent(false)}
+            onAccept={() => {
+              if (step === 'welcome') {
+                handleStart();
+              }
+            }}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 }
