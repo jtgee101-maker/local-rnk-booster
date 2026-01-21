@@ -26,6 +26,7 @@ const TestModeIndicator = lazy(() => import('@/components/admin/TestModeIndicato
 const V3Analytics = lazy(() => import('@/components/admin/V3Analytics'));
 const LeadScoringDashboard = lazy(() => import('@/components/admin/LeadScoringDashboard'));
 const RevenueAttribution = lazy(() => import('@/components/analytics/RevenueAttribution'));
+const AdvancedAnalytics = lazy(() => import('@/components/admin/AdvancedAnalytics'));
 
 // Loading component
 const TabLoader = () => (
@@ -438,10 +439,14 @@ export default function AdminControlCenter() {
 
         {/* Main Tabs */}
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 lg:grid-cols-10 h-auto p-1 bg-gray-800/50 border border-gray-700">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 lg:grid-cols-11 h-auto p-1 bg-gray-800/50 border border-gray-700">
             <TabsTrigger value="overview" className="text-xs md:text-sm">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline ml-1">Overview</span>
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="text-xs md:text-sm">
+              <TrendingUp className="w-4 h-4" />
+              <span className="hidden sm:inline ml-1">Analytics</span>
             </TabsTrigger>
             <TabsTrigger value="leads" className="text-xs md:text-sm">
               <Users className="w-4 h-4" />
@@ -497,6 +502,13 @@ export default function AdminControlCenter() {
                 <AdminOrdersSection />
                 <AdminSecurityAudit />
               </div>
+            </Suspense>
+          </TabsContent>
+
+          {/* Advanced Analytics Tab */}
+          <TabsContent value="analytics">
+            <Suspense fallback={<TabLoader />}>
+              <AdvancedAnalytics />
             </Suspense>
           </TabsContent>
 
