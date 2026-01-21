@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle2, AlertCircle, Home, Star, TrendingUp, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { Helmet } from 'react-helmet';
+import MobileOptimizations from '@/components/quizv3/MobileOptimizations';
 
 export default function RealEstateLanding() {
   const navigate = useNavigate();
@@ -31,7 +33,13 @@ export default function RealEstateLanding() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f]">
+    <>
+      <Helmet>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+      </Helmet>
+      <MobileOptimizations />
+      
+      <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f] overflow-x-hidden">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#c8ff00]/10 via-transparent to-purple-500/10" />
@@ -221,7 +229,7 @@ export default function RealEstateLanding() {
           <Button
             onClick={() => navigate(createPageUrl('QuizV3'))}
             size="lg"
-            className="bg-gray-900 text-white hover:bg-gray-800 text-lg px-10 py-6 font-bold"
+            className="bg-gray-900 text-white hover:bg-gray-800 active:bg-gray-700 text-lg px-10 py-6 font-bold min-h-[56px] touch-manipulation"
           >
             <TrendingUp className="w-5 h-5 mr-2" />
             Get More Listings & Buyers
@@ -230,5 +238,6 @@ export default function RealEstateLanding() {
         </motion.div>
       </div>
     </div>
+    </>
   );
 }
