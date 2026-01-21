@@ -87,7 +87,23 @@ function QuizV3Content() {
       event_name: 'quizv3_page_viewed',
       session_id: sessionId
     }).catch(err => console.error('Error tracking event:', err));
-  }, []);
+
+    // Exit intent detection
+    const handleMouseLeave = (e) => {
+      if (e.clientY <= 0 && !exitIntentShown && step !== 'welcome' && step !== 'results') {
+        const hasSeenExit = sessionStorage.getItem('v3_exit_shown');
+        if (!hasSeenExit) {
+          setShowExitIntent(true);
+          setExitIntentShown(true);
+          sessionStorage.setItem('v3_exit_shown', 'true');
+          base44.analytics.track({ eventName: 'quizv3_exit_intent_triggered' });
+        }
+      }
+    };
+
+    document.addEventListener('mouseleave', handleMouseLeave);
+    return () => document.removeEventListener('mouseleave', handleMouseLeave);
+  }, [exitIntentShown, step]);
 
   React.useEffect(() => {
     if (step !== 'welcome') {

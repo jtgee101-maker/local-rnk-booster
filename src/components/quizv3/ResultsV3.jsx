@@ -3,9 +3,12 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, TrendingDown, DollarSign, Zap, ArrowRight, Shield } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { useABTest } from '@/components/abtest/ABTestProvider';
 
 export default function ResultsV3({ healthScore, criticalIssues, businessName, onCTA }) {
   const lostRevenue = Math.round((100 - healthScore) * 150); // $150 per point lost
+  const { getVariant } = useABTest();
+  const ctaVariant = getVariant('quiz', 'results_cta');
   
   return (
     <motion.div
@@ -160,9 +163,11 @@ export default function ResultsV3({ healthScore, criticalIssues, businessName, o
         >
           <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
           <span className="relative flex items-center justify-center">
-            <Zap className="w-6 h-6 mr-2 animate-pulse" />
-            Yes, Auto-Fix My Rankings Now
-            <ArrowRight className="w-6 h-6 ml-2" />
+          <Zap className="w-5 h-5 md:w-6 md:h-6 mr-2 animate-pulse" />
+          <span className="text-base md:text-xl">
+            {ctaVariant?.variant?.content?.text || 'Yes, Auto-Fix My Rankings Now'}
+          </span>
+          <ArrowRight className="w-5 h-5 md:w-6 md:h-6 ml-2" />
           </span>
         </Button>
 

@@ -24,6 +24,26 @@ css
     overflow-x: hidden;
     /* P0-3 FIX: iOS Safari scroll fix */
     -webkit-overflow-scrolling: touch;
+    /* Mobile optimizations */
+    font-size: 16px; /* Prevent iOS zoom on input focus */
+  }
+
+  /* Mobile-specific improvements */
+  @media (max-width: 768px) {
+    body {
+      font-size: 14px;
+    }
+
+    /* Improve tap targets */
+    button, a, input, select, textarea {
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    /* Better mobile spacing */
+    .mobile-spacing {
+      padding: 1rem;
+    }
   }
   
   /* Reduce motion for accessibility and performance */
