@@ -20,6 +20,7 @@ import Quiz from './pages/Quiz';
 import QuizV2 from './pages/QuizV2';
 import QuizV3 from './pages/QuizV3';
 import RealEstateLanding from './pages/RealEstateLanding';
+import Referrals from './pages/Referrals';
 import RestaurantsLanding from './pages/RestaurantsLanding';
 import RoofersLanding from './pages/RoofersLanding';
 import Settings from './pages/Settings';
@@ -30,7 +31,6 @@ import ThankYou from './pages/ThankYou';
 import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import V2Start from './pages/V2Start';
-import Referrals from './pages/Referrals';
 
 
 export const PAGES = {
@@ -56,6 +56,7 @@ export const PAGES = {
     "QuizV2": QuizV2,
     "QuizV3": QuizV3,
     "RealEstateLanding": RealEstateLanding,
+    "Referrals": Referrals,
     "RestaurantsLanding": RestaurantsLanding,
     "RoofersLanding": RoofersLanding,
     "Settings": Settings,
@@ -66,7 +67,6 @@ export const PAGES = {
     "Upsell": Upsell,
     "Upsell1": Upsell1,
     "V2Start": V2Start,
-    "Referrals": Referrals,
 }
 
 export const pagesConfig = {
