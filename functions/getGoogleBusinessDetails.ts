@@ -16,17 +16,50 @@ Deno.serve(async (req) => {
     }
 
     const apiKey = Deno.env.get('GOOGLE_MAPS_API_KEY');
+    
+    if (!apiKey) {
+      console.error('GOOGLE_MAPS_API_KEY not configured');
+      return Response.json({ 
+        error: 'Business details service unavailable',
+        code: 'MAPS_API_KEY_MISSING'
+      }, { status: 500 });
+    }
 
     // Get detailed business info using Place Details API
     const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_address,formatted_phone_number,website,rating,user_ratings_total,reviews,photos,opening_hours,types,geometry,business_status&key=${apiKey}`;
     
     const detailsResponse = await fetch(detailsUrl);
+    
+    if (!detailsResponse.ok) {
+      console.error('Google Maps API HTTP error:', detailsResponse.status);
+      return Response.json({ 
+        error: 'Unable to load business details',
+        code: 'MAPS_HTTP_ERROR'
+      }, { status: 502 });
+    }
+    
     const detailsData = await detailsResponse.json();
+    
+    if (detailsData.status === 'REQUEST_DENIED') {
+      console.error('Google Maps API key denied:', detailsData.error_message);
+      return Response.json({ 
+        error: 'Service temporarily unavailable',
+        code: 'MAPS_API_DENIED'
+      }, { status: 500 });
+    }
+    
+    if (detailsData.status === 'OVER_QUERY_LIMIT') {
+      console.error('Google Maps API quota exceeded');
+      return Response.json({ 
+        error: 'Service at capacity. Please try again shortly.',
+        code: 'MAPS_QUOTA_EXCEEDED'
+      }, { status: 429 });
+    }
 
     if (detailsData.status !== 'OK' || !detailsData.result) {
       return Response.json({ 
-        error: 'Business details not found',
-        status: detailsData.status 
+        error: 'Business not found or details unavailable',
+        code: detailsData.status 
       }, { status: 404 });
     }
 

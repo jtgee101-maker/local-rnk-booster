@@ -10,23 +10,55 @@ Deno.serve(async (req) => {
     }
 
     const apiKey = Deno.env.get('GOOGLE_MAPS_API_KEY');
+    
+    if (!apiKey) {
+      console.error('GOOGLE_MAPS_API_KEY not configured');
+      return Response.json({ 
+        error: 'Search service temporarily unavailable. Please contact support.',
+        code: 'MAPS_API_KEY_MISSING'
+      }, { status: 500 });
+    }
 
     // Search for businesses using Places API Text Search
     const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(searchQuery)}&key=${apiKey}`;
     
     const searchResponse = await fetch(searchUrl);
+    
+    if (!searchResponse.ok) {
+      console.error('Google Maps API HTTP error:', searchResponse.status);
+      return Response.json({ 
+        error: 'Search service temporarily unavailable',
+        code: 'MAPS_HTTP_ERROR'
+      }, { status: 502 });
+    }
+    
     const searchData = await searchResponse.json();
 
     // Log the actual API response for debugging
     console.log('Google API Response:', { status: searchData.status, error_message: searchData.error_message, results_count: searchData.results?.length || 0 });
 
+    if (searchData.status === 'REQUEST_DENIED') {
+      console.error('Google Maps API key denied:', searchData.error_message);
+      return Response.json({ 
+        error: 'Search temporarily unavailable',
+        code: 'MAPS_API_DENIED'
+      }, { status: 500 });
+    }
+    
+    if (searchData.status === 'OVER_QUERY_LIMIT') {
+      console.error('Google Maps API quota exceeded');
+      return Response.json({ 
+        error: 'Service at capacity. Please try again in a moment.',
+        code: 'MAPS_QUOTA_EXCEEDED'
+      }, { status: 429 });
+    }
+
     if (searchData.status !== 'OK') {
       console.error('Google Places API Error:', searchData.error_message || 'Unknown error');
       return Response.json({ 
-        success: false,
-        results: [],
-        error: searchData.error_message || `API returned status: ${searchData.status}`
-      });
+        error: searchData.error_message || 'Unable to search businesses',
+        code: searchData.status
+      }, { status: 400 });
     }
 
     if (!searchData.results || searchData.results.length === 0) {

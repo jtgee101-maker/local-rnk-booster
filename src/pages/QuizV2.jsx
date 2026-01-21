@@ -6,6 +6,9 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import { ABTestProvider } from '@/components/abtest/ABTestProvider';
+import { calculateHealthScore } from '@/components/utils/healthScoreCalculator';
+import { LEAD_COSTS } from '@/components/utils/constants';
+import { quizRateLimiter } from '@/components/utils/rateLimiter';
 import LegalFooter from '@/components/shared/LegalFooter';
 import V2FAQSection from '@/components/quizv2/V2FAQSection';
 import MobileOptimizations from '@/components/quizv3/MobileOptimizations';
@@ -136,57 +139,14 @@ function QuizV2Content() {
   const handleBusinessSearchSelect = async (businessData) => {
     setIsLoading(true);
     
-    // Start with baseline score of 25 (everyone has issues)
-    let healthScore = 25;
-    
-    // Rating scoring - much stricter thresholds
-    if (businessData.gmb_rating >= 4.8) healthScore += 12;
-    else if (businessData.gmb_rating >= 4.5) healthScore += 8;
-    else if (businessData.gmb_rating >= 4.0) healthScore += 4;
-    else healthScore -= 5; // Penalty for low rating
-    
-    // Reviews count - significantly stricter
-    if (businessData.gmb_reviews_count >= 100) healthScore += 15;
-    else if (businessData.gmb_reviews_count >= 50) healthScore += 10;
-    else if (businessData.gmb_reviews_count >= 25) healthScore += 5;
-    else if (businessData.gmb_reviews_count < 10) healthScore -= 5; // Penalty
-    
-    // Photos - much higher requirements
-    if (businessData.gmb_photos_count >= 50) healthScore += 10;
-    else if (businessData.gmb_photos_count >= 30) healthScore += 6;
-    else if (businessData.gmb_photos_count >= 15) healthScore += 3;
-    else healthScore -= 3; // Penalty for few photos
-    
-    // Business hours
-    if (businessData.gmb_has_hours) healthScore += 4;
-    else healthScore -= 6; // Major penalty for missing hours
-    
-    // Website presence
-    if (businessData.website) healthScore += 5;
-    else healthScore -= 5; // Penalty for no website
-    
-    // Additional penalties for missing critical data
-    if (!businessData.phone) healthScore -= 8;
-    if (!businessData.gmb_types || businessData.gmb_types.length === 0) healthScore -= 5;
-    
-    // Recent review activity penalty (if available)
-    if (businessData.gmb_reviews && businessData.gmb_reviews.length > 0) {
-      const recentReviews = businessData.gmb_reviews.filter(r => {
-        const reviewDate = new Date(r.time * 1000);
-        const monthsAgo = (Date.now() - reviewDate.getTime()) / (1000 * 60 * 60 * 24 * 30);
-        return monthsAgo <= 3;
-      });
-      if (recentReviews.length < 3) healthScore -= 8; // Penalty for low review velocity
-    }
-    
-    // Cap score between 15-72 to ensure everyone needs improvement
-    healthScore = Math.max(15, Math.min(72, healthScore));
+    // Use centralized health score calculator
+    const healthScore = calculateHealthScore(businessData);
     
     // Calculate "Thumbtack Tax"
-    const avgLeadCost = quizData.lead_source === 'scorpion' ? 2000 : 100;
+    const avgLeadCost = quizData.lead_source === 'scorpion' ? LEAD_COSTS.SCORPION : LEAD_COSTS.STANDARD;
     const weeklyLeads = quizData.leads_lost_weekly || 5;
-    const monthlyTax = avgLeadCost * weeklyLeads * 4;
-    const yearlyTax = monthlyTax * 12;
+    const monthlyTax = avgLeadCost * weeklyLeads * LEAD_COSTS.WEEKS_PER_MONTH;
+    const yearlyTax = monthlyTax * LEAD_COSTS.MONTHS_PER_YEAR;
     
     const criticalIssues = criticalIssuesByLeadSource[quizData.lead_source] || criticalIssuesByLeadSource.other;
 
@@ -236,7 +196,15 @@ function QuizV2Content() {
   }, []);
 
   const handleContactInfoSubmit = (contactData) => {
+    // Rate limiting check
+    if (!quizRateLimiter.canSubmit()) {
+      const waitTime = quizRateLimiter.getTimeUntilAllowed();
+      alert(`Please wait ${Math.ceil(waitTime / 60)} minutes before submitting again.`);
+      return;
+    }
+    
     base44.analytics.track({ eventName: 'v2_contact_info_submitted', properties: { email: contactData.email } });
+    quizRateLimiter.recordSubmission();
     setQuizData(prev => ({ ...prev, ...contactData }));
     setStep('discountUnlock');
   };

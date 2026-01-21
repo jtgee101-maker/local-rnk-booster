@@ -7,6 +7,9 @@ import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import { ABTestProvider } from '@/components/abtest/ABTestProvider';
 import { prefetchResources, sessionCache } from '@/components/utils/performanceHooks';
+import { calculateHealthScore, generateCriticalIssues } from '@/components/utils/healthScoreCalculator';
+import { quizRateLimiter } from '@/components/utils/rateLimiter';
+import { REVENUE_LOSS_PER_POINT } from '@/components/utils/constants';
 
 // Import critical components
 import ProgressBar from '@/components/quiz/ProgressBar';
@@ -207,53 +210,15 @@ function QuizV3Content() {
   const handleBusinessSearchSelect = async (businessData) => {
     setIsLoading(true);
     
-    // Health score calculation (stricter to show more issues)
-    let healthScore = 25;
+    // Use centralized health score calculator
+    const healthScore = calculateHealthScore(businessData);
     
-    if (businessData.gmb_rating >= 4.8) healthScore += 12;
-    else if (businessData.gmb_rating >= 4.5) healthScore += 8;
-    else if (businessData.gmb_rating >= 4.0) healthScore += 4;
-    else healthScore -= 5;
-    
-    if (businessData.gmb_reviews_count >= 100) healthScore += 15;
-    else if (businessData.gmb_reviews_count >= 50) healthScore += 10;
-    else if (businessData.gmb_reviews_count >= 25) healthScore += 5;
-    else if (businessData.gmb_reviews_count < 10) healthScore -= 5;
-    
-    if (businessData.gmb_photos_count >= 50) healthScore += 10;
-    else if (businessData.gmb_photos_count >= 30) healthScore += 6;
-    else if (businessData.gmb_photos_count >= 15) healthScore += 3;
-    else healthScore -= 3;
-    
-    if (businessData.gmb_has_hours) healthScore += 4;
-    else healthScore -= 6;
-    
-    if (businessData.website) healthScore += 5;
-    else healthScore -= 5;
-    
-    if (!businessData.phone) healthScore -= 8;
-    if (!businessData.gmb_types || businessData.gmb_types.length === 0) healthScore -= 5;
-    
-    healthScore = Math.max(15, Math.min(72, healthScore));
-    
-    const criticalIssues = [];
-    
-    if (businessData.gmb_rating < 4.5) {
-      criticalIssues.push(`⚠️ Rating at ${businessData.gmb_rating} - businesses above 4.7★ get 67% more clicks`);
-    }
-    
-    if (businessData.gmb_reviews_count < 50) {
-      criticalIssues.push(`📊 Only ${businessData.gmb_reviews_count} reviews detected - top competitors average 100+ (losing 58% visibility)`);
-    }
-    
-    if (businessData.gmb_photos_count < 30) {
-      criticalIssues.push(`📸 Critical photo gap: ${businessData.gmb_photos_count} photos vs. industry standard of 50+ (missing 73% more direction requests)`);
-    }
-    
+    // Generate critical issues
+    const autoIssues = generateCriticalIssues(businessData);
     const painPointIssues = criticalIssuesByPainPoint[quizData.pain_point] || criticalIssuesByPainPoint.not_optimized;
-    criticalIssues.push(...painPointIssues);
     
-    const uniqueIssues = [...new Set(criticalIssues)];
+    const allIssues = [...autoIssues, ...painPointIssues];
+    const uniqueIssues = [...new Set(allIssues)];
     const finalIssues = uniqueIssues.slice(0, 3);
 
     const finalData = {
@@ -277,12 +242,20 @@ function QuizV3Content() {
   const handleContactInfoSubmit = async (contactData) => {
     base44.analytics.track({ eventName: 'quizv3_contact_info_submitted', properties: { email: contactData.email } });
     
+    // Rate limiting check
+    if (!quizRateLimiter.canSubmit()) {
+      const waitTime = quizRateLimiter.getTimeUntilAllowed();
+      alert(`Please wait ${Math.ceil(waitTime / 60)} minutes before submitting again.`);
+      return;
+    }
+    
     const finalData = { ...quizData, ...contactData };
     setQuizData(finalData);
 
     // NOW save the lead with email
     try {
       const createdLead = await base44.entities.Lead.create(finalData);
+      quizRateLimiter.recordSubmission();
       
       const sessionId = sessionStorage.getItem('ab_session_id');
       base44.analytics.track({ 
@@ -351,6 +324,9 @@ function QuizV3Content() {
     } else if (step === 'businessSearch') {
       setStep('timeline');
       setCurrentStepNumber(4);
+    } else if (step === 'contactInfo') {
+      setStep('processing');
+      setCurrentStepNumber(6);
     }
   };
 

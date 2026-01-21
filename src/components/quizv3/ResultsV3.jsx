@@ -4,9 +4,10 @@ import { Button } from '@/components/ui/button';
 import { AlertTriangle, TrendingDown, DollarSign, Zap, ArrowRight, Shield } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useABTest } from '@/components/abtest/ABTestProvider';
+import { REVENUE_LOSS_PER_POINT } from '@/components/utils/constants';
 
 export default function ResultsV3({ healthScore, criticalIssues, businessName, onCTA }) {
-  const lostRevenue = Math.round((100 - healthScore) * 150); // $150 per point lost
+  const lostRevenue = Math.round((100 - healthScore) * REVENUE_LOSS_PER_POINT);
   const { getVariant } = useABTest();
   const ctaVariant = getVariant('quiz', 'results_cta');
   
