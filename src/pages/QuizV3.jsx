@@ -37,7 +37,7 @@ const LoadingSpinner = () => (
   </div>
 );
 
-const TOTAL_STEPS = 6;
+const TOTAL_STEPS = 7;
 
 const criticalIssuesByPainPoint = {
   not_in_map_pack: [
@@ -300,8 +300,49 @@ function QuizV3Content() {
   };
 
   const handleProcessingComplete = useCallback(() => {
-    setStep('results');
+    setStep('contactInfo');
+    setCurrentStepNumber(7);
   }, []);
+
+  const handleContactInfoSubmit = async (contactData) => {
+    base44.analytics.track({ eventName: 'quizv3_contact_info_submitted', properties: { email: contactData.email } });
+    
+    const finalData = { ...quizData, ...contactData };
+    setQuizData(finalData);
+
+    // NOW save the lead with email
+    try {
+      const createdLead = await base44.entities.Lead.create(finalData);
+      
+      const sessionId = sessionStorage.getItem('ab_session_id');
+      base44.analytics.track({ 
+        eventName: 'quizv3_completed', 
+        properties: { 
+          health_score: finalData.health_score,
+          business_category: finalData.business_category,
+          has_gmb_data: true
+        } 
+      });
+      
+      base44.entities.ConversionEvent.create({
+        funnel_version: 'v3',
+        event_name: 'quizv3_completed',
+        session_id: sessionId,
+        lead_id: createdLead.id,
+        properties: {
+          health_score: finalData.health_score,
+          business_category: finalData.business_category,
+          critical_issues_count: finalData.critical_issues.length
+        }
+      }).catch(err => console.error('Error tracking event:', err));
+      
+      sessionStorage.setItem('quizLead', JSON.stringify({ ...finalData, id: createdLead.id }));
+    } catch (error) {
+      console.error('Error saving lead:', error);
+    }
+
+    setStep('results');
+  };
 
   const handleCTA = () => {
     const sessionId = sessionStorage.getItem('ab_session_id');
@@ -343,8 +384,8 @@ function QuizV3Content() {
     }
   };
 
-  const showBackButton = ['category', 'painpoint', 'goals', 'timeline', 'businessSearch'].includes(step);
-  const showProgress = ['category', 'painpoint', 'goals', 'timeline', 'businessSearch', 'processing'].includes(step);
+  const showBackButton = ['category', 'painpoint', 'goals', 'timeline', 'businessSearch', 'contactInfo'].includes(step);
+  const showProgress = ['category', 'painpoint', 'goals', 'timeline', 'businessSearch', 'processing', 'contactInfo'].includes(step);
 
   return (
     <>
@@ -465,7 +506,15 @@ function QuizV3Content() {
                         businessName={quizData.business_name}
                       />
                     )}
-                    
+
+                    {step === 'contactInfo' && (
+                      <ContactInfoStep
+                        key="contactInfo"
+                        onSubmit={handleContactInfoSubmit}
+                        businessName={quizData.business_name}
+                      />
+                    )}
+
                     {step === 'results' && (
                       <ResultsV3
                         key="results"
