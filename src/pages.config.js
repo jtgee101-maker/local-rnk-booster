@@ -24,6 +24,9 @@ import RestaurantsLanding from './pages/RestaurantsLanding';
 import HVACLanding from './pages/HVACLanding';
 import LegalLanding from './pages/LegalLanding';
 import RealEstateLanding from './pages/RealEstateLanding';
+import ContractorsLanding from './pages/ContractorsLanding';
+import ChiropractorLanding from './pages/ChiropractorLanding';
+import AutoRepairLanding from './pages/AutoRepairLanding';
 
 
 export const PAGES = {
@@ -53,6 +56,9 @@ export const PAGES = {
     "HVACLanding": HVACLanding,
     "LegalLanding": LegalLanding,
     "RealEstateLanding": RealEstateLanding,
+    "ContractorsLanding": ContractorsLanding,
+    "ChiropractorLanding": ChiropractorLanding,
+    "AutoRepairLanding": AutoRepairLanding,
 }
 
 export const pagesConfig = {

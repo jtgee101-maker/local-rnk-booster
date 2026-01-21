@@ -212,13 +212,15 @@ export default function BridgeV3() {
             transition={{ delay: 1.5 }}
             className="mt-8"
           >
-            <Button
-              onClick={handleRedirect}
-              variant="ghost"
-              className="text-gray-500 hover:text-white text-sm"
-            >
-              Continue Manually <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
+            <motion.div whileHover={{ scale: 1.05 }}>
+              <Button
+                onClick={handleRedirect}
+                variant="ghost"
+                className="text-gray-500 hover:text-white text-sm transition-colors"
+              >
+                Continue Manually <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </motion.div>
           </motion.div>
         </motion.div>
       </div>
