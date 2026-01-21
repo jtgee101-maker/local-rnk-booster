@@ -10,6 +10,8 @@ import { prefetchResources, sessionCache } from '@/components/utils/performanceH
 import { calculateHealthScore, generateCriticalIssues } from '@/components/utils/healthScoreCalculator';
 import { quizRateLimiter } from '@/components/utils/rateLimiter';
 import { REVENUE_LOSS_PER_POINT } from '@/components/utils/constants';
+import { checkDuplicateLead, getLeadAction, mergeLeadData } from '@/components/utils/leadDeduplication';
+import { errorLogger } from '@/components/utils/errorLogger';
 
 // Import critical components
 import ProgressBar from '@/components/quiz/ProgressBar';
@@ -210,28 +212,40 @@ function QuizV3Content() {
   const handleBusinessSearchSelect = async (businessData) => {
     setIsLoading(true);
     
-    // Use centralized health score calculator
-    const healthScore = calculateHealthScore(businessData);
-    
-    // Generate critical issues
-    const autoIssues = generateCriticalIssues(businessData);
-    const painPointIssues = criticalIssuesByPainPoint[quizData.pain_point] || criticalIssuesByPainPoint.not_optimized;
-    
-    const allIssues = [...autoIssues, ...painPointIssues];
-    const uniqueIssues = [...new Set(allIssues)];
-    const finalIssues = uniqueIssues.slice(0, 3);
+    try {
+      // Use centralized health score calculator
+      const healthScore = calculateHealthScore(businessData);
+      
+      // Generate critical issues
+      const autoIssues = generateCriticalIssues(businessData);
+      const painPointIssues = criticalIssuesByPainPoint[quizData.pain_point] || criticalIssuesByPainPoint.not_optimized;
+      
+      const allIssues = [...autoIssues, ...painPointIssues];
+      const uniqueIssues = [...new Set(allIssues)];
+      const finalIssues = uniqueIssues.slice(0, 3);
 
-    const finalData = {
-      ...quizData,
-      ...businessData,
-      health_score: healthScore,
-      critical_issues: finalIssues
-    };
+      const finalData = {
+        ...quizData,
+        ...businessData,
+        health_score: healthScore,
+        critical_issues: finalIssues
+      };
 
-    setQuizData(finalData);
-    setStep('processing');
-    setCurrentStepNumber(6);
-    setIsLoading(false);
+      setQuizData(finalData);
+      setStep('processing');
+      setCurrentStepNumber(6);
+    } catch (error) {
+      console.error('Error processing business data:', error);
+      errorLogger.systemError(error, {
+        context: 'quiz_v3_business_search',
+        business_name: businessData.business_name
+      });
+      // Continue anyway with default values
+      setStep('processing');
+      setCurrentStepNumber(6);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleProcessingComplete = useCallback(() => {
@@ -252,9 +266,24 @@ function QuizV3Content() {
     const finalData = { ...quizData, ...contactData };
     setQuizData(finalData);
 
-    // NOW save the lead with email
+    // Check for duplicate leads and handle accordingly
     try {
-      const createdLead = await base44.entities.Lead.create(finalData);
+      const duplicateCheck = await checkDuplicateLead(contactData.email);
+      const leadAction = getLeadAction(duplicateCheck);
+      
+      let savedLead;
+      
+      if (leadAction.action === 'update') {
+        // Update existing lead
+        const mergedData = mergeLeadData(duplicateCheck.existingLead, finalData);
+        savedLead = await base44.entities.Lead.update(leadAction.leadId, mergedData);
+        console.log('Updated existing lead:', leadAction.reason);
+      } else {
+        // Create new lead
+        savedLead = await base44.entities.Lead.create(finalData);
+        console.log('Created new lead:', leadAction.reason);
+      }
+      
       quizRateLimiter.recordSubmission();
       
       const sessionId = sessionStorage.getItem('ab_session_id');
@@ -263,7 +292,9 @@ function QuizV3Content() {
         properties: { 
           health_score: finalData.health_score,
           business_category: finalData.business_category,
-          has_gmb_data: true
+          has_gmb_data: true,
+          is_duplicate: duplicateCheck.isDuplicate,
+          lead_action: leadAction.action
         } 
       });
       
@@ -271,17 +302,22 @@ function QuizV3Content() {
         funnel_version: 'v3',
         event_name: 'quizv3_completed',
         session_id: sessionId,
-        lead_id: createdLead.id,
+        lead_id: savedLead.id,
         properties: {
           health_score: finalData.health_score,
           business_category: finalData.business_category,
-          critical_issues_count: finalData.critical_issues.length
+          critical_issues_count: finalData.critical_issues.length,
+          is_duplicate: duplicateCheck.isDuplicate
         }
       }).catch(err => console.error('Error tracking event:', err));
       
-      sessionStorage.setItem('quizLead', JSON.stringify({ ...finalData, id: createdLead.id }));
+      sessionStorage.setItem('quizLead', JSON.stringify({ ...finalData, id: savedLead.id }));
     } catch (error) {
       console.error('Error saving lead:', error);
+      errorLogger.systemError(error, { 
+        context: 'quiz_v3_lead_submission',
+        email: contactData.email 
+      });
     }
 
     setStep('results');
