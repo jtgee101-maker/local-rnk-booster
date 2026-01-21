@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
 import {
   BarChart3, Users, DollarSign, TrendingUp, AlertCircle, Mail, Bug, Repeat,
-  Settings, Eye, Shield, RefreshCw, Download, Lock
+  Settings, Eye, Shield, RefreshCw, Download, Lock, Target
 } from 'lucide-react';
 
 // Lazy load heavy components for performance
@@ -24,6 +24,8 @@ const LeadNurture = lazy(() => import('@/components/admin/LeadNurture'));
 const AdminABTests = lazy(() => import('@/components/admin/AdminABTests'));
 const TestModeIndicator = lazy(() => import('@/components/admin/TestModeIndicator'));
 const V3Analytics = lazy(() => import('@/components/admin/V3Analytics'));
+const LeadScoringDashboard = lazy(() => import('@/components/admin/LeadScoringDashboard'));
+const RevenueAttribution = lazy(() => import('@/components/analytics/RevenueAttribution'));
 
 // Loading component
 const TabLoader = () => (
@@ -473,6 +475,14 @@ export default function AdminControlCenter() {
               <Lock className="w-4 h-4" />
               <span className="hidden sm:inline ml-1">Users</span>
             </TabsTrigger>
+            <TabsTrigger value="scoring" className="text-xs md:text-sm">
+              <Target className="w-4 h-4" />
+              <span className="hidden sm:inline ml-1">Scoring</span>
+            </TabsTrigger>
+            <TabsTrigger value="attribution" className="text-xs md:text-sm">
+              <BarChart3 className="w-4 h-4" />
+              <span className="hidden sm:inline ml-1">Revenue</span>
+            </TabsTrigger>
             <TabsTrigger value="settings" className="text-xs md:text-sm">
               <Settings className="w-4 h-4" />
               <span className="hidden sm:inline ml-1">Settings</span>
@@ -543,6 +553,20 @@ export default function AdminControlCenter() {
           <TabsContent value="users">
             <Suspense fallback={<TabLoader />}>
               <UserManagement />
+            </Suspense>
+          </TabsContent>
+
+          {/* Lead Scoring Tab */}
+          <TabsContent value="scoring">
+            <Suspense fallback={<TabLoader />}>
+              <LeadScoringDashboard />
+            </Suspense>
+          </TabsContent>
+
+          {/* Revenue Attribution Tab */}
+          <TabsContent value="attribution">
+            <Suspense fallback={<TabLoader />}>
+              <RevenueAttribution />
             </Suspense>
           </TabsContent>
 

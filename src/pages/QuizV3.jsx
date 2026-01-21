@@ -19,6 +19,7 @@ import DeferredComponent from '@/components/optimized/DeferredComponent';
 import InlineSocialProof from '@/components/cro/InlineSocialProof';
 import ExitIntentV3 from '@/components/quizv3/ExitIntentV3';
 import MobileOptimizations from '@/components/quizv3/MobileOptimizations';
+import HeatmapTracker from '@/components/analytics/HeatmapTracker';
 
 // Lazy load step components
 const CategoryStep = lazy(() => import('@/components/quiz/CategoryStep'));
@@ -356,6 +357,7 @@ function QuizV3Content() {
       </Helmet>
       
       <MobileOptimizations />
+      <HeatmapTracker pageName="QuizV3" />
 
       <div className="min-h-screen bg-[#0a0a0f] relative overflow-x-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f]" />
