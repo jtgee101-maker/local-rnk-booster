@@ -2,24 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import { quizSubmissionTemplate } from './utils/emailTemplates.js';
 import { enhancedAuditTemplate } from './utils/enhancedEmailTemplates.js';
 import { logError, handleFunctionError } from './utils/errorLogging.js';
-
-async function sendEmailWithRetry(base44, emailData, maxAttempts = 3) {
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      await base44.asServiceRole.integrations.Core.SendEmail(emailData);
-      if (attempt > 1) console.log(`Email sent on attempt ${attempt}`);
-      return { success: true, attempts: attempt };
-    } catch (error) {
-      console.error(`Email attempt ${attempt} failed:`, error.message);
-      if (attempt < maxAttempts) {
-        const delay = 1000 * Math.pow(2, attempt - 1);
-        await new Promise(resolve => setTimeout(resolve, delay));
-      } else {
-        throw error;
-      }
-    }
-  }
-}
+import { sendEmailWithRetry } from './utils/emailRetry.js';
 
 Deno.serve(async (req) => {
   try {
@@ -50,12 +33,15 @@ Deno.serve(async (req) => {
       ? enhancedAuditTemplate(leadData, analysis)
       : quizSubmissionTemplate(leadData);
 
-    await sendEmailWithRetry(base44, {
-      to: leadData.email,
-      from_name: 'LocalRank.ai',
-      subject: `🎯 Your Lead Independence Audit Results - Score: ${leadData.health_score}/100`,
-      body: emailBody
-    });
+    await sendEmailWithRetry(
+      (data) => base44.asServiceRole.integrations.Core.SendEmail(data),
+      {
+        to: leadData.email,
+        from_name: 'LocalRank.ai',
+        subject: `🎯 Your Lead Independence Audit Results - Score: ${leadData.health_score}/100`,
+        body: emailBody
+      }
+    );
 
     // Log email send to EmailLog
     await base44.asServiceRole.entities.EmailLog.create({
