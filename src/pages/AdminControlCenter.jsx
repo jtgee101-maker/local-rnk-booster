@@ -29,6 +29,8 @@ const RevenueAttribution = lazy(() => import('@/components/analytics/RevenueAttr
 const AdvancedAnalytics = lazy(() => import('@/components/admin/AdvancedAnalytics'));
 const PredictiveAnalytics = lazy(() => import('@/components/admin/PredictiveAnalytics'));
 const SegmentManager = lazy(() => import('@/components/admin/SegmentManager'));
+const SystemHealthMonitor = lazy(() => import('@/components/admin/SystemHealthMonitor'));
+const ErrorTrackingDashboard = lazy(() => import('@/components/admin/ErrorTrackingDashboard'));
 
 // Loading component
 const TabLoader = () => (
@@ -482,6 +484,10 @@ export default function AdminControlCenter() {
               <TrendingUp className="w-4 h-4" />
               <span className="hidden sm:inline ml-1">Nurture</span>
             </TabsTrigger>
+            <TabsTrigger value="health" className="text-xs md:text-sm">
+              <BarChart3 className="w-4 h-4" />
+              <span className="hidden sm:inline ml-1">Health</span>
+            </TabsTrigger>
             <TabsTrigger value="errors" className="text-xs md:text-sm">
               <Bug className="w-4 h-4" />
               <span className="hidden sm:inline ml-1">Errors</span>
@@ -578,10 +584,17 @@ export default function AdminControlCenter() {
             </Suspense>
           </TabsContent>
 
+          {/* System Health Tab */}
+          <TabsContent value="health">
+            <Suspense fallback={<TabLoader />}>
+              <SystemHealthMonitor />
+            </Suspense>
+          </TabsContent>
+
           {/* Errors Tab */}
           <TabsContent value="errors">
             <Suspense fallback={<TabLoader />}>
-              <ErrorMonitoring />
+              <ErrorTrackingDashboard />
             </Suspense>
           </TabsContent>
 
