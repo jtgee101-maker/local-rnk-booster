@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { ABTestProvider, useABTest } from '@/components/abtest/ABTestProvider';
+import MobileOptimizations from '@/components/quizv3/MobileOptimizations';
 
 import CountdownTimer from '@/components/pricing/CountdownTimer';
 import PricingCard from '@/components/pricing/PricingCard';
@@ -127,6 +129,11 @@ function PricingContent() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] relative overflow-x-hidden">
+      <Helmet>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+      </Helmet>
+      <MobileOptimizations />
+
       {/* Background - P1 FIX: Prevent horizontal scroll */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f]" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[min(1000px,100vw)] h-[1000px] bg-[#c8ff00]/5 rounded-full blur-[150px]" />
@@ -161,11 +168,11 @@ function PricingContent() {
               <ViewersCounter baseCount={63} />
             </div>
             
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight px-2">
               Unlock Your Business's <span className="text-[#c8ff00]">Hidden Ranking Power</span>
             </h1>
             
-            <p className="text-gray-400 text-xl max-w-2xl mx-auto mb-6">
+            <p className="text-gray-400 text-base md:text-xl max-w-2xl mx-auto mb-6 px-2">
               For less than a cup of coffee, discover why your competitors are stealing 80% of your local leads
             </p>
             

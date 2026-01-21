@@ -8,6 +8,7 @@ import { createPageUrl } from '@/utils';
 import { ABTestProvider } from '@/components/abtest/ABTestProvider';
 import LegalFooter from '@/components/shared/LegalFooter';
 import V2FAQSection from '@/components/quizv2/V2FAQSection';
+import MobileOptimizations from '@/components/quizv3/MobileOptimizations';
 
 import ProgressBar from '@/components/quiz/ProgressBar';
 import TransitionStep from '@/components/quiz/TransitionStep';
@@ -281,7 +282,10 @@ function QuizV2Content() {
       <Helmet>
         <title>Lead-Independence Audit - Stop Paying Thumbtack & Angi | LocalRank.ai</title>
         <meta name="description" content="Free AI scan reveals how much revenue Thumbtack, HomeAdvisor, and predatory agencies are stealing. Stop renting leads. Start owning the Map Pack." />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
       </Helmet>
+
+      <MobileOptimizations />
 
       <div className="min-h-screen bg-[#0a0a0f] relative overflow-x-hidden">
         {/* Background - P1 FIX: Prevent horizontal scroll */}
@@ -290,22 +294,22 @@ function QuizV2Content() {
 
         <div className="relative z-10 min-h-screen flex flex-col">
           {/* Header */}
-          <header className="p-6">
+          <header className="p-4 md:p-6">
             <div className="max-w-4xl mx-auto flex items-center justify-between">
               {showBackButton ? (
                 <Button
                   variant="ghost"
                   onClick={handleBack}
-                  className="text-gray-400 hover:text-white hover:bg-gray-800/50"
+                  className="text-gray-400 hover:text-white hover:bg-gray-800/50 min-h-[44px] touch-manipulation"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back
+                  <span className="hidden sm:inline">Back</span>
                 </Button>
               ) : (
                 <div />
               )}
               
-              <div className="text-[#c8ff00] font-bold text-xl tracking-tight">
+              <div className="text-[#c8ff00] font-bold text-lg md:text-xl tracking-tight">
                 LocalRank<span className="text-white">.ai</span>
               </div>
               
@@ -315,13 +319,13 @@ function QuizV2Content() {
 
           {/* Progress Bar */}
           {showProgress && (
-            <div className="px-6">
+            <div className="px-4 md:px-6">
               <ProgressBar currentStep={currentStepNumber} totalSteps={TOTAL_STEPS} />
             </div>
           )}
 
           {/* Main Content */}
-          <main className="flex-1 flex items-center justify-center py-4">
+          <main className="flex-1 flex items-center justify-center py-4 px-4 md:px-0">
             <AnimatePresence mode="wait">
               {showTransition ? (
                 <TransitionStep 

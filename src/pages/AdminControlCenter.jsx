@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -10,20 +10,27 @@ import {
   Settings, Eye, Shield, RefreshCw, Download, Lock
 } from 'lucide-react';
 
-// Import sub-components
-import AdminMetrics from '@/components/admin/AdminMetrics';
-import AdminLeadsSection from '@/components/admin/AdminLeadsSection';
-import AdminOrdersSection from '@/components/admin/AdminOrdersSection';
-import AdminAutomations from '@/components/admin/AdminAutomations';
-import AdminSettings from '@/components/admin/AdminSettings';
-import AdminSecurityAudit from '@/components/admin/AdminSecurityAudit';
-import UserManagement from '@/components/admin/UserManagement';
-import EmailAnalyticsDashboard from '@/components/admin/EmailAnalyticsDashboard';
-import ErrorMonitoring from '@/components/admin/ErrorMonitoring';
-import LeadNurture from '@/components/admin/LeadNurture';
-import AdminABTests from '@/components/admin/AdminABTests';
-import TestModeIndicator from '@/components/admin/TestModeIndicator';
-import V3Analytics from '@/components/admin/V3Analytics';
+// Lazy load heavy components for performance
+const AdminMetrics = lazy(() => import('@/components/admin/AdminMetrics'));
+const AdminLeadsSection = lazy(() => import('@/components/admin/AdminLeadsSection'));
+const AdminOrdersSection = lazy(() => import('@/components/admin/AdminOrdersSection'));
+const AdminAutomations = lazy(() => import('@/components/admin/AdminAutomations'));
+const AdminSettings = lazy(() => import('@/components/admin/AdminSettings'));
+const AdminSecurityAudit = lazy(() => import('@/components/admin/AdminSecurityAudit'));
+const UserManagement = lazy(() => import('@/components/admin/UserManagement'));
+const EmailAnalyticsDashboard = lazy(() => import('@/components/admin/EmailAnalyticsDashboard'));
+const ErrorMonitoring = lazy(() => import('@/components/admin/ErrorMonitoring'));
+const LeadNurture = lazy(() => import('@/components/admin/LeadNurture'));
+const AdminABTests = lazy(() => import('@/components/admin/AdminABTests'));
+const TestModeIndicator = lazy(() => import('@/components/admin/TestModeIndicator'));
+const V3Analytics = lazy(() => import('@/components/admin/V3Analytics'));
+
+// Loading component
+const TabLoader = () => (
+  <div className="flex items-center justify-center p-12">
+    <div className="text-gray-400">Loading...</div>
+  </div>
+);
 
 function FunnelModeSwitcher() {
   const [currentMode, setCurrentMode] = useState('v2'); // v2 = Stripe, v3 = Affiliate
@@ -412,7 +419,9 @@ export default function AdminControlCenter() {
       {/* Main Content */}
       <div className="max-w-[1600px] mx-auto p-6">
         {/* Test Mode Indicator */}
-        <TestModeIndicator isTestMode={true} />
+        <Suspense fallback={<TabLoader />}>
+          <TestModeIndicator isTestMode={true} />
+        </Suspense>
         
         {/* Quick Stats Row */}
         <motion.div
@@ -420,7 +429,9 @@ export default function AdminControlCenter() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <AdminMetrics />
+          <Suspense fallback={<TabLoader />}>
+            <AdminMetrics />
+          </Suspense>
         </motion.div>
 
         {/* Main Tabs */}
@@ -470,56 +481,76 @@ export default function AdminControlCenter() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <AdminLeadsSection />
-              <AdminOrdersSection />
-              <AdminSecurityAudit />
-            </div>
+            <Suspense fallback={<TabLoader />}>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <AdminLeadsSection />
+                <AdminOrdersSection />
+                <AdminSecurityAudit />
+              </div>
+            </Suspense>
           </TabsContent>
 
           {/* Leads Tab */}
           <TabsContent value="leads">
-            <AdminLeadsSection expanded />
+            <Suspense fallback={<TabLoader />}>
+              <AdminLeadsSection expanded />
+            </Suspense>
           </TabsContent>
 
           {/* Orders Tab */}
           <TabsContent value="orders">
-            <AdminOrdersSection expanded />
+            <Suspense fallback={<TabLoader />}>
+              <AdminOrdersSection expanded />
+            </Suspense>
           </TabsContent>
 
           {/* A/B Tests Tab */}
           <TabsContent value="abtests">
-            <AdminABTests />
+            <Suspense fallback={<TabLoader />}>
+              <AdminABTests />
+            </Suspense>
           </TabsContent>
 
           {/* Automations Tab */}
           <TabsContent value="automations">
-            <AdminAutomations />
+            <Suspense fallback={<TabLoader />}>
+              <AdminAutomations />
+            </Suspense>
           </TabsContent>
 
           {/* Emails Tab */}
           <TabsContent value="emails">
-            <EmailAnalyticsDashboard />
+            <Suspense fallback={<TabLoader />}>
+              <EmailAnalyticsDashboard />
+            </Suspense>
           </TabsContent>
 
           {/* Nurture Tab */}
           <TabsContent value="nurture">
-            <LeadNurture />
+            <Suspense fallback={<TabLoader />}>
+              <LeadNurture />
+            </Suspense>
           </TabsContent>
 
           {/* Errors Tab */}
           <TabsContent value="errors">
-            <ErrorMonitoring />
+            <Suspense fallback={<TabLoader />}>
+              <ErrorMonitoring />
+            </Suspense>
           </TabsContent>
 
           {/* Users Tab */}
           <TabsContent value="users">
-            <UserManagement />
+            <Suspense fallback={<TabLoader />}>
+              <UserManagement />
+            </Suspense>
           </TabsContent>
 
           {/* Settings Tab */}
           <TabsContent value="settings">
-            <AdminSettings />
+            <Suspense fallback={<TabLoader />}>
+              <AdminSettings />
+            </Suspense>
           </TabsContent>
         </Tabs>
 
@@ -538,7 +569,9 @@ export default function AdminControlCenter() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <V3Analytics />
+              <Suspense fallback={<TabLoader />}>
+                <V3Analytics />
+              </Suspense>
             </CardContent>
           </Card>
         </motion.div>

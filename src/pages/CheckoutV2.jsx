@@ -8,6 +8,8 @@ import { createPageUrl } from '@/utils';
 import ScarcityBanner from '@/components/cro/ScarcityBanner';
 import DeferredComponent from '@/components/optimized/DeferredComponent';
 import InlineSocialProof from '@/components/cro/InlineSocialProof';
+import { Helmet } from 'react-helmet';
+import MobileOptimizations from '@/components/quizv3/MobileOptimizations';
 
 const plans = [
   {
@@ -210,6 +212,11 @@ export default function CheckoutV2() {
 
   return (
     <div className="min-h-screen bg-white">
+      <Helmet>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+      </Helmet>
+      <MobileOptimizations />
+      
       <DeferredComponent delay={4000}>
         <ScarcityBanner spotsLeft={5} />
       </DeferredComponent>
@@ -231,10 +238,10 @@ export default function CheckoutV2() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-md mx-auto px-4 py-8">
+      <div className="max-w-md mx-auto px-4 md:px-6 py-6 md:py-8">
         {/* Logo */}
         <div className="text-center mb-6">
-          <div className="text-2xl font-bold mb-4">LocalRank.ai</div>
+          <div className="text-xl md:text-2xl font-bold mb-4">LocalRank.ai</div>
           <InlineSocialProof variant="compact" />
         </div>
 
@@ -253,7 +260,7 @@ export default function CheckoutV2() {
 
         {/* Choose Plan */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-center mb-6">Choose your plan</h2>
+          <h2 className="text-xl md:text-2xl font-bold text-center mb-6">Choose your plan</h2>
           
           <div className="space-y-3">
             {plans.map((plan) => (
