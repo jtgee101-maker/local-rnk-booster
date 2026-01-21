@@ -55,8 +55,12 @@ export default function PainPointStep({ onSelect }) {
 
       <div className="space-y-4">
         {painPoints.map((point, index) => (
+          <motion.div
+            key={`wrapper-${point.id}`}
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
+          >
           <motion.button
-            key={point.id}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 }}
@@ -81,6 +85,7 @@ export default function PainPointStep({ onSelect }) {
               </motion.div>
             </div>
           </motion.button>
+          </motion.div>
         ))}
       </div>
     </motion.div>

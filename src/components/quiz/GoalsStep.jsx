@@ -61,6 +61,10 @@ export default function GoalsStep({ onContinue }) {
           const Icon = goal.icon;
 
           return (
+            <motion.div
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+            >
             <motion.button
               key={goal.id}
               initial={{ opacity: 0, y: 20 }}
@@ -100,6 +104,7 @@ export default function GoalsStep({ onContinue }) {
                 </div>
               </div>
             </motion.button>
+            </motion.div>
           );
         })}
       </div>

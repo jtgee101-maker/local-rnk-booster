@@ -38,8 +38,12 @@ export default function TimelineStep({ onSelect }) {
           const Icon = timeline.icon;
           
           return (
+            <motion.div
+              key={`wrapper-${timeline.id}`}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
+            >
             <motion.button
-              key={timeline.id}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
@@ -64,6 +68,7 @@ export default function TimelineStep({ onSelect }) {
                 </motion.div>
               </div>
             </motion.button>
+            </motion.div>
           );
         })}
       </div>
