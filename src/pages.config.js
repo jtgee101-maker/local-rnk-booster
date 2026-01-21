@@ -21,6 +21,9 @@ import V2Start from './pages/V2Start';
 import PlumbersLanding from './pages/PlumbersLanding';
 import DentistsLanding from './pages/DentistsLanding';
 import RestaurantsLanding from './pages/RestaurantsLanding';
+import HVACLanding from './pages/HVACLanding';
+import LegalLanding from './pages/LegalLanding';
+import RealEstateLanding from './pages/RealEstateLanding';
 
 
 export const PAGES = {
@@ -47,6 +50,9 @@ export const PAGES = {
     "PlumbersLanding": PlumbersLanding,
     "DentistsLanding": DentistsLanding,
     "RestaurantsLanding": RestaurantsLanding,
+    "HVACLanding": HVACLanding,
+    "LegalLanding": LegalLanding,
+    "RealEstateLanding": RealEstateLanding,
 }
 
 export const pagesConfig = {
