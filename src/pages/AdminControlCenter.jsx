@@ -28,6 +28,7 @@ const LeadScoringDashboard = lazy(() => import('@/components/admin/LeadScoringDa
 const RevenueAttribution = lazy(() => import('@/components/analytics/RevenueAttribution'));
 const AdvancedAnalytics = lazy(() => import('@/components/admin/AdvancedAnalytics'));
 const PredictiveAnalytics = lazy(() => import('@/components/admin/PredictiveAnalytics'));
+const SegmentManager = lazy(() => import('@/components/admin/SegmentManager'));
 
 // Loading component
 const TabLoader = () => (
@@ -440,7 +441,7 @@ export default function AdminControlCenter() {
 
         {/* Main Tabs */}
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 lg:grid-cols-12 h-auto p-1 bg-gray-800/50 border border-gray-700">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 lg:grid-cols-13 h-auto p-1 bg-gray-800/50 border border-gray-700">
             <TabsTrigger value="overview" className="text-xs md:text-sm">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline ml-1">Overview</span>
@@ -448,6 +449,10 @@ export default function AdminControlCenter() {
             <TabsTrigger value="predictive" className="text-xs md:text-sm">
               <Brain className="w-4 h-4" />
               <span className="hidden sm:inline ml-1">AI Insights</span>
+            </TabsTrigger>
+            <TabsTrigger value="segments" className="text-xs md:text-sm">
+              <Users className="w-4 h-4" />
+              <span className="hidden sm:inline ml-1">Segments</span>
             </TabsTrigger>
             <TabsTrigger value="analytics" className="text-xs md:text-sm">
               <TrendingUp className="w-4 h-4" />
@@ -514,6 +519,13 @@ export default function AdminControlCenter() {
           <TabsContent value="predictive">
             <Suspense fallback={<TabLoader />}>
               <PredictiveAnalytics />
+            </Suspense>
+          </TabsContent>
+
+          {/* Segments Tab */}
+          <TabsContent value="segments">
+            <Suspense fallback={<TabLoader />}>
+              <SegmentManager />
             </Suspense>
           </TabsContent>
 
