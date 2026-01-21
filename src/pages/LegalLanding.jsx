@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle2, AlertCircle, Scale, Star, Briefcase, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { Helmet } from 'react-helmet';
+import MobileOptimizations from '@/components/quizv3/MobileOptimizations';
 
 export default function LegalLanding() {
   const navigate = useNavigate();
@@ -36,7 +38,13 @@ export default function LegalLanding() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f]">
+    <>
+      <Helmet>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+      </Helmet>
+      <MobileOptimizations />
+      
+      <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f] overflow-x-hidden">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#c8ff00]/10 via-transparent to-blue-900/10" />
@@ -69,7 +77,7 @@ export default function LegalLanding() {
               <Button
                 onClick={() => navigate(createPageUrl('QuizV3'))}
                 size="lg"
-                className="bg-[#c8ff00] text-gray-900 hover:bg-[#b8ef00] text-lg px-8 py-6 font-bold"
+                className="bg-[#c8ff00] text-gray-900 hover:bg-[#b8ef00] active:bg-[#a8df00] text-lg px-8 py-6 font-bold min-h-[56px] touch-manipulation"
               >
                 Get Your Free Law Firm Audit
               </Button>
@@ -77,7 +85,7 @@ export default function LegalLanding() {
                 onClick={() => navigate(createPageUrl('QuizV3'))}
                 size="lg"
                 variant="outline"
-                className="border-2 border-[#c8ff00] text-[#c8ff00] hover:bg-[#c8ff00]/10 text-lg px-8 py-6"
+                className="border-2 border-[#c8ff00] text-[#c8ff00] hover:bg-[#c8ff00]/10 active:bg-[#c8ff00]/20 text-lg px-8 py-6 min-h-[56px] touch-manipulation"
               >
                 See Your Rankings Now
               </Button>
@@ -249,7 +257,7 @@ export default function LegalLanding() {
           <Button
             onClick={() => navigate(createPageUrl('QuizV3'))}
             size="lg"
-            className="bg-gray-900 text-white hover:bg-gray-800 text-lg px-10 py-6 font-bold"
+            className="bg-gray-900 text-white hover:bg-gray-800 active:bg-gray-700 text-lg px-10 py-6 font-bold min-h-[56px] touch-manipulation"
           >
             <Scale className="w-5 h-5 mr-2" />
             Get More High-Value Clients
@@ -258,5 +266,6 @@ export default function LegalLanding() {
         </motion.div>
       </div>
     </div>
+    </>
   );
 }
