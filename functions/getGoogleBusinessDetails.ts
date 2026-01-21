@@ -1,5 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
+function sanitizePlaceId(placeId) {
+  if (typeof placeId !== 'string') return '';
+  // Place IDs are alphanumeric with specific characters, remove anything suspicious
+  return placeId.trim().slice(0, 200).replace(/[^a-zA-Z0-9_-]/g, '');
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -9,10 +15,14 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { placeId } = await req.json();
+    const body = await req.json();
+    const placeId = sanitizePlaceId(body.placeId);
 
-    if (!placeId) {
-      return Response.json({ error: 'Place ID is required' }, { status: 400 });
+    if (!placeId || placeId.length < 10) {
+      return Response.json({ 
+        error: 'Invalid place ID',
+        code: 'INVALID_PLACE_ID'
+      }, { status: 400 });
     }
 
     const apiKey = Deno.env.get('GOOGLE_MAPS_API_KEY');
