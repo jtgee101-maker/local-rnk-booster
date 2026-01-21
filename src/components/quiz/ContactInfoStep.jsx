@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Mail, Phone, CheckCircle2, Award, Shield } from 'lucide-react';
+import { emailSchema, phoneSchema, validateInput } from '@/components/utils/validation';
 
 export default function ContactInfoStep({ onSubmit, businessName }) {
   const [email, setEmail] = useState('');
@@ -13,12 +14,19 @@ export default function ContactInfoStep({ onSubmit, businessName }) {
   const validateForm = () => {
     const newErrors = {};
     
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = 'Valid email required';
+    // Validate email using Zod
+    const emailValidation = validateInput(emailSchema, email);
+    if (!emailValidation.success) {
+      newErrors.email = emailValidation.error;
     }
-    if (!phone || phone.replace(/\D/g, '').length < 10) {
-      newErrors.phone = 'Valid phone required';
+    
+    // Validate phone using Zod
+    const phoneValidation = validateInput(phoneSchema, phone);
+    if (!phoneValidation.success) {
+      newErrors.phone = phoneValidation.error;
     }
+    
+    // Validate consent
     if (!consent) {
       newErrors.consent = 'Please accept terms to continue';
     }

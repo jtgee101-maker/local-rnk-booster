@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Search, MapPin, Star, Building2, Loader2, CheckCircle } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useDebounce, sessionCache } from '@/components/utils/performanceHooks';
+import { businessDataSchema, validateInput } from '@/components/utils/validation';
 
 export default function BusinessSearchStep({ onSelect, isLoading: parentLoading }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -125,12 +126,12 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
         } 
       });
       
-      onSelect({
+      const businessData = {
         business_name: businessDetails.name,
         website: businessDetails.website || '',
         place_id: businessDetails.place_id,
         address: businessDetails.address,
-        phone: businessDetails.phone,
+        phone: businessDetails.phone || '',
         gmb_rating: businessDetails.rating,
         gmb_reviews_count: businessDetails.total_reviews,
         gmb_photos_count: businessDetails.photos_count,
@@ -138,7 +139,16 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
         gmb_types: businessDetails.types,
         gmb_reviews: businessDetails.reviews,
         location: businessDetails.location
-      });
+      };
+      
+      // Validate business data
+      const validation = validateInput(businessDataSchema, businessData);
+      if (!validation.success) {
+        console.error('Business data validation failed:', validation.error);
+        // Continue anyway but log the error
+      }
+      
+      onSelect(validation.success ? validation.data : businessData);
     }
   };
 
