@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import SocialShareButton from '@/components/shared/SocialShareButton';
 import { toast } from 'sonner';
+import MobileOptimizations from '@/components/quizv3/MobileOptimizations';
+import MobileViewportFix from '@/components/utils/MobileViewportFix';
 
 export default function ThankYouPage() {
   const [leadData, setLeadData] = useState(null);
@@ -156,10 +158,13 @@ export default function ThankYouPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] relative overflow-x-hidden">
+    <>
+      <MobileOptimizations />
+      <MobileViewportFix />
+      <div className="min-h-screen bg-[#0a0a0f] relative overflow-x-hidden" style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}>
       {/* Background - P1 FIX: Prevent horizontal scroll */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f]" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(800px,100vw)] h-[800px] bg-[#c8ff00]/10 rounded-full blur-[150px]" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(800px,90vw)] h-[min(800px,90vw)] bg-[#c8ff00]/10 rounded-full blur-[80px] md:blur-[150px]" />
       
       <div className="relative z-10 min-h-screen flex items-center justify-center py-12 px-4">
         <div className="max-w-2xl mx-auto text-center">
@@ -479,5 +484,6 @@ export default function ThankYouPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

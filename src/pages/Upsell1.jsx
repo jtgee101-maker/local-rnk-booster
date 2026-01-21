@@ -7,6 +7,8 @@ import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
 import { ABTestProvider, useABTest } from '@/components/abtest/ABTestProvider';
 import { toast } from 'sonner';
+import MobileOptimizations from '@/components/quizv3/MobileOptimizations';
+import MobileViewportFix from '@/components/utils/MobileViewportFix';
 
 function Upsell1Content() {
   const navigate = useNavigate();
@@ -142,10 +144,13 @@ function Upsell1Content() {
 
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] relative overflow-x-hidden flex items-center justify-center py-12 px-4">
+    <>
+      <MobileOptimizations />
+      <MobileViewportFix />
+      <div className="min-h-screen bg-[#0a0a0f] relative overflow-x-hidden flex items-center justify-center py-12 px-4" style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}>
       {/* Background - P1 FIX: Prevent horizontal scroll */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f]" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(800px,100vw)] h-[800px] bg-red-500/10 rounded-full blur-[150px]" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(800px,90vw)] h-[min(800px,90vw)] bg-red-500/10 rounded-full blur-[80px] md:blur-[150px]" />
       
       <div className="relative z-10 max-w-4xl mx-auto w-full">
         {/* Skip Button */}
@@ -366,6 +371,7 @@ function Upsell1Content() {
         </motion.div>
       </div>
     </div>
+    </>
   );
 }
 
