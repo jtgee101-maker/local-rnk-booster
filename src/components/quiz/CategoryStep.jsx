@@ -36,34 +36,38 @@ export default function CategoryStep({ onSelect }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {categories.map((cat, index) => (
-          <motion.button
+          <motion.div 
             key={cat.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            onClick={() => onSelect(cat.id)}
-            className="group relative bg-gray-900/50 backdrop-blur border border-gray-800 rounded-2xl p-6 text-left transition-all duration-300 hover:border-[#c8ff00]/50 hover:bg-gray-900/80 min-h-[100px] touch-manipulation"
+            whileHover={{ scale: 1.02 }} 
+            whileTap={{ scale: 0.98 }}
           >
-            <div className="flex items-start gap-4">
-              <div className="p-3 rounded-xl bg-gray-800 group-hover:bg-[#c8ff00]/10 transition-colors">
-                <cat.icon className="w-6 h-6 text-gray-400 group-hover:text-[#c8ff00] transition-colors" />
+            <motion.button
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              onClick={() => onSelect(cat.id)}
+              className="w-full group relative bg-gray-900/50 backdrop-blur border border-gray-800 rounded-2xl p-6 text-left transition-all duration-300 hover:border-[#c8ff00]/50 hover:bg-gray-900/80 min-h-[100px] touch-manipulation"
+            >
+              <div className="flex items-start gap-4">
+                <div className="p-3 rounded-xl bg-gray-800 group-hover:bg-[#c8ff00]/10 transition-colors">
+                  <cat.icon className="w-6 h-6 text-gray-400 group-hover:text-[#c8ff00] transition-colors" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-white group-hover:text-[#c8ff00] transition-colors">
+                    {cat.label}
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1">{cat.desc}</p>
+                </div>
+                <motion.div
+                  className="text-[#c8ff00] opacity-0 group-hover:opacity-100 transition-opacity"
+                  whileHover={{ x: 5 }}
+                >
+                  →
+                </motion.div>
               </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-white group-hover:text-[#c8ff00] transition-colors">
-                  {cat.label}
-                </h3>
-                <p className="text-sm text-gray-500 mt-1">{cat.desc}</p>
-              </div>
-              <motion.div
-                className="text-[#c8ff00] opacity-0 group-hover:opacity-100 transition-opacity"
-                whileHover={{ x: 5 }}
-              >
-                →
-              </motion.div>
-            </div>
-          </motion.button>
+            </motion.button>
           </motion.div>
-          ))}
+        ))}
       </div>
     </motion.div>
   );
