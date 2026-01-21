@@ -14,27 +14,27 @@ export default function ResultsV3({ healthScore, criticalIssues, businessName, o
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-4xl mx-auto px-4 pb-8"
+      className="max-w-4xl mx-auto px-4 md:px-6 pb-8"
     >
       {/* Health Score Card */}
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="bg-gradient-to-br from-red-500/10 to-orange-500/10 border-2 border-red-500/30 rounded-2xl p-8 mb-6 text-center"
+        className="bg-gradient-to-br from-red-500/10 to-orange-500/10 border-2 border-red-500/30 rounded-xl md:rounded-2xl p-6 md:p-8 mb-6 text-center"
       >
         <div className="inline-flex items-center gap-2 bg-red-500/20 border border-red-500/40 rounded-full px-4 py-2 mb-4">
           <AlertTriangle className="w-5 h-5 text-red-400 animate-pulse" />
           <span className="text-red-300 font-semibold text-sm">CRITICAL ISSUES DETECTED</span>
         </div>
 
-        <h2 className="text-4xl md:text-5xl font-bold text-white mb-3">
+        <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-3 leading-tight">
           {businessName}'s Local Health Score
         </h2>
         
         <div className="relative inline-block mb-6">
-          <div className="text-8xl font-black text-red-400">{healthScore}</div>
-          <div className="text-2xl text-gray-400 font-semibold">/100</div>
+          <div className="text-6xl md:text-8xl font-black text-red-400">{healthScore}</div>
+          <div className="text-xl md:text-2xl text-gray-400 font-semibold">/100</div>
         </div>
 
         {/* Lost Revenue */}
@@ -42,14 +42,14 @@ export default function ResultsV3({ healthScore, criticalIssues, businessName, o
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-gray-900/60 border border-gray-700 rounded-xl p-6 max-w-md mx-auto"
+          className="bg-gray-900/60 border border-gray-700 rounded-lg md:rounded-xl p-4 md:p-6 max-w-md mx-auto"
         >
           <div className="flex items-center justify-center gap-2 mb-2">
             <TrendingDown className="w-5 h-5 text-red-400" />
             <span className="text-gray-400 text-sm">Estimated Lost Revenue</span>
           </div>
-          <div className="text-4xl font-bold text-red-400 mb-1">
-            ${lostRevenue.toLocaleString()}<span className="text-lg text-gray-500">/mo</span>
+          <div className="text-3xl md:text-4xl font-bold text-red-400 mb-1">
+            ${lostRevenue.toLocaleString()}<span className="text-base md:text-lg text-gray-500">/mo</span>
           </div>
           <p className="text-xs text-gray-500">
             Due to invisible rankings and Thumbtack-style aggregator fees
@@ -62,10 +62,10 @@ export default function ResultsV3({ healthScore, criticalIssues, businessName, o
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6 md:p-8 mb-6"
+        className="bg-gray-900/50 border border-gray-800 rounded-xl md:rounded-2xl p-5 md:p-8 mb-6"
       >
-        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-          <AlertTriangle className="w-5 h-5 text-red-400" />
+        <h3 className="text-lg md:text-xl font-bold text-white mb-4 flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-red-400" />
           What's Killing Your Rankings
         </h3>
         <div className="space-y-4">
@@ -91,7 +91,7 @@ export default function ResultsV3({ healthScore, criticalIssues, businessName, o
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8 }}
-        className="bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/30 rounded-2xl p-6 md:p-8 mb-6"
+        className="bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/30 rounded-xl md:rounded-2xl p-5 md:p-8 mb-6"
       >
         <div className="flex items-start gap-3 mb-4">
           <div className="text-4xl">💰</div>
@@ -159,7 +159,7 @@ export default function ResultsV3({ healthScore, criticalIssues, businessName, o
         {/* CTA Button */}
         <Button
           onClick={onCTA}
-          className="w-full max-w-md mx-auto bg-gradient-to-r from-[#c8ff00] to-green-400 hover:from-[#d4ff33] hover:to-green-300 text-black font-bold py-8 text-xl rounded-xl transition-all duration-300 hover:shadow-[0_0_60px_rgba(200,255,0,0.5)] transform hover:scale-105 active:scale-95 min-h-[64px] touch-manipulation relative overflow-hidden group"
+          className="w-full max-w-md mx-auto bg-gradient-to-r from-[#c8ff00] to-green-400 hover:from-[#d4ff33] hover:to-green-300 text-black font-bold py-6 md:py-8 text-lg md:text-xl rounded-xl transition-all duration-300 hover:shadow-[0_0_60px_rgba(200,255,0,0.5)] transform hover:scale-105 active:scale-95 min-h-[56px] md:min-h-[64px] touch-manipulation relative overflow-hidden group"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
           <span className="relative flex items-center justify-center">

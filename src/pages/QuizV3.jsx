@@ -18,6 +18,7 @@ import ScarcityBanner from '@/components/cro/ScarcityBanner';
 import DeferredComponent from '@/components/optimized/DeferredComponent';
 import InlineSocialProof from '@/components/cro/InlineSocialProof';
 import ExitIntentV3 from '@/components/quizv3/ExitIntentV3';
+import MobileOptimizations from '@/components/quizv3/MobileOptimizations';
 
 // Lazy load step components
 const CategoryStep = lazy(() => import('@/components/quiz/CategoryStep'));
@@ -349,9 +350,12 @@ function QuizV3Content() {
       <Helmet>
         <title>Free GMB Audit - Stop Paying Aggregator Fees | LocalRank.ai</title>
         <meta name="description" content="Discover why you're losing $15,000+ to Thumbtack & Angi. Free AI audit reveals how to get YOUR customers directly - no lead fees." />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
         <meta property="og:title" content="Stop Paying $100/Lead to Aggregators - Free GMB Audit" />
         <meta property="og:description" content="Those customers were searching for YOU. Find out how to capture them directly (without Thumbtack fees)." />
       </Helmet>
+      
+      <MobileOptimizations />
 
       <div className="min-h-screen bg-[#0a0a0f] relative overflow-x-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f]" />

@@ -121,7 +121,7 @@ export default function BridgeV3() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#c8ff00]/10 rounded-full blur-[150px] animate-pulse" />
 
       {/* Main Content */}
-      <div className="relative z-10 max-w-2xl mx-auto px-4 text-center">
+      <div className="relative z-10 max-w-2xl mx-auto px-4 md:px-6 text-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -139,7 +139,7 @@ export default function BridgeV3() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight"
+            className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight"
           >
             ✓ Audit Complete.
             <br />

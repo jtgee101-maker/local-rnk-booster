@@ -149,7 +149,7 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
       exit={{ opacity: 0, y: -20 }}
       className="max-w-2xl mx-auto px-4"
     >
-      <div className="text-center mb-10">
+      <div className="text-center mb-8 md:mb-10">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -157,13 +157,13 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
         >
           <span className="text-xs text-[#c8ff00] font-semibold">FINAL STEP</span>
         </motion.div>
-        <h2 className="text-2xl md:text-4xl font-bold text-white mb-3">
+        <h2 className="text-xl md:text-3xl lg:text-4xl font-bold text-white mb-3 leading-tight px-2">
           Find Your Business on <span className="text-[#c8ff00]">Google Maps</span>
         </h2>
-        <p className="text-gray-400 text-lg mb-2">
+        <p className="text-gray-400 text-base md:text-lg mb-2 px-2">
           We'll scan your actual GMB profile for real-time insights
         </p>
-        <p className="text-gray-500 text-sm">
+        <p className="text-gray-500 text-xs md:text-sm px-2">
           🔍 Search by business name + location for best results
         </p>
       </div>
