@@ -311,7 +311,14 @@ function QuizV3Content() {
         }
       }).catch(err => console.error('Error tracking event:', err));
       
-      sessionStorage.setItem('quizLead', JSON.stringify({ ...finalData, id: savedLead.id }));
+      // SECURITY: Only store lead ID, not full lead object
+      const { saveLeadReference, saveDisplayData } = await import('@/components/utils/secureStorage');
+      saveLeadReference(savedLead.id, 'v3');
+      saveDisplayData({
+        healthScore: finalData.health_score,
+        businessName: finalData.business_name,
+        criticalIssues: finalData.critical_issues
+      });
     } catch (error) {
       console.error('Error saving lead:', error);
       errorLogger.systemError(error, { 

@@ -48,11 +48,19 @@ export default function BridgeV3() {
     
     loadSettings();
 
-    // Get lead data
-    const stored = sessionStorage.getItem('quizLead');
-    if (stored) {
-      setLeadData(JSON.parse(stored));
-    }
+    // SECURITY: Get display data only (not full lead object)
+    const loadDisplayData = async () => {
+      const { getDisplayData, getLeadId } = await import('@/components/utils/secureStorage');
+      const displayData = getDisplayData();
+      if (displayData) {
+        setLeadData({
+          business_name: displayData.businessName,
+          health_score: displayData.healthScore,
+          id: getLeadId()
+        });
+      }
+    };
+    loadDisplayData();
 
     // Countdown timer
     const timer = setInterval(() => {

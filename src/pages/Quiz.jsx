@@ -298,7 +298,14 @@ function QuizContent() {
         } 
       });
       
-      sessionStorage.setItem('quizLead', JSON.stringify({ ...finalData, id: createdLead.id }));
+      // SECURITY: Only store lead ID, not full lead object
+      const { saveLeadReference, saveDisplayData } = await import('@/components/utils/secureStorage');
+      saveLeadReference(createdLead.id, 'v1');
+      saveDisplayData({
+        healthScore: finalData.health_score,
+        businessName: finalData.business_name,
+        criticalIssues: finalData.critical_issues
+      });
     } catch (error) {
       console.error('Error saving lead:', error);
     }

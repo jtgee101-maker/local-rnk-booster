@@ -237,8 +237,15 @@ function QuizV2Content() {
         } 
       });
       
-      sessionStorage.setItem('quizLead', JSON.stringify({ ...finalData, id: savedLead.id }));
-      sessionStorage.setItem('quizVersion', 'v2');
+      // SECURITY: Only store lead ID, not full lead object
+      const { saveLeadReference, saveDisplayData } = await import('@/components/utils/secureStorage');
+      saveLeadReference(savedLead.id, 'v2');
+      saveDisplayData({
+        healthScore: finalData.health_score,
+        businessName: finalData.business_name,
+        criticalIssues: finalData.critical_issues,
+        thumbtackTax: yearlyTax
+      });
     } catch (error) {
       console.error('Error saving lead:', error);
       errorLogger.systemError(error, { 
