@@ -62,7 +62,8 @@ export default function CategoryStep({ onSelect }) {
               </motion.div>
             </div>
           </motion.button>
-        ))}
+          </motion.div>
+          ))}
       </div>
     </motion.div>
   );
