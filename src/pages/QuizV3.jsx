@@ -30,6 +30,7 @@ const TimelineStep = lazy(() => import('@/components/quiz/TimelineStep'));
 const BusinessSearchStep = lazy(() => import('@/components/quiz/BusinessSearchStep'));
 const ProcessingStepEnhanced = lazy(() => import('@/components/quiz/ProcessingStepEnhanced'));
 const ResultsV3 = lazy(() => import('@/components/quizv3/ResultsV3'));
+const ContactInfoStep = lazy(() => import('@/components/quiz/ContactInfoStep'));
 
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center min-h-[60vh]">
@@ -265,37 +266,6 @@ function QuizV3Content() {
     setQuizData(finalData);
     setStep('processing');
     setCurrentStepNumber(6);
-
-    try {
-      const createdLead = await base44.entities.Lead.create(finalData);
-      const sessionId = sessionStorage.getItem('ab_session_id');
-      
-      base44.analytics.track({ 
-        eventName: 'quizv3_completed', 
-        properties: { 
-          health_score: healthScore,
-          business_category: finalData.business_category,
-          has_gmb_data: true
-        } 
-      });
-      
-      base44.entities.ConversionEvent.create({
-        funnel_version: 'v3',
-        event_name: 'quizv3_completed',
-        session_id: sessionId,
-        lead_id: createdLead.id,
-        properties: {
-          health_score: healthScore,
-          business_category: finalData.business_category,
-          critical_issues_count: finalIssues.length
-        }
-      }).catch(err => console.error('Error tracking event:', err));
-      
-      sessionStorage.setItem('quizLead', JSON.stringify({ ...finalData, id: createdLead.id }));
-    } catch (error) {
-      console.error('Error saving lead:', error);
-    }
-
     setIsLoading(false);
   };
 
