@@ -29,7 +29,8 @@ export default function StickyConversionBar({
           animate={{ y: 0 }}
           exit={{ y: 100 }}
           transition={{ type: 'spring', stiffness: 100, damping: 20 }}
-          className="fixed bottom-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-xl border-t border-gray-800 shadow-2xl"
+          className="fixed bottom-0 left-0 right-0 z-40 bg-gray-900/95 backdrop-blur-xl border-t border-gray-800 shadow-2xl pointer-events-auto"
+          style={{ WebkitTransform: 'translateZ(0)' }}
         >
           <div className="max-w-7xl mx-auto px-4 py-4">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -49,7 +50,8 @@ export default function StickyConversionBar({
 
               <Button
                 onClick={onCTA}
-                className="w-full sm:w-auto bg-gradient-to-r from-[#c8ff00] to-green-400 hover:from-[#d4ff33] hover:to-green-300 text-black font-bold px-8 py-6 text-base rounded-full transition-all hover:shadow-[0_0_30px_rgba(200,255,0,0.4)] hover:scale-105 active:scale-95 min-h-[56px] touch-manipulation"
+                className="w-full sm:w-auto bg-gradient-to-r from-[#c8ff00] to-green-400 hover:from-[#d4ff33] hover:to-green-300 text-black font-bold px-8 py-6 text-base rounded-full transition-all hover:shadow-[0_0_30px_rgba(200,255,0,0.4)] hover:scale-105 active:scale-95 min-h-[56px] md:min-h-[48px] touch-manipulation"
+                style={{ WebkitTapHighlightColor: 'transparent' }}
               >
                 <span className="flex items-center gap-2">
                   {ctaText}

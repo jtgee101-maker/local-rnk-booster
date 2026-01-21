@@ -6,6 +6,7 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { ABTestProvider, useABTest } from '@/components/abtest/ABTestProvider';
 import MobileOptimizations from '@/components/quizv3/MobileOptimizations';
+import MobileViewportFix from '@/components/utils/MobileViewportFix';
 
 import CountdownTimer from '@/components/pricing/CountdownTimer';
 import PricingCard from '@/components/pricing/PricingCard';
@@ -133,10 +134,11 @@ function PricingContent() {
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
       </Helmet>
       <MobileOptimizations />
+      <MobileViewportFix />
 
       {/* Background - P1 FIX: Prevent horizontal scroll */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f]" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[min(1000px,100vw)] h-[1000px] bg-[#c8ff00]/5 rounded-full blur-[150px]" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[min(1000px,90vw)] h-[1000px] bg-[#c8ff00]/5 rounded-full blur-[100px] md:blur-[150px]" />
 
       {/* Countdown Timer */}
       <CountdownTimer minutes={15} />

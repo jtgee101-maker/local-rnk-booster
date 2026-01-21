@@ -25,6 +25,7 @@ import InlineSocialProof from '@/components/cro/InlineSocialProof';
 import ExitIntentV3 from '@/components/quizv3/ExitIntentV3';
 import MobileOptimizations from '@/components/quizv3/MobileOptimizations';
 import HeatmapTracker from '@/components/analytics/HeatmapTracker';
+import MobileViewportFix from '@/components/utils/MobileViewportFix';
 
 // Lazy load step components
 const CategoryStep = lazy(() => import('@/components/quiz/CategoryStep'));
@@ -402,9 +403,10 @@ function QuizV3Content() {
       </Helmet>
       
       <MobileOptimizations />
+      <MobileViewportFix />
       <HeatmapTracker pageName="QuizV3" />
 
-      <div className="min-h-screen bg-[#0a0a0f] relative overflow-x-hidden">
+      <div className="min-h-screen bg-[#0a0a0f] relative overflow-x-hidden" style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}>
         <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f]" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-[#c8ff00]/5 rounded-full blur-[120px]" />
         <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-[100px]" />

@@ -24,12 +24,22 @@ export default function OrderBump({ type = 'photos', selected, onToggle }) {
   return (
     <motion.div
       whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.99 }}
       className={`relative border-2 rounded-2xl p-6 transition-all cursor-pointer min-h-[160px] touch-manipulation ${
         selected 
           ? 'border-[#c8ff00] bg-[#c8ff00]/5' 
           : 'border-gray-800 bg-gray-900/30 hover:border-gray-700'
       }`}
       onClick={onToggle}
+      role="checkbox"
+      aria-checked={selected}
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onToggle();
+        }
+      }}
     >
       {/* Popular Badge */}
       <div className="absolute -top-3 left-6">

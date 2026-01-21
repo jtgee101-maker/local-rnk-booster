@@ -29,7 +29,7 @@ export default function PlumbersLanding() {
 
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f]" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[min(800px,100vw)] h-[800px] bg-blue-500/5 rounded-full blur-[150px]" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[min(800px,90vw)] h-[800px] bg-blue-500/5 rounded-full blur-[100px] md:blur-[150px]" />
 
       <div className="relative z-10">
         {/* Header */}
