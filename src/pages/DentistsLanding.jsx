@@ -7,6 +7,8 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import LegalFooter from '@/components/shared/LegalFooter';
 import InlineSocialProof from '@/components/cro/InlineSocialProof';
+import MobileOptimizations from '@/components/quizv3/MobileOptimizations';
+import MobileViewportFix from '@/components/utils/MobileViewportFix';
 
 export default function DentistsLanding() {
   React.useEffect(() => {
@@ -19,16 +21,18 @@ export default function DentistsLanding() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f]">
+    <div className="min-h-screen bg-[#0a0a0f]" style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}>
       <Helmet>
         <title>Free GMB Audit for Dentists - Fill Your Schedule with New Patients | LocalRank.ai</title>
         <meta name="description" content="Stop relying on expensive PPC. Get 40+ new patient calls per month from Google Maps. Free AI audit for dental practices." />
         <meta name="keywords" content="dentist marketing, dental practice marketing, google my business dentists, new dental patients" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
       </Helmet>
+      <MobileOptimizations />
+      <MobileViewportFix />
 
       <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f]" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[min(800px,100vw)] h-[800px] bg-cyan-500/5 rounded-full blur-[150px]" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[min(800px,90vw)] h-[800px] bg-cyan-500/5 rounded-full blur-[80px] md:blur-[150px]" />
 
       <div className="relative z-10">
         <header className="p-6 text-center">
