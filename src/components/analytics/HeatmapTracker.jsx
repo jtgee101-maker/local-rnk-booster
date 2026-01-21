@@ -16,9 +16,43 @@ export default function HeatmapTracker({ pageName }) {
       `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     sessionStorage.setItem('analytics_session', sessionId.current);
 
+    // Define flush functions first
+    const flushData = async () => {
+      if (interactions.current.length === 0) return;
+
+      const data = [...interactions.current];
+      interactions.current = [];
+      lastFlush.current = Date.now();
+
+      try {
+        await base44.entities.ConversionEvent.create({
+          funnel_version: 'heatmap',
+          event_name: 'user_interactions',
+          session_id: sessionId.current,
+          properties: {
+            page: pageName,
+            interactions: data,
+            device: {
+              width: window.innerWidth,
+              height: window.innerHeight,
+              user_agent: navigator.userAgent
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Heatmap tracking error:', error);
+      }
+    };
+
+    const flushIfNeeded = () => {
+      const now = Date.now();
+      if (interactions.current.length >= 50 || now - lastFlush.current > 10000) {
+        flushData();
+      }
+    };
+
     // Track clicks
     const handleClick = (e) => {
-      const rect = e.target.getBoundingClientRect();
       interactions.current.push({
         type: 'click',
         x: e.clientX,
@@ -61,42 +95,7 @@ export default function HeatmapTracker({ pageName }) {
           y: e.clientY,
           timestamp: Date.now()
         });
-      }, 500); // Sample every 500ms
-    };
-
-    // Flush data every 10 seconds or when 50 interactions
-    const flushIfNeeded = () => {
-      const now = Date.now();
-      if (interactions.current.length >= 50 || now - lastFlush.current > 10000) {
-        flushData();
-      }
-    };
-
-    const flushData = async () => {
-      if (interactions.current.length === 0) return;
-
-      const data = [...interactions.current];
-      interactions.current = [];
-      lastFlush.current = Date.now();
-
-      try {
-        await base44.entities.ConversionEvent.create({
-          funnel_version: 'heatmap',
-          event_name: 'user_interactions',
-          session_id: sessionId.current,
-          properties: {
-            page: pageName,
-            interactions: data,
-            device: {
-              width: window.innerWidth,
-              height: window.innerHeight,
-              user_agent: navigator.userAgent
-            }
-          }
-        });
-      } catch (error) {
-        console.error('Heatmap tracking error:', error);
-      }
+      }, 500);
     };
 
     // Flush on page unload
