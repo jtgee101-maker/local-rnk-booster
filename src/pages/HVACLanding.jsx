@@ -79,13 +79,12 @@ export default function HVACLanding() {
                 Get Your Free HVAC Visibility Audit
               </Button>
               <Button
-                onClick={() => navigate(createPageUrl('QuizV3'))}
-                size="lg"
-                variant="outline"
-                className="border-2 border-[#c8ff00] text-[#c8ff00] hover:bg-[#c8ff00]/10 active:bg-[#c8ff00]/20 text-lg px-8 py-6 min-h-[56px] touch-manipulation"
-              >
-                See How You Rank Now
-              </Button>
+                 onClick={() => navigate(createPageUrl('QuizV3'))}
+                 size="lg"
+                 className="border-2 border-[#c8ff00] bg-[#c8ff00]/20 text-white hover:bg-[#c8ff00]/30 active:bg-[#c8ff00]/40 text-lg px-8 py-6 font-bold min-h-[56px] touch-manipulation"
+               >
+                 See How You Rank Now
+               </Button>
             </div>
 
             {/* Stats */}
