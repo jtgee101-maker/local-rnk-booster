@@ -123,7 +123,9 @@ export default function BridgeV3() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden flex items-center justify-center">
+    <>
+      <MobileViewportFix />
+      <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden flex items-center justify-center" style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}>
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f]" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#c8ff00]/10 rounded-full blur-[150px] animate-pulse" />
