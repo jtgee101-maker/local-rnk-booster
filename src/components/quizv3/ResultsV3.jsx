@@ -5,6 +5,7 @@ import { AlertTriangle, TrendingDown, DollarSign, Zap, ArrowRight, Shield } from
 import { base44 } from '@/api/base44Client';
 import { useABTest } from '@/components/abtest/ABTestProvider';
 import { REVENUE_LOSS_PER_POINT } from '@/components/utils/constants';
+import ShareDashboard from '@/components/referrals/ShareDashboard';
 
 export default function ResultsV3({ healthScore, criticalIssues, businessName, onCTA }) {
   const lostRevenue = Math.round((100 - healthScore) * REVENUE_LOSS_PER_POINT);
@@ -161,6 +162,7 @@ export default function ResultsV3({ healthScore, criticalIssues, businessName, o
         <Button
           onClick={onCTA}
           className="w-full max-w-md mx-auto bg-gradient-to-r from-[#c8ff00] to-green-400 hover:from-[#d4ff33] hover:to-green-300 text-black font-bold py-6 md:py-8 text-lg md:text-xl rounded-xl transition-all duration-300 hover:shadow-[0_0_60px_rgba(200,255,0,0.5)] transform hover:scale-105 active:scale-95 min-h-[56px] md:min-h-[64px] touch-manipulation relative overflow-hidden group"
+          style={{ WebkitTapHighlightColor: 'transparent' }}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
           <span className="relative flex items-center justify-center">
@@ -175,8 +177,29 @@ export default function ResultsV3({ healthScore, criticalIssues, businessName, o
         <p className="text-gray-400 text-sm mt-4 font-medium">
           ✓ Free 7-day trial • ✓ No credit card • ✓ Results in 72hrs
         </p>
+      </motion.div>
 
-        {/* Scarcity */}
+      {/* Share Dashboard */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.1 }}
+        className="mb-6"
+      >
+        <ShareDashboard 
+          healthScore={healthScore}
+          businessName={businessName}
+        />
+      </motion.div>
+
+      {/* Scarcity Section */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 1 }}
+        className="bg-gradient-to-br from-[#c8ff00]/15 via-green-500/10 to-[#c8ff00]/5 border-2 border-[#c8ff00]/50 rounded-2xl p-8 text-center"
+      >
+
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
