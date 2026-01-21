@@ -8,21 +8,29 @@ export default function AdminMetrics() {
   const { data: leads = [] } = useQuery({
     queryKey: ['admin-leads'],
     queryFn: () => base44.entities.Lead.list('-created_date', 100),
+    staleTime: 30000, // 30s cache
+    gcTime: 300000, // 5min garbage collection
   });
 
   const { data: orders = [] } = useQuery({
     queryKey: ['admin-orders'],
     queryFn: () => base44.entities.Order.list('-created_date', 100),
+    staleTime: 30000,
+    gcTime: 300000,
   });
 
   const { data: emailLogs = [] } = useQuery({
     queryKey: ['admin-emails'],
     queryFn: () => base44.entities.EmailLog.list('-created_date', 100),
+    staleTime: 30000,
+    gcTime: 300000,
   });
 
   const { data: nurtures = [] } = useQuery({
     queryKey: ['admin-nurtures'],
     queryFn: () => base44.entities.LeadNurture.filter({ status: 'active' }, '-created_date', 50),
+    staleTime: 30000,
+    gcTime: 300000,
   });
 
   const metrics = [

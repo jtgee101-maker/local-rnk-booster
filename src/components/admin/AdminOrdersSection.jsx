@@ -11,8 +11,10 @@ import { toast } from 'sonner';
 export default function AdminOrdersSection({ expanded = false }) {
   const queryClient = useQueryClient();
   const { data: orders = [], isLoading } = useQuery({
-    queryKey: ['admin-orders-section'],
+    queryKey: ['admin-orders-section', expanded],
     queryFn: () => base44.entities.Order.list('-created_date', expanded ? 200 : 50),
+    staleTime: 20000,
+    gcTime: 180000,
   });
 
   const refundMutation = useMutation({

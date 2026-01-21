@@ -21,8 +21,8 @@ export default function ABTestDashboard() {
   const loadData = async () => {
     try {
       const [testsData, eventsData] = await Promise.all([
-        base44.entities.ABTest.list('-created_date'),
-        base44.entities.ABTestEvent.list('-created_date', 5000)
+        base44.entities.ABTest.list('-created_date', 100),
+        base44.entities.ABTestEvent.list('-created_date', 10000)
       ]);
 
       setTests(testsData);

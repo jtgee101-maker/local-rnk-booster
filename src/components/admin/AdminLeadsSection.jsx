@@ -11,8 +11,10 @@ import { Search, Download } from 'lucide-react';
 export default function AdminLeadsSection({ expanded = false }) {
   const [searchTerm, setSearchTerm] = useState('');
   const { data: leads = [], isLoading } = useQuery({
-    queryKey: ['admin-leads-section'],
+    queryKey: ['admin-leads-section', expanded],
     queryFn: () => base44.entities.Lead.list('-created_date', expanded ? 200 : 50),
+    staleTime: 20000, // 20s cache
+    gcTime: 180000, // 3min
   });
 
   const filteredLeads = leads.filter(lead =>

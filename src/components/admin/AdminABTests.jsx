@@ -10,12 +10,16 @@ import { motion } from 'framer-motion';
 export default function AdminABTests() {
   const { data: tests = [], isLoading } = useQuery({
     queryKey: ['admin-abtests'],
-    queryFn: () => base44.entities.ABTest.list('-created_date'),
+    queryFn: () => base44.entities.ABTest.list('-created_date', 50),
+    staleTime: 30000,
+    gcTime: 300000,
   });
 
   const { data: events = [] } = useQuery({
     queryKey: ['admin-abtests-events'],
-    queryFn: () => base44.entities.ABTestEvent.list('-created_date', 5000),
+    queryFn: () => base44.entities.ABTestEvent.list('-created_date', 10000),
+    staleTime: 30000,
+    gcTime: 300000,
   });
 
   const [stats, setStats] = useState({});

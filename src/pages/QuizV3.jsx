@@ -256,11 +256,26 @@ function QuizV3Content() {
   const handleContactInfoSubmit = async (contactData) => {
     base44.analytics.track({ eventName: 'quizv3_contact_info_submitted', properties: { email: contactData.email } });
     
-    // Rate limiting check
+    // Client-side rate limiting check
     if (!quizRateLimiter.canSubmit()) {
       const waitTime = quizRateLimiter.getTimeUntilAllowed();
       alert(`Please wait ${Math.ceil(waitTime / 60)} minutes before submitting again.`);
       return;
+    }
+
+    // Server-side rate limiting validation
+    try {
+      const rateLimitCheck = await base44.functions.invoke('validateRateLimit', { 
+        email: contactData.email 
+      });
+      
+      if (!rateLimitCheck.data.allowed) {
+        alert(rateLimitCheck.data.error || 'Please wait before submitting again.');
+        return;
+      }
+    } catch (error) {
+      console.error('Rate limit validation failed:', error);
+      // Continue on error to avoid blocking legitimate users
     }
     
     const finalData = { ...quizData, ...contactData };
