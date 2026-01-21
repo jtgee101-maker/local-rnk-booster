@@ -191,14 +191,16 @@ export default function ChiropractorLanding() {
           <p className="text-xl text-gray-800 mb-8">
             Free audit shows why patients pick other practices + how to dominate local search
           </p>
-          <Button
-            onClick={() => navigate(createPageUrl('QuizV3'))}
-            size="lg"
-            className="bg-gray-900 text-white hover:bg-gray-800 active:bg-gray-700 text-lg px-10 py-6 font-bold min-h-[56px] touch-manipulation"
-          >
-            <Activity className="w-5 h-5 mr-2" />
-            Get More New Patients Now
-          </Button>
+          <div className="flex justify-center">
+            <Button
+              onClick={() => navigate(createPageUrl('QuizV3'))}
+              size="lg"
+              className="bg-gray-900 text-white hover:bg-gray-800 active:bg-gray-700 text-base md:text-lg px-6 md:px-10 py-5 md:py-6 font-bold min-h-[48px] md:min-h-[56px] w-full sm:w-auto touch-manipulation"
+            >
+              <Activity className="w-5 h-5 mr-2" />
+              Get More New Patients Now
+            </Button>
+          </div>
         </motion.div>
       </div>
     </div>
