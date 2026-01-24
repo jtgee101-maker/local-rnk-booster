@@ -206,15 +206,50 @@ export default function AdvancedAnalytics() {
         </motion.div>
       </div>
 
-      {/* Tabbed Analytics Views */}
-      <Tabs defaultValue="roi" className="space-y-4">
-        <TabsList className="bg-gray-900 border-gray-800">
-          <TabsTrigger value="roi">ROI Dashboard</TabsTrigger>
-          <TabsTrigger value="funnel">Funnel Analysis</TabsTrigger>
-          <TabsTrigger value="attribution">Attribution</TabsTrigger>
-          <TabsTrigger value="cohorts">Cohorts</TabsTrigger>
-          <TabsTrigger value="journey">Customer Journey</TabsTrigger>
-        </TabsList>
+      {/* Enhanced Tabbed Analytics Views */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <Tabs defaultValue="roi" className="space-y-4">
+          <TabsList className="inline-flex h-auto p-1 bg-gray-800/50 border border-gray-700 rounded-xl gap-1">
+            <TabsTrigger 
+              value="roi"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-[#c8ff00] data-[state=active]:text-black text-gray-400 hover:text-white transition-all"
+            >
+              <DollarSign className="w-4 h-4" />
+              ROI Dashboard
+            </TabsTrigger>
+            <TabsTrigger 
+              value="funnel"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-[#c8ff00] data-[state=active]:text-black text-gray-400 hover:text-white transition-all"
+            >
+              <Target className="w-4 h-4" />
+              Funnel Analysis
+            </TabsTrigger>
+            <TabsTrigger 
+              value="attribution"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-[#c8ff00] data-[state=active]:text-black text-gray-400 hover:text-white transition-all"
+            >
+              <BarChart3 className="w-4 h-4" />
+              Attribution
+            </TabsTrigger>
+            <TabsTrigger 
+              value="cohorts"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-[#c8ff00] data-[state=active]:text-black text-gray-400 hover:text-white transition-all"
+            >
+              <Users className="w-4 h-4" />
+              Cohorts
+            </TabsTrigger>
+            <TabsTrigger 
+              value="journey"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-[#c8ff00] data-[state=active]:text-black text-gray-400 hover:text-white transition-all"
+            >
+              <TrendingUp className="w-4 h-4" />
+              Journey
+            </TabsTrigger>
+          </TabsList>
 
         <TabsContent value="roi">
           <ROIDashboard dateRange={dateRange} data={roiData} />
