@@ -327,7 +327,7 @@ export default function AdminLeadsSection({ expanded = false }) {
                         </TableCell>
                         <TableCell>
                           {lead.business_category ? (
-                            <Badge variant="outline" className="text-xs">
+                            <Badge className="bg-gray-700/50 text-gray-200 border-gray-600 text-xs">
                               {lead.business_category.replace(/_/g, ' ')}
                             </Badge>
                           ) : (
