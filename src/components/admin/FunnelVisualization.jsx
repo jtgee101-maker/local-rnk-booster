@@ -1,9 +1,16 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertCircle, TrendingDown } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  AlertCircle, TrendingDown, Download, RefreshCw, Loader2,
+  TrendingUp, Users, DollarSign, Clock, Target, BarChart3,
+  AlertTriangle, ChevronDown, ChevronUp
+} from 'lucide-react';
 
 export default function FunnelVisualization({ dateRange }) {
   const [funnelVersion, setFunnelVersion] = React.useState('v3');
