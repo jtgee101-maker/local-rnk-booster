@@ -202,9 +202,19 @@ export default function ROIDashboard({ dateRange, data }) {
       </Card>
 
       {/* Daily Trend */}
-      <Card className="bg-gray-900 border-gray-800">
+      <Card className="border-gray-700 bg-gradient-to-br from-gray-800/50 to-gray-900/50">
         <CardHeader>
-          <CardTitle className="text-white">Daily Performance Trend</CardTitle>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-500/10 rounded-lg">
+              <Activity className="w-5 h-5 text-blue-400" />
+            </div>
+            <div>
+              <CardTitle className="text-white">Daily Performance Trend</CardTitle>
+              <CardDescription>
+                Revenue, orders, and leads over time
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
