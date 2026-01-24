@@ -256,6 +256,12 @@ function QuizV3Content() {
   }, []);
 
   const handleContactInfoSubmit = async (contactData) => {
+    // CRITICAL: Validate email exists and is valid
+    if (!contactData.email || !contactData.email.includes('@') || contactData.email.trim().length === 0) {
+      alert('Please provide a valid email address.');
+      return;
+    }
+    
     base44.analytics.track({ eventName: 'quizv3_contact_info_submitted', properties: { email: contactData.email } });
     
     // Client-side rate limiting check
@@ -280,7 +286,12 @@ function QuizV3Content() {
       // Continue on error to avoid blocking legitimate users
     }
     
-    const finalData = { ...quizData, ...contactData };
+    const finalData = { 
+      ...quizData, 
+      ...contactData,
+      // Ensure business_name exists
+      business_name: quizData.business_name || contactData.business_name || 'Unknown Business'
+    };
     setQuizData(finalData);
 
     // Check for duplicate leads and handle accordingly

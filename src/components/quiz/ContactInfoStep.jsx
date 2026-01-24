@@ -14,10 +14,15 @@ export default function ContactInfoStep({ onSubmit, businessName }) {
   const validateForm = () => {
     const newErrors = {};
     
-    // Validate email using Zod
-    const emailValidation = validateInput(emailSchema, email);
-    if (!emailValidation.success) {
-      newErrors.email = emailValidation.error;
+    // CRITICAL: Email is REQUIRED
+    if (!email || email.trim().length === 0) {
+      newErrors.email = 'Email is required';
+    } else {
+      // Validate email using Zod
+      const emailValidation = validateInput(emailSchema, email);
+      if (!emailValidation.success) {
+        newErrors.email = emailValidation.error;
+      }
     }
     
     // Validate phone using Zod
