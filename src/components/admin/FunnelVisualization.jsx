@@ -491,23 +491,134 @@ export default function FunnelVisualization({ dateRange }) {
             </AnimatePresence>
           </div>
 
-          {/* Summary Stats */}
-          <div className="grid grid-cols-3 gap-4 mt-8 pt-6 border-t border-gray-800">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white">{data?.total_revenue?.toLocaleString()}</div>
-              <div className="text-sm text-gray-400">Total Revenue</div>
+          {/* Enhanced Summary Stats */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-6 border-t border-gray-700"
+          >
+            <div className="p-4 rounded-lg bg-gradient-to-br from-green-500/10 to-gray-800/50 border border-green-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <DollarSign className="w-4 h-4 text-green-400" />
+                <span className="text-xs text-gray-400">Total Revenue</span>
+              </div>
+              <div className="text-2xl font-bold text-white">
+                ${data?.total_revenue?.toLocaleString() || '0'}
+              </div>
+              {comparisonData && (
+                <div className={`text-xs mt-1 ${data.total_revenue > comparisonData.total_revenue ? 'text-green-400' : 'text-red-400'}`}>
+                  {data.total_revenue > comparisonData.total_revenue ? '↑' : '↓'} $
+                  {Math.abs(data.total_revenue - comparisonData.total_revenue).toLocaleString()}
+                </div>
+              )}
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-[#c8ff00]">{data?.overall_conversion_rate}%</div>
-              <div className="text-sm text-gray-400">Overall Conversion</div>
+
+            <div className="p-4 rounded-lg bg-gradient-to-br from-[#c8ff00]/10 to-gray-800/50 border border-[#c8ff00]/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Target className="w-4 h-4 text-[#c8ff00]" />
+                <span className="text-xs text-gray-400">Overall Conversion</span>
+              </div>
+              <div className="text-2xl font-bold text-[#c8ff00]">
+                {data?.overall_conversion_rate || 0}%
+              </div>
+              {comparisonData && (
+                <div className={`text-xs mt-1 ${data.overall_conversion_rate > comparisonData.overall_conversion_rate ? 'text-green-400' : 'text-red-400'}`}>
+                  {data.overall_conversion_rate > comparisonData.overall_conversion_rate ? '↑' : '↓'} 
+                  {Math.abs(data.overall_conversion_rate - comparisonData.overall_conversion_rate).toFixed(1)}%
+                </div>
+              )}
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white">${data?.revenue_per_visitor?.toFixed(2)}</div>
-              <div className="text-sm text-gray-400">Revenue/Visitor</div>
+
+            <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-gray-800/50 border border-blue-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Users className="w-4 h-4 text-blue-400" />
+                <span className="text-xs text-gray-400">Revenue/Visitor</span>
+              </div>
+              <div className="text-2xl font-bold text-white">
+                ${data?.revenue_per_visitor?.toFixed(2) || '0.00'}
+              </div>
+              {comparisonData && (
+                <div className={`text-xs mt-1 ${data.revenue_per_visitor > comparisonData.revenue_per_visitor ? 'text-green-400' : 'text-red-400'}`}>
+                  {data.revenue_per_visitor > comparisonData.revenue_per_visitor ? '↑' : '↓'} $
+                  {Math.abs(data.revenue_per_visitor - comparisonData.revenue_per_visitor).toFixed(2)}
+                </div>
+              )}
             </div>
-          </div>
+
+            <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-gray-800/50 border border-purple-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <BarChart3 className="w-4 h-4 text-purple-400" />
+                <span className="text-xs text-gray-400">Total Visitors</span>
+              </div>
+              <div className="text-2xl font-bold text-white">
+                {stages[0]?.count?.toLocaleString() || '0'}
+              </div>
+              {comparisonData?.stages?.[0] && (
+                <div className={`text-xs mt-1 ${stages[0].count > comparisonData.stages[0].count ? 'text-green-400' : 'text-red-400'}`}>
+                  {stages[0].count > comparisonData.stages[0].count ? '↑' : '↓'} 
+                  {Math.abs(stages[0].count - comparisonData.stages[0].count).toLocaleString()}
+                </div>
+              )}
+            </div>
+          </motion.div>
+
+          {/* Performance Recommendations */}
+          {(biggestDropoff?.dropoff_rate > 40 || slowestStage?.avg_time_seconds > 90) && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="mt-6 p-5 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20"
+            >
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-blue-500/10 rounded-lg">
+                  <Target className="w-5 h-5 text-blue-400" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold text-white mb-2">Optimization Recommendations</h4>
+                  <ul className="space-y-2 text-sm text-gray-300">
+                    {biggestDropoff?.dropoff_rate > 40 && (
+                      <li className="flex items-start gap-2">
+                        <span className="text-[#c8ff00] mt-0.5">•</span>
+                        <span>
+                          Focus on improving <span className="text-white font-medium">{biggestDropoff.stage}</span> - 
+                          {biggestDropoff.dropoff_rate}% dropoff indicates friction. Consider A/B testing or simplifying the step.
+                        </span>
+                      </li>
+                    )}
+                    {slowestStage?.avg_time_seconds > 90 && (
+                      <li className="flex items-start gap-2">
+                        <span className="text-[#c8ff00] mt-0.5">•</span>
+                        <span>
+                          Reduce time on <span className="text-white font-medium">{slowestStage.stage}</span> - 
+                          Users spending {Math.round(slowestStage.avg_time_seconds)}s may indicate confusion or complexity.
+                        </span>
+                      </li>
+                    )}
+                    {data?.overall_conversion_rate < 10 && (
+                      <li className="flex items-start gap-2">
+                        <span className="text-[#c8ff00] mt-0.5">•</span>
+                        <span>
+                          Overall conversion is below 10% - Review value proposition and urgency signals throughout the funnel.
+                        </span>
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              </div>
+            </motion.div>
+          )}
         </CardContent>
       </Card>
+
+      {/* Add shimmer animation keyframes */}
+      <style jsx>{`
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
     </div>
   );
 }
