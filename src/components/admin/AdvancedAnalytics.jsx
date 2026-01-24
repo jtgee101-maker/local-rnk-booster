@@ -267,9 +267,9 @@ export default function AdvancedAnalytics() {
           <CohortTable />
         </TabsContent>
 
-        <TabsContent value="journey">
-          <CustomerJourneyView />
-        </TabsContent>
+          <TabsContent value="journey">
+            <CustomerJourneyView />
+          </TabsContent>
         </Tabs>
       </motion.div>
     </div>
