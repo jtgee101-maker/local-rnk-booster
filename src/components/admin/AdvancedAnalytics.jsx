@@ -30,14 +30,14 @@ export default function AdvancedAnalytics() {
   };
 
   // Fetch ROI metrics for overview
-  const { data: roiData, isLoading, refetch, isRefetching } = useQuery({
+  const { data: roiData, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ['roi-metrics', dateRange],
     queryFn: async () => {
       const response = await base44.functions.invoke('analytics/roiMetrics', { date_range: dateRange });
       return response.data;
     },
     staleTime: 5 * 60 * 1000,
-    retry: 3
+    retry: 1
   });
 
   // Export all analytics
@@ -86,6 +86,32 @@ export default function AdvancedAnalytics() {
         <Loader2 className="w-8 h-8 animate-spin text-[#c8ff00]" />
         <p className="text-sm text-gray-400">Loading analytics data...</p>
       </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="border-red-500/30 bg-red-500/5">
+        <CardContent className="py-12 text-center">
+          <p className="text-red-400 mb-4">Failed to load analytics: {error.message}</p>
+          <Button onClick={() => refetch()} variant="outline" className="border-red-500/50 text-red-400">
+            Retry
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!roiData) {
+    return (
+      <Card className="border-gray-700 bg-gray-800/30">
+        <CardContent className="py-12 text-center">
+          <p className="text-gray-400 mb-4">No analytics data available</p>
+          <Button onClick={() => refetch()} variant="outline">
+            Refresh
+          </Button>
+        </CardContent>
+      </Card>
     );
   }
 
