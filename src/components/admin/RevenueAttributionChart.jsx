@@ -273,38 +273,62 @@ export default function RevenueAttributionChart({ dateRange }) {
 
             {/* Category Details */}
             <div className="space-y-3">
-              {attribution?.by_category?.map((cat, idx) => (
-                <div key={idx} className="bg-gray-800 rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <div 
-                        className="w-3 h-3 rounded-full" 
-                        style={{ backgroundColor: COLORS[idx % COLORS.length] }}
-                      />
-                      <span className="text-white font-semibold capitalize">
-                        {cat.category.replace(/_/g, ' ')}
+              <AnimatePresence>
+                {attribution?.by_category?.map((cat, idx) => (
+                  <motion.div 
+                    key={idx}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 hover:border-[#c8ff00]/30 transition-all"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div 
+                          className="w-4 h-4 rounded-full shadow-lg" 
+                          style={{ 
+                            backgroundColor: COLORS[idx % COLORS.length],
+                            boxShadow: `0 0 10px ${COLORS[idx % COLORS.length]}50`
+                          }}
+                        />
+                        <span className="text-white font-semibold capitalize">
+                          {cat.category.replace(/_/g, ' ')}
+                        </span>
+                        {cat === topCategory && (
+                          <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
+                            Top
+                          </Badge>
+                        )}
+                      </div>
+                      <span className="text-[#c8ff00] font-bold text-lg">
+                        ${cat.revenue?.toLocaleString()}
                       </span>
                     </div>
-                    <span className="text-[#c8ff00] font-bold">
-                      ${cat.revenue?.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-2 text-xs text-gray-400">
-                    <div>
-                      <div className="text-gray-500">Orders</div>
-                      <div className="text-white">{cat.orders}</div>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="p-2 rounded bg-gray-900/50">
+                        <div className="text-xs text-gray-500 mb-1">Orders</div>
+                        <div className="text-sm font-semibold text-white">{cat.orders}</div>
+                      </div>
+                      <div className="p-2 rounded bg-gray-900/50">
+                        <div className="text-xs text-gray-500 mb-1">Conv Rate</div>
+                        <div className={`text-sm font-semibold ${
+                          cat.conversion_rate > 0.15 ? 'text-green-400' : 
+                          cat.conversion_rate > 0.1 ? 'text-[#c8ff00]' : 
+                          'text-yellow-400'
+                        }`}>
+                          {(cat.conversion_rate * 100).toFixed(1)}%
+                        </div>
+                      </div>
+                      <div className="p-2 rounded bg-gray-900/50">
+                        <div className="text-xs text-gray-500 mb-1">AOV</div>
+                        <div className="text-sm font-semibold text-white">
+                          ${cat.avg_order_value?.toFixed(0)}
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="text-gray-500">Conv Rate</div>
-                      <div className="text-white">{(cat.conversion_rate * 100).toFixed(1)}%</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-500">AOV</div>
-                      <div className="text-white">${cat.avg_order_value?.toFixed(0)}</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
           </div>
         </CardContent>
