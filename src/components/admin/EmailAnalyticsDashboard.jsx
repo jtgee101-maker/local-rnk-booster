@@ -329,6 +329,7 @@ export default function EmailAnalyticsDashboard() {
             </div>
           </CardContent>
         </Card>
+        </motion.div>
       )}
 
       {/* Daily Trend */}
