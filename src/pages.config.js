@@ -31,6 +31,7 @@ import ThankYou from './pages/ThankYou';
 import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import V2Start from './pages/V2Start';
+import ProductionChecklist from './pages/ProductionChecklist';
 import __Layout from './Layout.jsx';
 
 
@@ -68,6 +69,7 @@ export const PAGES = {
     "Upsell": Upsell,
     "Upsell1": Upsell1,
     "V2Start": V2Start,
+    "ProductionChecklist": ProductionChecklist,
 }
 
 export const pagesConfig = {
