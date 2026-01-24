@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Eye, Link2, AlertCircle, LogOut, TrendingUp, Mail, RefreshCw } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Eye, Link2, AlertCircle, LogOut, TrendingUp, Mail, RefreshCw, Download, Loader2, Send, BarChart3 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function EmailAnalyticsDashboard() {
@@ -36,7 +37,7 @@ export default function EmailAnalyticsDashboard() {
 
   const dateRange = getDateRange();
 
-  const { data: analytics = {}, isLoading, refetch } = useQuery({
+  const { data: analytics = {}, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['email-analytics', emailType, dateRange.startDate, dateRange.endDate],
     queryFn: async () => {
       const response = await base44.functions.invoke('admin/getEmailAnalytics', {
@@ -46,7 +47,8 @@ export default function EmailAnalyticsDashboard() {
       });
       return response.data;
     },
-    refetchInterval: 60000
+    staleTime: 60000,
+    retry: 3
   });
 
   const metrics = analytics.metrics || {};
@@ -76,29 +78,110 @@ export default function EmailAnalyticsDashboard() {
     }
   };
 
-  const KPICard = ({ icon: Icon, label, value, unit = '', color = 'text-blue-400' }) => (
-    <Card className="bg-gray-800/50 border-gray-700">
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs text-gray-400 mb-1">{label}</p>
-            <p className={`text-2xl font-bold ${color}`}>{value}{unit}</p>
+  const handleExport = () => {
+    if (!analytics.metrics) return;
+    
+    const csv = [
+      ['Email Analytics Report'],
+      ['Email Type', emailType],
+      ['Time Range', timeRange],
+      ['Generated', new Date().toISOString()],
+      '',
+      ['Overall Metrics'],
+      ['Total Sent', analytics.metrics.totalSent || 0],
+      ['Open Rate', (analytics.metrics.openRate || 0) + '%'],
+      ['Click Rate', (analytics.metrics.clickRate || 0) + '%'],
+      ['Bounce Rate', (analytics.metrics.bounceRate || 0) + '%'],
+      ['Unsubscribe Rate', (analytics.metrics.unsubscribeRate || 0) + '%'],
+      ['Delivery Rate', (analytics.metrics.deliveryRate || 0) + '%'],
+      '',
+      ['Performance by Type'],
+      ['Type', 'Sent', 'Opened', 'Open Rate', 'Clicked', 'Click Rate', 'Failed'].join(','),
+      ...Object.entries(analytics.typeSummary || {}).map(([type, data]) => [
+        type,
+        data.sent,
+        data.opened,
+        data.openRate + '%',
+        data.clicked,
+        data.clickRate + '%',
+        data.failed
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `email-analytics-${emailType}-${timeRange}-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+  };
+
+  const KPICard = ({ icon: Icon, label, value, unit = '', color = 'text-blue-400', delay = 0 }) => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay }}
+    >
+      <Card className="bg-gray-800/50 border-gray-700 hover:border-gray-600 transition-all">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-gray-400 mb-1">{label}</p>
+              <p className={`text-2xl font-bold ${color}`}>{value}{unit}</p>
+            </div>
+            <div className={`p-2 rounded-lg bg-${color.split('-')[1]}-500/10`}>
+              <Icon className={`w-6 h-6 ${color}`} />
+            </div>
           </div>
-          <Icon className={`w-8 h-8 ${color}`} />
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 
   return (
     <div className="space-y-6">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-between"
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-cyan-500/10 rounded-lg">
+            <Mail className="w-6 h-6 text-cyan-400" />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold text-white">Email Campaign Analytics</h3>
+            <p className="text-sm text-gray-400">Track email performance and engagement</p>
+          </div>
+        </div>
+        <Button
+          onClick={handleExport}
+          variant="outline"
+          size="sm"
+          className="gap-2 border-gray-700 hover:border-[#c8ff00] hover:text-[#c8ff00]"
+        >
+          <Download className="w-4 h-4" />
+          Export
+        </Button>
+      </motion.div>
+
       {/* Filters */}
-      <Card className="bg-gray-800/50 border-gray-700">
-        <CardHeader>
-          <CardTitle className="text-white">Filters & Controls</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <Card className="bg-gray-800/50 border-gray-700">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-white text-base">Filters & Controls</CardTitle>
+            <CardDescription className="text-xs">Filter analytics and manage campaigns</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
             <Select value={emailType} onValueChange={setEmailType}>
               <SelectTrigger className="bg-gray-900 border-gray-700 text-white">
                 <SelectValue />
@@ -146,33 +229,69 @@ export default function EmailAnalyticsDashboard() {
             <Button
               onClick={handleResendUnopenedEmails}
               disabled={resending || !emailType || emailType === 'all'}
+              size="sm"
               className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black gap-2"
             >
-              <RefreshCw className="w-4 h-4" />
+              {resending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               {resending ? 'Resending...' : 'Resend Unopened'}
+            </Button>
+            <Button
+              onClick={() => refetch()}
+              disabled={isRefetching}
+              variant="outline"
+              size="sm"
+              className="gap-2 border-gray-700 hover:border-[#c8ff00] hover:text-[#c8ff00]"
+            >
+              <RefreshCw className={`w-4 h-4 ${isRefetching ? 'animate-spin' : ''}`} />
             </Button>
           </div>
         </CardContent>
       </Card>
+      </motion.div>
 
       {/* Key Metrics */}
-      {!isLoading && (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          <KPICard icon={Mail} label="Total Sent" value={metrics.totalSent || 0} color="text-cyan-400" />
-          <KPICard icon={Eye} label="Open Rate" value={metrics.openRate || 0} unit="%" color="text-blue-400" />
-          <KPICard icon={Link2} label="Click Rate" value={metrics.clickRate || 0} unit="%" color="text-green-400" />
-          <KPICard icon={AlertCircle} label="Bounce Rate" value={metrics.bounceRate || 0} unit="%" color="text-red-400" />
-          <KPICard icon={LogOut} label="Unsubscribe Rate" value={metrics.unsubscribeRate || 0} unit="%" color="text-orange-400" />
-          <KPICard icon={TrendingUp} label="Delivery Rate" value={metrics.deliveryRate || 0} unit="%" color="text-green-400" />
-        </div>
-      )}
+      <AnimatePresence mode="wait">
+        {isLoading ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex items-center justify-center py-12"
+          >
+            <Loader2 className="w-8 h-8 animate-spin text-[#c8ff00]" />
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3"
+          >
+            <KPICard icon={Mail} label="Total Sent" value={metrics.totalSent || 0} color="text-cyan-400" delay={0} />
+            <KPICard icon={Eye} label="Open Rate" value={metrics.openRate || 0} unit="%" color="text-blue-400" delay={0.05} />
+            <KPICard icon={Link2} label="Click Rate" value={metrics.clickRate || 0} unit="%" color="text-green-400" delay={0.1} />
+            <KPICard icon={AlertCircle} label="Bounce Rate" value={metrics.bounceRate || 0} unit="%" color="text-red-400" delay={0.15} />
+            <KPICard icon={LogOut} label="Unsubscribe Rate" value={metrics.unsubscribeRate || 0} unit="%" color="text-orange-400" delay={0.2} />
+            <KPICard icon={TrendingUp} label="Delivery Rate" value={metrics.deliveryRate || 0} unit="%" color="text-green-400" delay={0.25} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Type Summary */}
       {!isLoading && Object.keys(typeSummary).length > 0 && (
-        <Card className="bg-gray-800/50 border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white">Performance by Email Type</CardTitle>
-          </CardHeader>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-purple-400" />
+                <CardTitle className="text-white">Performance by Email Type</CardTitle>
+              </div>
+              <CardDescription className="text-xs">Detailed breakdown of email campaign metrics</CardDescription>
+            </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <Table>
@@ -214,10 +333,19 @@ export default function EmailAnalyticsDashboard() {
 
       {/* Daily Trend */}
       {!isLoading && Object.keys(dailySummary).length > 0 && (
-        <Card className="bg-gray-800/50 border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white">Daily Trend</CardTitle>
-          </CardHeader>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <Card className="bg-gray-800/50 border-gray-700">
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-green-400" />
+                <CardTitle className="text-white">Daily Trend</CardTitle>
+              </div>
+              <CardDescription className="text-xs">Daily email performance metrics</CardDescription>
+            </CardHeader>
           <CardContent>
             <div className="space-y-2">
               {Object.entries(dailySummary)
@@ -237,6 +365,7 @@ export default function EmailAnalyticsDashboard() {
             </div>
           </CardContent>
         </Card>
+        </motion.div>
       )}
     </div>
   );
