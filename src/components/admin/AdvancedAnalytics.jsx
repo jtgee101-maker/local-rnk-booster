@@ -5,29 +5,80 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { motion } from 'framer-motion';
-import { TrendingUp, Users, DollarSign, Target, BarChart3, RefreshCw, Loader2, ArrowUpRight, ArrowDownRight, Calendar } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  TrendingUp, Users, DollarSign, Target, BarChart3, RefreshCw, Loader2, 
+  ArrowUpRight, ArrowDownRight, Calendar, Download, Mail, UserPlus, Send 
+} from 'lucide-react';
 import CustomerJourneyView from '@/components/admin/CustomerJourneyView';
 import RevenueAttributionChart from '@/components/admin/RevenueAttributionChart';
 import CohortTable from '@/components/admin/CohortTable';
 import FunnelVisualization from '@/components/admin/FunnelVisualization';
 import ROIDashboard from '@/components/admin/ROIDashboard';
+import { createPageUrl } from '@/utils';
+import { useNavigate } from 'react-router-dom';
 
 export default function AdvancedAnalytics() {
-  const [dateRange, setDateRange] = useState({
-    start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('roi');
+  const [dateRangeDays, setDateRangeDays] = useState('30');
+  
+  const dateRange = {
+    start: new Date(Date.now() - parseInt(dateRangeDays) * 24 * 60 * 60 * 1000).toISOString(),
     end: new Date().toISOString()
-  });
+  };
 
   // Fetch ROI metrics for overview
-  const { data: roiData, isLoading, refetch } = useQuery({
+  const { data: roiData, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['roi-metrics', dateRange],
     queryFn: async () => {
       const response = await base44.functions.invoke('analytics/roiMetrics', { date_range: dateRange });
       return response.data;
     },
-    staleTime: 5 * 60 * 1000 // 5 minutes
+    staleTime: 5 * 60 * 1000,
+    retry: 3
   });
+
+  // Export all analytics
+  const handleExportAll = async () => {
+    if (!roiData) return;
+    
+    const csv = [
+      ['Advanced Analytics Report'],
+      ['Date Range', `${dateRangeDays} days`],
+      ['Generated', new Date().toISOString()],
+      '',
+      ['Summary Metrics'],
+      ['Total Revenue', roiData.summary?.total_revenue || 0],
+      ['Total Orders', roiData.summary?.total_orders || 0],
+      ['Total Leads', roiData.summary?.total_leads || 0],
+      ['Conversion Rate', (roiData.summary?.conversion_rate || 0) + '%'],
+      ['Avg Order Value', roiData.summary?.avg_order_value || 0],
+      ['LTV:CAC Ratio', roiData.summary?.ltv_cac_ratio || 0],
+      '',
+      ['Channel Performance'],
+      ['Channel', 'Revenue', 'Orders', 'Leads', 'Conv Rate', 'ROI'].join(','),
+      ...(roiData.by_channel || []).map(ch => [
+        ch.channel,
+        ch.revenue,
+        ch.orders,
+        ch.leads,
+        (ch.conversion_rate * 100).toFixed(2) + '%',
+        ch.roi
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `analytics-report-${dateRangeDays}d-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+  };
 
   if (isLoading) {
     return (
@@ -46,7 +97,7 @@ export default function AdvancedAnalytics() {
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+        className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4"
       >
         <div>
           <h2 className="text-2xl font-bold text-white flex items-center gap-3">
@@ -57,21 +108,109 @@ export default function AdvancedAnalytics() {
           </h2>
           <p className="text-gray-400 mt-1">Complete journey tracking, attribution & ROI insights</p>
         </div>
-        <div className="flex items-center gap-3">
-          <Badge variant="outline" className="gap-1 text-xs">
-            <Calendar className="w-3 h-3" />
-            Last 30 days
-          </Badge>
+        <div className="flex flex-wrap items-center gap-2">
+          <Select value={dateRangeDays} onValueChange={setDateRangeDays}>
+            <SelectTrigger className="w-32 bg-gray-800/50 border-gray-700 text-white text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7">Last 7 days</SelectItem>
+              <SelectItem value="14">Last 14 days</SelectItem>
+              <SelectItem value="30">Last 30 days</SelectItem>
+              <SelectItem value="60">Last 60 days</SelectItem>
+              <SelectItem value="90">Last 90 days</SelectItem>
+            </SelectContent>
+          </Select>
           <Button 
             onClick={() => refetch()} 
             variant="outline"
             size="sm"
+            disabled={isRefetching}
             className="gap-2 border-gray-700 hover:border-[#c8ff00] hover:text-[#c8ff00]"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className={`w-4 h-4 ${isRefetching ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
+          <Button 
+            onClick={handleExportAll} 
+            variant="outline"
+            size="sm"
+            className="gap-2 border-gray-700 hover:border-[#c8ff00] hover:text-[#c8ff00]"
+          >
+            <Download className="w-4 h-4" />
+            Export
+          </Button>
         </div>
+      </motion.div>
+
+      {/* Quick Actions */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <Card className="border-gray-700 bg-gradient-to-br from-gray-800/50 to-gray-900/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm text-white">Quick Actions</CardTitle>
+            <CardDescription className="text-xs">Common administrative tasks</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                onClick={() => navigate(createPageUrl('Admin'))}
+                variant="outline"
+                size="sm"
+                className="gap-2 border-gray-700 hover:border-blue-500 hover:text-blue-400"
+              >
+                <Users className="w-4 h-4" />
+                View All Leads
+              </Button>
+              <Button
+                onClick={() => {
+                  // Navigate to Admin page and scroll to segments
+                  navigate(createPageUrl('Admin'));
+                  setTimeout(() => {
+                    document.getElementById('segments-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }, 100);
+                }}
+                variant="outline"
+                size="sm"
+                className="gap-2 border-gray-700 hover:border-purple-500 hover:text-purple-400"
+              >
+                <UserPlus className="w-4 h-4" />
+                Create Segment
+              </Button>
+              <Button
+                onClick={() => {
+                  navigate(createPageUrl('Admin'));
+                  setTimeout(() => {
+                    document.getElementById('email-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }, 100);
+                }}
+                variant="outline"
+                size="sm"
+                className="gap-2 border-gray-700 hover:border-green-500 hover:text-green-400"
+              >
+                <Mail className="w-4 h-4" />
+                Email Analytics
+              </Button>
+              <Button
+                onClick={() => {
+                  navigate(createPageUrl('Admin'));
+                  setTimeout(() => {
+                    document.getElementById('broadcast-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }, 100);
+                }}
+                variant="outline"
+                size="sm"
+                className="gap-2 border-gray-700 hover:border-[#c8ff00] hover:text-[#c8ff00]"
+              >
+                <Send className="w-4 h-4" />
+                Send Broadcast
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </motion.div>
 
       {/* Enhanced Summary Cards */}
@@ -212,28 +351,31 @@ export default function AdvancedAnalytics() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
       >
-        <Tabs defaultValue="roi" className="space-y-4">
-          <TabsList className="inline-flex h-auto p-1 bg-gray-800/50 border border-gray-700 rounded-xl gap-1">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList className="inline-flex h-auto p-1 bg-gray-800/50 border border-gray-700 rounded-xl gap-1 flex-wrap">
             <TabsTrigger 
               value="roi"
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-[#c8ff00] data-[state=active]:text-black text-gray-400 hover:text-white transition-all"
             >
               <DollarSign className="w-4 h-4" />
-              ROI Dashboard
+              <span className="hidden sm:inline">ROI Dashboard</span>
+              <span className="sm:hidden">ROI</span>
             </TabsTrigger>
             <TabsTrigger 
               value="funnel"
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-[#c8ff00] data-[state=active]:text-black text-gray-400 hover:text-white transition-all"
             >
               <Target className="w-4 h-4" />
-              Funnel Analysis
+              <span className="hidden sm:inline">Funnel Analysis</span>
+              <span className="sm:hidden">Funnel</span>
             </TabsTrigger>
             <TabsTrigger 
               value="attribution"
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-[#c8ff00] data-[state=active]:text-black text-gray-400 hover:text-white transition-all"
             >
               <BarChart3 className="w-4 h-4" />
-              Attribution
+              <span className="hidden sm:inline">Attribution</span>
+              <span className="sm:hidden">Attr</span>
             </TabsTrigger>
             <TabsTrigger 
               value="cohorts"
@@ -251,25 +393,35 @@ export default function AdvancedAnalytics() {
             </TabsTrigger>
           </TabsList>
 
-        <TabsContent value="roi">
-          <ROIDashboard dateRange={dateRange} data={roiData} />
-        </TabsContent>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2 }}
+            >
+              <TabsContent value="roi" className="mt-0">
+                <ROIDashboard dateRange={dateRange} data={roiData} />
+              </TabsContent>
 
-        <TabsContent value="funnel">
-          <FunnelVisualization dateRange={dateRange} />
-        </TabsContent>
+              <TabsContent value="funnel" className="mt-0">
+                <FunnelVisualization dateRange={dateRange} />
+              </TabsContent>
 
-        <TabsContent value="attribution">
-          <RevenueAttributionChart dateRange={dateRange} />
-        </TabsContent>
+              <TabsContent value="attribution" className="mt-0">
+                <RevenueAttributionChart dateRange={dateRange} />
+              </TabsContent>
 
-          <TabsContent value="cohorts">
-            <CohortTable />
-          </TabsContent>
+              <TabsContent value="cohorts" className="mt-0">
+                <CohortTable />
+              </TabsContent>
 
-          <TabsContent value="journey">
-            <CustomerJourneyView />
-          </TabsContent>
+              <TabsContent value="journey" className="mt-0">
+                <CustomerJourneyView />
+              </TabsContent>
+            </motion.div>
+          </AnimatePresence>
         </Tabs>
       </motion.div>
     </div>
