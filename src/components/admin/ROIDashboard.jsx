@@ -50,10 +50,98 @@ export default function ROIDashboard({ dateRange, data }) {
 
   return (
     <div className="space-y-6">
+      {/* Key Insights Alert */}
+      {(bestChannel || worstChannel) && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        >
+          {bestChannel && (
+            <Card className="border-green-500/30 bg-gradient-to-br from-green-900/20 to-gray-900/50">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-green-500/10 rounded-lg">
+                    <Sparkles className="w-4 h-4 text-green-400" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-sm text-white">Top Performer</CardTitle>
+                    <CardDescription className="text-xs mt-0.5">
+                      Highest revenue channel
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-300">
+                    <span className="text-white font-medium capitalize">{bestChannel.channel}</span> generated{' '}
+                    <span className="font-semibold text-green-400">${bestChannel.revenue.toLocaleString()}</span>
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {bestChannel.orders} orders • {bestChannel.conversion_rate?.toFixed(1)}% conversion rate
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
+          {worstChannel && worstChannel.conversion_rate < 5 && (
+            <Card className="border-yellow-500/30 bg-gradient-to-br from-yellow-900/20 to-gray-900/50">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-yellow-500/10 rounded-lg">
+                    <Activity className="w-4 h-4 text-yellow-400" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-sm text-white">Needs Attention</CardTitle>
+                    <CardDescription className="text-xs mt-0.5">
+                      Low conversion rate detected
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-300">
+                    <span className="text-white font-medium capitalize">{worstChannel.channel}</span> has{' '}
+                    <span className="font-semibold text-yellow-400">{worstChannel.conversion_rate?.toFixed(1)}%</span> conversion
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Consider optimizing messaging or targeting for this channel
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </motion.div>
+      )}
+
       {/* Channel Performance */}
-      <Card className="bg-gray-900 border-gray-800">
+      <Card className="border-gray-700 bg-gradient-to-br from-gray-800/50 to-gray-900/50">
         <CardHeader>
-          <CardTitle className="text-white">Revenue by Channel</CardTitle>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-[#c8ff00]/10 rounded-lg">
+                <Target className="w-5 h-5 text-[#c8ff00]" />
+              </div>
+              <div>
+                <CardTitle className="text-white">Revenue by Channel</CardTitle>
+                <CardDescription>
+                  Performance breakdown across acquisition channels
+                </CardDescription>
+              </div>
+            </div>
+            <Button
+              onClick={handleExport}
+              variant="outline"
+              size="sm"
+              className="gap-2 border-gray-700 hover:border-[#c8ff00] hover:text-[#c8ff00]"
+            >
+              <Download className="w-4 h-4" />
+              Export
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
