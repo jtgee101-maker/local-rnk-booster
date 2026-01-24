@@ -14,13 +14,15 @@ export default function Layout({ children, currentPageName }) {
     const checkAdmin = async () => {
       try {
         const user = await base44.auth.me();
-        setIsAdmin(user.role === 'admin');
+        setIsAdmin(user?.role === 'admin');
       } catch (error) {
         setIsAdmin(false);
       }
     };
-    checkAdmin();
-  }, []);
+    if (showNav) {
+      checkAdmin();
+    }
+  }, [showNav]);
 
   // Pages that should have full-width dark layout (quiz, checkout, etc)
   const fullWidthPages = ['Quiz', 'QuizV2', 'QuizV3', 'Checkout', 'CheckoutV2', 'Upsell', 'Upsell1', 'Pricing', 'BridgeV3', 'ThankYou'];
