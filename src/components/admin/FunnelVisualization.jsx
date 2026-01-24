@@ -133,24 +133,147 @@ export default function FunnelVisualization({ dateRange }) {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-gray-900 border-gray-800">
+      {/* Key Insights */}
+      {(biggestDropoff || slowestStage) && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        >
+          {biggestDropoff && biggestDropoff.dropoff_rate > 30 && (
+            <Card className="border-red-500/30 bg-gradient-to-br from-red-900/20 to-gray-900/50">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-red-500/10 rounded-lg">
+                    <AlertTriangle className="w-4 h-4 text-red-400" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-sm text-white">Critical Dropoff Alert</CardTitle>
+                    <CardDescription className="text-xs mt-0.5">
+                      High abandonment rate detected
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-300">
+                    <span className="font-semibold text-red-400">{biggestDropoff.dropoff_rate}%</span> of users drop off at{' '}
+                    <span className="text-white font-medium">{biggestDropoff.stage}</span>
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {biggestDropoff.dropoff_from_previous?.toLocaleString()} users lost at this stage
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
+          {slowestStage && slowestStage.avg_time_seconds > 60 && (
+            <Card className="border-yellow-500/30 bg-gradient-to-br from-yellow-900/20 to-gray-900/50">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-yellow-500/10 rounded-lg">
+                    <Clock className="w-4 h-4 text-yellow-400" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-sm text-white">Slow Stage Detected</CardTitle>
+                    <CardDescription className="text-xs mt-0.5">
+                      Users spending significant time here
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-300">
+                    Average time at <span className="text-white font-medium">{slowestStage.stage}</span>:{' '}
+                    <span className="font-semibold text-yellow-400">{Math.round(slowestStage.avg_time_seconds)}s</span>
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Consider simplifying or adding progress indicators
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </motion.div>
+      )}
+
+      {/* Main Funnel Card */}
+      <Card className="border-gray-700 bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm">
         <CardHeader>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
             <div>
-              <CardTitle className="text-white">Conversion Funnel Analysis</CardTitle>
-              <p className="text-sm text-gray-400 mt-1">
-                Overall Conversion: <span className="text-[#c8ff00] font-bold">{data?.overall_conversion_rate}%</span>
-              </p>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-[#c8ff00]/10 rounded-lg">
+                  <BarChart3 className="w-5 h-5 text-[#c8ff00]" />
+                </div>
+                <div>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    Conversion Funnel Analysis
+                    <Badge className="bg-[#c8ff00]/20 text-[#c8ff00] border-[#c8ff00]/30">
+                      {stages.length} stages
+                    </Badge>
+                  </CardTitle>
+                  <CardDescription className="mt-1">
+                    Overall Conversion: <span className="text-[#c8ff00] font-bold">{data?.overall_conversion_rate}%</span>
+                    {comparisonData && (
+                      <span className="ml-2 text-xs">
+                        {data.overall_conversion_rate > comparisonData.overall_conversion_rate ? (
+                          <span className="text-green-400">
+                            ↑ {(data.overall_conversion_rate - comparisonData.overall_conversion_rate).toFixed(1)}%
+                          </span>
+                        ) : (
+                          <span className="text-red-400">
+                            ↓ {(comparisonData.overall_conversion_rate - data.overall_conversion_rate).toFixed(1)}%
+                          </span>
+                        )}
+                      </span>
+                    )}
+                  </CardDescription>
+                </div>
+              </div>
             </div>
-            <Select value={funnelVersion} onValueChange={setFunnelVersion}>
-              <SelectTrigger className="w-32 bg-gray-800 border-gray-700">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="v3">Quiz V3</SelectItem>
-                <SelectItem value="v2">Quiz V2</SelectItem>
-              </SelectContent>
-            </Select>
+            
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button
+                onClick={() => setCompareMode(!compareMode)}
+                variant="outline"
+                size="sm"
+                className={`gap-2 border-gray-700 ${compareMode ? 'bg-[#c8ff00]/10 border-[#c8ff00]/30 text-[#c8ff00]' : 'hover:border-[#c8ff00] hover:text-[#c8ff00]'}`}
+              >
+                <TrendingUp className="w-4 h-4" />
+                {compareMode ? 'Comparing' : 'Compare'}
+              </Button>
+              <Select value={funnelVersion} onValueChange={setFunnelVersion}>
+                <SelectTrigger className="w-32 bg-gray-800/50 border-gray-700 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="v3">Quiz V3</SelectItem>
+                  <SelectItem value="v2">Quiz V2</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                onClick={() => refetch()}
+                variant="ghost"
+                size="sm"
+                disabled={isRefetching}
+                className="gap-2 text-gray-400 hover:text-white"
+              >
+                <RefreshCw className={`w-4 h-4 ${isRefetching ? 'animate-spin' : ''}`} />
+              </Button>
+              <Button
+                onClick={handleExport}
+                variant="outline"
+                size="sm"
+                className="gap-2 border-gray-700 hover:border-[#c8ff00] hover:text-[#c8ff00]"
+              >
+                <Download className="w-4 h-4" />
+                Export
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
