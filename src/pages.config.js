@@ -19,6 +19,7 @@ import PlumbersLanding from './pages/PlumbersLanding';
 import Pricing from './pages/Pricing';
 import Privacy from './pages/Privacy';
 import ProductionChecklist from './pages/ProductionChecklist';
+import ProductionReadinessCheck from './pages/ProductionReadinessCheck';
 import Quiz from './pages/Quiz';
 import QuizV2 from './pages/QuizV2';
 import QuizV3 from './pages/QuizV3';
@@ -36,7 +37,6 @@ import ThankYou from './pages/ThankYou';
 import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import V2Start from './pages/V2Start';
-import ProductionReadinessCheck from './pages/ProductionReadinessCheck';
 import __Layout from './Layout.jsx';
 
 
@@ -62,6 +62,7 @@ export const PAGES = {
     "Pricing": Pricing,
     "Privacy": Privacy,
     "ProductionChecklist": ProductionChecklist,
+    "ProductionReadinessCheck": ProductionReadinessCheck,
     "Quiz": Quiz,
     "QuizV2": QuizV2,
     "QuizV3": QuizV3,
@@ -79,7 +80,6 @@ export const PAGES = {
     "Upsell": Upsell,
     "Upsell1": Upsell1,
     "V2Start": V2Start,
-    "ProductionReadinessCheck": ProductionReadinessCheck,
 }
 
 export const pagesConfig = {

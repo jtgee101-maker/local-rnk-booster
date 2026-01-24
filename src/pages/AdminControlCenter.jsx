@@ -489,6 +489,24 @@ export default function AdminControlCenter() {
 
   const checkAuth = async () => {
     try {
+      // Check for admin key in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const providedKey = urlParams.get('key');
+      
+      if (providedKey) {
+        try {
+          const response = await base44.functions.invoke('admin/validateAdminKey', { key: providedKey });
+          if (response.data.valid) {
+            setUser({ email: 'admin@key-access', role: 'admin', full_name: 'Admin (Key Access)' });
+            setLoading(false);
+            return;
+          }
+        } catch (keyError) {
+          console.error('Invalid admin key');
+        }
+      }
+      
+      // Fallback to normal user auth
       const currentUser = await base44.auth.me();
       
       if (currentUser?.role !== 'admin') {
