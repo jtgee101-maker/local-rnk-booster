@@ -270,7 +270,8 @@ export default function AdvancedAnalytics() {
         <TabsContent value="journey">
           <CustomerJourneyView />
         </TabsContent>
-      </Tabs>
+        </Tabs>
+      </motion.div>
     </div>
   );
 }
