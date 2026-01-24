@@ -1,15 +1,21 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { motion } from 'framer-motion';
+import { 
+  TrendingUp, TrendingDown, Minus, Download, RefreshCw, 
+  Loader2, AlertTriangle, Users, BarChart3 
+} from 'lucide-react';
 
 export default function CohortTable() {
   const [cohortType, setCohortType] = React.useState('monthly');
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ['cohort-analysis', cohortType],
     queryFn: async () => {
       const response = await base44.functions.invoke('analytics/cohortAnalysis', {
@@ -18,14 +24,82 @@ export default function CohortTable() {
       });
       return response.data;
     },
-    staleTime: 10 * 60 * 1000 // 10 minutes
+    staleTime: 10 * 60 * 1000,
+    retry: 3
   });
 
+  const handleExport = () => {
+    if (!data) return;
+    
+    const csv = [
+      ['Cohort Analysis Report'],
+      ['Type', cohortType],
+      ['Generated', new Date().toISOString()],
+      '',
+      ['Cohort', 'Leads', 'Converted', 'Conv Rate', 'Revenue', 'Avg LTV', 'Avg Score'].join(','),
+      ...(data.cohorts || []).map(c => [
+        c.cohort || c.category || c.source,
+        c.total_leads,
+        c.converted_leads,
+        (c.conversion_rate * 100).toFixed(2) + '%',
+        c.total_revenue,
+        c.avg_ltv.toFixed(2),
+        c.avg_health_score
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cohort-analysis-${cohortType}-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+  };
+
   if (isLoading) {
-    return <div className="text-center text-gray-400 py-8">Loading cohort data...</div>;
+    return (
+      <Card className="border-gray-700 bg-gradient-to-br from-gray-800/50 to-gray-900/50">
+        <CardContent className="flex flex-col items-center justify-center py-16 space-y-4">
+          <Loader2 className="w-8 h-8 animate-spin text-[#c8ff00]" />
+          <div className="text-center">
+            <p className="text-sm font-medium text-white">Analyzing cohort data...</p>
+            <p className="text-xs text-gray-500 mt-1">Processing user cohorts</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="border-red-500/30 bg-gradient-to-br from-red-900/20 to-gray-900/50">
+        <CardContent className="flex flex-col items-center justify-center py-16 space-y-4">
+          <AlertTriangle className="w-8 h-8 text-red-500" />
+          <div className="text-center">
+            <p className="text-sm font-medium text-white">Failed to load cohort data</p>
+            <p className="text-xs text-gray-400 mt-1">{error.message}</p>
+          </div>
+          <Button onClick={() => refetch()} variant="outline" size="sm" className="gap-2">
+            <RefreshCw className="w-4 h-4" />
+            Retry
+          </Button>
+        </CardContent>
+      </Card>
+    );
   }
 
   const cohorts = data?.cohorts || [];
+  
+  // Calculate insights
+  const bestCohort = cohorts.reduce((best, c) => 
+    c.conversion_rate > (best?.conversion_rate || 0) ? c : best, null
+  );
+  const worstCohort = cohorts.reduce((worst, c) => 
+    c.conversion_rate < (worst?.conversion_rate || 1) ? c : worst, null
+  );
 
   return (
     <div className="space-y-6">
