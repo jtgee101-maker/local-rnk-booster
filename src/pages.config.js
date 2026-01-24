@@ -35,6 +35,7 @@ import ProductionChecklist from './pages/ProductionChecklist';
 import SecurityAudit from './pages/SecurityAudit';
 import DataCleanup from './pages/DataCleanup';
 import StripeSetupGuide from './pages/StripeSetupGuide';
+import FinalLaunchChecklist from './pages/FinalLaunchChecklist';
 import __Layout from './Layout.jsx';
 
 
@@ -76,6 +77,7 @@ export const PAGES = {
     "SecurityAudit": SecurityAudit,
     "DataCleanup": DataCleanup,
     "StripeSetupGuide": StripeSetupGuide,
+    "FinalLaunchChecklist": FinalLaunchChecklist,
 }
 
 export const pagesConfig = {

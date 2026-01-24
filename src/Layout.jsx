@@ -1,12 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Menu, X, Zap } from 'lucide-react';
+import { Menu, X, Zap, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { base44 } from '@/api/base44Client';
 
 export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      try {
+        const user = await base44.auth.me();
+        setIsAdmin(user.role === 'admin');
+      } catch (error) {
+        setIsAdmin(false);
+      }
+    };
+    checkAdmin();
+  }, []);
 
   // Pages that should have full-width dark layout (quiz, checkout, etc)
   const fullWidthPages = ['Quiz', 'QuizV2', 'QuizV3', 'Checkout', 'CheckoutV2', 'Upsell', 'Upsell1', 'Pricing', 'BridgeV3', 'ThankYou'];
@@ -20,7 +34,17 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Home', path: createPageUrl('QuizV3') },
     { name: 'Industries', path: createPageUrl('PlumbersLanding'), dropdown: true },
     { name: 'Pricing', path: createPageUrl('Pricing') },
-    { name: 'Referrals', path: createPageUrl('Referrals') }
+    { name: 'Referrals', path: createPageUrl('Referrals') },
+    ...(isAdmin ? [{ name: 'Admin Tools', path: createPageUrl('ProductionChecklist'), dropdown: true, adminOnly: true }] : [])
+  ];
+
+  const adminTools = [
+    { name: 'Production Checklist', path: createPageUrl('ProductionChecklist') },
+    { name: 'Security Audit', path: createPageUrl('SecurityAudit') },
+    { name: 'Data Cleanup', path: createPageUrl('DataCleanup') },
+    { name: 'Stripe Setup', path: createPageUrl('StripeSetupGuide') },
+    { name: 'Final Launch', path: createPageUrl('FinalLaunchChecklist') },
+    { name: 'Admin Dashboard', path: createPageUrl('Admin') }
   ];
 
   const industryPages = [
@@ -61,17 +85,18 @@ export default function Layout({ children, currentPageName }) {
               {navLinks.map((link) => (
                 link.dropdown ? (
                   <div key={link.name} className="relative group">
-                    <button className="text-gray-300 hover:text-white transition-colors">
+                    <button className="text-gray-300 hover:text-white transition-colors flex items-center gap-1">
+                      {link.adminOnly && <Settings className="w-4 h-4" />}
                       {link.name}
                     </button>
                     <div className="absolute top-full left-0 mt-2 w-48 bg-gray-900 border border-gray-800 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-                      {industryPages.map((industry) => (
+                      {(link.adminOnly ? adminTools : industryPages).map((item) => (
                         <Link
-                          key={industry.name}
-                          to={industry.path}
+                          key={item.name}
+                          to={item.path}
                           className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-800 first:rounded-t-lg last:rounded-b-lg"
                         >
-                          {industry.name}
+                          {item.name}
                         </Link>
                       ))}
                     </div>
@@ -111,16 +136,19 @@ export default function Layout({ children, currentPageName }) {
               {navLinks.map((link) => (
                 link.dropdown ? (
                   <div key={link.name}>
-                    <div className="text-gray-400 text-sm font-semibold mb-2">{link.name}</div>
+                    <div className="text-gray-400 text-sm font-semibold mb-2 flex items-center gap-1">
+                      {link.adminOnly && <Settings className="w-4 h-4" />}
+                      {link.name}
+                    </div>
                     <div className="pl-4 space-y-2">
-                      {industryPages.map((industry) => (
+                      {(link.adminOnly ? adminTools : industryPages).map((item) => (
                         <Link
-                          key={industry.name}
-                          to={industry.path}
+                          key={item.name}
+                          to={item.path}
                           className="block text-gray-300 hover:text-white py-1"
                           onClick={() => setMobileMenuOpen(false)}
                         >
-                          {industry.name}
+                          {item.name}
                         </Link>
                       ))}
                     </div>
