@@ -336,25 +336,98 @@ export default function RevenueAttributionChart({ dateRange }) {
 
       {/* Attribution by Source */}
       {attribution?.by_source && attribution.by_source.length > 0 && (
-        <Card className="bg-gray-900 border-gray-800">
-          <CardHeader>
-            <CardTitle className="text-white">Revenue by Traffic Source</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={attribution.by_source} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis type="number" stroke="#999" />
-                <YAxis dataKey="source" type="category" stroke="#999" width={100} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}
-                  labelStyle={{ color: '#fff' }}
-                />
-                <Bar dataKey="revenue" fill="#c8ff00" name="Revenue ($)" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card className="border-gray-700 bg-gradient-to-br from-gray-800/50 to-gray-900/50">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-500/10 rounded-lg">
+                  <TrendingUp className="w-5 h-5 text-blue-400" />
+                </div>
+                <div>
+                  <CardTitle className="text-white">Revenue by Traffic Source</CardTitle>
+                  <CardDescription>
+                    Attribution across traffic channels
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={attribution.by_source} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                  <XAxis type="number" stroke="#999" />
+                  <YAxis dataKey="source" type="category" stroke="#999" width={100} />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}
+                    labelStyle={{ color: '#fff' }}
+                  />
+                  <Bar dataKey="revenue" fill="#c8ff00" name="Revenue ($)" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
+      {/* Key Insights */}
+      {(topCategory || topFunnel) && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Card className="border-blue-500/30 bg-gradient-to-br from-blue-900/20 to-gray-900/50">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-500/10 rounded-lg">
+                  <Zap className="w-5 h-5 text-blue-400" />
+                </div>
+                <div>
+                  <CardTitle className="text-white text-sm">Revenue Attribution Insights</CardTitle>
+                  <CardDescription className="text-xs">
+                    Key findings from attribution analysis
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3 text-sm text-gray-300">
+                {topCategory && (
+                  <li className="flex items-start gap-2">
+                    <span className="text-[#c8ff00] mt-0.5">•</span>
+                    <span>
+                      <span className="text-white font-medium capitalize">{topCategory.category.replace(/_/g, ' ')}</span> generates 
+                      the most revenue with <span className="text-green-400 font-semibold">${topCategory.revenue.toLocaleString()}</span> 
+                      {' '}({topCategory.orders} orders, {(topCategory.conversion_rate * 100).toFixed(1)}% conversion rate)
+                    </span>
+                  </li>
+                )}
+                {topFunnel && (
+                  <li className="flex items-start gap-2">
+                    <span className="text-[#c8ff00] mt-0.5">•</span>
+                    <span>
+                      <span className="text-white font-medium">{topFunnel.funnel}</span> is your top-performing funnel with 
+                      {' '}<span className="text-green-400 font-semibold">${topFunnel.revenue.toLocaleString()}</span> in revenue
+                    </span>
+                  </li>
+                )}
+                {average_order_value < 150 && (
+                  <li className="flex items-start gap-2">
+                    <span className="text-[#c8ff00] mt-0.5">•</span>
+                    <span>
+                      Current AOV of <span className="text-white font-medium">${average_order_value?.toFixed(2)}</span> could be increased 
+                      through upsells, bundles, or premium offerings
+                    </span>
+                  </li>
+                )}
+              </ul>
+            </CardContent>
+          </Card>
+        </motion.div>
       )}
     </div>
   );
