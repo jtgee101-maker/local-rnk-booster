@@ -1,12 +1,52 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  TrendingUp, TrendingDown, Download, DollarSign, Target, 
+  Users, Activity, ArrowUpRight, Sparkles 
+} from 'lucide-react';
 
 export default function ROIDashboard({ dateRange, data }) {
   if (!data) return null;
 
   const { summary, by_channel, daily_trend, top_categories } = data;
+
+  const handleExport = () => {
+    const csv = [
+      ['Metric', 'Value'].join(','),
+      ['Total Revenue', summary.total_revenue || 0],
+      ['Total Orders', summary.total_orders || 0],
+      ['Revenue per Lead', summary.revenue_per_lead || 0],
+      ['LTV', summary.ltv || 0],
+      ['CAC', summary.estimated_cac || 0],
+      ['LTV:CAC Ratio', summary.ltv_cac_ratio || 0],
+      '',
+      ['Channel Performance'],
+      ['Channel', 'Revenue', 'Orders', 'Conversion Rate'].join(','),
+      ...(by_channel || []).map(ch => [ch.channel, ch.revenue, ch.orders, ch.conversion_rate].join(',')),
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `roi-dashboard-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+  };
+
+  // Calculate insights
+  const bestChannel = by_channel?.reduce((best, ch) => 
+    ch.revenue > (best?.revenue || 0) ? ch : best, null
+  );
+  const worstChannel = by_channel?.reduce((worst, ch) => 
+    ch.conversion_rate < (worst?.conversion_rate || 100) ? ch : worst, null
+  );
 
   return (
     <div className="space-y-6">
