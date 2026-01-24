@@ -103,20 +103,130 @@ export default function CohortTable() {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-gray-900 border-gray-800">
+      {/* Key Insights */}
+      {bestCohort && worstCohort && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        >
+          <Card className="border-green-500/30 bg-gradient-to-br from-green-900/20 to-gray-900/50">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-green-500/10 rounded-lg">
+                  <TrendingUp className="w-4 h-4 text-green-400" />
+                </div>
+                <div>
+                  <CardTitle className="text-sm text-white">Best Performing Cohort</CardTitle>
+                  <CardDescription className="text-xs mt-0.5">
+                    Highest conversion rate
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <p className="text-sm text-gray-300">
+                  <span className="text-white font-medium">
+                    {bestCohort.cohort || bestCohort.category || bestCohort.source}
+                  </span>
+                  {' '}with{' '}
+                  <span className="font-semibold text-green-400">
+                    {(bestCohort.conversion_rate * 100).toFixed(1)}%
+                  </span> conversion
+                </p>
+                <p className="text-xs text-gray-500">
+                  {bestCohort.converted_leads}/{bestCohort.total_leads} converted • ${bestCohort.total_revenue.toLocaleString()} revenue
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {worstCohort.conversion_rate < 0.1 && (
+            <Card className="border-yellow-500/30 bg-gradient-to-br from-yellow-900/20 to-gray-900/50">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-yellow-500/10 rounded-lg">
+                    <AlertTriangle className="w-4 h-4 text-yellow-400" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-sm text-white">Underperforming Cohort</CardTitle>
+                    <CardDescription className="text-xs mt-0.5">
+                      Needs optimization
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-300">
+                    <span className="text-white font-medium">
+                      {worstCohort.cohort || worstCohort.category || worstCohort.source}
+                    </span>
+                    {' '}only{' '}
+                    <span className="font-semibold text-yellow-400">
+                      {(worstCohort.conversion_rate * 100).toFixed(1)}%
+                    </span> conversion
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Review messaging and targeting for this segment
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </motion.div>
+      )}
+
+      <Card className="border-gray-700 bg-gradient-to-br from-gray-800/50 to-gray-900/50">
         <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle className="text-white">Cohort Analysis</CardTitle>
-            <Select value={cohortType} onValueChange={setCohortType}>
-              <SelectTrigger className="w-40 bg-gray-800 border-gray-700">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="monthly">By Month</SelectItem>
-                <SelectItem value="category">By Category</SelectItem>
-                <SelectItem value="source">By Source</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-[#c8ff00]/10 rounded-lg">
+                <BarChart3 className="w-5 h-5 text-[#c8ff00]" />
+              </div>
+              <div>
+                <CardTitle className="text-white flex items-center gap-2">
+                  Cohort Analysis
+                  <Badge className="bg-[#c8ff00]/20 text-[#c8ff00] border-[#c8ff00]/30">
+                    {cohorts.length} cohorts
+                  </Badge>
+                </CardTitle>
+                <CardDescription>
+                  Performance breakdown by {cohortType === 'monthly' ? 'month' : cohortType}
+                </CardDescription>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <Select value={cohortType} onValueChange={setCohortType}>
+                <SelectTrigger className="w-40 bg-gray-800/50 border-gray-700 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="monthly">By Month</SelectItem>
+                  <SelectItem value="category">By Category</SelectItem>
+                  <SelectItem value="source">By Source</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                onClick={() => refetch()}
+                variant="ghost"
+                size="sm"
+                disabled={isRefetching}
+                className="gap-2 text-gray-400 hover:text-white"
+              >
+                <RefreshCw className={`w-4 h-4 ${isRefetching ? 'animate-spin' : ''}`} />
+              </Button>
+              <Button
+                onClick={handleExport}
+                variant="outline"
+                size="sm"
+                className="gap-2 border-gray-700 hover:border-[#c8ff00] hover:text-[#c8ff00]"
+              >
+                <Download className="w-4 h-4" />
+                Export
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
