@@ -176,9 +176,41 @@ export default function RevenueAttributionChart({ dateRange }) {
       </motion.div>
 
       {/* Attribution by Funnel */}
-      <Card className="bg-gray-900 border-gray-800">
+      <Card className="border-gray-700 bg-gradient-to-br from-gray-800/50 to-gray-900/50">
         <CardHeader>
-          <CardTitle className="text-white">Revenue by Funnel Version</CardTitle>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-[#c8ff00]/10 rounded-lg">
+                <BarChart3 className="w-5 h-5 text-[#c8ff00]" />
+              </div>
+              <div>
+                <CardTitle className="text-white">Revenue by Funnel Version</CardTitle>
+                <CardDescription>
+                  Compare performance across quiz versions
+                </CardDescription>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => refetch()}
+                variant="ghost"
+                size="sm"
+                disabled={isRefetching}
+                className="gap-2 text-gray-400 hover:text-white"
+              >
+                <RefreshCw className={`w-4 h-4 ${isRefetching ? 'animate-spin' : ''}`} />
+              </Button>
+              <Button
+                onClick={handleExport}
+                variant="outline"
+                size="sm"
+                className="gap-2 border-gray-700 hover:border-[#c8ff00] hover:text-[#c8ff00]"
+              >
+                <Download className="w-4 h-4" />
+                Export
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
