@@ -14,8 +14,10 @@ import {
 
 export default function FunnelVisualization({ dateRange }) {
   const [funnelVersion, setFunnelVersion] = React.useState('v3');
+  const [expandedStages, setExpandedStages] = React.useState({});
+  const [compareMode, setCompareMode] = React.useState(false);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ['funnel-analysis', funnelVersion, dateRange],
     queryFn: async () => {
       const response = await base44.functions.invoke('analytics/funnelAnalysis', {
@@ -24,15 +26,110 @@ export default function FunnelVisualization({ dateRange }) {
       });
       return response.data;
     },
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000)
+  });
+
+  // Comparison data for previous period
+  const { data: comparisonData } = useQuery({
+    queryKey: ['funnel-comparison', funnelVersion, dateRange],
+    queryFn: async () => {
+      if (!dateRange?.start || !compareMode) return null;
+      const start = new Date(dateRange.start);
+      const end = new Date(dateRange.end);
+      const duration = end - start;
+      const prevStart = new Date(start.getTime() - duration);
+      const prevEnd = new Date(end.getTime() - duration);
+      
+      const response = await base44.functions.invoke('analytics/funnelAnalysis', {
+        funnel_version: funnelVersion,
+        date_range: {
+          start: prevStart.toISOString(),
+          end: prevEnd.toISOString()
+        }
+      });
+      return response.data;
+    },
+    enabled: compareMode && !!dateRange,
     staleTime: 5 * 60 * 1000
   });
 
+  const toggleStageExpanded = (stageIndex) => {
+    setExpandedStages(prev => ({
+      ...prev,
+      [stageIndex]: !prev[stageIndex]
+    }));
+  };
+
+  const handleExport = () => {
+    if (!data) return;
+    
+    const csv = [
+      ['Stage', 'Users', 'Conversion Rate', 'Dropoff Rate', 'Avg Time (s)'].join(','),
+      ...data.stages.map(s => [
+        s.stage,
+        s.count,
+        s.conversion_rate,
+        s.dropoff_rate || 0,
+        Math.round(s.avg_time_seconds || 0)
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `funnel-${funnelVersion}-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+  };
+
   if (isLoading) {
-    return <div className="text-center text-gray-400 py-8">Loading funnel data...</div>;
+    return (
+      <Card className="border-gray-700 bg-gradient-to-br from-gray-800/50 to-gray-900/50">
+        <CardContent className="flex flex-col items-center justify-center py-16 space-y-4">
+          <Loader2 className="w-8 h-8 animate-spin text-[#c8ff00]" />
+          <div className="text-center">
+            <p className="text-sm font-medium text-white">Analyzing funnel performance...</p>
+            <p className="text-xs text-gray-500 mt-1">Processing conversion stages</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="border-red-500/30 bg-gradient-to-br from-red-900/20 to-gray-900/50">
+        <CardContent className="flex flex-col items-center justify-center py-16 space-y-4">
+          <AlertTriangle className="w-8 h-8 text-red-500" />
+          <div className="text-center">
+            <p className="text-sm font-medium text-white">Failed to load funnel data</p>
+            <p className="text-xs text-gray-400 mt-1">{error.message}</p>
+          </div>
+          <Button onClick={() => refetch()} variant="outline" size="sm" className="gap-2">
+            <RefreshCw className="w-4 h-4" />
+            Retry
+          </Button>
+        </CardContent>
+      </Card>
+    );
   }
 
   const stages = data?.stages || [];
-  const maxCount = Math.max(...stages.map(s => s.count));
+  const maxCount = Math.max(...stages.map(s => s.count), 1);
+  
+  // Calculate insights
+  const biggestDropoff = stages.reduce((max, stage) => 
+    stage.dropoff_rate > (max?.dropoff_rate || 0) ? stage : max, null
+  );
+  
+  const slowestStage = stages.reduce((max, stage) => 
+    stage.avg_time_seconds > (max?.avg_time_seconds || 0) ? stage : max, null
+  );
 
   return (
     <div className="space-y-6">
