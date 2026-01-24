@@ -331,32 +331,111 @@ export default function ROIDashboard({ dateRange, data }) {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center p-3 bg-gray-800 rounded-lg">
-              <div className="text-sm text-gray-400 mb-1">Revenue/Lead</div>
-              <div className="text-xl font-bold text-white">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-4"
+          >
+            <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-gray-800/50 border border-blue-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Users className="w-4 h-4 text-blue-400" />
+                <span className="text-xs text-gray-400">Revenue/Lead</span>
+              </div>
+              <div className="text-2xl font-bold text-white">
                 ${summary.revenue_per_lead?.toFixed(2)}
               </div>
+              <div className="text-xs text-gray-500 mt-1">Per lead generated</div>
             </div>
-            <div className="text-center p-3 bg-gray-800 rounded-lg">
-              <div className="text-sm text-gray-400 mb-1">LTV</div>
-              <div className="text-xl font-bold text-white">
+            
+            <div className="p-4 rounded-lg bg-gradient-to-br from-[#c8ff00]/10 to-gray-800/50 border border-[#c8ff00]/20">
+              <div className="flex items-center gap-2 mb-2">
+                <DollarSign className="w-4 h-4 text-[#c8ff00]" />
+                <span className="text-xs text-gray-400">LTV</span>
+              </div>
+              <div className="text-2xl font-bold text-white">
                 ${summary.ltv?.toFixed(2)}
               </div>
+              <div className="text-xs text-gray-500 mt-1">Lifetime value</div>
             </div>
-            <div className="text-center p-3 bg-gray-800 rounded-lg">
-              <div className="text-sm text-gray-400 mb-1">Est. CAC</div>
-              <div className="text-xl font-bold text-white">
+            
+            <div className="p-4 rounded-lg bg-gradient-to-br from-orange-500/10 to-gray-800/50 border border-orange-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Activity className="w-4 h-4 text-orange-400" />
+                <span className="text-xs text-gray-400">Est. CAC</span>
+              </div>
+              <div className="text-2xl font-bold text-white">
                 ${summary.estimated_cac?.toFixed(2)}
               </div>
+              <div className="text-xs text-gray-500 mt-1">Customer acq. cost</div>
             </div>
-            <div className="text-center p-3 bg-gray-800 rounded-lg">
-              <div className="text-sm text-gray-400 mb-1">LTV:CAC</div>
-              <div className="text-xl font-bold text-green-500">
+            
+            <div className="p-4 rounded-lg bg-gradient-to-br from-green-500/10 to-gray-800/50 border border-green-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Target className="w-4 h-4 text-green-400" />
+                <span className="text-xs text-gray-400">LTV:CAC</span>
+              </div>
+              <div className={`text-2xl font-bold ${
+                summary.ltv_cac_ratio >= 3 ? 'text-green-400' : 
+                summary.ltv_cac_ratio >= 1.5 ? 'text-yellow-400' : 
+                'text-red-400'
+              }`}>
                 {summary.ltv_cac_ratio?.toFixed(1)}x
               </div>
+              <div className="text-xs text-gray-500 mt-1">
+                {summary.ltv_cac_ratio >= 3 ? 'Excellent' : 
+                 summary.ltv_cac_ratio >= 1.5 ? 'Good' : 'Needs work'}
+              </div>
             </div>
-          </div>
+          </motion.div>
+
+          {/* Recommendations */}
+          {(summary.ltv_cac_ratio < 3 || bestChannel) && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="mt-6 p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20"
+            >
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-blue-500/10 rounded-lg">
+                  <Sparkles className="w-5 h-5 text-blue-400" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold text-white mb-2">Performance Insights</h4>
+                  <ul className="space-y-2 text-sm text-gray-300">
+                    {summary.ltv_cac_ratio < 3 && (
+                      <li className="flex items-start gap-2">
+                        <span className="text-[#c8ff00] mt-0.5">•</span>
+                        <span>
+                          LTV:CAC ratio of {summary.ltv_cac_ratio?.toFixed(1)}x is below the ideal 3:1. 
+                          Consider optimizing acquisition costs or increasing customer lifetime value.
+                        </span>
+                      </li>
+                    )}
+                    {bestChannel && (
+                      <li className="flex items-start gap-2">
+                        <span className="text-[#c8ff00] mt-0.5">•</span>
+                        <span>
+                          <span className="text-white font-medium capitalize">{bestChannel.channel}</span> is your top performer. 
+                          Consider allocating more budget to this channel for optimal ROI.
+                        </span>
+                      </li>
+                    )}
+                    {worstChannel && worstChannel.conversion_rate < 5 && (
+                      <li className="flex items-start gap-2">
+                        <span className="text-[#c8ff00] mt-0.5">•</span>
+                        <span>
+                          Review targeting and messaging for <span className="text-white font-medium capitalize">{worstChannel.channel}</span> 
+                          - current {worstChannel.conversion_rate?.toFixed(1)}% CR indicates room for optimization.
+                        </span>
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              </div>
+            </motion.div>
+          )}
         </CardContent>
       </Card>
     </div>
