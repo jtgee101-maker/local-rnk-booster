@@ -31,6 +31,7 @@ import ThankYou from './pages/ThankYou';
 import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import V2Start from './pages/V2Start';
+import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
@@ -72,4 +73,5 @@ export const PAGES = {
 export const pagesConfig = {
     mainPage: "Quiz",
     Pages: PAGES,
+    Layout: __Layout,
 };
