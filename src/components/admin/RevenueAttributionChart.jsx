@@ -231,9 +231,19 @@ export default function RevenueAttributionChart({ dateRange }) {
       </Card>
 
       {/* Attribution by Category */}
-      <Card className="bg-gray-900 border-gray-800">
+      <Card className="border-gray-700 bg-gradient-to-br from-gray-800/50 to-gray-900/50">
         <CardHeader>
-          <CardTitle className="text-white">Revenue by Business Category</CardTitle>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-purple-500/10 rounded-lg">
+              <Zap className="w-5 h-5 text-purple-400" />
+            </div>
+            <div>
+              <CardTitle className="text-white">Revenue by Business Category</CardTitle>
+              <CardDescription>
+                Distribution across industry segments
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
