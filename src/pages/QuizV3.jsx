@@ -12,6 +12,7 @@ import { quizRateLimiter } from '@/components/utils/rateLimiter';
 import { REVENUE_LOSS_PER_POINT } from '@/components/utils/constants';
 import { checkDuplicateLead, getLeadAction, mergeLeadData } from '@/components/utils/leadDeduplication';
 import { errorLogger } from '@/components/utils/errorLogger';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 // Import critical components
 import ProgressBar from '@/components/quiz/ProgressBar';
@@ -559,8 +560,10 @@ function QuizV3Content() {
 
 export default function QuizV3Page() {
   return (
-    <ABTestProvider>
-      <QuizV3Content />
-    </ABTestProvider>
+    <ErrorBoundary>
+      <ABTestProvider>
+        <QuizV3Content />
+      </ABTestProvider>
+    </ErrorBoundary>
   );
 }
