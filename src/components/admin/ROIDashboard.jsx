@@ -270,38 +270,65 @@ export default function ROIDashboard({ dateRange, data }) {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {top_categories?.map((cat, idx) => (
-              <div key={idx} className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="text-2xl font-bold text-gray-600">#{idx + 1}</div>
-                  <div>
-                    <div className="text-white font-semibold capitalize">
-                      {cat.category.replace(/_/g, ' ')}
+            <AnimatePresence>
+              {top_categories?.map((cat, idx) => (
+                <motion.div 
+                  key={idx}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="flex items-center justify-between p-4 bg-gray-800/50 border border-gray-700 rounded-lg hover:border-[#c8ff00]/30 transition-all"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${
+                      idx === 0 ? 'bg-yellow-500/20 text-yellow-400' :
+                      idx === 1 ? 'bg-gray-500/20 text-gray-300' :
+                      idx === 2 ? 'bg-orange-500/20 text-orange-400' :
+                      'bg-gray-700/50 text-gray-400'
+                    }`}>
+                      <span className="text-lg font-bold">#{idx + 1}</span>
                     </div>
-                    <div className="text-sm text-gray-400">
-                      {cat.orders} orders • ${cat.avg_order_value?.toFixed(2)} AOV
+                    <div>
+                      <div className="text-white font-semibold capitalize">
+                        {cat.category.replace(/_/g, ' ')}
+                      </div>
+                      <div className="text-sm text-gray-400 flex items-center gap-3 mt-1">
+                        <span>{cat.orders} orders</span>
+                        <span>•</span>
+                        <span>${cat.avg_order_value?.toFixed(2)} AOV</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-lg font-bold text-[#c8ff00]">
-                    ${cat.revenue?.toLocaleString()}
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-[#c8ff00] flex items-center gap-2">
+                      ${cat.revenue?.toLocaleString()}
+                      <TrendingUp className="w-4 h-4" />
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      Total Revenue
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1 text-xs text-green-500">
-                    <TrendingUp className="w-3 h-3" />
-                    Revenue
-                  </div>
-                </div>
-              </div>
-            ))}
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         </CardContent>
       </Card>
 
       {/* Key Metrics Summary */}
-      <Card className="bg-gray-900 border-gray-800">
+      <Card className="border-gray-700 bg-gradient-to-br from-gray-800/50 to-gray-900/50">
         <CardHeader>
-          <CardTitle className="text-white">Performance Metrics</CardTitle>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-green-500/10 rounded-lg">
+              <DollarSign className="w-5 h-5 text-green-400" />
+            </div>
+            <div>
+              <CardTitle className="text-white">Performance Metrics</CardTitle>
+              <CardDescription>
+                Key financial indicators and ratios
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
