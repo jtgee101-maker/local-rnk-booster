@@ -230,19 +230,23 @@ export default function CohortTable() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="overflow-x-auto"
+          >
             <Table>
               <TableHeader>
-                <TableRow className="border-gray-800">
-                  <TableHead className="text-gray-400">
+                <TableRow className="border-gray-700 hover:bg-transparent">
+                  <TableHead className="text-gray-400 font-semibold">
                     {cohortType === 'monthly' ? 'Month' : cohortType === 'category' ? 'Category' : 'Source'}
                   </TableHead>
-                  <TableHead className="text-gray-400 text-right">Leads</TableHead>
-                  <TableHead className="text-gray-400 text-right">Converted</TableHead>
-                  <TableHead className="text-gray-400 text-right">Conv Rate</TableHead>
-                  <TableHead className="text-gray-400 text-right">Revenue</TableHead>
-                  <TableHead className="text-gray-400 text-right">Avg LTV</TableHead>
-                  <TableHead className="text-gray-400 text-right">Avg Score</TableHead>
+                  <TableHead className="text-gray-400 text-right font-semibold">Leads</TableHead>
+                  <TableHead className="text-gray-400 text-right font-semibold">Converted</TableHead>
+                  <TableHead className="text-gray-400 text-right font-semibold">Conv Rate</TableHead>
+                  <TableHead className="text-gray-400 text-right font-semibold">Revenue</TableHead>
+                  <TableHead className="text-gray-400 text-right font-semibold">Avg LTV</TableHead>
+                  <TableHead className="text-gray-400 text-right font-semibold">Avg Score</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -254,19 +258,39 @@ export default function CohortTable() {
                     : 0;
 
                   return (
-                    <TableRow key={idx} className="border-gray-800 hover:bg-gray-800/50">
+                    <motion.tr
+                      key={idx}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.05 }}
+                      className="border-gray-700 hover:bg-gray-800/50 transition-colors"
+                    >
                       <TableCell className="text-white font-medium">
-                        {cohort.cohort || cohort.category || cohort.source}
+                        <div className="flex items-center gap-2">
+                          {cohort.cohort || cohort.category || cohort.source}
+                          {cohort === bestCohort && (
+                            <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
+                              Best
+                            </Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-right text-gray-300">
-                        {cohort.total_leads.toLocaleString()}
+                        <div className="flex items-center justify-end gap-1">
+                          <Users className="w-3 h-3 text-gray-500" />
+                          {cohort.total_leads.toLocaleString()}
+                        </div>
                       </TableCell>
                       <TableCell className="text-right text-gray-300">
                         {cohort.converted_leads.toLocaleString()}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <span className="text-white font-semibold">
+                          <span className={`font-semibold ${
+                            convRate >= 15 ? 'text-green-400' :
+                            convRate >= 10 ? 'text-[#c8ff00]' :
+                            'text-yellow-400'
+                          }`}>
                             {convRate.toFixed(1)}%
                           </span>
                           {cohortType === 'monthly' && prevCohort && (
@@ -281,24 +305,24 @@ export default function CohortTable() {
                       <TableCell className="text-right text-[#c8ff00] font-semibold">
                         ${cohort.total_revenue.toLocaleString()}
                       </TableCell>
-                      <TableCell className="text-right text-gray-300">
+                      <TableCell className="text-right text-gray-300 font-medium">
                         ${cohort.avg_ltv.toFixed(2)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className={`inline-flex px-2 py-1 rounded ${
-                          cohort.avg_health_score >= 70 ? 'bg-green-500/20 text-green-400' :
-                          cohort.avg_health_score >= 50 ? 'bg-yellow-500/20 text-yellow-400' :
-                          'bg-red-500/20 text-red-400'
+                        <Badge className={`${
+                          cohort.avg_health_score >= 70 ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                          cohort.avg_health_score >= 50 ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                          'bg-red-500/20 text-red-400 border-red-500/30'
                         }`}>
                           {cohort.avg_health_score}
-                        </div>
+                        </Badge>
                       </TableCell>
-                    </TableRow>
+                    </motion.tr>
                   );
                 })}
               </TableBody>
             </Table>
-          </div>
+          </motion.div>
 
           {/* Retention Data for Monthly Cohorts */}
           {cohortType === 'monthly' && cohorts[0]?.retention && (
