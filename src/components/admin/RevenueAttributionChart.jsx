@@ -1,14 +1,20 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { DollarSign, TrendingUp } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  DollarSign, TrendingUp, Download, RefreshCw, Loader2, 
+  AlertTriangle, Target, BarChart3, Zap
+} from 'lucide-react';
 
 const COLORS = ['#c8ff00', '#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
 
 export default function RevenueAttributionChart({ dateRange }) {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ['revenue-attribution', dateRange],
     queryFn: async () => {
       const response = await base44.functions.invoke('analytics/revenueAttribution', {
@@ -16,14 +22,85 @@ export default function RevenueAttributionChart({ dateRange }) {
       });
       return response.data;
     },
-    staleTime: 5 * 60 * 1000
+    staleTime: 5 * 60 * 1000,
+    retry: 3
   });
 
+  const handleExport = () => {
+    if (!data) return;
+    
+    const csv = [
+      ['Revenue Attribution Report'],
+      ['Generated', new Date().toISOString()],
+      '',
+      ['Summary'],
+      ['Total Revenue', `$${data.total_revenue?.toLocaleString()}`],
+      ['Total Orders', data.total_orders],
+      ['Average Order Value', `$${data.average_order_value?.toFixed(2)}`],
+      '',
+      ['By Category'],
+      ['Category', 'Revenue', 'Orders', 'Conversion Rate', 'AOV'].join(','),
+      ...(data.attribution?.by_category || []).map(cat => [
+        cat.category,
+        cat.revenue,
+        cat.orders,
+        (cat.conversion_rate * 100).toFixed(2) + '%',
+        cat.avg_order_value?.toFixed(2)
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `revenue-attribution-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+  };
+
   if (isLoading) {
-    return <div className="text-center text-gray-400 py-8">Loading attribution data...</div>;
+    return (
+      <Card className="border-gray-700 bg-gradient-to-br from-gray-800/50 to-gray-900/50">
+        <CardContent className="flex flex-col items-center justify-center py-16 space-y-4">
+          <Loader2 className="w-8 h-8 animate-spin text-[#c8ff00]" />
+          <div className="text-center">
+            <p className="text-sm font-medium text-white">Analyzing revenue attribution...</p>
+            <p className="text-xs text-gray-500 mt-1">Processing revenue data</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="border-red-500/30 bg-gradient-to-br from-red-900/20 to-gray-900/50">
+        <CardContent className="flex flex-col items-center justify-center py-16 space-y-4">
+          <AlertTriangle className="w-8 h-8 text-red-500" />
+          <div className="text-center">
+            <p className="text-sm font-medium text-white">Failed to load attribution data</p>
+            <p className="text-xs text-gray-400 mt-1">{error.message}</p>
+          </div>
+          <Button onClick={() => refetch()} variant="outline" size="sm" className="gap-2">
+            <RefreshCw className="w-4 h-4" />
+            Retry
+          </Button>
+        </CardContent>
+      </Card>
+    );
   }
 
   const { attribution, total_revenue, total_orders, average_order_value } = data || {};
+  
+  // Calculate insights
+  const topCategory = attribution?.by_category?.reduce((top, cat) => 
+    cat.revenue > (top?.revenue || 0) ? cat : top, null
+  );
+  const topFunnel = attribution?.by_funnel?.reduce((top, fun) => 
+    fun.revenue > (top?.revenue || 0) ? fun : top, null
+  );
 
   return (
     <div className="space-y-6">
