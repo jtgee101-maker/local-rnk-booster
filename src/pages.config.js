@@ -32,6 +32,9 @@ import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import V2Start from './pages/V2Start';
 import ProductionChecklist from './pages/ProductionChecklist';
+import SecurityAudit from './pages/SecurityAudit';
+import DataCleanup from './pages/DataCleanup';
+import StripeSetupGuide from './pages/StripeSetupGuide';
 import __Layout from './Layout.jsx';
 
 
@@ -70,6 +73,9 @@ export const PAGES = {
     "Upsell1": Upsell1,
     "V2Start": V2Start,
     "ProductionChecklist": ProductionChecklist,
+    "SecurityAudit": SecurityAudit,
+    "DataCleanup": DataCleanup,
+    "StripeSetupGuide": StripeSetupGuide,
 }
 
 export const pagesConfig = {
