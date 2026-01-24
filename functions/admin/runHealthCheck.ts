@@ -218,15 +218,16 @@ async function checkErrorRates(base24) {
 async function checkDataQuality(base44) {
   try {
     const recentLeads = await base44.asServiceRole.entities.Lead.list('-created_date', 50);
-    const invalidLeads = recentLeads.filter(l => !l.email || !l.business_name);
-    const invalidRate = invalidLeads.length / recentLeads.length;
+    const invalidLeads = recentLeads.filter(l => !l.email || !l.email.includes('@') || !l.business_name);
+    const invalidRate = recentLeads.length > 0 ? invalidLeads.length / recentLeads.length : 0;
 
     return {
       name: 'Data Quality',
       status: invalidRate < 0.05 ? 'pass' : invalidRate < 0.2 ? 'warn' : 'fail',
-      message: `${(invalidRate * 100).toFixed(1)}% invalid records`,
+      message: `${(invalidRate * 100).toFixed(1)}% invalid records (missing email or business)`,
       total_checked: recentLeads.length,
-      invalid: invalidLeads.length
+      invalid: invalidLeads.length,
+      details: invalidLeads.length > 0 ? `${invalidLeads.filter(l => !l.email || !l.email.includes('@')).length} invalid emails, ${invalidLeads.filter(l => !l.business_name).length} missing business names` : null
     };
   } catch (error) {
     return {
