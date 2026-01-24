@@ -59,15 +59,32 @@ export default function HealthCheckHistory() {
                 <CardDescription>Automated health checks run every hour</CardDescription>
               </div>
             </div>
-            <Button
-              onClick={runManualCheck}
-              disabled={isRefetching}
-              size="sm"
-              className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold"
-            >
-              {isRefetching ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-              Run Check
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={async () => {
+                  try {
+                    await base44.functions.invoke('admin/cleanupInvalidLeads', {});
+                    refetch();
+                  } catch (error) {
+                    console.error('Failed to cleanup leads:', error);
+                  }
+                }}
+                size="sm"
+                variant="outline"
+                className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+              >
+                Clean Invalid Leads
+              </Button>
+              <Button
+                onClick={runManualCheck}
+                disabled={isRefetching}
+                size="sm"
+                className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold"
+              >
+                {isRefetching ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+                Run Check
+              </Button>
+            </div>
           </div>
         </CardHeader>
         {latestCheck && (
