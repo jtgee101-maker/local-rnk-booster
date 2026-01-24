@@ -26,6 +26,32 @@ export default function HealthCheckHistory() {
     }
   };
 
+  const testEmailAlert = async () => {
+    try {
+      const testData = {
+        overall_status: 'warning',
+        passed: 3,
+        warnings: 2,
+        failures: 1,
+        execution_time_ms: 1234,
+        checks: [
+          { name: 'Database', status: 'pass', message: 'All good' },
+          { name: 'Email System', status: 'warn', message: 'Low activity' },
+          { name: 'Data Quality', status: 'fail', message: 'Critical: 5 invalid records found' }
+        ]
+      };
+
+      const response = await base44.functions.invoke('admin/sendHealthAlert', {
+        healthCheckData: testData,
+        isTest: true
+      });
+
+      alert(`✅ Test alert sent! Check your email: ${response.data.message}`);
+    } catch (error) {
+      alert(`❌ Failed to send test alert: ${error.message}`);
+    }
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'healthy': return 'text-green-400';
@@ -59,7 +85,7 @@ export default function HealthCheckHistory() {
                 <CardDescription>Automated health checks run every hour</CardDescription>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button
                 onClick={async () => {
                   try {
@@ -74,6 +100,14 @@ export default function HealthCheckHistory() {
                 className="border-red-500/30 text-red-400 hover:bg-red-500/10"
               >
                 Clean Invalid Leads
+              </Button>
+              <Button
+                onClick={testEmailAlert}
+                size="sm"
+                variant="outline"
+                className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10"
+              >
+                Test Email Alert
               </Button>
               <Button
                 onClick={runManualCheck}
