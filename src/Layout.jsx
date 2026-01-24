@@ -10,6 +10,14 @@ export default function Layout({ children, currentPageName }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const location = useLocation();
 
+  // Pages that should have full-width dark layout (quiz, checkout, etc)
+  const fullWidthPages = ['Quiz', 'QuizV2', 'QuizV3', 'Checkout', 'CheckoutV2', 'Upsell', 'Upsell1', 'Pricing', 'BridgeV3', 'ThankYou'];
+  const isFullWidth = fullWidthPages.includes(currentPageName);
+
+  // Pages that shouldn't show nav (funnel pages)
+  const noNavPages = ['Quiz', 'QuizV2', 'QuizV3', 'Checkout', 'CheckoutV2', 'Upsell', 'Upsell1', 'BridgeV3', 'ThankYou'];
+  const showNav = !noNavPages.includes(currentPageName);
+
   useEffect(() => {
     const checkAdmin = async () => {
       try {
@@ -23,14 +31,6 @@ export default function Layout({ children, currentPageName }) {
       checkAdmin();
     }
   }, [showNav]);
-
-  // Pages that should have full-width dark layout (quiz, checkout, etc)
-  const fullWidthPages = ['Quiz', 'QuizV2', 'QuizV3', 'Checkout', 'CheckoutV2', 'Upsell', 'Upsell1', 'Pricing', 'BridgeV3', 'ThankYou'];
-  const isFullWidth = fullWidthPages.includes(currentPageName);
-
-  // Pages that shouldn't show nav (funnel pages)
-  const noNavPages = ['Quiz', 'QuizV2', 'QuizV3', 'Checkout', 'CheckoutV2', 'Upsell', 'Upsell1', 'BridgeV3', 'ThankYou'];
-  const showNav = !noNavPages.includes(currentPageName);
 
   const navLinks = [
     { name: 'Home', path: createPageUrl('QuizV3') },
