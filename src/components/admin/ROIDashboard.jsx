@@ -159,22 +159,45 @@ export default function ROIDashboard({ dateRange, data }) {
             </BarChart>
           </ResponsiveContainer>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6"
+          >
             {by_channel?.map((channel, idx) => (
-              <div key={idx} className="bg-gray-800 rounded-lg p-4">
-                <div className="text-sm text-gray-400 mb-2">{channel.channel}</div>
-                <div className="text-xl font-bold text-white mb-1">
-                  ${channel.revenue?.toLocaleString()}
+              <motion.div 
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 hover:border-[#c8ff00]/30 transition-all group"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-sm text-gray-400 capitalize">{channel.channel}</div>
+                  {channel === bestChannel && (
+                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30 text-xs">
+                      Top
+                    </Badge>
+                  )}
                 </div>
-                <div className="flex items-center gap-2 text-xs">
+                <div className="text-xl font-bold text-white mb-1 flex items-center gap-2">
+                  ${channel.revenue?.toLocaleString()}
+                  <ArrowUpRight className="w-4 h-4 text-green-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <div className="flex items-center gap-3 text-xs">
                   <span className="text-gray-500">{channel.orders} orders</span>
-                  <span className="text-[#c8ff00]">
+                  <span className={`font-medium ${
+                    channel.conversion_rate > 10 ? 'text-green-400' : 
+                    channel.conversion_rate > 5 ? 'text-[#c8ff00]' : 
+                    'text-yellow-400'
+                  }`}>
                     {channel.conversion_rate?.toFixed(1)}% CR
                   </span>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </CardContent>
       </Card>
 
