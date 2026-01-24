@@ -105,43 +105,75 @@ export default function RevenueAttributionChart({ dateRange }) {
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-gray-900 border-gray-800">
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+      >
+        <Card className="border-green-500/30 bg-gradient-to-br from-green-900/20 to-gray-900/50">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm text-gray-400">Total Revenue</div>
-                <div className="text-2xl font-bold text-white">${total_revenue?.toLocaleString()}</div>
+                <div className="text-sm text-gray-400 flex items-center gap-2">
+                  Total Revenue
+                  <Badge className="bg-green-500/20 text-green-400 text-xs">
+                    Primary
+                  </Badge>
+                </div>
+                <div className="text-3xl font-bold text-white mt-2">
+                  ${total_revenue?.toLocaleString()}
+                </div>
+                {topCategory && (
+                  <div className="text-xs text-gray-500 mt-1">
+                    Top: {topCategory.category.replace(/_/g, ' ')}
+                  </div>
+                )}
               </div>
-              <DollarSign className="w-8 h-8 text-[#c8ff00]" />
+              <div className="p-3 bg-green-500/10 rounded-lg">
+                <DollarSign className="w-8 h-8 text-green-400" />
+              </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="border-[#c8ff00]/30 bg-gradient-to-br from-[#c8ff00]/10 to-gray-900/50">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm text-gray-400">Total Orders</div>
-                <div className="text-2xl font-bold text-white">{total_orders?.toLocaleString()}</div>
+                <div className="text-3xl font-bold text-white mt-2">
+                  {total_orders?.toLocaleString()}
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  Completed transactions
+                </div>
               </div>
-              <TrendingUp className="w-8 h-8 text-[#c8ff00]" />
+              <div className="p-3 bg-[#c8ff00]/10 rounded-lg">
+                <TrendingUp className="w-8 h-8 text-[#c8ff00]" />
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="border-blue-500/30 bg-gradient-to-br from-blue-900/20 to-gray-900/50">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm text-gray-400">Avg Order Value</div>
-                <div className="text-2xl font-bold text-white">${average_order_value?.toFixed(2)}</div>
+                <div className="text-3xl font-bold text-white mt-2">
+                  ${average_order_value?.toFixed(2)}
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  Per transaction
+                </div>
               </div>
-              <DollarSign className="w-8 h-8 text-green-500" />
+              <div className="p-3 bg-blue-500/10 rounded-lg">
+                <Target className="w-8 h-8 text-blue-400" />
+              </div>
             </div>
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
 
       {/* Attribution by Funnel */}
       <Card className="bg-gray-900 border-gray-800">
