@@ -263,9 +263,9 @@ export default function AdvancedAnalytics() {
           <RevenueAttributionChart dateRange={dateRange} />
         </TabsContent>
 
-        <TabsContent value="cohorts">
-          <CohortTable />
-        </TabsContent>
+          <TabsContent value="cohorts">
+            <CohortTable />
+          </TabsContent>
 
           <TabsContent value="journey">
             <CustomerJourneyView />
