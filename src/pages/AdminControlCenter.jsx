@@ -27,6 +27,7 @@ const LeadNurture = lazy(() => import('@/components/admin/LeadNurture'));
 const AdminABTests = lazy(() => import('@/components/admin/AdminABTests'));
 const TestModeIndicator = lazy(() => import('@/components/admin/TestModeIndicator'));
 const V3Analytics = lazy(() => import('@/components/admin/V3Analytics'));
+const HealthCheckHistory = lazy(() => import('@/components/admin/HealthCheckHistory'));
 const LeadScoringDashboard = lazy(() => import('@/components/admin/LeadScoringDashboard'));
 const RevenueAttribution = lazy(() => import('@/components/analytics/RevenueAttribution'));
 const AdvancedAnalytics = lazy(() => import('@/components/admin/AdvancedAnalytics'));
@@ -683,7 +684,7 @@ export default function AdminControlCenter() {
 
               <TabsContent value="health" className="mt-0">
                 <Suspense fallback={<TabLoader />}>
-                  <SystemHealthMonitor />
+                  <HealthCheckHistory />
                 </Suspense>
               </TabsContent>
 
