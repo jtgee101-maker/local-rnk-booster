@@ -278,69 +278,217 @@ export default function FunnelVisualization({ dateRange }) {
         </CardHeader>
         <CardContent>
           {/* Funnel Visualization */}
-          <div className="space-y-4">
-            {stages.map((stage, idx) => {
-              const widthPercent = (stage.count / maxCount) * 100;
-              
-              return (
-                <div key={idx}>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-white">{stage.stage}</span>
-                      {stage.dropoff_rate > 50 && (
-                        <AlertCircle className="w-4 h-4 text-red-500" />
-                      )}
-                    </div>
-                    <div className="flex items-center gap-4 text-sm">
-                      <span className="text-gray-400">{stage.count.toLocaleString()} users</span>
-                      <span className="text-[#c8ff00] font-semibold">{stage.conversion_rate}%</span>
-                    </div>
-                  </div>
-                  
-                  {/* Funnel bar */}
-                  <div 
-                    className="h-12 rounded-lg flex items-center px-4 relative"
-                    style={{
-                      width: `${widthPercent}%`,
-                      background: `linear-gradient(90deg, #c8ff00 0%, #a3e635 100%)`,
-                      opacity: 1 - (idx * 0.15)
-                    }}
+          <div className="space-y-6">
+            <AnimatePresence mode="popLayout">
+              {stages.map((stage, idx) => {
+                const widthPercent = (stage.count / maxCount) * 100;
+                const isExpanded = expandedStages[idx];
+                const prevStage = comparisonData?.stages?.[idx];
+                const countChange = prevStage ? stage.count - prevStage.count : null;
+                const rateChange = prevStage ? stage.conversion_rate - prevStage.conversion_rate : null;
+                
+                return (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="group"
                   >
-                    <span className="text-black font-bold text-sm">
-                      {stage.count.toLocaleString()}
-                    </span>
-                  </div>
-
-                  {/* Drop-off info */}
-                  {stage.dropoff_from_previous > 0 && (
-                    <div className="mt-2 flex items-center gap-2 text-xs text-red-400">
-                      <TrendingDown className="w-3 h-3" />
-                      <span>
-                        {stage.dropoff_from_previous.toLocaleString()} dropped off ({stage.dropoff_rate}%)
-                      </span>
-                      {stage.avg_time_seconds > 0 && (
-                        <span className="text-gray-500 ml-2">
-                          • Avg time: {Math.round(stage.avg_time_seconds)}s
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Exit reasons */}
-                  {stage.exit_reasons && stage.exit_reasons.length > 0 && (
-                    <div className="mt-2 ml-4 space-y-1">
-                      <div className="text-xs text-gray-500 font-semibold">Top exit reasons:</div>
-                      {stage.exit_reasons.slice(0, 3).map((reason, ridx) => (
-                        <div key={ridx} className="text-xs text-gray-400 flex items-center gap-2">
-                          <div className="w-1 h-1 rounded-full bg-red-500" />
-                          {reason.reason}: {reason.percentage}%
+                    {/* Stage Header */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <Badge className="bg-gray-700/50 text-gray-200 border-gray-600">
+                          Step {idx + 1}
+                        </Badge>
+                        <span className="text-sm font-semibold text-white">{stage.stage}</span>
+                        {stage.dropoff_rate > 50 && (
+                          <Badge className="bg-red-500/20 text-red-400 border-red-500/30 gap-1">
+                            <AlertCircle className="w-3 h-3" />
+                            High Dropoff
+                          </Badge>
+                        )}
+                        {stage.avg_time_seconds > 60 && (
+                          <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 gap-1">
+                            <Clock className="w-3 h-3" />
+                            Slow
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-4 text-sm">
+                          <div className="text-right">
+                            <div className="text-gray-300 font-medium">{stage.count.toLocaleString()}</div>
+                            <div className="text-xs text-gray-500">users</div>
+                            {countChange !== null && (
+                              <div className={`text-xs ${countChange > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                {countChange > 0 ? '↑' : '↓'} {Math.abs(countChange).toLocaleString()}
+                              </div>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <div className="text-[#c8ff00] font-bold">{stage.conversion_rate}%</div>
+                            <div className="text-xs text-gray-500">conversion</div>
+                            {rateChange !== null && (
+                              <div className={`text-xs ${rateChange > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                {rateChange > 0 ? '↑' : '↓'} {Math.abs(rateChange).toFixed(1)}%
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      ))}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleStageExpanded(idx)}
+                          className="text-gray-400 hover:text-white"
+                        >
+                          {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                        </Button>
+                      </div>
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                    
+                    {/* Funnel Bar with Gradient */}
+                    <motion.div 
+                      className="h-14 rounded-xl flex items-center px-5 relative overflow-hidden shadow-lg cursor-pointer"
+                      style={{
+                        width: `${Math.max(widthPercent, 10)}%`,
+                        background: stage.dropoff_rate > 50 
+                          ? `linear-gradient(90deg, #ef4444 0%, #f97316 100%)`
+                          : `linear-gradient(90deg, #c8ff00 0%, #84cc16 ${widthPercent}%, #65a30d 100%)`,
+                        opacity: 1 - (idx * 0.12)
+                      }}
+                      whileHover={{ scale: 1.02, opacity: 1 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                      onClick={() => toggleStageExpanded(idx)}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span className="text-black font-bold">
+                          {stage.count.toLocaleString()}
+                        </span>
+                        <span className="text-black/70 font-semibold text-sm">
+                          {stage.conversion_rate}%
+                        </span>
+                      </div>
+                      
+                      {/* Animated shimmer effect */}
+                      <div 
+                        className="absolute inset-0 opacity-30"
+                        style={{
+                          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
+                          animation: 'shimmer 3s infinite'
+                        }}
+                      />
+                    </motion.div>
+
+                    {/* Dropoff Info */}
+                    {stage.dropoff_from_previous > 0 && (
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="mt-3 p-3 rounded-lg bg-red-500/5 border border-red-500/20"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="p-1.5 bg-red-500/10 rounded">
+                            <TrendingDown className="w-4 h-4 text-red-400" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-sm text-red-400 font-medium">
+                                  {stage.dropoff_from_previous.toLocaleString()} users dropped off
+                                </p>
+                                <p className="text-xs text-gray-500 mt-0.5">
+                                  {stage.dropoff_rate}% abandonment rate at this stage
+                                </p>
+                              </div>
+                              {stage.avg_time_seconds > 0 && (
+                                <div className="text-right">
+                                  <div className="flex items-center gap-1 text-gray-400">
+                                    <Clock className="w-3 h-3" />
+                                    <span className="text-xs font-medium">
+                                      {Math.round(stage.avg_time_seconds)}s avg
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Expanded Details */}
+                    <AnimatePresence>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="mt-3 space-y-3"
+                        >
+                          {/* Stage Metrics */}
+                          <div className="grid grid-cols-3 gap-3">
+                            <div className="p-3 rounded-lg bg-gray-800/50 border border-gray-700">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Users className="w-3 h-3 text-blue-400" />
+                                <span className="text-xs text-gray-400">Entry</span>
+                              </div>
+                              <p className="text-lg font-bold text-white">{stage.count.toLocaleString()}</p>
+                            </div>
+                            <div className="p-3 rounded-lg bg-gray-800/50 border border-gray-700">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Target className="w-3 h-3 text-[#c8ff00]" />
+                                <span className="text-xs text-gray-400">Rate</span>
+                              </div>
+                              <p className="text-lg font-bold text-[#c8ff00]">{stage.conversion_rate}%</p>
+                            </div>
+                            <div className="p-3 rounded-lg bg-gray-800/50 border border-gray-700">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Clock className="w-3 h-3 text-purple-400" />
+                                <span className="text-xs text-gray-400">Time</span>
+                              </div>
+                              <p className="text-lg font-bold text-white">{Math.round(stage.avg_time_seconds || 0)}s</p>
+                            </div>
+                          </div>
+
+                          {/* Exit Reasons */}
+                          {stage.exit_reasons && stage.exit_reasons.length > 0 && (
+                            <div className="p-4 rounded-lg bg-gray-800/30 border border-gray-700">
+                              <div className="flex items-center gap-2 mb-3">
+                                <AlertCircle className="w-4 h-4 text-orange-400" />
+                                <span className="text-sm font-semibold text-white">Top Exit Reasons</span>
+                              </div>
+                              <div className="space-y-2">
+                                {stage.exit_reasons.slice(0, 5).map((reason, ridx) => (
+                                  <div key={ridx} className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                                      <span className="text-sm text-gray-300">{reason.reason}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Badge className="bg-red-500/10 text-red-400 border-red-500/30 text-xs">
+                                        {reason.percentage}%
+                                      </Badge>
+                                      {reason.count && (
+                                        <span className="text-xs text-gray-500">
+                                          ({reason.count.toLocaleString()})
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
           </div>
 
           {/* Summary Stats */}
