@@ -121,7 +121,7 @@ export default function AdminLeadsSection({ expanded = false }) {
               <CardTitle className="text-white flex items-center gap-2">
                 Leads
                 {leads.length > 0 && (
-                  <Badge variant="outline" className="ml-2 text-xs">
+                  <Badge variant="outline" className="ml-2 text-xs border-gray-600 text-gray-300 bg-gray-800/50">
                     {filteredLeads.length} / {leads.length}
                   </Badge>
                 )}
