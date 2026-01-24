@@ -254,9 +254,19 @@ export default function ROIDashboard({ dateRange, data }) {
       </Card>
 
       {/* Top Categories */}
-      <Card className="bg-gray-900 border-gray-800">
+      <Card className="border-gray-700 bg-gradient-to-br from-gray-800/50 to-gray-900/50">
         <CardHeader>
-          <CardTitle className="text-white">Top Performing Categories</CardTitle>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-purple-500/10 rounded-lg">
+              <Sparkles className="w-5 h-5 text-purple-400" />
+            </div>
+            <div>
+              <CardTitle className="text-white">Top Performing Categories</CardTitle>
+              <CardDescription>
+                Business categories ranked by revenue
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
