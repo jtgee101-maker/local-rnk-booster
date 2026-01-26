@@ -125,62 +125,93 @@ export default function CampaignBuilder({ onClose, onSuccess }) {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="space-y-4"
+            className="space-y-6"
           >
+            <div className="p-5 bg-gradient-to-br from-[#c8ff00]/10 to-transparent rounded-xl border border-[#c8ff00]/30">
+              <h3 className="text-lg font-black text-white mb-2">Campaign Details</h3>
+              <p className="text-sm font-semibold text-gray-300">Configure your tracking campaign settings</p>
+            </div>
+
             <div>
-              <Label className="text-gray-300">Campaign Name</Label>
+              <Label className="text-base font-bold text-white mb-2 block">Campaign Name</Label>
               <Input
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Q1 2026 Direct Mail Campaign"
-                className="bg-gray-900 border-gray-600 text-white"
+                className="bg-gray-900/80 border-2 border-gray-700 text-white font-semibold placeholder:text-gray-500 h-12 text-base focus:border-[#c8ff00]"
               />
             </div>
 
             <div>
-              <Label className="text-gray-300">Campaign Type</Label>
+              <Label className="text-base font-bold text-white mb-2 block">Campaign Type</Label>
               <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
-                <SelectTrigger className="bg-gray-900 border-gray-600 text-white">
+                <SelectTrigger className="bg-gray-900/80 border-2 border-gray-700 text-white font-semibold h-12 text-base">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="qr_code">QR Code</SelectItem>
-                  <SelectItem value="direct_mail">Direct Mail / PURL</SelectItem>
-                  <SelectItem value="print">Print Advertising</SelectItem>
-                  <SelectItem value="email">Email Campaign</SelectItem>
-                  <SelectItem value="social">Social Media</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  <SelectItem value="qr_code">🔲 QR Code</SelectItem>
+                  <SelectItem value="direct_mail">📬 Direct Mail / PURL</SelectItem>
+                  <SelectItem value="print">📰 Print Advertising</SelectItem>
+                  <SelectItem value="email">📧 Email Campaign</SelectItem>
+                  <SelectItem value="social">📱 Social Media</SelectItem>
+                  <SelectItem value="other">🎯 Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div>
-              <Label className="text-gray-300">Destination URL</Label>
+              <Label className="text-base font-bold text-white mb-2 flex items-center gap-2">
+                <Globe className="w-4 h-4 text-[#c8ff00]" />
+                Custom Domain (Optional)
+              </Label>
+              <Select 
+                value={formData.custom_domain} 
+                onValueChange={(value) => setFormData({ ...formData, custom_domain: value })}
+              >
+                <SelectTrigger className="bg-gray-900/80 border-2 border-gray-700 text-white font-semibold h-12 text-base">
+                  <SelectValue placeholder="Use default domain" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={null}>Default Domain</SelectItem>
+                  {customDomains.map((domain, index) => (
+                    <SelectItem key={index} value={domain}>{domain}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs font-semibold text-gray-400 mt-2">Brand your tracking links with custom domains</p>
+            </div>
+
+            <div>
+              <Label className="text-base font-bold text-white mb-2 block">Destination URL</Label>
               <Input
                 value={formData.base_url}
                 onChange={(e) => setFormData({ ...formData, base_url: e.target.value })}
                 placeholder="https://yoursite.com/landing-page"
-                className="bg-gray-900 border-gray-600 text-white"
+                className="bg-gray-900/80 border-2 border-gray-700 text-white font-semibold placeholder:text-gray-500 h-12 text-base focus:border-[#c8ff00]"
               />
+              <p className="text-xs font-semibold text-gray-400 mt-2">Where visitors will land after scanning/clicking</p>
             </div>
 
             <div>
-              <Label className="text-gray-300">Budget (Optional)</Label>
-              <Input
-                type="number"
-                value={formData.budget}
-                onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                placeholder="5000"
-                className="bg-gray-900 border-gray-600 text-white"
-              />
+              <Label className="text-base font-bold text-white mb-2 block">Campaign Budget (Optional)</Label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white font-bold text-lg">$</span>
+                <Input
+                  type="number"
+                  value={formData.budget}
+                  onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+                  placeholder="5000"
+                  className="bg-gray-900/80 border-2 border-gray-700 text-white font-semibold placeholder:text-gray-500 h-12 text-base pl-8 focus:border-[#c8ff00]"
+                />
+              </div>
             </div>
 
             <Button
               onClick={() => setStep(2)}
               disabled={!formData.name || !formData.base_url}
-              className="w-full bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold"
+              className="w-full bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-black text-lg h-14 shadow-lg"
             >
-              Next: UTM Parameters
+              Next: UTM Parameters →
             </Button>
           </motion.div>
         )}
@@ -189,81 +220,85 @@ export default function CampaignBuilder({ onClose, onSuccess }) {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="space-y-4"
+            className="space-y-6"
           >
-            <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-500/30 mb-4">
-              <p className="text-sm text-blue-300">
-                UTM parameters help you track where your traffic comes from. Fill in as many as needed for your tracking.
+            <div className="p-5 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-xl border-2 border-indigo-500/30">
+              <h3 className="text-base font-black text-white mb-2">📊 UTM Tracking Parameters</h3>
+              <p className="text-sm font-semibold text-white">
+                Track exactly where your traffic comes from. Fill in as many as needed for precise attribution.
               </p>
             </div>
 
-            <div>
-              <Label className="text-gray-300">UTM Source</Label>
-              <Input
-                value={formData.utm_source}
-                onChange={(e) => setFormData({ ...formData, utm_source: e.target.value })}
-                placeholder="direct_mail"
-                className="bg-gray-900 border-gray-600 text-white"
-              />
-              <p className="text-xs text-gray-500 mt-1">Where traffic originates (e.g., direct_mail, facebook, newsletter)</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label className="text-base font-bold text-white mb-2 block">UTM Source</Label>
+                <Input
+                  value={formData.utm_source}
+                  onChange={(e) => setFormData({ ...formData, utm_source: e.target.value })}
+                  placeholder="direct_mail"
+                  className="bg-gray-900/80 border-2 border-gray-700 text-white font-semibold placeholder:text-gray-500 h-12 text-base focus:border-[#c8ff00]"
+                />
+                <p className="text-xs font-semibold text-gray-400 mt-2">e.g., direct_mail, facebook, newsletter</p>
+              </div>
+
+              <div>
+                <Label className="text-base font-bold text-white mb-2 block">UTM Medium</Label>
+                <Input
+                  value={formData.utm_medium}
+                  onChange={(e) => setFormData({ ...formData, utm_medium: e.target.value })}
+                  placeholder="postcard"
+                  className="bg-gray-900/80 border-2 border-gray-700 text-white font-semibold placeholder:text-gray-500 h-12 text-base focus:border-[#c8ff00]"
+                />
+                <p className="text-xs font-semibold text-gray-400 mt-2">e.g., postcard, qr_code, email, cpc</p>
+              </div>
             </div>
 
             <div>
-              <Label className="text-gray-300">UTM Medium</Label>
-              <Input
-                value={formData.utm_medium}
-                onChange={(e) => setFormData({ ...formData, utm_medium: e.target.value })}
-                placeholder="postcard"
-                className="bg-gray-900 border-gray-600 text-white"
-              />
-              <p className="text-xs text-gray-500 mt-1">Marketing medium (e.g., postcard, qr_code, email, cpc)</p>
-            </div>
-
-            <div>
-              <Label className="text-gray-300">UTM Campaign</Label>
+              <Label className="text-base font-bold text-white mb-2 block">UTM Campaign</Label>
               <Input
                 value={formData.utm_campaign}
                 onChange={(e) => setFormData({ ...formData, utm_campaign: e.target.value })}
                 placeholder="q1_2026_promo"
-                className="bg-gray-900 border-gray-600 text-white"
+                className="bg-gray-900/80 border-2 border-gray-700 text-white font-semibold placeholder:text-gray-500 h-12 text-base focus:border-[#c8ff00]"
               />
-              <p className="text-xs text-gray-500 mt-1">Campaign name or promo code</p>
+              <p className="text-xs font-semibold text-gray-400 mt-2">Campaign name or promo code identifier</p>
             </div>
 
             <div>
-              <Label className="text-gray-300">UTM Content (Optional)</Label>
+              <Label className="text-base font-bold text-white mb-2 block">UTM Content (Optional)</Label>
               <Input
                 value={formData.utm_content}
                 onChange={(e) => setFormData({ ...formData, utm_content: e.target.value })}
                 placeholder="variant_a"
-                className="bg-gray-900 border-gray-600 text-white"
+                className="bg-gray-900/80 border-2 border-gray-700 text-white font-semibold placeholder:text-gray-500 h-12 text-base focus:border-[#c8ff00]"
               />
+              <p className="text-xs font-semibold text-gray-400 mt-2">Use for A/B testing different creative variants</p>
             </div>
 
             <div>
-              <Label className="text-gray-300">Notes</Label>
+              <Label className="text-base font-bold text-white mb-2 block">Campaign Notes</Label>
               <Textarea
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                placeholder="Campaign notes and details..."
-                className="bg-gray-900 border-gray-600 text-white"
+                placeholder="Campaign notes, targeting details, and internal documentation..."
+                className="bg-gray-900/80 border-2 border-gray-700 text-white font-semibold placeholder:text-gray-500 min-h-[100px] text-base focus:border-[#c8ff00]"
               />
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               <Button
                 onClick={() => setStep(1)}
                 variant="outline"
-                className="flex-1 border-gray-600"
+                className="flex-1 border-2 border-gray-600 h-14 text-base font-bold text-white hover:bg-gray-800"
               >
-                Back
+                ← Back
               </Button>
               <Button
                 onClick={handleSubmit}
                 disabled={createCampaignMutation.isPending}
-                className="flex-1 bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold"
+                className="flex-1 bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-black text-lg h-14 shadow-lg"
               >
-                {createCampaignMutation.isPending ? 'Creating...' : 'Create Campaign'}
+                {createCampaignMutation.isPending ? '⚡ Creating...' : '✨ Create Campaign'}
               </Button>
             </div>
           </motion.div>
@@ -273,59 +308,78 @@ export default function CampaignBuilder({ onClose, onSuccess }) {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="space-y-6"
+            className="space-y-8"
           >
-            <div className="text-center">
-              <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Sparkles className="w-8 h-8 text-green-400" />
+            <div className="text-center py-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <Sparkles className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-2">Campaign Created!</h3>
-              <p className="text-gray-400">Your tracking campaign is ready to launch</p>
+              <h3 className="text-4xl font-black text-white mb-3">Campaign Created!</h3>
+              <p className="text-lg font-bold text-[#c8ff00]">Your tracking campaign is ready to launch 🚀</p>
             </div>
 
             {qrCodeData.qrCodeUrl && (
-              <div className="bg-white p-6 rounded-lg">
-                <img src={qrCodeData.qrCodeUrl} alt="QR Code" className="w-full max-w-xs mx-auto" />
+              <div className="bg-white p-8 rounded-xl shadow-2xl border-4 border-[#c8ff00]/30">
+                <img src={qrCodeData.qrCodeUrl} alt="QR Code" className="w-full max-w-sm mx-auto" />
+                <p className="text-center text-sm font-bold text-gray-700 mt-4">High-Resolution QR Code</p>
               </div>
             )}
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div>
-                <Label className="text-gray-300 text-sm">Tracking URL</Label>
-                <div className="flex gap-2">
+                <Label className="text-base font-bold text-white mb-3 flex items-center gap-2">
+                  <ExternalLink className="w-4 h-4 text-[#c8ff00]" />
+                  Tracking URL
+                </Label>
+                <div className="flex gap-3">
                   <Input
                     value={qrCodeData.trackingUrl}
                     readOnly
-                    className="bg-gray-900 border-gray-600 text-white font-mono text-xs"
+                    className="bg-gray-900/80 border-2 border-gray-700 text-white font-bold text-sm flex-1"
                   />
-                  <Button onClick={copyTrackingUrl} size="sm" variant="outline" className="border-gray-600">
-                    Copy
+                  <Button 
+                    onClick={copyTrackingUrl} 
+                    size="lg" 
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6"
+                  >
+                    📋 Copy
                   </Button>
                 </div>
               </div>
+
+              {formData.custom_domain && (
+                <div className="p-4 bg-[#c8ff00]/10 rounded-lg border-2 border-[#c8ff00]/30">
+                  <p className="text-sm font-bold text-white flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-[#c8ff00]" />
+                    Using Custom Domain: <span className="text-[#c8ff00]">{formData.custom_domain}</span>
+                  </p>
+                </div>
+              )}
             </div>
 
-            <div className="flex gap-3">
+            <div className="grid grid-cols-2 gap-4">
               {qrCodeData.qrCodeUrl && (
                 <Button
                   onClick={downloadQRCode}
-                  variant="outline"
-                  className="flex-1 border-gray-600"
+                  size="lg"
+                  className="h-14 bg-gray-800 hover:bg-gray-700 text-white font-bold border-2 border-gray-600"
                 >
-                  <Download className="w-4 h-4 mr-2" />
-                  Download QR Code
+                  <Download className="w-5 h-5 mr-2" />
+                  Download QR
                 </Button>
               )}
               <Button
                 onClick={onSuccess}
-                className="flex-1 bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold"
+                size="lg"
+                className="h-14 bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-black text-lg"
               >
-                Done
+                ✓ Done
               </Button>
             </div>
           </motion.div>
         )}
       </CardContent>
     </Card>
+    </div>
   );
 }
