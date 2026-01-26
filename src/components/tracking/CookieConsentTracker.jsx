@@ -284,14 +284,14 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
                     <div className="flex flex-col sm:flex-row gap-3">
                       <Button
                         onClick={handleAccept}
-                        className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold px-6"
+                        className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold px-6 shadow-lg"
                       >
                         Accept & Continue
                       </Button>
                       <Button
                         onClick={handleDecline}
                         variant="outline"
-                        className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                        className="border-gray-500 text-white hover:bg-gray-700 hover:text-white hover:border-gray-400 font-medium"
                       >
                         Decline
                       </Button>
