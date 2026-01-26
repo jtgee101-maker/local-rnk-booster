@@ -258,11 +258,11 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
                   <div className="flex-1">
                     <h3 className="text-white font-bold text-lg mb-2 flex items-center gap-2">
                       <Shield className="w-5 h-5 text-[#c8ff00]" />
-                      Enhanced Experience & Insights
+                      We Value Your Privacy
                     </h3>
                     <p className="text-gray-300 text-sm mb-4 leading-relaxed">
-                      We use cookies and tracking to provide you with personalized insights and improve your experience. 
-                      This helps us understand your needs better, even before you submit your information.
+                      We use cookies to enhance your browsing experience, serve personalized content, and analyze our traffic. 
+                      By clicking "Accept", you consent to our use of cookies and agree to our Privacy Policy.
                     </p>
                     
                     {/* What we track */}
