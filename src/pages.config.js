@@ -42,6 +42,7 @@ import Upsell1 from './pages/Upsell1';
 import V2Start from './pages/V2Start';
 import AnalyticsVerification from './pages/AnalyticsVerification';
 import CustomDomainGuide from './pages/CustomDomainGuide';
+import CampaignTesting from './pages/CampaignTesting';
 import __Layout from './Layout.jsx';
 
 
@@ -90,6 +91,7 @@ export const PAGES = {
     "V2Start": V2Start,
     "AnalyticsVerification": AnalyticsVerification,
     "CustomDomainGuide": CustomDomainGuide,
+    "CampaignTesting": CampaignTesting,
 }
 
 export const pagesConfig = {
