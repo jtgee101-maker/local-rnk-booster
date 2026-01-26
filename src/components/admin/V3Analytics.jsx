@@ -85,7 +85,7 @@ export default function V3Analytics() {
   const { data: analytics, isLoading, refetch, isRefetching, error } = useQuery({
     queryKey: ['v3-analytics-backend', timeRange],
     queryFn: async () => {
-      const response = await base44.functions.invoke('getV3Analytics', { timeRange });
+      const response = await base44.functions.invoke('admin/getV3Analytics', { timeRange });
       if (!response.data.success) {
         throw new Error(response.data.error || 'Failed to fetch analytics');
       }
