@@ -3,6 +3,7 @@ import { quizSubmissionTemplate } from './utils/emailTemplates.js';
 import { enhancedAuditTemplate } from './utils/enhancedEmailTemplates.js';
 import { logError, handleFunctionError } from './utils/errorLogging.js';
 import { sendEmailWithRetry } from './utils/emailRetry.js';
+import { getProductionDomain } from './utils/domainConfig.js';
 
 Deno.serve(async (req) => {
   try {
@@ -22,6 +23,9 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Lead data and email required' }, { status: 400 });
     }
 
+    // Get production domain
+    const domain = await getProductionDomain(base44);
+    
     // Try to get enhanced analysis if available
     let analysis = null;
     if (payload.analysis) {
@@ -30,8 +34,8 @@ Deno.serve(async (req) => {
 
     // Use enhanced template if analysis available, fallback to standard
     const emailBody = analysis 
-      ? enhancedAuditTemplate(leadData, analysis)
-      : quizSubmissionTemplate(leadData);
+      ? enhancedAuditTemplate(leadData, analysis, domain)
+      : quizSubmissionTemplate(leadData, domain);
 
     await sendEmailWithRetry(
       (data) => base44.asServiceRole.integrations.Core.SendEmail(data),

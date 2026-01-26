@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import { quizSubmissionTemplate } from './utils/emailTemplates.js';
 import { logError, handleFunctionError } from './utils/errorLogging.js';
+import { getProductionDomain } from './utils/domainConfig.js';
 
 Deno.serve(async (req) => {
   try {
@@ -20,7 +21,10 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Lead data and email required' }, { status: 400 });
     }
 
-    const emailBody = quizSubmissionTemplate(leadData);
+    // Get production domain
+    const domain = await getProductionDomain(base44);
+    
+    const emailBody = quizSubmissionTemplate(leadData, domain);
 
     await base44.asServiceRole.integrations.Core.SendEmail({
       to: leadData.email,
