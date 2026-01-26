@@ -16,17 +16,16 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 
 // Import critical components
 import ProgressBar from '@/components/quiz/ProgressBar';
-import ExitIntentModal from '@/components/shared/ExitIntentModal';
 import WelcomeStep from '@/components/quiz/WelcomeStep';
 import LegalFooter from '@/components/shared/LegalFooter';
 import ViewersCounter from '@/components/cro/ViewersCounter';
 import ScarcityBanner from '@/components/cro/ScarcityBanner';
 import DeferredComponent from '@/components/optimized/DeferredComponent';
 import InlineSocialProof from '@/components/cro/InlineSocialProof';
-import ExitIntentV3 from '@/components/quizv3/ExitIntentV3';
 import MobileOptimizations from '@/components/quizv3/MobileOptimizations';
 import HeatmapTracker from '@/components/analytics/HeatmapTracker';
 import MobileViewportFix from '@/components/utils/MobileViewportFix';
+import CookieConsentTracker from '@/components/tracking/CookieConsentTracker';
 
 // Lazy load step components
 const CategoryStep = lazy(() => import('@/components/quiz/CategoryStep'));
@@ -87,8 +86,6 @@ function QuizV3Content() {
   const [showTransition, setShowTransition] = useState(false);
   const [transitionConfig, setTransitionConfig] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [showExitIntent, setShowExitIntent] = useState(false);
-  const [exitIntentShown, setExitIntentShown] = useState(false);
 
   React.useEffect(() => {
     const sessionId = sessionStorage.getItem('ab_session_id') || `session_${Date.now()}`;
@@ -126,23 +123,7 @@ function QuizV3Content() {
       session_id: sessionId,
       properties: trafficData
     }).catch(err => console.error('Error tracking event:', err));
-
-    // Exit intent detection
-    const handleMouseLeave = (e) => {
-      if (e.clientY <= 0 && !exitIntentShown && step !== 'welcome' && step !== 'results') {
-        const hasSeenExit = sessionStorage.getItem('v3_exit_shown');
-        if (!hasSeenExit) {
-          setShowExitIntent(true);
-          setExitIntentShown(true);
-          sessionStorage.setItem('v3_exit_shown', 'true');
-          base44.analytics.track({ eventName: 'quizv3_exit_intent_triggered' });
-        }
-      }
-    };
-
-    document.addEventListener('mouseleave', handleMouseLeave);
-    return () => document.removeEventListener('mouseleave', handleMouseLeave);
-  }, [exitIntentShown, step]);
+  }, [step]);
 
   React.useEffect(() => {
     if (step !== 'welcome') {
@@ -667,16 +648,11 @@ function QuizV3Content() {
             </div>
           )}
 
-          <ExitIntentModal 
-            onAccept={() => {
-              base44.analytics.track({ eventName: 'quizv3_exit_intent_accepted' });
-              window.location.href = createPageUrl('BridgeV3');
-            }}
-          />
-
           <DeferredComponent delay={5000}>
             <ScarcityBanner spotsLeft={7} />
           </DeferredComponent>
+          
+          <CookieConsentTracker quizStep={step} quizData={quizData} />
 
           <main className="flex-1 flex items-center justify-center py-4 px-3 md:px-4 overflow-x-hidden touch-pan-y">
             <AnimatePresence mode="wait">
@@ -754,20 +730,6 @@ function QuizV3Content() {
       </div>
 
       {step === 'welcome' && <LegalFooter />}
-
-      {/* Exit Intent Modal */}
-      <AnimatePresence>
-        {showExitIntent && (
-          <ExitIntentV3
-            onClose={() => setShowExitIntent(false)}
-            onAccept={() => {
-              if (step === 'welcome') {
-                handleStart();
-              }
-            }}
-          />
-        )}
-      </AnimatePresence>
     </>
   );
 }
