@@ -339,11 +339,13 @@ export default function ProductionLaunchChecklist() {
               const categoryChecks = checks.filter(c => c.category === category);
               if (categoryChecks.length === 0) return null;
 
+              const CategoryIcon = categoryChecks[0].icon;
+
               return (
                 <Card key={category} className="bg-gray-800/50 border-gray-700">
                   <CardHeader>
                     <CardTitle className="text-white flex items-center gap-2">
-                      {categoryChecks[0].icon && <categoryChecks[0].icon className="w-5 h-5 text-[#c8ff00]" />}
+                      {CategoryIcon && <CategoryIcon className="w-5 h-5 text-[#c8ff00]" />}
                       {category}
                     </CardTitle>
                   </CardHeader>
