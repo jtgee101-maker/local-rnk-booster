@@ -452,7 +452,6 @@ function QuizV3Content() {
       // Continue on error to avoid blocking legitimate users
     }
     
-    const trafficData = JSON.parse(sessionStorage.getItem('traffic_data') || '{}');
     const finalData = { 
       ...quizData, 
       ...contactData,
