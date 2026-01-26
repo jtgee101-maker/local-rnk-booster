@@ -182,8 +182,24 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
     setSessionData(prev => {
       const updated = { ...prev, ...updates };
       localStorage.setItem('lr_session_data', JSON.stringify(updated));
+      
+      // Calculate engagement score
+      const engagementScore = calculateEngagementScore(updated);
+      localStorage.setItem('lr_engagement_score', engagementScore);
+      
       return updated;
     });
+  };
+
+  const calculateEngagementScore = (data) => {
+    // Formula: ES = (0.2 × S) + (0.3 × C) + (0.3 × T) + (0.2 × Q)
+    const S = data.scroll_depth || 0; // Already 0-100
+    const C = Math.min((data.interaction_count || 0) * 2, 100); // Clicks normalized to 100
+    const T = Math.min((data.time_on_page || 0) / 3, 100); // Time (300s = 100%)
+    const Q = (data.quiz_progress?.current_step ? (data.quiz_progress.current_step / 7) * 100 : 0); // Quiz 7 steps
+    
+    const score = (0.2 * S) + (0.3 * C) + (0.3 * T) + (0.2 * Q);
+    return Math.round(Math.min(score, 100));
   };
 
   // Track quiz progress
@@ -209,7 +225,7 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
     }
   }, [quizStep, hasConsented]);
 
-  const handleAccept = () => {
+  const handleAccept = async () => {
     localStorage.setItem('lr_tracking_consent', 'accepted');
     setHasConsented(true);
     setShowBanner(false);
@@ -222,6 +238,42 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
     });
 
     initializeTracking();
+    
+    // Sync data to backend
+    syncBehaviorToBackend();
+  };
+
+  const syncBehaviorToBackend = async () => {
+    try {
+      const behaviorData = JSON.parse(localStorage.getItem('lr_session_data') || '{}');
+      const engagementScore = localStorage.getItem('lr_engagement_score') || 0;
+      const trafficData = JSON.parse(sessionStorage.getItem('traffic_data') || '{}');
+      
+      await base44.functions.invoke('syncUserBehavior', {
+        session_id: behaviorData.session_id,
+        consent_given: true,
+        engagement_score: parseInt(engagementScore),
+        scroll_depth: behaviorData.scroll_depth || 0,
+        click_count: behaviorData.interaction_count || 0,
+        time_on_page: behaviorData.time_on_page || 0,
+        quiz_completion: behaviorData.quiz_progress?.current_step ? (behaviorData.quiz_progress.current_step / 7) * 100 : 0,
+        interactions: behaviorData.interactions || [],
+        quiz_progress: behaviorData.quiz_progress || {},
+        is_returning: behaviorData.total_visits > 1,
+        first_visit: behaviorData.first_visit,
+        last_visit: behaviorData.last_visit,
+        total_visits: behaviorData.total_visits || 1,
+        pages_viewed: behaviorData.pages_viewed || [],
+        device_info: {
+          user_agent: navigator.userAgent,
+          screen_width: window.innerWidth,
+          screen_height: window.innerHeight
+        },
+        traffic_source: trafficData
+      });
+    } catch (error) {
+      console.error('Failed to sync behavior data:', error);
+    }
   };
 
   const handleDecline = () => {
