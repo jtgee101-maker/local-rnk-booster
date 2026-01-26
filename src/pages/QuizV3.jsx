@@ -94,11 +94,37 @@ function QuizV3Content() {
     const sessionId = sessionStorage.getItem('ab_session_id') || `session_${Date.now()}`;
     sessionStorage.setItem('ab_session_id', sessionId);
     
-    base44.analytics.track({ eventName: 'quizv3_page_viewed' });
+    // Capture affiliate source data
+    const urlParams = new URLSearchParams(window.location.search);
+    const affiliateCode = urlParams.get('ref') || urlParams.get('aff') || urlParams.get('affiliate');
+    const utmSource = urlParams.get('utm_source');
+    const utmMedium = urlParams.get('utm_medium');
+    const utmCampaign = urlParams.get('utm_campaign');
+    
+    const trafficData = {
+      affiliate_code: affiliateCode,
+      utm_source: utmSource,
+      utm_medium: utmMedium,
+      utm_campaign: utmCampaign,
+      referrer: document.referrer,
+      landing_page: window.location.pathname,
+      device_type: /Mobile|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+      screen_width: window.innerWidth,
+      screen_height: window.innerHeight,
+      browser: navigator.userAgent
+    };
+    
+    sessionStorage.setItem('traffic_data', JSON.stringify(trafficData));
+    
+    base44.analytics.track({ 
+      eventName: 'quizv3_page_viewed',
+      properties: trafficData
+    });
     base44.entities.ConversionEvent.create({
       funnel_version: 'v3',
       event_name: 'quizv3_page_viewed',
-      session_id: sessionId
+      session_id: sessionId,
+      properties: trafficData
     }).catch(err => console.error('Error tracking event:', err));
 
     // Exit intent detection
@@ -150,11 +176,25 @@ function QuizV3Content() {
 
   const handleStart = () => {
     const sessionId = sessionStorage.getItem('ab_session_id');
-    base44.analytics.track({ eventName: 'quizv3_started' });
+    const trafficData = JSON.parse(sessionStorage.getItem('traffic_data') || '{}');
+    const timeOnPage = Date.now() - performance.timing.navigationStart;
+    
+    base44.analytics.track({ 
+      eventName: 'quizv3_started',
+      properties: { 
+        ...trafficData,
+        time_to_start_ms: timeOnPage,
+        has_affiliate: !!trafficData.affiliate_code
+      }
+    });
     base44.entities.ConversionEvent.create({
       funnel_version: 'v3',
       event_name: 'quizv3_started',
-      session_id: sessionId
+      session_id: sessionId,
+      properties: { 
+        ...trafficData,
+        time_to_start_ms: timeOnPage
+      }
     }).catch(err => console.error('Error tracking event:', err));
     
     setStep('category');
@@ -163,15 +203,60 @@ function QuizV3Content() {
 
   const handleCategorySelect = useCallback((category) => {
     if (step !== 'category') return;
-    base44.analytics.track({ eventName: 'quizv3_category_selected', properties: { category } });
+    const trafficData = JSON.parse(sessionStorage.getItem('traffic_data') || '{}');
+    
+    base44.analytics.track({ 
+      eventName: 'quizv3_category_selected', 
+      properties: { 
+        category,
+        affiliate_code: trafficData.affiliate_code,
+        utm_source: trafficData.utm_source
+      } 
+    });
+    
+    const sessionId = sessionStorage.getItem('ab_session_id');
+    base44.entities.ConversionEvent.create({
+      funnel_version: 'v3',
+      event_name: 'quizv3_category_selected',
+      session_id: sessionId,
+      step_number: 1,
+      properties: { 
+        category,
+        ...trafficData
+      }
+    }).catch(err => console.error('Error tracking event:', err));
+    
     setQuizData(prev => ({ ...prev, business_category: category }));
     setStep('painpoint');
     setCurrentStepNumber(2);
   }, [step]);
 
   const handlePainPointSelect = useCallback((painPoint) => {
-    if (step !== 'painpoint') return; // Prevent duplicate clicks
-    base44.analytics.track({ eventName: 'quizv3_painpoint_selected', properties: { painPoint } });
+    if (step !== 'painpoint') return;
+    const trafficData = JSON.parse(sessionStorage.getItem('traffic_data') || '{}');
+    
+    base44.analytics.track({ 
+      eventName: 'quizv3_painpoint_selected', 
+      properties: { 
+        painPoint,
+        category: quizData.business_category,
+        affiliate_code: trafficData.affiliate_code
+      } 
+    });
+    
+    const sessionId = sessionStorage.getItem('ab_session_id');
+    base44.entities.ConversionEvent.create({
+      funnel_version: 'v3',
+      event_name: 'quizv3_painpoint_selected',
+      session_id: sessionId,
+      step_number: 2,
+      properties: { 
+        painPoint,
+        category: quizData.business_category,
+        ...trafficData
+      }
+    }).catch(err => console.error('Error tracking event:', err));
+    
     setQuizData(prev => ({ ...prev, pain_point: painPoint }));
     
     setTransitionConfig({
@@ -189,16 +274,70 @@ function QuizV3Content() {
   }, [step]);
 
   const handleGoalsSelect = useCallback((goals) => {
-    if (step !== 'goals') return; // Prevent duplicate clicks
-    base44.analytics.track({ eventName: 'quizv3_goals_selected', properties: { goals_count: goals.length } });
+    if (step !== 'goals') return;
+    const trafficData = JSON.parse(sessionStorage.getItem('traffic_data') || '{}');
+    
+    base44.analytics.track({ 
+      eventName: 'quizv3_goals_selected', 
+      properties: { 
+        goals_count: goals.length,
+        goals: goals.join(','),
+        category: quizData.business_category,
+        pain_point: quizData.pain_point,
+        affiliate_code: trafficData.affiliate_code
+      } 
+    });
+    
+    const sessionId = sessionStorage.getItem('ab_session_id');
+    base44.entities.ConversionEvent.create({
+      funnel_version: 'v3',
+      event_name: 'quizv3_goals_selected',
+      session_id: sessionId,
+      step_number: 3,
+      properties: { 
+        goals_count: goals.length,
+        goals: goals.join(','),
+        category: quizData.business_category,
+        pain_point: quizData.pain_point,
+        ...trafficData
+      }
+    }).catch(err => console.error('Error tracking event:', err));
+    
     setQuizData(prev => ({ ...prev, goals }));
     setStep('timeline');
     setCurrentStepNumber(4);
-  }, [step]);
+  }, [step, quizData.business_category, quizData.pain_point]);
 
   const handleTimelineSelect = useCallback((timeline) => {
-    if (step !== 'timeline') return; // Prevent duplicate clicks
-    base44.analytics.track({ eventName: 'quizv3_timeline_selected', properties: { timeline } });
+    if (step !== 'timeline') return;
+    const trafficData = JSON.parse(sessionStorage.getItem('traffic_data') || '{}');
+    
+    base44.analytics.track({ 
+      eventName: 'quizv3_timeline_selected', 
+      properties: { 
+        timeline,
+        category: quizData.business_category,
+        pain_point: quizData.pain_point,
+        goals_count: quizData.goals.length,
+        affiliate_code: trafficData.affiliate_code
+      } 
+    });
+    
+    const sessionId = sessionStorage.getItem('ab_session_id');
+    base44.entities.ConversionEvent.create({
+      funnel_version: 'v3',
+      event_name: 'quizv3_timeline_selected',
+      session_id: sessionId,
+      step_number: 4,
+      properties: { 
+        timeline,
+        category: quizData.business_category,
+        pain_point: quizData.pain_point,
+        goals: quizData.goals.join(','),
+        ...trafficData
+      }
+    }).catch(err => console.error('Error tracking event:', err));
+    
     setQuizData(prev => ({ ...prev, timeline }));
     
     setTransitionConfig({
@@ -266,7 +405,30 @@ function QuizV3Content() {
       return;
     }
     
-    base44.analytics.track({ eventName: 'quizv3_contact_info_submitted', properties: { email: contactData.email } });
+    const trafficData = JSON.parse(sessionStorage.getItem('traffic_data') || '{}');
+    const sessionId = sessionStorage.getItem('ab_session_id');
+    
+    base44.analytics.track({ 
+      eventName: 'quizv3_contact_info_submitted', 
+      properties: { 
+        email: contactData.email,
+        has_phone: !!contactData.phone,
+        affiliate_code: trafficData.affiliate_code,
+        utm_source: trafficData.utm_source
+      } 
+    });
+    
+    base44.entities.ConversionEvent.create({
+      funnel_version: 'v3',
+      event_name: 'quizv3_contact_info_submitted',
+      session_id: sessionId,
+      step_number: 7,
+      properties: { 
+        email: contactData.email,
+        has_phone: !!contactData.phone,
+        ...trafficData
+      }
+    }).catch(err => console.error('Error tracking event:', err));
     
     // Client-side rate limiting check
     if (!quizRateLimiter.canSubmit()) {
@@ -290,11 +452,20 @@ function QuizV3Content() {
       // Continue on error to avoid blocking legitimate users
     }
     
+    const trafficData = JSON.parse(sessionStorage.getItem('traffic_data') || '{}');
     const finalData = { 
       ...quizData, 
       ...contactData,
       // Ensure business_name exists
-      business_name: quizData.business_name || contactData.business_name || 'Unknown Business'
+      business_name: quizData.business_name || contactData.business_name || 'Unknown Business',
+      // Add affiliate tracking data
+      affiliate_code: trafficData.affiliate_code,
+      utm_source: trafficData.utm_source,
+      utm_medium: trafficData.utm_medium,
+      utm_campaign: trafficData.utm_campaign,
+      referrer: trafficData.referrer,
+      device_type: trafficData.device_type,
+      landing_page: trafficData.landing_page
     };
     setQuizData(finalData);
 
@@ -324,9 +495,15 @@ function QuizV3Content() {
         properties: { 
           health_score: finalData.health_score,
           business_category: finalData.business_category,
+          pain_point: finalData.pain_point,
+          goals: finalData.goals.join(','),
+          timeline: finalData.timeline,
           has_gmb_data: true,
           is_duplicate: duplicateCheck.isDuplicate,
-          lead_action: leadAction.action
+          lead_action: leadAction.action,
+          affiliate_code: finalData.affiliate_code,
+          utm_source: finalData.utm_source,
+          device_type: finalData.device_type
         } 
       });
       
@@ -338,8 +515,19 @@ function QuizV3Content() {
         properties: {
           health_score: finalData.health_score,
           business_category: finalData.business_category,
+          pain_point: finalData.pain_point,
+          goals: finalData.goals.join(','),
+          timeline: finalData.timeline,
           critical_issues_count: finalData.critical_issues.length,
-          is_duplicate: duplicateCheck.isDuplicate
+          is_duplicate: duplicateCheck.isDuplicate,
+          affiliate_code: finalData.affiliate_code,
+          utm_source: finalData.utm_source,
+          utm_medium: finalData.utm_medium,
+          utm_campaign: finalData.utm_campaign,
+          referrer: finalData.referrer,
+          device_type: finalData.device_type,
+          screen_width: trafficData.screen_width,
+          time_to_complete_ms: Date.now() - performance.timing.navigationStart
         }
       }).catch(err => console.error('Error tracking event:', err));
       
@@ -365,8 +553,17 @@ function QuizV3Content() {
   const handleCTA = () => {
     const sessionId = sessionStorage.getItem('ab_session_id');
     const leadData = JSON.parse(sessionStorage.getItem('quizLead') || '{}');
+    const trafficData = JSON.parse(sessionStorage.getItem('traffic_data') || '{}');
     
-    base44.analytics.track({ eventName: 'quizv3_affiliate_cta_clicked' });
+    base44.analytics.track({ 
+      eventName: 'quizv3_affiliate_cta_clicked',
+      properties: {
+        affiliate_code: trafficData.affiliate_code,
+        utm_source: trafficData.utm_source,
+        health_score: quizData.health_score
+      }
+    });
+    
     base44.entities.ConversionEvent.create({
       funnel_version: 'v3',
       event_name: 'quizv3_affiliate_cta_clicked',
@@ -374,7 +571,11 @@ function QuizV3Content() {
       lead_id: leadData.id,
       properties: {
         health_score: quizData.health_score,
-        business_name: quizData.business_name
+        business_name: quizData.business_name,
+        business_category: quizData.business_category,
+        affiliate_code: trafficData.affiliate_code,
+        utm_source: trafficData.utm_source,
+        device_type: trafficData.device_type
       }
     }).catch(err => console.error('Error tracking event:', err));
     
