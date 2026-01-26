@@ -249,7 +249,7 @@ export default function ProductionLaunchChecklist() {
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-3">
-            <Zap className="w-8 h-8 text-[#c8ff00]" />
+            <Zap className="w-8 h-8" style={{ color: '#c8ff00' }} />
             <h1 className="text-4xl font-black text-white">Production Launch Checklist</h1>
           </div>
           <p className="text-gray-400 text-lg">
@@ -258,7 +258,7 @@ export default function ProductionLaunchChecklist() {
           <Button
             onClick={runAllChecks}
             disabled={isRunning}
-            className="bg-[#c8ff00] text-black hover:bg-[#d4ff33] font-bold"
+            style={{ backgroundColor: '#c8ff00' }} className="text-black font-bold hover:opacity-90"
           >
             {isRunning ? (
               <>
@@ -305,7 +305,7 @@ export default function ProductionLaunchChecklist() {
                 </div>
                 <div className="w-full bg-gray-700 rounded-full h-4">
                   <div 
-                    className="bg-gradient-to-r from-[#c8ff00] to-green-500 h-4 rounded-full transition-all duration-1000"
+                    className="bg-gradient-to-r from-lime-400 to-green-500 h-4 rounded-full transition-all duration-1000"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
@@ -345,7 +345,7 @@ export default function ProductionLaunchChecklist() {
                 <Card key={category} className="bg-gray-800/50 border-gray-700">
                   <CardHeader>
                     <CardTitle className="text-white flex items-center gap-2">
-                      {CategoryIcon && <CategoryIcon className="w-5 h-5 text-[#c8ff00]" />}
+                      {CategoryIcon && <CategoryIcon className="w-5 h-5" style={{ color: '#c8ff00' }} />}
                       {category}
                     </CardTitle>
                   </CardHeader>
@@ -380,7 +380,7 @@ export default function ProductionLaunchChecklist() {
         <Card className="bg-gray-800/50 border-gray-700">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
-              <MessageSquare className="w-5 h-5 text-[#c8ff00]" />
+              <MessageSquare className="w-5 h-5" style={{ color: '#c8ff00' }} />
               Manual Pre-Launch Checklist
             </CardTitle>
           </CardHeader>

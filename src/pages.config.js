@@ -10,6 +10,7 @@ import ContractorsLanding from './pages/ContractorsLanding';
 import Dashboard from './pages/Dashboard';
 import DataCleanup from './pages/DataCleanup';
 import DentistsLanding from './pages/DentistsLanding';
+import DomainConfigGuide from './pages/DomainConfigGuide';
 import ElectriciansLanding from './pages/ElectriciansLanding';
 import FinalLaunchChecklist from './pages/FinalLaunchChecklist';
 import HVACLanding from './pages/HVACLanding';
@@ -19,6 +20,7 @@ import PlumbersLanding from './pages/PlumbersLanding';
 import Pricing from './pages/Pricing';
 import Privacy from './pages/Privacy';
 import ProductionChecklist from './pages/ProductionChecklist';
+import ProductionLaunchChecklist from './pages/ProductionLaunchChecklist';
 import ProductionReadinessCheck from './pages/ProductionReadinessCheck';
 import Quiz from './pages/Quiz';
 import QuizV2 from './pages/QuizV2';
@@ -37,8 +39,6 @@ import ThankYou from './pages/ThankYou';
 import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import V2Start from './pages/V2Start';
-import ProductionLaunchChecklist from './pages/ProductionLaunchChecklist';
-import DomainConfigGuide from './pages/DomainConfigGuide';
 import __Layout from './Layout.jsx';
 
 
@@ -55,6 +55,7 @@ export const PAGES = {
     "Dashboard": Dashboard,
     "DataCleanup": DataCleanup,
     "DentistsLanding": DentistsLanding,
+    "DomainConfigGuide": DomainConfigGuide,
     "ElectriciansLanding": ElectriciansLanding,
     "FinalLaunchChecklist": FinalLaunchChecklist,
     "HVACLanding": HVACLanding,
@@ -64,6 +65,7 @@ export const PAGES = {
     "Pricing": Pricing,
     "Privacy": Privacy,
     "ProductionChecklist": ProductionChecklist,
+    "ProductionLaunchChecklist": ProductionLaunchChecklist,
     "ProductionReadinessCheck": ProductionReadinessCheck,
     "Quiz": Quiz,
     "QuizV2": QuizV2,
@@ -82,8 +84,6 @@ export const PAGES = {
     "Upsell": Upsell,
     "Upsell1": Upsell1,
     "V2Start": V2Start,
-    "ProductionLaunchChecklist": ProductionLaunchChecklist,
-    "DomainConfigGuide": DomainConfigGuide,
 }
 
 export const pagesConfig = {
