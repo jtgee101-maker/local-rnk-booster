@@ -161,12 +161,13 @@ function QuizV3Content() {
     setCurrentStepNumber(1);
   };
 
-  const handleCategorySelect = (category) => {
+  const handleCategorySelect = useCallback((category) => {
+    if (step !== 'category') return;
     base44.analytics.track({ eventName: 'quizv3_category_selected', properties: { category } });
     setQuizData(prev => ({ ...prev, business_category: category }));
     setStep('painpoint');
     setCurrentStepNumber(2);
-  };
+  }, [step]);
 
   const handlePainPointSelect = useCallback((painPoint) => {
     if (step !== 'painpoint') return; // Prevent duplicate clicks
