@@ -41,6 +41,7 @@ import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import V2Start from './pages/V2Start';
 import AnalyticsVerification from './pages/AnalyticsVerification';
+import CustomDomainGuide from './pages/CustomDomainGuide';
 import __Layout from './Layout.jsx';
 
 
@@ -88,6 +89,7 @@ export const PAGES = {
     "Upsell1": Upsell1,
     "V2Start": V2Start,
     "AnalyticsVerification": AnalyticsVerification,
+    "CustomDomainGuide": CustomDomainGuide,
 }
 
 export const pagesConfig = {
