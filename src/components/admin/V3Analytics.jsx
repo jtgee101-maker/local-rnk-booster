@@ -312,7 +312,7 @@ export default function V3Analytics() {
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-white">Overall Conversion Rate</span>
                 <span className="text-2xl font-bold text-[#c8ff00]">
-                  {stats.conversionRate}%
+                  {stats.conversionRate.toFixed(1)}%
                 </span>
               </div>
               <p className="text-xs text-gray-500 mt-1">
