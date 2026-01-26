@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Sparkles, QrCode, Download } from 'lucide-react';
+import { ArrowLeft, Sparkles, QrCode, Download, Globe, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import QRCode from 'qrcode';
 
@@ -17,6 +17,7 @@ export default function CampaignBuilder({ onClose, onSuccess }) {
     name: '',
     type: 'qr_code',
     base_url: window.location.origin + '/QuizV3',
+    custom_domain: '',
     utm_source: '',
     utm_medium: '',
     utm_campaign: '',
@@ -26,6 +27,14 @@ export default function CampaignBuilder({ onClose, onSuccess }) {
     notes: ''
   });
   const [qrCodeData, setQrCodeData] = useState(null);
+
+  // Preset custom domains
+  const customDomains = [
+    window.location.origin,
+    'https://yourbrand.com',
+    'https://track.yourbrand.com',
+    'https://go.yourbrand.com'
+  ];
 
   const createCampaignMutation = useMutation({
     mutationFn: async (data) => {
@@ -37,7 +46,8 @@ export default function CampaignBuilder({ onClose, onSuccess }) {
       if (data.utm_content) params.append('utm_content', data.utm_content);
       if (data.utm_term) params.append('utm_term', data.utm_term);
 
-      const trackingUrl = `${data.base_url}${params.toString() ? '?' + params.toString() : ''}`;
+      const baseUrl = data.custom_domain || data.base_url;
+      const trackingUrl = `${baseUrl}${params.toString() ? '?' + params.toString() : ''}`;
 
       // Generate QR code if needed
       let qrCodeUrl = null;
@@ -84,21 +94,33 @@ export default function CampaignBuilder({ onClose, onSuccess }) {
   };
 
   return (
-    <Card className="bg-gray-800/50 border-gray-700">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-            <CardTitle className="text-white">Campaign Builder</CardTitle>
+    <div className="max-w-4xl mx-auto">
+      <Card className="bg-gradient-to-br from-gray-900 to-gray-800 border-2 border-[#c8ff00]/20 shadow-2xl">
+        <CardHeader className="border-b border-gray-700/50 bg-gradient-to-r from-[#c8ff00]/5 to-transparent">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={onClose}
+                className="hover:bg-[#c8ff00]/10"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </Button>
+              <div>
+                <CardTitle className="text-2xl font-black text-white tracking-tight">Campaign Builder</CardTitle>
+                <p className="text-sm font-semibold text-[#c8ff00] mt-1">Multi-Channel Attribution Tracking</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="px-4 py-2 bg-gray-800 rounded-lg border border-gray-700">
+                <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Step</div>
+                <div className="text-2xl font-black text-white">{step}<span className="text-gray-500">/3</span></div>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-2 text-xs text-gray-400">
-            Step {step} of 3
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
+        </CardHeader>
+        <CardContent className="p-8">
         {step === 1 && (
           <motion.div
             initial={{ opacity: 0, x: 20 }}
