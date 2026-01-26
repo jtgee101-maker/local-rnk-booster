@@ -168,7 +168,8 @@ function QuizV3Content() {
     setCurrentStepNumber(2);
   };
 
-  const handlePainPointSelect = (painPoint) => {
+  const handlePainPointSelect = useCallback((painPoint) => {
+    if (step !== 'painpoint') return; // Prevent duplicate clicks
     base44.analytics.track({ eventName: 'quizv3_painpoint_selected', properties: { painPoint } });
     setQuizData(prev => ({ ...prev, pain_point: painPoint }));
     
@@ -183,17 +184,19 @@ function QuizV3Content() {
       setShowTransition(false);
       setStep('goals');
       setCurrentStepNumber(3);
-    }, 2500);
-  };
+    }, 1800);
+  }, [step]);
 
-  const handleGoalsSelect = (goals) => {
+  const handleGoalsSelect = useCallback((goals) => {
+    if (step !== 'goals') return; // Prevent duplicate clicks
     base44.analytics.track({ eventName: 'quizv3_goals_selected', properties: { goals_count: goals.length } });
     setQuizData(prev => ({ ...prev, goals }));
     setStep('timeline');
     setCurrentStepNumber(4);
-  };
+  }, [step]);
 
-  const handleTimelineSelect = (timeline) => {
+  const handleTimelineSelect = useCallback((timeline) => {
+    if (step !== 'timeline') return; // Prevent duplicate clicks
     base44.analytics.track({ eventName: 'quizv3_timeline_selected', properties: { timeline } });
     setQuizData(prev => ({ ...prev, timeline }));
     
@@ -208,8 +211,8 @@ function QuizV3Content() {
       setShowTransition(false);
       setStep('businessSearch');
       setCurrentStepNumber(5);
-    }, 2500);
-  };
+    }, 1800);
+  }, [step]);
 
   const handleBusinessSearchSelect = async (businessData) => {
     setIsLoading(true);
@@ -475,7 +478,7 @@ function QuizV3Content() {
             <ScarcityBanner spotsLeft={7} />
           </DeferredComponent>
 
-          <main className="flex-1 flex items-center justify-center py-4 px-2 md:px-4 overflow-x-hidden">
+          <main className="flex-1 flex items-center justify-center py-4 px-3 md:px-4 overflow-x-hidden touch-pan-y">
             <AnimatePresence mode="wait">
               {showTransition ? (
                 <Suspense fallback={<LoadingSpinner />}>

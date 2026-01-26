@@ -11,12 +11,20 @@ const categories = [
 ];
 
 export default function CategoryStep({ onSelect }) {
+  const [isSelecting, setIsSelecting] = React.useState(false);
+
+  const handleSelect = (id) => {
+    if (isSelecting) return;
+    setIsSelecting(true);
+    onSelect(id);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="max-w-2xl mx-auto px-4"
+      className="max-w-2xl mx-auto px-4 w-full"
     >
       <div className="text-center mb-10">
         <motion.div
@@ -34,39 +42,33 @@ export default function CategoryStep({ onSelect }) {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
         {categories.map((cat, index) => (
-          <motion.div 
+          <motion.button
             key={cat.id}
-            whileHover={{ scale: 1.02 }} 
-            whileTap={{ scale: 0.98 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.06, duration: 0.3 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => handleSelect(cat.id)}
+            disabled={isSelecting}
+            className="w-full group relative bg-gray-900/50 backdrop-blur border border-gray-800 rounded-2xl p-5 md:p-6 text-left transition-all duration-200 active:border-[#c8ff00]/50 active:bg-gray-900/80 min-h-[100px] touch-manipulation disabled:opacity-50"
           >
-            <motion.button
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              onClick={() => onSelect(cat.id)}
-              className="w-full group relative bg-gray-900/50 backdrop-blur border border-gray-800 rounded-2xl p-6 text-left transition-all duration-300 hover:border-[#c8ff00]/50 hover:bg-gray-900/80 min-h-[100px] touch-manipulation"
-            >
               <div className="flex items-start gap-4">
-                <div className="p-3 rounded-xl bg-gray-800 group-hover:bg-[#c8ff00]/10 transition-colors">
-                  <cat.icon className="w-6 h-6 text-gray-400 group-hover:text-[#c8ff00] transition-colors" />
+                <div className="p-2.5 md:p-3 rounded-xl bg-gray-800 group-active:bg-[#c8ff00]/10 transition-colors">
+                  <cat.icon className="w-5 h-5 md:w-6 md:h-6 text-gray-400 group-active:text-[#c8ff00] transition-colors" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-white group-hover:text-[#c8ff00] transition-colors">
+                  <h3 className="font-semibold text-base md:text-lg text-white group-active:text-[#c8ff00] transition-colors">
                     {cat.label}
                   </h3>
-                  <p className="text-sm text-gray-500 mt-1">{cat.desc}</p>
+                  <p className="text-xs md:text-sm text-gray-500 mt-1">{cat.desc}</p>
                 </div>
-                <motion.div
-                  className="text-[#c8ff00] opacity-0 group-hover:opacity-100 transition-opacity"
-                  whileHover={{ x: 5 }}
-                >
+                <div className="text-[#c8ff00] opacity-0 group-active:opacity-100 transition-opacity text-xl">
                   →
-                </motion.div>
+                </div>
               </div>
             </motion.button>
-          </motion.div>
         ))}
       </div>
     </motion.div>

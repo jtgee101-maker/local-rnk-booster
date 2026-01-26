@@ -14,6 +14,7 @@ const goals = [
 
 export default function GoalsStep({ onContinue }) {
   const [selectedGoals, setSelectedGoals] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const toggleGoal = (goalId) => {
     setSelectedGoals(prev => 
@@ -24,7 +25,8 @@ export default function GoalsStep({ onContinue }) {
   };
 
   const handleContinue = () => {
-    if (selectedGoals.length > 0) {
+    if (selectedGoals.length > 0 && !isSubmitting) {
+      setIsSubmitting(true);
       onContinue(selectedGoals);
     }
   };
@@ -55,26 +57,23 @@ export default function GoalsStep({ onContinue }) {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-8">
         {goals.map((goal, index) => {
           const isSelected = selectedGoals.includes(goal.id);
           const Icon = goal.icon;
 
           return (
-            <motion.div
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
-            >
             <motion.button
               key={goal.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.08 }}
+              transition={{ delay: index * 0.05, duration: 0.3 }}
+              whileTap={{ scale: 0.97 }}
               onClick={() => toggleGoal(goal.id)}
-              className={`relative group border-2 rounded-2xl p-6 text-left transition-all duration-300 min-h-[100px] touch-manipulation ${
+              className={`relative group border-2 rounded-2xl p-5 md:p-6 text-left transition-all duration-200 min-h-[100px] touch-manipulation ${
                 isSelected
                   ? 'border-[#c8ff00] bg-[#c8ff00]/5'
-                  : 'border-gray-800 bg-gray-900/30 hover:border-gray-700'
+                  : 'border-gray-800 bg-gray-900/30 active:border-gray-700'
               }`}
             >
               {/* Checkmark */}
@@ -86,25 +85,24 @@ export default function GoalsStep({ onContinue }) {
                 {isSelected && <CheckCircle className="w-4 h-4 text-black" strokeWidth={3} />}
               </div>
 
-              <div className="flex items-start gap-4 pr-8">
-                <div className={`p-3 rounded-xl transition-colors ${
+              <div className="flex items-start gap-3 md:gap-4 pr-8">
+                <div className={`p-2.5 md:p-3 rounded-xl transition-colors ${
                   isSelected ? 'bg-[#c8ff00]/20' : 'bg-gray-800'
                 }`}>
-                  <Icon className={`w-6 h-6 transition-colors ${
+                  <Icon className={`w-5 h-5 md:w-6 md:h-6 transition-colors ${
                     isSelected ? 'text-[#c8ff00]' : 'text-gray-400'
                   }`} />
                 </div>
                 <div className="flex-1">
-                  <h3 className={`font-semibold text-lg mb-1 transition-colors ${
+                  <h3 className={`font-semibold text-base md:text-lg mb-1 transition-colors ${
                     isSelected ? 'text-[#c8ff00]' : 'text-white'
                   }`}>
                     {goal.label}
                   </h3>
-                  <p className="text-sm text-gray-500">{goal.desc}</p>
+                  <p className="text-xs md:text-sm text-gray-500">{goal.desc}</p>
                 </div>
               </div>
             </motion.button>
-            </motion.div>
           );
         })}
       </div>
@@ -117,10 +115,10 @@ export default function GoalsStep({ onContinue }) {
       >
         <Button
           onClick={handleContinue}
-          disabled={selectedGoals.length === 0}
-          className="bg-[#c8ff00] hover:bg-[#d4ff33] active:bg-[#b8e600] text-black font-semibold px-12 py-6 text-lg rounded-full transition-all duration-300 hover:shadow-[0_0_40px_rgba(200,255,0,0.3)] disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px] touch-manipulation"
+          disabled={selectedGoals.length === 0 || isSubmitting}
+          className="bg-[#c8ff00] hover:bg-[#d4ff33] active:bg-[#b8e600] text-black font-semibold px-12 py-6 text-base md:text-lg rounded-full transition-all duration-200 hover:shadow-[0_0_40px_rgba(200,255,0,0.3)] disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px] touch-manipulation"
         >
-          Continue
+          {isSubmitting ? 'Processing...' : 'Continue'}
         </Button>
         <p className="text-gray-600 text-sm mt-3">
           {selectedGoals.length > 0 ? `${selectedGoals.length} goal${selectedGoals.length > 1 ? 's' : ''} selected` : 'Select at least one goal'}
