@@ -1,12 +1,15 @@
 import ABTestDashboard from './pages/ABTestDashboard';
 import Admin from './pages/Admin';
 import AdminControlCenter from './pages/AdminControlCenter';
+import AnalyticsVerification from './pages/AnalyticsVerification';
 import AutoRepairLanding from './pages/AutoRepairLanding';
 import BridgeV3 from './pages/BridgeV3';
+import CampaignTesting from './pages/CampaignTesting';
 import Checkout from './pages/Checkout';
 import CheckoutV2 from './pages/CheckoutV2';
 import ChiropractorLanding from './pages/ChiropractorLanding';
 import ContractorsLanding from './pages/ContractorsLanding';
+import CustomDomainGuide from './pages/CustomDomainGuide';
 import Dashboard from './pages/Dashboard';
 import DataCleanup from './pages/DataCleanup';
 import DentistsLanding from './pages/DentistsLanding';
@@ -40,9 +43,7 @@ import ThankYou from './pages/ThankYou';
 import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import V2Start from './pages/V2Start';
-import AnalyticsVerification from './pages/AnalyticsVerification';
-import CustomDomainGuide from './pages/CustomDomainGuide';
-import CampaignTesting from './pages/CampaignTesting';
+import UserJourneyTest from './pages/UserJourneyTest';
 import __Layout from './Layout.jsx';
 
 
@@ -50,12 +51,15 @@ export const PAGES = {
     "ABTestDashboard": ABTestDashboard,
     "Admin": Admin,
     "AdminControlCenter": AdminControlCenter,
+    "AnalyticsVerification": AnalyticsVerification,
     "AutoRepairLanding": AutoRepairLanding,
     "BridgeV3": BridgeV3,
+    "CampaignTesting": CampaignTesting,
     "Checkout": Checkout,
     "CheckoutV2": CheckoutV2,
     "ChiropractorLanding": ChiropractorLanding,
     "ContractorsLanding": ContractorsLanding,
+    "CustomDomainGuide": CustomDomainGuide,
     "Dashboard": Dashboard,
     "DataCleanup": DataCleanup,
     "DentistsLanding": DentistsLanding,
@@ -89,9 +93,7 @@ export const PAGES = {
     "Upsell": Upsell,
     "Upsell1": Upsell1,
     "V2Start": V2Start,
-    "AnalyticsVerification": AnalyticsVerification,
-    "CustomDomainGuide": CustomDomainGuide,
-    "CampaignTesting": CampaignTesting,
+    "UserJourneyTest": UserJourneyTest,
 }
 
 export const pagesConfig = {
