@@ -3,7 +3,7 @@
  * Includes comprehensive GMB analysis and personalized recommendations
  */
 
-export const enhancedAuditTemplate = (leadData, analysis) => {
+export const enhancedAuditTemplate = (leadData, analysis, domain = 'https://localrnk.com') => {
   const styles = getEnhancedStyles();
   const scoreColor = leadData.health_score >= 70 ? '#10b981' : 
                      leadData.health_score >= 50 ? '#f59e0b' : '#ef4444';
@@ -155,7 +155,7 @@ export const enhancedAuditTemplate = (leadData, analysis) => {
 
         <!-- CTA -->
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://localrnk.com/CheckoutV2" style="${styles.ctaButton}">
+          <a href="${domain}/CheckoutV2" style="${styles.ctaButton}">
             Get Your Optimization Plan
           </a>
           <p style="color: #999; font-size: 12px; margin-top: 10px;">

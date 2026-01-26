@@ -24,7 +24,7 @@ export const getAdminEmailStyles = () => ({
   ctaButton: 'display: inline-block; background: #c8ff00; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;'
 });
 
-export const quizSubmissionTemplate = (leadData) => {
+export const quizSubmissionTemplate = (leadData, domain = 'https://localrnk.com') => {
   const styles = getEmailStyles();
   
   return `
@@ -87,7 +87,7 @@ export const quizSubmissionTemplate = (leadData) => {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://localrnk.com/CheckoutV2" style="${styles.ctaButton}">
+          <a href="${domain}/CheckoutV2" style="${styles.ctaButton}">
             🚀 Get Your Independence Plan Now
           </a>
           <p style="color: #999; font-size: 13px; margin-top: 12px;">
@@ -121,7 +121,7 @@ export const quizSubmissionTemplate = (leadData) => {
   `;
 };
 
-export const auditDownloadTemplate = (businessName) => {
+export const auditDownloadTemplate = (businessName, domain = 'https://localrnk.com') => {
   const styles = getEmailStyles();
   
   return `
@@ -154,7 +154,7 @@ export const auditDownloadTemplate = (businessName) => {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://localrnk.com/ThankYou" style="${styles.ctaButton}">
+          <a href="${domain}/ThankYou" style="${styles.ctaButton}">
             Download Your Report
           </a>
         </div>
@@ -179,7 +179,7 @@ export const auditDownloadTemplate = (businessName) => {
   `;
 };
 
-export const upsellTemplate = (businessName, selectedPlan, amount) => {
+export const upsellTemplate = (businessName, selectedPlan, amount, domain = 'https://localrnk.com') => {
   const styles = getEmailStyles();
   
   return `
@@ -224,7 +224,7 @@ export const upsellTemplate = (businessName, selectedPlan, amount) => {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://localrnk.com/Dashboard" style="${styles.ctaButton}">
+          <a href="${domain}/Dashboard" style="${styles.ctaButton}">
             Access Your Dashboard
           </a>
         </div>
@@ -249,7 +249,7 @@ export const upsellTemplate = (businessName, selectedPlan, amount) => {
   `;
 };
 
-export const orderConfirmationTemplate = (businessName, productName, orderAmount) => {
+export const orderConfirmationTemplate = (businessName, productName, orderAmount, domain = 'https://localrnk.com') => {
   const styles = getEmailStyles();
   
   return `
@@ -304,7 +304,7 @@ export const orderConfirmationTemplate = (businessName, productName, orderAmount
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://localrnk.com/Dashboard" style="${styles.ctaButton}">
+          <a href="${domain}/Dashboard" style="${styles.ctaButton}">
             View Dashboard
           </a>
         </div>
@@ -323,7 +323,7 @@ export const orderConfirmationTemplate = (businessName, productName, orderAmount
   `;
 };
 
-export const adminLeadNotificationTemplate = (leadData) => {
+export const adminLeadNotificationTemplate = (leadData, domain = 'https://localrnk.com') => {
   const adminStyles = getAdminEmailStyles();
   const scoreColor = leadData.health_score >= 70 ? '#10b981' : 
                      leadData.health_score >= 50 ? '#f59e0b' : '#ef4444';
@@ -380,7 +380,7 @@ export const adminLeadNotificationTemplate = (leadData) => {
         ` : ''}
         
         <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-          <a href="https://localrnk.com/Admin" style="${adminStyles.ctaButton}">
+          <a href="${domain}/Admin" style="${adminStyles.ctaButton}">
             View in Admin Dashboard
           </a>
         </div>
@@ -393,7 +393,7 @@ export const adminLeadNotificationTemplate = (leadData) => {
   `;
 };
 
-export const adminUpsellNotificationTemplate = (orderData) => {
+export const adminUpsellNotificationTemplate = (orderData, domain = 'https://localrnk.com') => {
    const adminStyles = getAdminEmailStyles();
 
    return `
@@ -443,7 +443,7 @@ export const adminUpsellNotificationTemplate = (orderData) => {
          </table>
 
          <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-           <a href="https://localrnk.com/Admin" style="${adminStyles.ctaButton}">
+           <a href="${domain}/Admin" style="${adminStyles.ctaButton}">
              View in Admin Dashboard
            </a>
          </div>
@@ -462,7 +462,7 @@ export const adminUpsellNotificationTemplate = (orderData) => {
    `;
 };
 
-export const paymentConfirmationTemplate = (businessName, productName, amount, invoiceId) => {
+export const paymentConfirmationTemplate = (businessName, productName, amount, invoiceId, domain = 'https://localrnk.com') => {
    const styles = getEmailStyles();
 
    return `
@@ -512,7 +512,7 @@ export const paymentConfirmationTemplate = (businessName, productName, amount, i
          </div>
 
          <div style="text-align: center; margin: 30px 0;">
-           <a href="https://localrnk.com/Dashboard" style="${styles.ctaButton}">
+           <a href="${domain}/Dashboard" style="${styles.ctaButton}">
              View Your Dashboard
            </a>
          </div>
@@ -537,7 +537,7 @@ export const paymentConfirmationTemplate = (businessName, productName, amount, i
    `;
 };
 
-export const upsellConversionTemplate = (businessName, upsellProduct, amount, totalValue) => {
+export const upsellConversionTemplate = (businessName, upsellProduct, amount, totalValue, domain = 'https://localrnk.com') => {
    const styles = getEmailStyles();
 
    return `
@@ -587,7 +587,7 @@ export const upsellConversionTemplate = (businessName, upsellProduct, amount, to
          </div>
 
          <div style="text-align: center; margin: 30px 0;">
-           <a href="https://localrnk.com/Dashboard" style="${styles.ctaButton}">
+           <a href="${domain}/Dashboard" style="${styles.ctaButton}">
              Access Premium Dashboard
            </a>
          </div>
@@ -612,7 +612,7 @@ export const upsellConversionTemplate = (businessName, upsellProduct, amount, to
    `;
 };
 
-export const abandonedCartTemplate = (businessName, healthScore, discountPercent = 20) => {
+export const abandonedCartTemplate = (businessName, healthScore, discountPercent = 20, domain = 'https://localrnk.com') => {
    const styles = getEmailStyles();
 
    return `
@@ -663,7 +663,7 @@ export const abandonedCartTemplate = (businessName, healthScore, discountPercent
          </div>
 
          <div style="text-align: center; margin: 30px 0;">
-           <a href="https://localrnk.com/Pricing" style="${styles.ctaButton}">
+           <a href="${domain}/Pricing" style="${styles.ctaButton}">
              Claim ${discountPercent}% Discount ($79 → $${Math.round(79 * (1 - discountPercent / 100))}/mo)
            </a>
            <p style="color: #999; font-size: 12px; margin-top: 12px;">
