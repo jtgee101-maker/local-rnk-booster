@@ -18,6 +18,9 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
   });
 
   useEffect(() => {
+    // Capture attribution data immediately on page load
+    captureAttributionData();
+    
     // Check if user has already consented
     const consent = localStorage.getItem('lr_tracking_consent');
     const existingSession = localStorage.getItem('lr_session_data');
@@ -33,6 +36,42 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
       setTimeout(() => setShowBanner(true), 3000);
     }
   }, []);
+
+  const captureAttributionData = () => {
+    const params = new URLSearchParams(window.location.search);
+    
+    const attribution = {
+      // UTM parameters
+      utm_source: params.get('utm_source') || 'organic',
+      utm_medium: params.get('utm_medium'),
+      utm_campaign: params.get('utm_campaign'),
+      utm_content: params.get('utm_content'),
+      utm_term: params.get('utm_term'),
+      
+      // Meta/Facebook tracking
+      fbclid: params.get('fbclid'),
+      
+      // Affiliate tracking
+      affiliate_id: params.get('ref') || params.get('aff') || params.get('affiliate'),
+      sub_id: params.get('subid') || params.get('sub_id'),
+      
+      // Additional tracking
+      gclid: params.get('gclid'), // Google Click ID
+      referrer: document.referrer || 'direct',
+      landing_page: window.location.pathname,
+      timestamp: new Date().toISOString()
+    };
+
+    // First Touch Attribution (never overwrite)
+    if (!localStorage.getItem('lr_first_touch')) {
+      localStorage.setItem('lr_first_touch', JSON.stringify(attribution));
+    }
+
+    // Last Touch Attribution (current session)
+    sessionStorage.setItem('lr_last_touch', JSON.stringify(attribution));
+    
+    return attribution;
+  };
 
   const initializeTracking = () => {
     const existingData = localStorage.getItem('lr_session_data');
