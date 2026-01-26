@@ -11,6 +11,7 @@ import Dashboard from './pages/Dashboard';
 import DataCleanup from './pages/DataCleanup';
 import DentistsLanding from './pages/DentistsLanding';
 import DomainConfigGuide from './pages/DomainConfigGuide';
+import DomainSetup from './pages/DomainSetup';
 import ElectriciansLanding from './pages/ElectriciansLanding';
 import FinalLaunchChecklist from './pages/FinalLaunchChecklist';
 import HVACLanding from './pages/HVACLanding';
@@ -39,7 +40,7 @@ import ThankYou from './pages/ThankYou';
 import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import V2Start from './pages/V2Start';
-import DomainSetup from './pages/DomainSetup';
+import AnalyticsVerification from './pages/AnalyticsVerification';
 import __Layout from './Layout.jsx';
 
 
@@ -57,6 +58,7 @@ export const PAGES = {
     "DataCleanup": DataCleanup,
     "DentistsLanding": DentistsLanding,
     "DomainConfigGuide": DomainConfigGuide,
+    "DomainSetup": DomainSetup,
     "ElectriciansLanding": ElectriciansLanding,
     "FinalLaunchChecklist": FinalLaunchChecklist,
     "HVACLanding": HVACLanding,
@@ -85,7 +87,7 @@ export const PAGES = {
     "Upsell": Upsell,
     "Upsell1": Upsell1,
     "V2Start": V2Start,
-    "DomainSetup": DomainSetup,
+    "AnalyticsVerification": AnalyticsVerification,
 }
 
 export const pagesConfig = {
