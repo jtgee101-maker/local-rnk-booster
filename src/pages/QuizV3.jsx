@@ -488,7 +488,6 @@ function QuizV3Content() {
       
       quizRateLimiter.recordSubmission();
       
-      const sessionId = sessionStorage.getItem('ab_session_id');
       base44.analytics.track({ 
         eventName: 'quizv3_completed', 
         properties: { 
