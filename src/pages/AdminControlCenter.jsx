@@ -36,6 +36,7 @@ const PredictiveAnalytics = lazy(() => import('@/components/admin/PredictiveAnal
 const SegmentManager = lazy(() => import('@/components/admin/SegmentManager'));
 const SystemHealthMonitor = lazy(() => import('@/components/admin/SystemHealthMonitor'));
 const ErrorTrackingDashboard = lazy(() => import('@/components/admin/ErrorTrackingDashboard'));
+const BehavioralCommandCenter = lazy(() => import('@/components/admin/BehavioralCommandCenter'));
 
 // Modern loading component with skeleton
 const TabLoader = () => (
@@ -544,6 +545,7 @@ export default function AdminControlCenter() {
     { value: 'orders', icon: DollarSign, label: 'Orders', color: 'green' },
     { value: 'analytics', icon: TrendingUp, label: 'Analytics', color: 'purple' },
     { value: 'predictive', icon: Brain, label: 'AI Insights', color: 'pink' },
+    { value: 'behavior', icon: Activity, label: 'Behavior', color: 'cyan' },
     { value: 'segments', icon: Target, label: 'Segments', color: 'yellow' },
     { value: 'abtests', icon: Eye, label: 'A/B Tests', color: 'cyan' },
     { value: 'automations', icon: Repeat, label: 'Automations', color: 'orange' },
@@ -656,6 +658,12 @@ export default function AdminControlCenter() {
               <TabsContent value="segments" className="mt-0">
                 <Suspense fallback={<TabLoader />}>
                   <SegmentManager />
+                </Suspense>
+              </TabsContent>
+
+              <TabsContent value="behavior" className="mt-0">
+                <Suspense fallback={<TabLoader />}>
+                  <BehavioralCommandCenter />
                 </Suspense>
               </TabsContent>
 
