@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { 
   Brain, TrendingUp, Eye, MousePointer, Clock, Zap, 
-  Users, Target, Activity, Settings, RefreshCw
+  Users, Target, Activity, Settings, RefreshCw, ExternalLink, DollarSign
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -65,7 +65,15 @@ export default function BehavioralCommandCenter() {
 
   const calculateAverages = () => {
     if (!behaviorData || behaviorData.length === 0) {
-      return { avgEngagement: 0, avgScrollDepth: 0, avgTimeOnPage: 0, totalUsers: 0 };
+      return { 
+        avgEngagement: 0, 
+        avgScrollDepth: 0, 
+        avgTimeOnPage: 0, 
+        totalUsers: 0,
+        affiliateTraffic: 0,
+        paidTraffic: 0,
+        organicTraffic: 0
+      };
     }
 
     const total = behaviorData.reduce((acc, record) => ({
@@ -74,11 +82,31 @@ export default function BehavioralCommandCenter() {
       time: acc.time + (record.time_on_page || 0)
     }), { engagement: 0, scroll: 0, time: 0 });
 
+    // Calculate traffic source breakdown
+    const affiliateTraffic = behaviorData.filter(r => 
+      r.traffic_source?.first_touch?.affiliate_id
+    ).length;
+    
+    const paidTraffic = behaviorData.filter(r => 
+      r.traffic_source?.first_touch?.fbclid || 
+      r.traffic_source?.first_touch?.gclid ||
+      (r.traffic_source?.first_touch?.utm_medium && 
+       ['cpc', 'ppc', 'paid'].includes(r.traffic_source.first_touch.utm_medium))
+    ).length;
+
+    const organicTraffic = behaviorData.filter(r => 
+      r.traffic_source?.first_touch?.utm_source === 'organic' ||
+      !r.traffic_source?.first_touch?.utm_source
+    ).length;
+
     return {
       avgEngagement: Math.round(total.engagement / behaviorData.length),
       avgScrollDepth: Math.round(total.scroll / behaviorData.length),
       avgTimeOnPage: Math.round(total.time / behaviorData.length),
-      totalUsers: behaviorData.length
+      totalUsers: behaviorData.length,
+      affiliateTraffic,
+      paidTraffic,
+      organicTraffic
     };
   };
 
@@ -146,6 +174,72 @@ export default function BehavioralCommandCenter() {
           </div>
         </CardHeader>
       </Card>
+
+      {/* Attribution Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Card className="bg-gradient-to-br from-purple-900/20 to-purple-600/20 border-purple-500/30">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm text-purple-300 mb-1">Affiliate Traffic</div>
+                  <div className="text-3xl font-bold text-purple-400">{stats.affiliateTraffic}</div>
+                  <div className="text-xs text-purple-300/70 mt-1">
+                    {stats.totalUsers > 0 ? Math.round((stats.affiliateTraffic / stats.totalUsers) * 100) : 0}% of total
+                  </div>
+                </div>
+                <ExternalLink className="w-8 h-8 text-purple-400" />
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Card className="bg-gradient-to-br from-blue-900/20 to-blue-600/20 border-blue-500/30">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm text-blue-300 mb-1">Paid Traffic</div>
+                  <div className="text-3xl font-bold text-blue-400">{stats.paidTraffic}</div>
+                  <div className="text-xs text-blue-300/70 mt-1">
+                    {stats.totalUsers > 0 ? Math.round((stats.paidTraffic / stats.totalUsers) * 100) : 0}% of total
+                  </div>
+                </div>
+                <DollarSign className="w-8 h-8 text-blue-400" />
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Card className="bg-gradient-to-br from-green-900/20 to-green-600/20 border-green-500/30">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm text-green-300 mb-1">Organic Traffic</div>
+                  <div className="text-3xl font-bold text-green-400">{stats.organicTraffic}</div>
+                  <div className="text-xs text-green-300/70 mt-1">
+                    {stats.totalUsers > 0 ? Math.round((stats.organicTraffic / stats.totalUsers) * 100) : 0}% of total
+                  </div>
+                </div>
+                <TrendingUp className="w-8 h-8 text-green-400" />
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -236,11 +330,12 @@ export default function BehavioralCommandCenter() {
               <thead>
                 <tr className="border-b border-gray-700">
                   <th className="text-left text-xs font-semibold text-gray-400 pb-3">Session ID</th>
-                  <th className="text-left text-xs font-semibold text-gray-400 pb-3">Engagement Score</th>
-                  <th className="text-left text-xs font-semibold text-gray-400 pb-3">Scroll Depth</th>
+                  <th className="text-left text-xs font-semibold text-gray-400 pb-3">Attribution</th>
+                  <th className="text-left text-xs font-semibold text-gray-400 pb-3">Engagement</th>
+                  <th className="text-left text-xs font-semibold text-gray-400 pb-3">Scroll</th>
                   <th className="text-left text-xs font-semibold text-gray-400 pb-3">Clicks</th>
-                  <th className="text-left text-xs font-semibold text-gray-400 pb-3">Time on Page</th>
-                  <th className="text-left text-xs font-semibold text-gray-400 pb-3">Quiz Progress</th>
+                  <th className="text-left text-xs font-semibold text-gray-400 pb-3">Time</th>
+                  <th className="text-left text-xs font-semibold text-gray-400 pb-3">Quiz</th>
                   <th className="text-left text-xs font-semibold text-gray-400 pb-3">Status</th>
                 </tr>
               </thead>
@@ -254,7 +349,31 @@ export default function BehavioralCommandCenter() {
                     className="border-b border-gray-700/50 hover:bg-gray-700/30"
                   >
                     <td className="py-3 text-sm text-gray-300 font-mono">
-                      {record.session_id?.substring(0, 12)}...
+                      {record.session_id?.substring(0, 8)}...
+                    </td>
+                    <td className="py-3">
+                      <div className="space-y-1">
+                        {record.traffic_source?.first_touch?.affiliate_id && (
+                          <Badge className="bg-purple-500/20 text-purple-400 text-xs">
+                            🎯 {record.traffic_source.first_touch.affiliate_id}
+                          </Badge>
+                        )}
+                        {record.traffic_source?.first_touch?.utm_campaign && (
+                          <Badge className="bg-blue-500/20 text-blue-400 text-xs">
+                            📢 {record.traffic_source.first_touch.utm_campaign}
+                          </Badge>
+                        )}
+                        {record.traffic_source?.first_touch?.fbclid && (
+                          <Badge className="bg-indigo-500/20 text-indigo-400 text-xs">
+                            Meta
+                          </Badge>
+                        )}
+                        {record.traffic_source?.first_touch?.utm_source === 'organic' && !record.traffic_source?.first_touch?.affiliate_id && (
+                          <Badge className="bg-green-500/20 text-green-400 text-xs">
+                            Organic
+                          </Badge>
+                        )}
+                      </div>
                     </td>
                     <td className="py-3">
                       <div className="flex items-center gap-2">

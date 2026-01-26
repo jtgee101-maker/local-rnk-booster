@@ -247,7 +247,8 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
     try {
       const behaviorData = JSON.parse(localStorage.getItem('lr_session_data') || '{}');
       const engagementScore = localStorage.getItem('lr_engagement_score') || 0;
-      const trafficData = JSON.parse(sessionStorage.getItem('traffic_data') || '{}');
+      const firstTouch = JSON.parse(localStorage.getItem('lr_first_touch') || '{}');
+      const lastTouch = JSON.parse(sessionStorage.getItem('lr_last_touch') || '{}');
       
       await base44.functions.invoke('syncUserBehavior', {
         session_id: behaviorData.session_id,
@@ -269,7 +270,10 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
           screen_width: window.innerWidth,
           screen_height: window.innerHeight
         },
-        traffic_source: trafficData
+        traffic_source: {
+          first_touch: firstTouch,
+          last_touch: lastTouch
+        }
       });
     } catch (error) {
       console.error('Failed to sync behavior data:', error);
