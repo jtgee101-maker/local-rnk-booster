@@ -9,9 +9,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   QrCode, Mail, Link as LinkIcon, BarChart3, Plus, Download,
   ExternalLink, Copy, Check, TrendingUp, Users, MousePointer,
-  Calendar, DollarSign, Target, Eye, Zap, Settings
+  Calendar, DollarSign, Target, Eye, Zap, Settings, Pause, Play, Trash2, Edit, RefreshCw
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import CampaignBuilder from './CampaignBuilder';
 import CampaignAnalytics from './CampaignAnalytics';
 import PURLGenerator from './PURLGenerator';
@@ -19,15 +19,42 @@ import PURLGenerator from './PURLGenerator';
 export default function CampaignManager() {
   const [activeTab, setActiveTab] = useState('overview');
   const [showBuilder, setShowBuilder] = useState(false);
+  const [selectedCampaign, setSelectedCampaign] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const queryClient = useQueryClient();
 
-  const { data: campaigns, isLoading } = useQuery({
+  const { data: campaigns, isLoading, refetch } = useQuery({
     queryKey: ['campaigns'],
     queryFn: async () => {
-      const data = await base44.asServiceRole.entities.Campaign.list('-created_date', 50);
+      const data = await base44.asServiceRole.entities.Campaign.list('-created_date', 100);
       return data;
     }
   });
+
+  const updateCampaignMutation = useMutation({
+    mutationFn: async ({ id, data }) => {
+      return await base44.asServiceRole.entities.Campaign.update(id, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['campaigns']);
+    }
+  });
+
+  const deleteCampaignMutation = useMutation({
+    mutationFn: async (id) => {
+      return await base44.asServiceRole.entities.Campaign.delete(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['campaigns']);
+    }
+  });
+
+  const filteredCampaigns = campaigns?.filter(campaign => {
+    const matchesSearch = campaign.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || campaign.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  }) || [];
 
   const getStatusColor = (status) => {
     const colors = {
@@ -96,25 +123,37 @@ export default function CampaignManager() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Card className="bg-gradient-to-br from-indigo-900/20 to-purple-900/20 border-indigo-500/30">
+      <Card className="bg-gradient-to-br from-indigo-900/20 via-purple-900/20 to-pink-900/10 border-2 border-indigo-500/30 shadow-2xl">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
-              <CardTitle className="text-white flex items-center gap-2 text-2xl">
-                <Target className="w-6 h-6 text-[#c8ff00]" />
+              <CardTitle className="text-white flex items-center gap-3 text-3xl font-black tracking-tight">
+                <Target className="w-8 h-8 text-[#c8ff00]" />
                 Campaign Tracking Command Center
               </CardTitle>
-              <CardDescription className="text-gray-300 mt-2">
+              <CardDescription className="text-white font-semibold mt-2 text-base">
                 QR Codes, PURLs, Direct Mail & Multi-Channel Campaign Attribution
               </CardDescription>
             </div>
-            <Button
-              onClick={() => setShowBuilder(true)}
-              className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              New Campaign
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={() => refetch()}
+                variant="outline"
+                size="lg"
+                className="border-2 border-gray-600 bg-gray-800/50 hover:bg-gray-700 text-white font-bold"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Refresh
+              </Button>
+              <Button
+                onClick={() => setShowBuilder(true)}
+                size="lg"
+                className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-black text-base shadow-lg"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                New Campaign
+              </Button>
+            </div>
           </div>
         </CardHeader>
       </Card>
@@ -122,70 +161,80 @@ export default function CampaignManager() {
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <Card className="bg-gray-800/50 border-gray-700">
+          <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-2 border-gray-700 hover:border-[#c8ff00]/50 transition-all shadow-lg">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm text-gray-400 mb-1">Total Campaigns</div>
-                  <div className="text-3xl font-bold text-white">{stats.total}</div>
+                  <div className="text-sm font-bold text-gray-300 mb-2 uppercase tracking-wider">Total Campaigns</div>
+                  <div className="text-4xl font-black text-white">{stats.total}</div>
                 </div>
-                <BarChart3 className="w-8 h-8 text-[#c8ff00]" />
+                <div className="p-3 bg-[#c8ff00]/10 rounded-xl">
+                  <BarChart3 className="w-10 h-10 text-[#c8ff00]" />
+                </div>
               </div>
             </CardContent>
           </Card>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <Card className="bg-gray-800/50 border-gray-700">
+          <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-2 border-gray-700 hover:border-green-500/50 transition-all shadow-lg">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm text-gray-400 mb-1">Active</div>
-                  <div className="text-3xl font-bold text-green-400">{stats.active}</div>
+                  <div className="text-sm font-bold text-gray-300 mb-2 uppercase tracking-wider">Active</div>
+                  <div className="text-4xl font-black text-green-400">{stats.active}</div>
                 </div>
-                <Zap className="w-8 h-8 text-green-400" />
+                <div className="p-3 bg-green-500/10 rounded-xl">
+                  <Zap className="w-10 h-10 text-green-400" />
+                </div>
               </div>
             </CardContent>
           </Card>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <Card className="bg-gray-800/50 border-gray-700">
+          <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-2 border-gray-700 hover:border-blue-500/50 transition-all shadow-lg">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm text-gray-400 mb-1">Total Clicks</div>
-                  <div className="text-3xl font-bold text-blue-400">{stats.totalClicks}</div>
+                  <div className="text-sm font-bold text-gray-300 mb-2 uppercase tracking-wider">Total Clicks</div>
+                  <div className="text-4xl font-black text-blue-400">{stats.totalClicks}</div>
                 </div>
-                <MousePointer className="w-8 h-8 text-blue-400" />
+                <div className="p-3 bg-blue-500/10 rounded-xl">
+                  <MousePointer className="w-10 h-10 text-blue-400" />
+                </div>
               </div>
             </CardContent>
           </Card>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-          <Card className="bg-gray-800/50 border-gray-700">
+          <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-2 border-gray-700 hover:border-purple-500/50 transition-all shadow-lg">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm text-gray-400 mb-1">Conversions</div>
-                  <div className="text-3xl font-bold text-purple-400">{stats.totalConversions}</div>
+                  <div className="text-sm font-bold text-gray-300 mb-2 uppercase tracking-wider">Conversions</div>
+                  <div className="text-4xl font-black text-purple-400">{stats.totalConversions}</div>
                 </div>
-                <Target className="w-8 h-8 text-purple-400" />
+                <div className="p-3 bg-purple-500/10 rounded-xl">
+                  <Target className="w-10 h-10 text-purple-400" />
+                </div>
               </div>
             </CardContent>
           </Card>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-          <Card className="bg-gray-800/50 border-gray-700">
+          <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-2 border-gray-700 hover:border-yellow-500/50 transition-all shadow-lg">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm text-gray-400 mb-1">Avg CPL</div>
-                  <div className="text-3xl font-bold text-yellow-400">${stats.avgCPL}</div>
+                  <div className="text-sm font-bold text-gray-300 mb-2 uppercase tracking-wider">Avg CPL</div>
+                  <div className="text-4xl font-black text-yellow-400">${stats.avgCPL}</div>
                 </div>
-                <DollarSign className="w-8 h-8 text-yellow-400" />
+                <div className="p-3 bg-yellow-500/10 rounded-xl">
+                  <DollarSign className="w-10 h-10 text-yellow-400" />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -193,16 +242,38 @@ export default function CampaignManager() {
       </div>
 
       {/* Campaigns List */}
-      <Card className="bg-gray-800/50 border-gray-700">
+      <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-2 border-gray-700 shadow-xl">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <Eye className="w-5 h-5 text-[#c8ff00]" />
-            Active Campaigns
-          </CardTitle>
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <CardTitle className="text-white flex items-center gap-3 text-2xl font-black">
+              <Eye className="w-6 h-6 text-[#c8ff00]" />
+              Campaign Management
+            </CardTitle>
+            <div className="flex items-center gap-3 w-full md:w-auto">
+              <Input
+                placeholder="Search campaigns..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-gray-900 border-2 border-gray-700 text-white font-semibold placeholder:text-gray-500 focus:border-[#c8ff00]"
+              />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="bg-gray-900 border-2 border-gray-700 text-white font-semibold rounded-md px-4 py-2 focus:border-[#c8ff00] focus:outline-none"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="paused">Paused</option>
+                <option value="draft">Draft</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {campaigns && campaigns.map((campaign, index) => {
+          <AnimatePresence mode="wait">
+            <div className="space-y-4">
+              {filteredCampaigns && filteredCampaigns.map((campaign, index) => {
               const Icon = getTypeIcon(campaign.type);
               const conversionRate = campaign.total_clicks > 0 
                 ? Math.round((campaign.total_conversions / campaign.total_clicks) * 100)
@@ -211,55 +282,89 @@ export default function CampaignManager() {
               return (
                 <motion.div
                   key={campaign.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="p-4 bg-gray-900/50 rounded-lg border border-gray-700 hover:border-[#c8ff00]/50 transition-all"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ delay: index * 0.03 }}
+                  className="p-6 bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border-2 border-gray-700 hover:border-[#c8ff00]/70 transition-all shadow-lg hover:shadow-xl"
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div className="flex items-center gap-4 flex-1">
-                      <div className="p-3 bg-indigo-500/10 rounded-lg">
-                        <Icon className="w-6 h-6 text-indigo-400" />
+                      <div className="p-4 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-xl border border-indigo-500/30">
+                        <Icon className="w-7 h-7 text-indigo-400" />
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="text-white font-semibold">{campaign.name}</h4>
-                          <Badge className={getStatusColor(campaign.status)}>
-                            {campaign.status}
+                        <div className="flex items-center gap-3 mb-2">
+                          <h4 className="text-white font-black text-xl">{campaign.name}</h4>
+                          <Badge className={`${getStatusColor(campaign.status)} font-bold px-3 py-1`}>
+                            {campaign.status.toUpperCase()}
                           </Badge>
                         </div>
-                        <div className="flex items-center gap-4 text-xs text-gray-400">
-                          <span className="flex items-center gap-1">
-                            <LinkIcon className="w-3 h-3" />
+                        <div className="flex flex-wrap items-center gap-4 text-sm font-semibold text-gray-300">
+                          <span className="flex items-center gap-2">
+                            <LinkIcon className="w-4 h-4 text-[#c8ff00]" />
                             {campaign.total_links || 0} links
                           </span>
-                          <span className="flex items-center gap-1">
-                            <MousePointer className="w-3 h-3" />
+                          <span className="flex items-center gap-2">
+                            <MousePointer className="w-4 h-4 text-blue-400" />
                             {campaign.total_clicks || 0} clicks
                           </span>
-                          <span className="flex items-center gap-1">
-                            <Target className="w-3 h-3" />
+                          <span className="flex items-center gap-2">
+                            <Target className="w-4 h-4 text-purple-400" />
                             {campaign.total_conversions || 0} conversions
                           </span>
-                          <span className="flex items-center gap-1">
-                            <TrendingUp className="w-3 h-3" />
+                          <span className="flex items-center gap-2 text-green-400">
+                            <TrendingUp className="w-4 h-4" />
                             {conversionRate}% CVR
                           </span>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 w-full md:w-auto">
+                      {campaign.status === 'active' ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => updateCampaignMutation.mutate({ id: campaign.id, data: { status: 'paused' } })}
+                          className="border-2 border-yellow-600 text-yellow-400 hover:bg-yellow-600/20 font-bold"
+                        >
+                          <Pause className="w-4 h-4 mr-2" />
+                          Pause
+                        </Button>
+                      ) : campaign.status === 'paused' ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => updateCampaignMutation.mutate({ id: campaign.id, data: { status: 'active' } })}
+                          className="border-2 border-green-600 text-green-400 hover:bg-green-600/20 font-bold"
+                        >
+                          <Play className="w-4 h-4 mr-2" />
+                          Resume
+                        </Button>
+                      ) : null}
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => {
+                          setSelectedCampaign(campaign.id);
                           setActiveTab('analytics');
-                          // Store selected campaign for analytics view
                         }}
-                        className="border-gray-600"
+                        className="border-2 border-indigo-600 text-indigo-400 hover:bg-indigo-600/20 font-bold"
                       >
                         <BarChart3 className="w-4 h-4 mr-2" />
                         Analytics
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          if (confirm('Delete this campaign? This cannot be undone.')) {
+                            deleteCampaignMutation.mutate(campaign.id);
+                          }
+                        }}
+                        className="border-2 border-red-600 text-red-400 hover:bg-red-600/20 font-bold"
+                      >
+                        <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
@@ -267,29 +372,55 @@ export default function CampaignManager() {
               );
             })}
 
-            {(!campaigns || campaigns.length === 0) && (
-              <div className="text-center py-12 text-gray-400">
-                <Target className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>No campaigns yet.</p>
-                <p className="text-sm mt-2">Create your first campaign to start tracking.</p>
-              </div>
+            {(!filteredCampaigns || filteredCampaigns.length === 0) && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-16"
+              >
+                <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Target className="w-10 h-10 text-gray-600" />
+                </div>
+                <p className="text-white font-bold text-xl mb-2">No campaigns found</p>
+                <p className="text-gray-400 font-semibold">
+                  {searchQuery || statusFilter !== 'all' 
+                    ? 'Try adjusting your filters' 
+                    : 'Create your first campaign to start tracking'}
+                </p>
+              </motion.div>
             )}
           </div>
+          </AnimatePresence>
         </CardContent>
       </Card>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="bg-gray-800/50 border border-gray-700">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="purls">PURL Generator</TabsTrigger>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-8">
+        <TabsList className="bg-gradient-to-r from-gray-900 to-gray-800 border-2 border-gray-700 p-1.5 rounded-xl shadow-lg">
+          <TabsTrigger 
+            value="overview" 
+            className="data-[state=active]:bg-[#c8ff00] data-[state=active]:text-black font-bold text-white px-6 py-3 rounded-lg transition-all"
+          >
+            📊 Overview
+          </TabsTrigger>
+          <TabsTrigger 
+            value="analytics" 
+            className="data-[state=active]:bg-[#c8ff00] data-[state=active]:text-black font-bold text-white px-6 py-3 rounded-lg transition-all"
+          >
+            📈 Analytics
+          </TabsTrigger>
+          <TabsTrigger 
+            value="purls" 
+            className="data-[state=active]:bg-[#c8ff00] data-[state=active]:text-black font-bold text-white px-6 py-3 rounded-lg transition-all"
+          >
+            🔗 PURL Generator
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="analytics">
-          <CampaignAnalytics campaigns={campaigns} />
+        <TabsContent value="analytics" className="mt-6">
+          <CampaignAnalytics campaigns={campaigns} selectedCampaign={selectedCampaign} />
         </TabsContent>
 
-        <TabsContent value="purls">
+        <TabsContent value="purls" className="mt-6">
           <PURLGenerator campaigns={campaigns} />
         </TabsContent>
       </Tabs>
