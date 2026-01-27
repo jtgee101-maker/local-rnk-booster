@@ -175,7 +175,7 @@ export default function QuizGeenius() {
     }).catch(console.error);
   };
 
-  const handleNext = (data) => {
+  const handleNext = async (data) => {
     const timeOnStep = Date.now() - stepStartTime;
     
     setFormData(prev => ({ ...prev, ...data }));
