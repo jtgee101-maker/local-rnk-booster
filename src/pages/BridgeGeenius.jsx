@@ -8,6 +8,7 @@ import {
   Shield, Zap, TrendingUp, Users, Award, ExternalLink, Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
+import GeeniusFAQ from '@/components/geenius/GeeniusFAQ';
 
 export default function BridgeGeenius() {
   const [lead, setLead] = useState(null);
@@ -450,6 +451,9 @@ export default function BridgeGeenius() {
               </div>
             </div>
           </div>
+
+          {/* FAQ Section */}
+          <GeeniusFAQ />
 
           {/* Footer Note */}
           <div className="text-center text-gray-500 text-sm">
