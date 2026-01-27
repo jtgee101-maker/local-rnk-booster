@@ -55,6 +55,7 @@ import DocsHome from './pages/DocsHome';
 import GuideQuizGeenius from './pages/GuideQuizGeenius';
 import Roadmap from './pages/Roadmap';
 import Features from './pages/Features';
+import GettingStarted from './pages/GettingStarted';
 import __Layout from './Layout.jsx';
 
 
@@ -116,6 +117,7 @@ export const PAGES = {
     "GuideQuizGeenius": GuideQuizGeenius,
     "Roadmap": Roadmap,
     "Features": Features,
+    "GettingStarted": GettingStarted,
 }
 
 export const pagesConfig = {
