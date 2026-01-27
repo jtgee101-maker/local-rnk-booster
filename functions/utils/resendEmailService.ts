@@ -5,7 +5,7 @@ import { Resend } from 'npm:resend@3.0.0';
  */
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
-const FROM_EMAIL = 'noreply@localrank.ai';
+const FROM_EMAIL = 'noreply@updates.localrank.com';
 
 /**
  * Send email via Resend with automatic retry and error handling
