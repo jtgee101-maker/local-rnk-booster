@@ -185,7 +185,7 @@ export default function Layout({ children, currentPageName }) {
       {/* Footer */}
       <footer className="relative border-t border-gray-800/50 bg-[#0a0a0f]/80 backdrop-blur-sm mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <Zap className="w-5 h-5 text-[#c8ff00]" />
@@ -193,76 +193,76 @@ export default function Layout({ children, currentPageName }) {
                   LocalRank<span className="text-white">.ai</span>
                 </span>
               </div>
-              <p className="text-gray-400 text-sm">
+              <p className="text-gray-400 text-sm leading-relaxed">
                 AI-powered GMB optimization for local businesses.
               </p>
             </div>
 
             <div>
-              <h4 className="text-white font-semibold mb-4">Quick Links</h4>
+              <h4 className="text-white font-semibold text-sm mb-4">Quick Links</h4>
               <div className="space-y-2">
-                <Link to={createPageUrl('QuizV3')} className="block text-gray-400 hover:text-white text-sm">
+                <Link to={createPageUrl('QuizV3')} className="block text-gray-400 hover:text-[#c8ff00] text-sm transition-colors">
                   Free Audit
                 </Link>
-                <Link to={createPageUrl('Pricing')} className="block text-gray-400 hover:text-white text-sm">
+                <Link to={createPageUrl('Pricing')} className="block text-gray-400 hover:text-[#c8ff00] text-sm transition-colors">
                   Pricing
                 </Link>
-                <Link to={createPageUrl('Referrals')} className="block text-gray-400 hover:text-white text-sm">
+                <Link to={createPageUrl('Referrals')} className="block text-gray-400 hover:text-[#c8ff00] text-sm transition-colors">
                   Referral Program
                 </Link>
               </div>
             </div>
 
             <div>
-              <h4 className="text-white font-semibold mb-4">Documentation</h4>
+              <h4 className="text-white font-semibold text-sm mb-4">Documentation</h4>
               <div className="space-y-2">
-                <Link to={createPageUrl('DocsHome')} className="block text-gray-400 hover:text-white text-sm">
+                <Link to={createPageUrl('DocsHome')} className="block text-gray-400 hover:text-[#c8ff00] text-sm transition-colors">
                   All Docs & Guides
                 </Link>
-                <Link to={createPageUrl('GuideQuizGeenius')} className="block text-gray-400 hover:text-white text-sm">
+                <Link to={createPageUrl('GuideQuizGeenius')} className="block text-gray-400 hover:text-[#c8ff00] text-sm transition-colors">
                   QuizGeenius Flow
                 </Link>
-                <Link to={createPageUrl('Roadmap')} className="block text-gray-400 hover:text-white text-sm">
+                <Link to={createPageUrl('Roadmap')} className="block text-gray-400 hover:text-[#c8ff00] text-sm transition-colors">
                   12-Month Roadmap
                 </Link>
-                <Link to={createPageUrl('Features')} className="block text-gray-400 hover:text-white text-sm">
+                <Link to={createPageUrl('Features')} className="block text-gray-400 hover:text-[#c8ff00] text-sm transition-colors">
                   Features
                 </Link>
               </div>
             </div>
 
             <div>
-              <h4 className="text-white font-semibold mb-4">Industries</h4>
+              <h4 className="text-white font-semibold text-sm mb-4">Industries</h4>
               <div className="space-y-2">
-                <Link to={createPageUrl('PlumbersLanding')} className="block text-gray-400 hover:text-white text-sm">
+                <Link to={createPageUrl('PlumbersLanding')} className="block text-gray-400 hover:text-[#c8ff00] text-sm transition-colors">
                   Plumbers
                 </Link>
-                <Link to={createPageUrl('ElectriciansLanding')} className="block text-gray-400 hover:text-white text-sm">
+                <Link to={createPageUrl('ElectriciansLanding')} className="block text-gray-400 hover:text-[#c8ff00] text-sm transition-colors">
                   Electricians
                 </Link>
-                <Link to={createPageUrl('HVACLanding')} className="block text-gray-400 hover:text-white text-sm">
+                <Link to={createPageUrl('HVACLanding')} className="block text-gray-400 hover:text-[#c8ff00] text-sm transition-colors">
                   HVAC
                 </Link>
-                <Link to={createPageUrl('ContractorsLanding')} className="block text-gray-400 hover:text-white text-sm">
+                <Link to={createPageUrl('ContractorsLanding')} className="block text-gray-400 hover:text-[#c8ff00] text-sm transition-colors">
                   Contractors
                 </Link>
               </div>
             </div>
 
             <div>
-              <h4 className="text-white font-semibold mb-4">Legal</h4>
+              <h4 className="text-white font-semibold text-sm mb-4">Legal</h4>
               <div className="space-y-2">
-                <Link to={createPageUrl('Privacy')} className="block text-gray-400 hover:text-white text-sm">
+                <Link to={createPageUrl('Privacy')} className="block text-gray-400 hover:text-[#c8ff00] text-sm transition-colors">
                   Privacy Policy
                 </Link>
-                <Link to={createPageUrl('Terms')} className="block text-gray-400 hover:text-white text-sm">
+                <Link to={createPageUrl('Terms')} className="block text-gray-400 hover:text-[#c8ff00] text-sm transition-colors">
                   Terms of Service
                 </Link>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 pt-8 border-t border-gray-800/50 text-center text-gray-500 text-sm">
+          <div className="pt-8 border-t border-gray-800/50 text-center text-gray-500 text-sm">
             © {new Date().getFullYear()} LocalRank.ai. All rights reserved.
           </div>
         </div>
