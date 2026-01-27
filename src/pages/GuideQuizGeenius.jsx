@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { createPageUrl } from '@/utils';
 import { ChevronDown, ArrowLeft, Zap, CheckCircle2, AlertCircle, TrendingUp } from 'lucide-react';
+import DocsFooter from '@/components/docs/DocsFooter';
 
 const steps = [
   {
@@ -267,6 +268,8 @@ export default function GuideQuizGeniusPage() {
           </div>
         </div>
       </div>
+
+      <DocsFooter />
     </>
   );
 }

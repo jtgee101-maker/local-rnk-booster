@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { createPageUrl } from '@/utils';
 import { ArrowLeft, CheckCircle2, Star, Lock, TrendingUp, BarChart3, Zap } from 'lucide-react';
+import DocsFooter from '@/components/docs/DocsFooter';
 
 const features = [
   {
@@ -242,6 +243,8 @@ export default function FeaturesPage() {
           </div>
         </div>
       </div>
+
+      <DocsFooter />
     </>
   );
 }

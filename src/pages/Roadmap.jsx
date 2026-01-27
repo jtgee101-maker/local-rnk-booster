@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { createPageUrl } from '@/utils';
 import { ArrowLeft, Zap, Target, TrendingUp, Shield, Lightbulb, CheckCircle2 } from 'lucide-react';
+import DocsFooter from '@/components/docs/DocsFooter';
 
 const phases = [
   {
@@ -243,6 +244,8 @@ export default function RoadmapPage() {
           </div>
         </div>
       </div>
+
+      <DocsFooter />
     </>
   );
 }

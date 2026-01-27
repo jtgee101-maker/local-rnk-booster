@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { createPageUrl } from '@/utils';
 import { BookOpen, Zap, Target, Lightbulb, ArrowRight, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import DocsFooter from '@/components/docs/DocsFooter';
 
 const docs = [
   {
@@ -152,6 +153,8 @@ export default function DocsHomePage() {
           </div>
         </div>
       </div>
+
+      <DocsFooter />
     </>
   );
 }
