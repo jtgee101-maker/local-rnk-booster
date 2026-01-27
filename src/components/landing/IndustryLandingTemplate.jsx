@@ -25,10 +25,14 @@ export default function IndustryLandingTemplate({ config }) {
     trackView();
   }, [config.industry]);
 
-  const handleCTA = () => {
-    base44.analytics.track({ 
-      eventName: `${config.industry}_cta_clicked` 
-    }).catch(() => {});
+  const handleCTA = async () => {
+    try {
+      await base44.analytics.track({ 
+        eventName: `${config.industry}_cta_clicked` 
+      });
+    } catch (err) {
+      console.error('Analytics tracking failed:', err);
+    }
     window.location.href = createPageUrl('QuizGeenius');
   };
 
