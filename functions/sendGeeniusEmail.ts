@@ -1,4 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { Resend } from 'npm:resend@3.0.0';
+
+const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
 Deno.serve(async (req) => {
   try {
@@ -104,17 +107,21 @@ Deno.serve(async (req) => {
       </html>
     `;
 
-    // Send email via Resend directly (bypasses Base44's external email restriction)
+    // Send email via Resend directly
     if (!Deno.env.get('RESEND_API_KEY')) {
       throw new Error('RESEND_API_KEY not configured');
     }
 
-    const emailResult = await sendCustomerEmail(
-      leadData.email,
-      `✨ ${leadData.business_name || 'Your'} - Choose Your Exclusive Pathway`,
-      emailBody,
-      'GeeNiusPath Team'
-    );
+    const emailResult = await resend.emails.send({
+      from: `GeeNiusPath Team <noreply@updates.localrnk.com>`,
+      to: leadData.email,
+      subject: `✨ ${leadData.business_name || 'Your'} - Choose Your Exclusive Pathway`,
+      html: emailBody
+    });
+
+    if (emailResult.error) {
+      throw new Error(`Resend error: ${emailResult.error.message}`);
+    }
 
     // Log email with full tracking context
     await base44.asServiceRole.entities.EmailLog.create({
@@ -127,7 +134,7 @@ Deno.serve(async (req) => {
         lead_id: leadData.id,
         session_id: sessionId,
         funnel_version: 'geenius',
-        message_id: emailResult.messageId,
+        message_id: emailResult.data?.id,
         utm_source: utmParams.utm_source,
         utm_medium: utmParams.utm_medium,
         utm_campaign: utmParams.utm_campaign,
@@ -162,7 +169,7 @@ Deno.serve(async (req) => {
       success: true, 
       email: leadData.email,
       bridge_url: bridgeUrl,
-      messageId: emailResult.messageId,
+      messageId: emailResult.data?.id,
       tracking: {
         session_id: sessionId,
         utm: utmParams,
