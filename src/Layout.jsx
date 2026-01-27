@@ -49,19 +49,23 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   const industryPages = [
-    { name: 'Plumbers', path: createPageUrl('PlumbersLanding') },
-    { name: 'Electricians', path: createPageUrl('ElectriciansLanding') },
-    { name: 'HVAC', path: createPageUrl('HVACLanding') },
-    { name: 'Contractors', path: createPageUrl('ContractorsLanding') },
-    { name: 'Roofers', path: createPageUrl('RoofersLanding') },
-    { name: 'Chiropractors', path: createPageUrl('ChiropractorLanding') },
-    { name: 'Dentists', path: createPageUrl('DentistsLanding') },
-    { name: 'Auto Repair', path: createPageUrl('AutoRepairLanding') },
-    { name: 'Landscaping', path: createPageUrl('LandscapingLanding') },
-    { name: 'Real Estate', path: createPageUrl('RealEstateLanding') },
-    { name: 'Restaurants', path: createPageUrl('RestaurantsLanding') },
-    { name: 'Legal', path: createPageUrl('LegalLanding') }
-  ];
+      { name: 'Plumbers', path: createPageUrl('PlumbersLanding') },
+      { name: 'Electricians', path: createPageUrl('ElectriciansLanding') },
+      { name: 'HVAC', path: createPageUrl('HVACLanding') },
+      { name: 'Contractors', path: createPageUrl('ContractorsLanding') },
+      { name: 'Roofers', path: createPageUrl('RoofersLanding') },
+      { name: 'Chiropractors', path: createPageUrl('ChiropractorLanding') },
+      { name: 'Dentists', path: createPageUrl('DentistsLanding') },
+      { name: 'Auto Repair', path: createPageUrl('AutoRepairLanding') },
+      { name: 'Auto Body', path: createPageUrl('AutoBodyLanding') },
+      { name: 'Landscaping', path: createPageUrl('LandscapingLanding') },
+      { name: 'Lawn Care', path: createPageUrl('LawnCareLanding') },
+      { name: 'Power Washing', path: createPageUrl('PowerWashingLanding') },
+      { name: 'Handyman', path: createPageUrl('HandymanLanding') },
+      { name: 'Real Estate', path: createPageUrl('RealEstateLanding') },
+      { name: 'Restaurants', path: createPageUrl('RestaurantsLanding') },
+      { name: 'Legal', path: createPageUrl('LegalLanding') }
+    ];
 
   if (!showNav) {
     return <>{children}</>;
