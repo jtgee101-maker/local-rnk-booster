@@ -8,11 +8,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, DollarSign, TrendingUp, AlertCircle, Download, Search, RefreshCw, BarChart3, UserCog, Mail, Bug, Repeat } from 'lucide-react';
+import { Users, DollarSign, TrendingUp, AlertCircle, Download, Search, RefreshCw, BarChart3, UserCog, Mail, Bug, Repeat, Radio } from 'lucide-react';
 import UserManagement from '@/components/admin/UserManagement';
 import EmailTracking from '@/components/admin/EmailTracking';
 import ErrorMonitoring from '@/components/admin/ErrorMonitoring';
 import LeadNurture from '@/components/admin/LeadNurture';
+import FunnelModeControl from '@/components/admin/FunnelModeControl';
 
 export default function AdminPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -185,8 +186,12 @@ export default function AdminPage() {
         </div>
 
         {/* Tabs */}
-        <Tabs defaultValue="leads" className="space-y-4">
-          <TabsList className="bg-gray-800 border-gray-700">
+        <Tabs defaultValue="funnel" className="space-y-4">
+          <TabsList className="bg-gray-800 border-gray-700 flex-wrap">
+            <TabsTrigger value="funnel" className="data-[state=active]:bg-gray-700">
+              <Radio className="w-4 h-4 mr-2" />
+              Funnel Control
+            </TabsTrigger>
             <TabsTrigger value="leads" className="data-[state=active]:bg-gray-700">
               Leads ({filteredLeads.length})
             </TabsTrigger>
@@ -213,6 +218,10 @@ export default function AdminPage() {
               Nurture
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="funnel">
+            <FunnelModeControl />
+          </TabsContent>
 
           <TabsContent value="leads">
             <Card className="bg-gray-800 border-gray-700">
