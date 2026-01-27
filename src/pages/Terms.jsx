@@ -113,7 +113,7 @@ export default function TermsPage() {
             </p>
           </section>
         </div>
-      </motion.div>
+        </motion.div>
       </div>
     </>
   );
