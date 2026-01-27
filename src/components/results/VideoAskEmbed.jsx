@@ -1,35 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 
 export default function VideoAskEmbed() {
-  useEffect(() => {
-    // Load VideoAsk embed script
-    window.VIDEOASK_EMBED_CONFIG = {
-      kind: 'widget',
-      url: 'https://www.videoask.com/fyshkiuj3',
-      options: {
-        widgetType: 'VideoThumbnailWindowTall',
-        text: '',
-        backgroundColor: '#37FB73',
-        position: 'bottom-left',
-        dismissible: true,
-        videoPosition: 'center center',
-      },
-    };
-
-    // Load the embed script if not already loaded
-    if (!window.VideoAskEmbed) {
-      const script = document.createElement('script');
-      script.src = 'https://www.videoask.com/embed/embed.js';
-      script.async = true;
-      document.body.appendChild(script);
-    }
-
-    return () => {
-      // Cleanup if needed
-    };
-  }, []);
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -46,17 +18,22 @@ export default function VideoAskEmbed() {
         </p>
       </div>
 
-      {/* VideoAsk will render here via the embed script */}
-      <div className="min-h-[400px] relative">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-center py-12 text-gray-400"
-        >
-          <p>VideoAsk widget is loading...</p>
-        </motion.div>
-      </div>
+      {/* VideoAsk iframe embed */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="w-full"
+      >
+        <iframe
+          src="https://www.videoask.com/fyshkiuj3"
+          allow="camera *; microphone *; autoplay *; encrypted-media *; fullscreen *; display-capture *;"
+          width="100%"
+          height="600"
+          style={{ border: 'none', borderRadius: '24px' }}
+          title="VideoAsk Optimization Guide"
+        />
+      </motion.div>
     </motion.div>
   );
 }
