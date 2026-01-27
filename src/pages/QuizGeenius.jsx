@@ -316,8 +316,8 @@ export default function QuizGeenius() {
         console.error('Behavior tracking failed:', behaviorError);
       }
 
-      // Send emails in parallel - don't wait for both
-      Promise.all([
+      // Send emails in parallel - MUST await before redirect
+      await Promise.all([
         // Send welcome email to lead
         base44.functions.invoke('sendGeeniusEmail', {
           leadData: lead,
