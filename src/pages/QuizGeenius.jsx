@@ -189,13 +189,17 @@ export default function QuizGeenius() {
   }, []);
 
   const trackStep = (stepName, stepNumber) => {
-    base44.entities.ConversionEvent.create({
-      funnel_version: 'geenius',
-      event_name: `quiz_step_${stepName}`,
-      session_id: sessionId,
-      step_number: stepNumber,
-      properties: { step_name: stepName }
-    }).catch(() => {});
+    try {
+      base44.entities.ConversionEvent.create({
+        funnel_version: 'geenius',
+        event_name: `quiz_step_${stepName}`,
+        session_id: sessionId,
+        step_number: stepNumber,
+        properties: { step_name: stepName }
+      }).catch(() => {});
+    } catch (err) {
+      console.error('Step tracking failed:', err);
+    }
   };
 
   const handleNext = async (data) => {
