@@ -71,6 +71,22 @@ export default function GuidedInsights({ healthScore, criticalIssues, onComplete
     pink: 'text-pink-400',
   };
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -78,46 +94,79 @@ export default function GuidedInsights({ healthScore, criticalIssues, onComplete
       transition={{ duration: 0.6 }}
       className="w-full"
     >
-      {/* Title */}
+      {/* Premium Header */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="text-center mb-12"
+        className="text-center mb-14"
       >
-        <h2 className="text-3xl md:text-4xl font-black text-white mb-3">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4">
           Understanding Your Score
         </h2>
-        <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-          Here's what your health score reveals and how we'll help you improve it
+        <p className="text-gray-400 text-base sm:text-lg max-w-3xl mx-auto leading-relaxed">
+          Here's what your {healthScore} score means and the exact steps to improve it
         </p>
       </motion.div>
 
-      {/* Insights Grid */}
-      <div className="grid md:grid-cols-2 gap-4 md:gap-6 mb-8">
+      {/* Interactive Insights Grid */}
+      <motion.div
+        variants={container}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-12"
+      >
         {insights.map((insight, idx) => {
           const Icon = insight.icon;
+          const isSelected = selectedInsight === idx;
+
           return (
-            <motion.div
+            <motion.button
               key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 + idx * 0.1 }}
-              className={`p-6 rounded-2xl border-2 backdrop-blur-sm hover:scale-105 transition-transform ${colorMap[insight.color]}`}
+              variants={item}
+              onClick={() => setSelectedInsight(isSelected ? null : idx)}
+              className="text-left group cursor-pointer"
             >
-              <div className="flex gap-4">
-                <div className={`flex-shrink-0 p-3 rounded-xl bg-white/10 ${iconColorMap[insight.color]}`}>
-                  <Icon className="w-6 h-6" />
+              <motion.div
+                whileHover={{ y: -5 }}
+                whileTap={{ scale: 0.98 }}
+                className={`p-6 sm:p-7 rounded-2xl border-2 backdrop-blur-sm transition-all duration-300 ${
+                  isSelected
+                    ? `${colorMap[insight.color]} scale-105`
+                    : `${colorMap[insight.color]} hover:border-opacity-70 group-hover:shadow-xl group-hover:shadow-${insight.color}-500/20`
+                }`}
+              >
+                <div className="flex gap-4 items-start">
+                  <motion.div
+                    className={`flex-shrink-0 p-3 rounded-xl bg-white/10 ${iconColorMap[insight.color]} group-hover:scale-110 transition-transform`}
+                  >
+                    <Icon className="w-6 h-6 sm:w-7 sm:h-7" />
+                  </motion.div>
+                  <div className="flex-1">
+                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
+                      {insight.title}
+                    </h3>
+                    <p className="text-gray-300 text-sm sm:text-base leading-relaxed">
+                      {insight.description}
+                    </p>
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={
+                        isSelected ? { opacity: 1, height: 'auto' } : { opacity: 0, height: 0 }
+                      }
+                      className="mt-4 pt-4 border-t border-white/10"
+                    >
+                      <p className="text-gray-200 text-sm leading-relaxed">
+                        {insight.details}
+                      </p>
+                    </motion.div>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-white mb-2">{insight.title}</h3>
-                  <p className="text-gray-300 text-sm leading-relaxed">{insight.description}</p>
-                </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </motion.button>
           );
         })}
-      </div>
+      </motion.div>
 
       {/* Critical Issues Preview */}
       {criticalIssues.length > 0 && (
