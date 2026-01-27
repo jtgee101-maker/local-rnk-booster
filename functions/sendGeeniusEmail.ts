@@ -1,7 +1,4 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { Resend } from 'npm:resend@3.0.0';
-
-const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
 Deno.serve(async (req) => {
   try {
@@ -10,6 +7,11 @@ Deno.serve(async (req) => {
 
     if (!leadData || !leadData.email) {
       return Response.json({ error: 'Lead data and email required' }, { status: 400 });
+    }
+
+    const apiKey = Deno.env.get('RESEND_API_KEY');
+    if (!apiKey) {
+      throw new Error('RESEND_API_KEY not configured');
     }
 
     // Get production domain
@@ -107,32 +109,49 @@ Deno.serve(async (req) => {
       </html>
     `;
 
-    // Validate Resend API key
-    if (!Deno.env.get('RESEND_API_KEY')) {
-      throw new Error('RESEND_API_KEY not configured');
-    }
-
-    // Send via Resend directly
-    console.log('Attempting to send via Resend...', { to: leadData.email, from: 'noreply@updates.localrnk.com' });
+    console.log('Sending via Resend HTTP API directly...', { to: leadData.email });
     
-    const emailResult = await resend.emails.send({
-      from: `GeeNiusPath Team <noreply@updates.localrnk.com>`,
-      to: leadData.email,
-      subject: `✨ ${leadData.business_name || 'Your'} - Choose Your Exclusive Pathway`,
-      html: emailBody
+    // Call Resend API directly via HTTP - BYPASS npm library
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'GeeNiusPath Team <noreply@updates.localrnk.com>',
+        to: leadData.email,
+        subject: `✨ ${leadData.business_name || 'Your'} - Choose Your Exclusive Pathway`,
+        html: emailBody
+      })
     });
 
-    console.log('Resend response:', emailResult);
+    const result = await response.json();
+    console.log('Resend HTTP response:', result);
 
-    if (emailResult.error) {
-      throw new Error(`Resend error: ${emailResult.error.message}`);
+    if (!response.ok) {
+      throw new Error(`Resend API error: ${result.message || response.statusText}`);
     }
+
+    // Log email send (fire and forget)
+    base44.asServiceRole.entities.EmailLog.create({
+      to: leadData.email,
+      from: 'GeeNiusPath Team',
+      subject: `Choose Your Exclusive Pathway`,
+      type: 'post_conversion',
+      status: 'sent',
+      metadata: {
+        lead_id: leadData.id,
+        message_id: result.id,
+        session_id: sessionId
+      }
+    }).catch(err => console.error('Failed to log email:', err));
 
     return Response.json({ 
       success: true, 
       email: leadData.email,
       bridge_url: bridgeUrl,
-      messageId: emailResult.data?.id,
+      messageId: result.id,
       tracking: {
         session_id: sessionId,
         utm: utmParams,
