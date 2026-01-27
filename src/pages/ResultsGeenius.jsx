@@ -8,7 +8,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import HealthScoreReveal from '@/components/results/HealthScoreReveal';
 import GuidedInsights from '@/components/results/GuidedInsights';
 import VideoAskEmbed from '@/components/results/VideoAskEmbed';
-import ResultsErrorBoundary from '@/components/results/ResultsErrorBoundary.jsx';
 
 export default function ResultsGeenius() {
   const [lead, setLead] = useState(null);
