@@ -122,7 +122,7 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
   const trackSessionStart = (session) => {
     try {
       if (!session?.session_id) return;
-      base44.analytics.track({
+      const result = base44?.analytics?.track({
         eventName: 'tracking_session_started',
         properties: {
           session_id: session.session_id,
@@ -133,6 +133,9 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
             : 0
         }
       });
+      if (result && typeof result.catch === 'function') {
+        result.catch(() => {});
+      }
     } catch (error) {
       console.error('Session tracking error:', error);
     }
@@ -296,12 +299,15 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
       setShowBanner(false);
       
       try {
-        base44.analytics.track({
+        const result = base44?.analytics?.track({
           eventName: 'tracking_consent_accepted',
           properties: {
             timestamp: new Date().toISOString()
           }
         });
+        if (result && typeof result.catch === 'function') {
+          result.catch(() => {});
+        }
       } catch (e) {
         console.warn('Analytics tracking error:', e);
       }
@@ -370,12 +376,15 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
       setShowBanner(false);
       
       try {
-        base44.analytics.track({
+        const result = base44?.analytics?.track({
           eventName: 'tracking_consent_declined',
           properties: {
             timestamp: new Date().toISOString()
           }
         });
+        if (result && typeof result.catch === 'function') {
+          result.catch(() => {});
+        }
       } catch (e) {
         console.warn('Analytics tracking error:', e);
       }

@@ -108,21 +108,23 @@ function QuizV3Content() {
     sessionStorage.setItem('traffic_data', JSON.stringify(trafficData));
     
     try {
-      base44.analytics.track({ 
+      const res = base44?.analytics?.track({ 
         eventName: 'quizv3_page_viewed',
         properties: trafficData
-      }).catch(() => {});
+      });
+      if (res && typeof res.catch === 'function') res.catch(() => {});
     } catch (e) {
       console.warn('Analytics tracking failed:', e);
     }
 
     try {
-      base44.entities.ConversionEvent.create({
+      const res = base44?.entities?.ConversionEvent?.create({
         funnel_version: 'v3',
         event_name: 'quizv3_page_viewed',
         session_id: sessionId,
         properties: trafficData
-      }).catch(() => {});
+      });
+      if (res && typeof res.catch === 'function') res.catch(() => {});
     } catch (e) {
       console.warn('Event creation failed:', e);
     }
