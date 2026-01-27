@@ -71,7 +71,7 @@ export default function AutoRepairLanding() {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Button
-                onClick={() => navigate(createPageUrl('QuizV3'))}
+                onClick={() => navigate(createPageUrl('QuizGeenius'))}
                 size="lg"
                 className="bg-[#c8ff00] text-gray-900 hover:bg-[#b8ef00] active:bg-[#a8df00] text-lg px-8 py-6 font-bold min-h-[56px] touch-manipulation"
               >
@@ -192,7 +192,7 @@ export default function AutoRepairLanding() {
             Free audit shows why drivers pick franchises + how to win with local expertise
           </p>
           <Button
-            onClick={() => navigate(createPageUrl('QuizV3'))}
+            onClick={() => navigate(createPageUrl('QuizGeenius'))}
             size="lg"
             className="bg-gray-900 text-white hover:bg-gray-800 active:bg-gray-700 text-lg px-10 py-6 font-bold min-h-[56px] touch-manipulation"
           >

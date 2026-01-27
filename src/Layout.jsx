@@ -33,7 +33,7 @@ export default function Layout({ children, currentPageName }) {
   }, [showNav]);
 
   const navLinks = [
-    { name: 'Home', path: createPageUrl('QuizV3') },
+    { name: 'Home', path: createPageUrl('QuizGeenius') },
     { name: 'Industries', path: createPageUrl('PlumbersLanding'), dropdown: true },
     { name: 'Pricing', path: createPageUrl('Pricing') },
     { name: 'Referrals', path: createPageUrl('Referrals') }
@@ -78,7 +78,7 @@ export default function Layout({ children, currentPageName }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link to={createPageUrl('QuizV3')} className="flex items-center gap-2">
+            <Link to={createPageUrl('QuizGeenius')} className="flex items-center gap-2">
               <Zap className="w-6 h-6 text-[#c8ff00]" />
               <span className="text-[#c8ff00] font-bold text-xl tracking-tight">
                 LocalRank<span className="text-white">.ai</span>
@@ -117,7 +117,7 @@ export default function Layout({ children, currentPageName }) {
                 )
               ))}
               <Button
-                onClick={() => window.location.href = createPageUrl('QuizV3')}
+                onClick={() => window.location.href = createPageUrl('QuizGeenius')}
                 className="bg-[#c8ff00] text-gray-900 hover:bg-[#b8ef00] font-semibold"
               >
                 Free Audit
@@ -171,7 +171,7 @@ export default function Layout({ children, currentPageName }) {
               ))}
               <Button
                 onClick={() => {
-                  window.location.href = createPageUrl('QuizV3');
+                  window.location.href = createPageUrl('QuizGeenius');
                   setMobileMenuOpen(false);
                 }}
                 className="w-full bg-[#c8ff00] text-gray-900 hover:bg-[#b8ef00] font-semibold"
@@ -205,7 +205,7 @@ export default function Layout({ children, currentPageName }) {
             <div>
               <h4 className="text-white font-semibold text-sm mb-4">Quick Links</h4>
               <div className="space-y-2">
-                <Link to={createPageUrl('QuizV3')} className="block text-gray-400 hover:text-[#c8ff00] text-sm transition-colors">
+                <Link to={createPageUrl('QuizGeenius')} className="block text-gray-400 hover:text-[#c8ff00] text-sm transition-colors">
                   Free Audit
                 </Link>
                 <Link to={createPageUrl('Pricing')} className="block text-gray-400 hover:text-[#c8ff00] text-sm transition-colors">
