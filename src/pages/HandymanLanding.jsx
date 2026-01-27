@@ -22,7 +22,7 @@ export default function HandymanLanding() {
     secondaryCTA: 'Check Your Ranking',
     
     monthlyLoss: '22',
-    painPointsIntro: 'Legitimate handymen undercut themselves because they can't get found online',
+    painPointsIntro: "Legitimate handymen undercut themselves because they can't get found online",
     
     painPoints: [
       {
