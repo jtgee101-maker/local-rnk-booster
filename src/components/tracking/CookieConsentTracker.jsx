@@ -18,104 +18,124 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
   });
 
   useEffect(() => {
-    // Capture attribution data immediately on page load
-    captureAttributionData();
-    
-    // Check if user has already consented
-    const consent = localStorage.getItem('lr_tracking_consent');
-    const existingSession = localStorage.getItem('lr_session_data');
-    
-    if (consent === 'accepted') {
-      setHasConsented(true);
-      if (existingSession) {
-        setSessionData(JSON.parse(existingSession));
+    try {
+      // Capture attribution data immediately on page load
+      captureAttributionData();
+      
+      // Check if user has already consented
+      const consent = localStorage?.getItem('lr_tracking_consent');
+      const existingSession = localStorage?.getItem('lr_session_data');
+      
+      if (consent === 'accepted') {
+        setHasConsented(true);
+        if (existingSession) {
+          try {
+            setSessionData(JSON.parse(existingSession));
+          } catch (e) {
+            console.warn('Failed to parse session data:', e);
+          }
+        }
+        initializeTracking();
+      } else if (!consent) {
+        // Show banner after 3 seconds if no consent recorded
+        const timer = setTimeout(() => setShowBanner(true), 3000);
+        return () => clearTimeout(timer);
       }
-      initializeTracking();
-    } else if (!consent) {
-      // Show banner after 3 seconds if no consent recorded
-      setTimeout(() => setShowBanner(true), 3000);
+    } catch (error) {
+      console.error('Cookie consent initialization error:', error);
+      setShowBanner(true);
     }
   }, []);
 
   const captureAttributionData = () => {
-    const params = new URLSearchParams(window.location.search);
-    
-    const attribution = {
-      // UTM parameters
-      utm_source: params.get('utm_source') || 'organic',
-      utm_medium: params.get('utm_medium'),
-      utm_campaign: params.get('utm_campaign'),
-      utm_content: params.get('utm_content'),
-      utm_term: params.get('utm_term'),
+    try {
+      const params = new URLSearchParams(window.location.search);
       
-      // Meta/Facebook tracking
-      fbclid: params.get('fbclid'),
-      
-      // Affiliate tracking
-      affiliate_id: params.get('ref') || params.get('aff') || params.get('affiliate'),
-      sub_id: params.get('subid') || params.get('sub_id'),
-      
-      // Additional tracking
-      gclid: params.get('gclid'), // Google Click ID
-      referrer: document.referrer || 'direct',
-      landing_page: window.location.pathname,
-      timestamp: new Date().toISOString()
-    };
+      const attribution = {
+        utm_source: params.get('utm_source') || 'organic',
+        utm_medium: params.get('utm_medium'),
+        utm_campaign: params.get('utm_campaign'),
+        utm_content: params.get('utm_content'),
+        utm_term: params.get('utm_term'),
+        fbclid: params.get('fbclid'),
+        affiliate_id: params.get('ref') || params.get('aff') || params.get('affiliate'),
+        sub_id: params.get('subid') || params.get('sub_id'),
+        gclid: params.get('gclid'),
+        referrer: document.referrer || 'direct',
+        landing_page: window.location.pathname,
+        timestamp: new Date().toISOString()
+      };
 
-    // First Touch Attribution (never overwrite)
-    if (!localStorage.getItem('lr_first_touch')) {
-      localStorage.setItem('lr_first_touch', JSON.stringify(attribution));
+      if (localStorage && !localStorage.getItem('lr_first_touch')) {
+        localStorage.setItem('lr_first_touch', JSON.stringify(attribution));
+      }
+
+      if (sessionStorage) {
+        sessionStorage.setItem('lr_last_touch', JSON.stringify(attribution));
+      }
+      
+      return attribution;
+    } catch (error) {
+      console.error('Attribution capture error:', error);
+      return {};
     }
-
-    // Last Touch Attribution (current session)
-    sessionStorage.setItem('lr_last_touch', JSON.stringify(attribution));
-    
-    return attribution;
   };
 
   const initializeTracking = () => {
-    const existingData = localStorage.getItem('lr_session_data');
-    let session;
+    try {
+      const existingData = localStorage?.getItem('lr_session_data');
+      let session;
 
-    if (existingData) {
-      session = JSON.parse(existingData);
-      session.total_visits += 1;
-      session.last_visit = new Date().toISOString();
-    } else {
-      session = {
-        session_id: `lr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        first_visit: new Date().toISOString(),
-        last_visit: new Date().toISOString(),
-        total_visits: 1,
-        interactions: [],
-        scroll_depth: 0,
-        time_on_page: 0,
-        pages_viewed: [window.location.pathname]
-      };
+      if (existingData) {
+        try {
+          session = JSON.parse(existingData);
+          session.total_visits = (session.total_visits || 0) + 1;
+          session.last_visit = new Date().toISOString();
+        } catch {
+          throw new Error('Invalid session data');
+        }
+      } else {
+        session = {
+          session_id: `lr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          first_visit: new Date().toISOString(),
+          last_visit: new Date().toISOString(),
+          total_visits: 1,
+          interactions: [],
+          scroll_depth: 0,
+          time_on_page: 0,
+          pages_viewed: [window.location.pathname]
+        };
+      }
+
+      setSessionData(session);
+      if (localStorage) {
+        localStorage.setItem('lr_session_data', JSON.stringify(session));
+      }
+
+      trackSessionStart(session);
+      startBehaviorTracking(session);
+    } catch (error) {
+      console.error('Tracking initialization error:', error);
     }
-
-    setSessionData(session);
-    localStorage.setItem('lr_session_data', JSON.stringify(session));
-
-    // Track this session
-    trackSessionStart(session);
-    
-    // Initialize behavior tracking
-    startBehaviorTracking(session);
   };
 
   const trackSessionStart = (session) => {
-    base44.analytics.track({
-      eventName: 'tracking_session_started',
-      properties: {
-        session_id: session.session_id,
-        is_returning_user: session.total_visits > 1,
-        total_visits: session.total_visits,
-        days_since_first_visit: session.first_visit 
-          ? Math.floor((Date.now() - new Date(session.first_visit).getTime()) / (1000 * 60 * 60 * 24))
-          : 0
-      }
-    });
+    try {
+      if (!session?.session_id) return;
+      base44.analytics.track({
+        eventName: 'tracking_session_started',
+        properties: {
+          session_id: session.session_id,
+          is_returning_user: session.total_visits > 1,
+          total_visits: session.total_visits,
+          days_since_first_visit: session.first_visit 
+            ? Math.floor((Date.now() - new Date(session.first_visit).getTime()) / (1000 * 60 * 60 * 24))
+            : 0
+        }
+      });
+    } catch (error) {
+      console.error('Session tracking error:', error);
+    }
   };
 
   const startBehaviorTracking = (session) => {
@@ -218,16 +238,19 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
   };
 
   const updateSessionData = (updates) => {
-    setSessionData(prev => {
-      const updated = { ...prev, ...updates };
-      localStorage.setItem('lr_session_data', JSON.stringify(updated));
-      
-      // Calculate engagement score
-      const engagementScore = calculateEngagementScore(updated);
-      localStorage.setItem('lr_engagement_score', engagementScore);
-      
-      return updated;
-    });
+    try {
+      setSessionData(prev => {
+        const updated = { ...prev, ...updates };
+        if (localStorage) {
+          localStorage.setItem('lr_session_data', JSON.stringify(updated));
+          const engagementScore = calculateEngagementScore(updated);
+          localStorage.setItem('lr_engagement_score', engagementScore.toString());
+        }
+        return updated;
+      });
+    } catch (error) {
+      console.error('Session update error:', error);
+    }
   };
 
   const calculateEngagementScore = (data) => {
@@ -265,45 +288,65 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
   }, [quizStep, hasConsented]);
 
   const handleAccept = async () => {
-    localStorage.setItem('lr_tracking_consent', 'accepted');
-    setHasConsented(true);
-    setShowBanner(false);
-    
-    base44.analytics.track({
-      eventName: 'tracking_consent_accepted',
-      properties: {
-        timestamp: new Date().toISOString()
+    try {
+      if (localStorage) {
+        localStorage.setItem('lr_tracking_consent', 'accepted');
       }
-    });
+      setHasConsented(true);
+      setShowBanner(false);
+      
+      try {
+        base44.analytics.track({
+          eventName: 'tracking_consent_accepted',
+          properties: {
+            timestamp: new Date().toISOString()
+          }
+        });
+      } catch (e) {
+        console.warn('Analytics tracking error:', e);
+      }
 
-    initializeTracking();
-    
-    // Sync data to backend
-    syncBehaviorToBackend();
+      initializeTracking();
+      syncBehaviorToBackend();
+    } catch (error) {
+      console.error('Accept consent error:', error);
+      setHasConsented(true);
+      setShowBanner(false);
+    }
   };
 
   const syncBehaviorToBackend = async () => {
     try {
-      const behaviorData = JSON.parse(localStorage.getItem('lr_session_data') || '{}');
-      const engagementScore = localStorage.getItem('lr_engagement_score') || 0;
-      const firstTouch = JSON.parse(localStorage.getItem('lr_first_touch') || '{}');
-      const lastTouch = JSON.parse(sessionStorage.getItem('lr_last_touch') || '{}');
+      const behaviorDataRaw = localStorage?.getItem('lr_session_data') || '{}';
+      const behaviorData = typeof behaviorDataRaw === 'string' ? JSON.parse(behaviorDataRaw) : behaviorDataRaw;
+      const engagementScore = parseInt(localStorage?.getItem('lr_engagement_score') || '0') || 0;
       
+      const firstTouchRaw = localStorage?.getItem('lr_first_touch') || '{}';
+      const firstTouch = typeof firstTouchRaw === 'string' ? JSON.parse(firstTouchRaw) : firstTouchRaw;
+      
+      const lastTouchRaw = sessionStorage?.getItem('lr_last_touch') || '{}';
+      const lastTouch = typeof lastTouchRaw === 'string' ? JSON.parse(lastTouchRaw) : lastTouchRaw;
+
+      if (!behaviorData.session_id) {
+        console.warn('No session ID for sync');
+        return;
+      }
+
       await base44.functions.invoke('syncUserBehavior', {
         session_id: behaviorData.session_id,
         consent_given: true,
-        engagement_score: parseInt(engagementScore),
+        engagement_score: engagementScore,
         scroll_depth: behaviorData.scroll_depth || 0,
         click_count: behaviorData.interaction_count || 0,
         time_on_page: behaviorData.time_on_page || 0,
         quiz_completion: behaviorData.quiz_progress?.current_step ? (behaviorData.quiz_progress.current_step / 7) * 100 : 0,
-        interactions: behaviorData.interactions || [],
+        interactions: Array.isArray(behaviorData.interactions) ? behaviorData.interactions : [],
         quiz_progress: behaviorData.quiz_progress || {},
-        is_returning: behaviorData.total_visits > 1,
+        is_returning: (behaviorData.total_visits || 0) > 1,
         first_visit: behaviorData.first_visit,
         last_visit: behaviorData.last_visit,
         total_visits: behaviorData.total_visits || 1,
-        pages_viewed: behaviorData.pages_viewed || [],
+        pages_viewed: Array.isArray(behaviorData.pages_viewed) ? behaviorData.pages_viewed : [],
         device_info: {
           user_agent: navigator.userAgent,
           screen_width: window.innerWidth,
@@ -320,15 +363,26 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
   };
 
   const handleDecline = () => {
-    localStorage.setItem('lr_tracking_consent', 'declined');
-    setShowBanner(false);
-    
-    base44.analytics.track({
-      eventName: 'tracking_consent_declined',
-      properties: {
-        timestamp: new Date().toISOString()
+    try {
+      if (localStorage) {
+        localStorage.setItem('lr_tracking_consent', 'declined');
       }
-    });
+      setShowBanner(false);
+      
+      try {
+        base44.analytics.track({
+          eventName: 'tracking_consent_declined',
+          properties: {
+            timestamp: new Date().toISOString()
+          }
+        });
+      } catch (e) {
+        console.warn('Analytics tracking error:', e);
+      }
+    } catch (error) {
+      console.error('Decline consent error:', error);
+      setShowBanner(false);
+    }
   };
 
   return (
@@ -338,55 +392,55 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
-          className="fixed bottom-0 left-0 right-0 z-[9999] p-4 md:p-6"
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+          className="fixed bottom-0 left-0 right-0 z-[9999] p-3 sm:p-4 md:p-6 safe-bottom"
         >
-          <div className="max-w-5xl mx-auto">
-            <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-[#c8ff00]/30 rounded-2xl shadow-2xl backdrop-blur-md">
-              <div className="p-6 md:p-8">
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 bg-[#c8ff00]/20 rounded-xl flex items-center justify-center">
-                      <Cookie className="w-6 h-6 text-[#c8ff00]" />
-                    </div>
+          <div className="w-full max-w-full sm:max-w-5xl mx-auto px-0 sm:px-4">
+            <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-[#c8ff00]/30 rounded-lg sm:rounded-2xl shadow-2xl backdrop-blur-md overflow-hidden">
+              <div className="p-4 sm:p-6 md:p-8">
+                <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+                  <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-[#c8ff00]/20 rounded-lg sm:rounded-xl flex items-center justify-center flex-none">
+                    <Cookie className="w-5 h-5 sm:w-6 sm:h-6 text-[#c8ff00]" />
                   </div>
                   
-                  <div className="flex-1">
-                    <h3 className="text-white font-bold text-lg mb-2 flex items-center gap-2">
-                      <Shield className="w-5 h-5 text-[#c8ff00]" />
-                      We Value Your Privacy
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-white font-bold text-base sm:text-lg mb-2 flex items-center gap-2">
+                      <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-[#c8ff00] flex-shrink-0" />
+                      <span>We Value Your Privacy</span>
                     </h3>
-                    <p className="text-gray-300 text-sm mb-4 leading-relaxed">
+                    <p className="text-gray-300 text-xs sm:text-sm mb-3 sm:mb-4 leading-relaxed">
                       We use cookies to enhance your browsing experience, serve personalized content, and analyze our traffic. 
                       By clicking "Accept", you consent to our use of cookies and agree to our Privacy Policy.
                     </p>
                     
-                    {/* What we track */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mb-3 sm:mb-4">
                       <div className="flex items-center gap-2 text-xs text-gray-400">
-                        <Eye className="w-4 h-4 text-blue-400" />
-                        <span>Page interactions</span>
+                        <Eye className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+                        <span className="truncate">Page interactions</span>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-gray-400">
-                        <MousePointer className="w-4 h-4 text-purple-400" />
-                        <span>User behavior</span>
+                        <MousePointer className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
+                        <span className="truncate">User behavior</span>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-gray-400">
-                        <Clock className="w-4 h-4 text-green-400" />
-                        <span>Session data</span>
+                        <Clock className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
+                        <span className="truncate">Session data</span>
                       </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex flex-col xs:flex-row gap-2 sm:gap-3 w-full">
                       <Button
                         onClick={handleAccept}
-                        className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-semibold px-6 shadow-lg"
+                        disabled={hasConsented}
+                        className="bg-[#c8ff00] hover:bg-[#d4ff33] disabled:bg-gray-600 text-black font-semibold px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base shadow-lg w-full xs:w-auto"
                       >
                         Accept & Continue
                       </Button>
                       <Button
                         onClick={handleDecline}
+                        disabled={hasConsented}
                         variant="outline"
-                        className="border-gray-500 text-white hover:bg-gray-700 hover:text-white hover:border-gray-400 font-medium"
+                        className="border-gray-500 text-white hover:bg-gray-700 hover:text-white hover:border-gray-400 disabled:bg-gray-700 disabled:text-gray-500 font-medium px-4 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base w-full xs:w-auto"
                       >
                         Decline
                       </Button>
@@ -395,9 +449,11 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
 
                   <button
                     onClick={handleDecline}
-                    className="flex-shrink-0 text-gray-400 hover:text-white transition-colors"
+                    disabled={hasConsented}
+                    className="flex-shrink-0 text-gray-400 hover:text-white disabled:text-gray-600 transition-colors p-1 -m-1 ml-auto sm:ml-0"
+                    aria-label="Close cookie banner"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-5 h-5 sm:w-6 sm:h-6" />
                   </button>
                 </div>
               </div>
