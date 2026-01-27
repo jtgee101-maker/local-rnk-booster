@@ -7,7 +7,7 @@ import { base44 } from '@/api/base44Client';
 import { useDebounce, sessionCache } from '@/components/utils/performanceHooks';
 import { businessDataSchema, validateInput } from '@/components/utils/validation';
 
-export default function BusinessSearchStep({ onSelect, isLoading: parentLoading }) {
+export default function BusinessSearchStep({ onNext, onBack, initialData }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState(() => sessionCache.get('search_results') || []);
   const [isSearching, setIsSearching] = useState(false);
@@ -116,7 +116,9 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
   }, [isLoadingDetails]);
 
   const handleConfirm = () => {
-    if (businessDetails) {
+    if (!businessDetails || !onNext) return;
+    
+    try {
       base44.analytics.track({ 
         eventName: 'business_confirmed', 
         properties: { 
@@ -124,7 +126,7 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
           rating: businessDetails.rating,
           reviews_count: businessDetails.total_reviews
         } 
-      });
+      }).catch(console.error);
       
       const businessData = {
         business_name: businessDetails.name,
@@ -145,10 +147,13 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
       const validation = validateInput(businessDataSchema, businessData);
       if (!validation.success) {
         console.error('Business data validation failed:', validation.error);
-        // Continue anyway but log the error
       }
       
-      onSelect(validation.success ? validation.data : businessData);
+      if (typeof onNext === 'function') {
+        onNext(validation.success ? validation.data : businessData);
+      }
+    } catch (error) {
+      console.error('Confirm error:', error);
     }
   };
 
@@ -320,14 +325,10 @@ export default function BusinessSearchStep({ onSelect, isLoading: parentLoading 
                 </Button>
                 <Button
                   onClick={handleConfirm}
-                  disabled={parentLoading}
-                  className="flex-1 bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-bold shadow-lg"
+                  disabled={!businessDetails}
+                  className="flex-1 bg-[#c8ff00] hover:bg-[#d4ff33] text-black font-bold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
                 >
-                  {parentLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    'Confirm & Analyze'
-                  )}
+                  Confirm & Analyze
                 </Button>
               </div>
             </>
