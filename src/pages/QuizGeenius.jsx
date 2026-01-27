@@ -368,7 +368,7 @@ export default function QuizGeenius() {
   const progress = ((currentStep + 1) / totalSteps) * 100;
 
   const steps = [
-    <CategoryStep key="category" onNext={handleNext} initialValue={formData.business_category} />,
+    <CategoryStep key="category" onSelect={(category) => handleNext({ business_category: category })} />,
     <PainPointStep key="pain" onNext={handleNext} onBack={handleBack} initialValue={formData.pain_point} />,
     <GoalsStep key="goals" onNext={handleNext} onBack={handleBack} initialValue={formData.goals} />,
     <TimelineStep key="timeline" onNext={handleNext} onBack={handleBack} initialValue={formData.timeline} />,
