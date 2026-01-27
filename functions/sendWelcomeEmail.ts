@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
       throw new Error(`Resend API error: ${result.message || response.statusText}`);
     }
 
-    console.log('Welcome email sent successfully:', result.id);
+    console.log('✅ Welcome email sent successfully:', result.id);
 
     return Response.json({ 
       success: true, 

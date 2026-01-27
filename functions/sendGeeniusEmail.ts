@@ -133,19 +133,7 @@ Deno.serve(async (req) => {
       throw new Error(`Resend API error: ${result.message || response.statusText}`);
     }
 
-    // Log email send (fire and forget)
-    base44.asServiceRole.entities.EmailLog.create({
-      to: leadData.email,
-      from: 'GeeNiusPath Team',
-      subject: `Choose Your Exclusive Pathway`,
-      type: 'post_conversion',
-      status: 'sent',
-      metadata: {
-        lead_id: leadData.id,
-        message_id: result.id,
-        session_id: sessionId
-      }
-    }).catch(err => console.error('Failed to log email:', err));
+    console.log('✅ GeeNiusEmail sent successfully:', result.id);
 
     return Response.json({ 
       success: true, 
