@@ -5,19 +5,19 @@ import { AlertTriangle } from 'lucide-react';
 export default function HealthScoreReveal({ healthScore, onRevealComplete }) {
   const [displayScore, setDisplayScore] = useState(0);
   const [isAnimating, setIsAnimating] = useState(true);
+  const [showCTA, setShowCTA] = useState(false);
 
   useEffect(() => {
     if (!isAnimating) return;
 
-    // Animated counter from 0 to healthScore
-    const duration = 2500; // 2.5 seconds
+    const duration = 2800; // Slightly longer for premium feel
     const startTime = Date.now();
 
     const interval = setInterval(() => {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
 
-      // Easing function for smooth animation
+      // Easing for smooth, premium feel
       const easeOutQuad = 1 - Math.pow(1 - progress, 2);
       const currentScore = Math.round(healthScore * easeOutQuad);
 
@@ -26,10 +26,12 @@ export default function HealthScoreReveal({ healthScore, onRevealComplete }) {
       if (progress === 1) {
         clearInterval(interval);
         setIsAnimating(false);
-        // Call completion callback after animation finishes
-        setTimeout(onRevealComplete, 500);
+        setTimeout(() => {
+          setShowCTA(true);
+          setTimeout(onRevealComplete, 1200);
+        }, 600);
       }
-    }, 16); // ~60fps
+    }, 16);
 
     return () => clearInterval(interval);
   }, [healthScore, isAnimating, onRevealComplete]);
