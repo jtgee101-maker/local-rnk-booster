@@ -1,10 +1,8 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import { quizSubmissionTemplate } from './utils/emailTemplates.js';
 import { enhancedAuditTemplate } from './utils/enhancedEmailTemplates.js';
 
 Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
     const { leadData, analysis } = await req.json();
 
     if (!leadData || !leadData.email) {
@@ -42,19 +40,7 @@ Deno.serve(async (req) => {
       throw new Error(`Resend API error: ${result.message || response.statusText}`);
     }
 
-    // Log email send to EmailLog (fire and forget)
-    base44.asServiceRole.entities.EmailLog.create({
-      to: leadData.email,
-      from: 'LocalRank.ai',
-      subject: `Your Lead Independence Audit Results`,
-      type: 'welcome',
-      status: 'sent',
-      metadata: { 
-        lead_id: leadData.id,
-        enhanced: !!analysis,
-        message_id: result.id
-      }
-    }).catch(err => console.error('Failed to log email:', err));
+    console.log('Quiz submission email sent successfully:', result.id);
 
     return Response.json({ 
       success: true, 
@@ -65,19 +51,6 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Error sending quiz submission email:', error);
-
-    // Log error (fire and forget)
-    base44.asServiceRole.entities.ErrorLog.create({
-      error_type: 'email_failure',
-      severity: 'high',
-      message: error.message,
-      stack_trace: error.stack,
-      metadata: { 
-        function: 'sendQuizSubmissionEmail',
-        email: leadData?.email
-      }
-    }).catch(err => console.error('Error logging failed:', err));
-
     return Response.json({ 
       error: error.message,
       success: false 
