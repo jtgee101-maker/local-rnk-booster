@@ -3,8 +3,9 @@ import { base44 } from '@/api/base44Client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Zap, ArrowRight, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { createPageUrl } from '@/utils';
+import GeeniusErrorBoundary from '@/components/geenius/GeeniusErrorBoundary';
 
 // Import quiz step components
 import CategoryStep from '@/components/quiz/CategoryStep';
@@ -96,6 +97,24 @@ export default function QuizGeenius() {
         quiz_submission_count: 1
       });
 
+      // Create user behavior record
+      try {
+        await base44.entities.UserBehavior.create({
+          session_id: sessionId,
+          email: lead.email,
+          consent_given: true,
+          engagement_score: 100,
+          quiz_completion: 100,
+          pages_viewed: ['QuizGeenius'],
+          interactions: [
+            { type: 'quiz_started', timestamp: Date.now() - 120000 },
+            { type: 'quiz_completed', timestamp: Date.now() }
+          ]
+        });
+      } catch (behaviorError) {
+        console.error('Behavior tracking failed:', behaviorError);
+      }
+
       // Send email
       try {
         await base44.functions.invoke('sendGeeniusEmail', {
@@ -116,11 +135,12 @@ export default function QuizGeenius() {
         }
       });
 
-      // Redirect to bridge
-      window.location.href = createPageUrl('BridgeGeenius') + `?lead_id=${lead.id}`;
+      // Redirect to results page
+      window.location.href = createPageUrl('ResultsGeenius') + `?lead_id=${lead.id}`;
       
     } catch (error) {
       console.error('Quiz completion error:', error);
+      alert('Something went wrong. Please try again.');
     }
   };
 
@@ -137,7 +157,8 @@ export default function QuizGeenius() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#1a0a2e] to-[#0a0a0f] relative overflow-hidden">
+    <GeeniusErrorBoundary>
+      <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#1a0a2e] to-[#0a0a0f] relative overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent" />
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDMpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30" />
@@ -173,5 +194,6 @@ export default function QuizGeenius() {
         </div>
       </div>
     </div>
+    </GeeniusErrorBoundary>
   );
 }

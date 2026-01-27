@@ -29,6 +29,25 @@ export default function BridgeGeenius() {
           const leads = await base44.entities.Lead.filter({ id: leadId });
           if (leads.length > 0) {
             setLead(leads[0]);
+
+            // Track bridge page view
+            await base44.entities.ConversionEvent.create({
+              funnel_version: 'geenius',
+              event_name: 'bridge_viewed',
+              lead_id: leadId,
+              properties: {
+                business_name: leads[0].business_name,
+                health_score: leads[0].health_score
+              }
+            });
+
+            await base44.analytics.track({
+              eventName: 'geenius_bridge_viewed',
+              properties: {
+                lead_id: leadId,
+                health_score: leads[0].health_score
+              }
+            });
           }
         }
 
@@ -51,6 +70,7 @@ export default function BridgeGeenius() {
 
   const trackPathwayClick = async (pathway, url) => {
     try {
+      // Track conversion event
       await base44.entities.ConversionEvent.create({
         funnel_version: 'geenius',
         event_name: `pathway_${pathway}_clicked`,
@@ -62,6 +82,7 @@ export default function BridgeGeenius() {
         }
       });
 
+      // Track analytics
       await base44.analytics.track({
         eventName: 'geenius_pathway_selected',
         properties: {
@@ -70,6 +91,28 @@ export default function BridgeGeenius() {
           health_score: lead?.health_score
         }
       });
+
+      // Update user behavior
+      try {
+        const behaviors = await base44.entities.UserBehavior.filter({ 
+          email: lead?.email 
+        });
+        
+        if (behaviors.length > 0) {
+          const behavior = behaviors[0];
+          await base44.entities.UserBehavior.update(behavior.id, {
+            interactions: [
+              ...(behavior.interactions || []),
+              { 
+                type: `pathway_${pathway}_selected`, 
+                timestamp: Date.now() 
+              }
+            ]
+          });
+        }
+      } catch (behaviorError) {
+        console.error('Behavior update failed:', behaviorError);
+      }
 
       toast.success(`Opening ${pathway} pathway...`);
       

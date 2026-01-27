@@ -46,6 +46,7 @@ import UserJourneyTest from './pages/UserJourneyTest';
 import V2Start from './pages/V2Start';
 import QuizGeenius from './pages/QuizGeenius';
 import BridgeGeenius from './pages/BridgeGeenius';
+import ResultsGeenius from './pages/ResultsGeenius';
 import __Layout from './Layout.jsx';
 
 
@@ -98,6 +99,7 @@ export const PAGES = {
     "V2Start": V2Start,
     "QuizGeenius": QuizGeenius,
     "BridgeGeenius": BridgeGeenius,
+    "ResultsGeenius": ResultsGeenius,
 }
 
 export const pagesConfig = {
