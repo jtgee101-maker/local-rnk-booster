@@ -3,6 +3,7 @@ import Admin from './pages/Admin';
 import AdminControlCenter from './pages/AdminControlCenter';
 import AnalyticsVerification from './pages/AnalyticsVerification';
 import AutoRepairLanding from './pages/AutoRepairLanding';
+import BridgeGeenius from './pages/BridgeGeenius';
 import BridgeV3 from './pages/BridgeV3';
 import CampaignTesting from './pages/CampaignTesting';
 import Checkout from './pages/Checkout';
@@ -27,11 +28,13 @@ import ProductionChecklist from './pages/ProductionChecklist';
 import ProductionLaunchChecklist from './pages/ProductionLaunchChecklist';
 import ProductionReadinessCheck from './pages/ProductionReadinessCheck';
 import Quiz from './pages/Quiz';
+import QuizGeenius from './pages/QuizGeenius';
 import QuizV2 from './pages/QuizV2';
 import QuizV3 from './pages/QuizV3';
 import RealEstateLanding from './pages/RealEstateLanding';
 import Referrals from './pages/Referrals';
 import RestaurantsLanding from './pages/RestaurantsLanding';
+import ResultsGeenius from './pages/ResultsGeenius';
 import RoofersLanding from './pages/RoofersLanding';
 import SecurityAudit from './pages/SecurityAudit';
 import Settings from './pages/Settings';
@@ -44,9 +47,6 @@ import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import UserJourneyTest from './pages/UserJourneyTest';
 import V2Start from './pages/V2Start';
-import QuizGeenius from './pages/QuizGeenius';
-import BridgeGeenius from './pages/BridgeGeenius';
-import ResultsGeenius from './pages/ResultsGeenius';
 import __Layout from './Layout.jsx';
 
 
@@ -56,6 +56,7 @@ export const PAGES = {
     "AdminControlCenter": AdminControlCenter,
     "AnalyticsVerification": AnalyticsVerification,
     "AutoRepairLanding": AutoRepairLanding,
+    "BridgeGeenius": BridgeGeenius,
     "BridgeV3": BridgeV3,
     "CampaignTesting": CampaignTesting,
     "Checkout": Checkout,
@@ -80,11 +81,13 @@ export const PAGES = {
     "ProductionLaunchChecklist": ProductionLaunchChecklist,
     "ProductionReadinessCheck": ProductionReadinessCheck,
     "Quiz": Quiz,
+    "QuizGeenius": QuizGeenius,
     "QuizV2": QuizV2,
     "QuizV3": QuizV3,
     "RealEstateLanding": RealEstateLanding,
     "Referrals": Referrals,
     "RestaurantsLanding": RestaurantsLanding,
+    "ResultsGeenius": ResultsGeenius,
     "RoofersLanding": RoofersLanding,
     "SecurityAudit": SecurityAudit,
     "Settings": Settings,
@@ -97,9 +100,6 @@ export const PAGES = {
     "Upsell1": Upsell1,
     "UserJourneyTest": UserJourneyTest,
     "V2Start": V2Start,
-    "QuizGeenius": QuizGeenius,
-    "BridgeGeenius": BridgeGeenius,
-    "ResultsGeenius": ResultsGeenius,
 }
 
 export const pagesConfig = {
