@@ -43,10 +43,10 @@ export default function ReferralsPage() {
             <AffiliatePortal />
           </TabsContent>
 
-          <TabsContent value="leaderboard">
-            <Leaderboard />
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="leaderboard">
+              <Leaderboard />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </>
