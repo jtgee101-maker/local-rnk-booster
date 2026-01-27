@@ -12,6 +12,8 @@ import { toast } from 'sonner';
 export default function BridgeGeenius() {
   const [lead, setLead] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [sessionId, setSessionId] = useState(null);
+  const [viewStartTime] = useState(Date.now());
   const [pathwaySettings, setPathwaySettings] = useState({
     pathway1_url: 'https://example.com/govtech-grant',
     pathway2_url: 'https://example.com/done-for-you',
@@ -30,14 +32,24 @@ export default function BridgeGeenius() {
           if (leads.length > 0) {
             setLead(leads[0]);
 
+            // Get session from behavior tracking
+            const behaviors = await base44.entities.UserBehavior.filter({ 
+              email: leads[0].email 
+            });
+            const userSessionId = behaviors.length > 0 ? behaviors[0].session_id : `bridge_${Date.now()}`;
+            setSessionId(userSessionId);
+
             // Track bridge page view
             await base44.entities.ConversionEvent.create({
               funnel_version: 'geenius',
               event_name: 'bridge_viewed',
               lead_id: leadId,
+              session_id: userSessionId,
               properties: {
                 business_name: leads[0].business_name,
-                health_score: leads[0].health_score
+                health_score: leads[0].health_score,
+                email: leads[0].email,
+                phone: leads[0].phone
               }
             });
 
@@ -45,9 +57,25 @@ export default function BridgeGeenius() {
               eventName: 'geenius_bridge_viewed',
               properties: {
                 lead_id: leadId,
+                session_id: userSessionId,
                 health_score: leads[0].health_score
               }
             });
+
+            // Update user behavior
+            if (behaviors.length > 0) {
+              await base44.entities.UserBehavior.update(behaviors[0].id, {
+                pages_viewed: [...(behaviors[0].pages_viewed || []), 'BridgeGeenius'],
+                interactions: [
+                  ...(behaviors[0].interactions || []),
+                  {
+                    type: 'bridge_viewed',
+                    timestamp: Date.now(),
+                    lead_id: leadId
+                  }
+                ]
+              });
+            }
           }
         }
 
@@ -69,16 +97,23 @@ export default function BridgeGeenius() {
   }, []);
 
   const trackPathwayClick = async (pathway, url) => {
+    const timeOnBridge = Math.round((Date.now() - viewStartTime) / 1000);
+    
     try {
       // Track conversion event
       await base44.entities.ConversionEvent.create({
         funnel_version: 'geenius',
         event_name: `pathway_${pathway}_clicked`,
         lead_id: lead?.id,
+        session_id: sessionId,
         properties: {
           pathway_name: pathway,
           destination_url: url,
-          business_name: lead?.business_name
+          business_name: lead?.business_name,
+          email: lead?.email,
+          phone: lead?.phone,
+          health_score: lead?.health_score,
+          time_on_bridge: timeOnBridge
         }
       });
 

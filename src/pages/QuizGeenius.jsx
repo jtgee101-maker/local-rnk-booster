@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Sparkles } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 import GeeniusErrorBoundary from '@/components/geenius/GeeniusErrorBoundary';
+import CookieConsentTracker from '@/components/tracking/CookieConsentTracker';
 
 // Import quiz step components
 import CategoryStep from '@/components/quiz/CategoryStep';
@@ -19,6 +20,12 @@ import ProcessingStepEnhanced from '@/components/quiz/ProcessingStepEnhanced';
 export default function QuizGeenius() {
   const [currentStep, setCurrentStep] = useState(0);
   const [sessionId] = useState(`geenius_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+  const [startTime] = useState(Date.now());
+  const [stepStartTime, setStepStartTime] = useState(Date.now());
+  const [clickCount, setClickCount] = useState(0);
+  const [scrollDepth, setScrollDepth] = useState(0);
+  const [utmParams, setUtmParams] = useState({});
+  const [campaignData, setCampaignData] = useState({});
   const [formData, setFormData] = useState({
     business_category: '',
     pain_point: '',
@@ -38,18 +45,112 @@ export default function QuizGeenius() {
   const totalSteps = 7;
 
   useEffect(() => {
-    // Track quiz start
+    // Capture UTM parameters and campaign data
+    const params = new URLSearchParams(window.location.search);
+    const utm = {
+      utm_source: params.get('utm_source'),
+      utm_medium: params.get('utm_medium'),
+      utm_campaign: params.get('utm_campaign'),
+      utm_content: params.get('utm_content'),
+      utm_term: params.get('utm_term'),
+      referrer: document.referrer,
+      landing_page: window.location.href
+    };
+    setUtmParams(utm);
+
+    // Capture campaign/QR tracking
+    const campaign = {
+      ref: params.get('ref'),
+      short_code: params.get('sc'),
+      campaign_id: params.get('cid'),
+      affiliate_code: params.get('aff')
+    };
+    setCampaignData(campaign);
+
+    // Track campaign click if present
+    if (campaign.short_code || campaign.campaign_id) {
+      base44.entities.CampaignClick.create({
+        campaign_id: campaign.campaign_id || 'unknown',
+        short_code: campaign.short_code || campaign.ref || 'direct',
+        ip_address: 'client_side',
+        user_agent: navigator.userAgent,
+        device_type: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+        browser: navigator.userAgent.includes('Chrome') ? 'Chrome' : 
+                 navigator.userAgent.includes('Firefox') ? 'Firefox' : 
+                 navigator.userAgent.includes('Safari') ? 'Safari' : 'Other',
+        os: navigator.platform,
+        referrer: document.referrer,
+        session_id: sessionId
+      }).catch(console.error);
+    }
+
+    // Track quiz start with full context
     base44.entities.ConversionEvent.create({
       funnel_version: 'geenius',
       event_name: 'quiz_started',
       session_id: sessionId,
-      properties: { entry_page: 'QuizGeenius' }
+      properties: {
+        entry_page: 'QuizGeenius',
+        ...utm,
+        ...campaign,
+        device_type: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop'
+      }
     }).catch(console.error);
 
     base44.analytics.track({
       eventName: 'geenius_quiz_started',
-      properties: { session_id: sessionId }
+      properties: {
+        session_id: sessionId,
+        ...utm,
+        ...campaign
+      }
     }).catch(console.error);
+
+    // Initialize behavior tracking
+    base44.entities.UserBehavior.create({
+      session_id: sessionId,
+      consent_given: false,
+      engagement_score: 0,
+      scroll_depth: 0,
+      click_count: 0,
+      time_on_page: 0,
+      quiz_completion: 0,
+      pages_viewed: ['QuizGeenius'],
+      interactions: [
+        { type: 'quiz_started', timestamp: Date.now(), step: 0 }
+      ],
+      first_visit: new Date().toISOString(),
+      total_visits: 1,
+      device_info: {
+        user_agent: navigator.userAgent,
+        platform: navigator.platform,
+        screen_width: window.screen.width,
+        screen_height: window.screen.height
+      },
+      traffic_source: utm
+    }).catch(console.error);
+
+    // Track scroll depth
+    const handleScroll = () => {
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const depth = Math.round((scrollTop + windowHeight) / documentHeight * 100);
+      setScrollDepth(Math.max(scrollDepth, depth));
+    };
+
+    // Track clicks
+    const handleClick = () => {
+      setClickCount(prev => prev + 1);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    document.addEventListener('click', handleClick);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('click', handleClick);
+    };
   }, [sessionId]);
 
   const trackStep = (stepName, stepNumber) => {
@@ -63,13 +164,41 @@ export default function QuizGeenius() {
   };
 
   const handleNext = (data) => {
+    const timeOnStep = Date.now() - stepStartTime;
+    
     setFormData(prev => ({ ...prev, ...data }));
     
     const stepNames = ['category', 'pain_point', 'goals', 'timeline', 'business_search', 'contact_info'];
     if (currentStep < stepNames.length) {
       trackStep(stepNames[currentStep], currentStep + 1);
+      
+      // Track detailed step behavior
+      base44.entities.UserBehavior.filter({ session_id: sessionId })
+        .then(behaviors => {
+          if (behaviors.length > 0) {
+            const behavior = behaviors[0];
+            base44.entities.UserBehavior.update(behavior.id, {
+              interactions: [
+                ...(behavior.interactions || []),
+                {
+                  type: `step_${stepNames[currentStep]}_completed`,
+                  timestamp: Date.now(),
+                  step: currentStep + 1,
+                  time_spent: timeOnStep,
+                  data: data
+                }
+              ],
+              quiz_completion: Math.round(((currentStep + 1) / totalSteps) * 100),
+              scroll_depth: scrollDepth,
+              click_count: clickCount,
+              time_on_page: Math.round((Date.now() - startTime) / 1000)
+            });
+          }
+        })
+        .catch(console.error);
     }
     
+    setStepStartTime(Date.now());
     setCurrentStep(prev => prev + 1);
   };
 
@@ -80,16 +209,22 @@ export default function QuizGeenius() {
   const handleComplete = async (finalData) => {
     try {
       const completeData = { ...formData, ...finalData };
+      const totalTime = Math.round((Date.now() - startTime) / 1000);
       
       // Track completion
       await base44.entities.ConversionEvent.create({
         funnel_version: 'geenius',
         event_name: 'quiz_completed',
         session_id: sessionId,
-        properties: { business_name: completeData.business_name }
+        properties: {
+          business_name: completeData.business_name,
+          completion_time_seconds: totalTime,
+          ...utmParams,
+          ...campaignData
+        }
       });
 
-      // Create lead
+      // Create lead with full tracking context
       const lead = await base44.entities.Lead.create({
         ...completeData,
         status: 'new',
@@ -97,41 +232,100 @@ export default function QuizGeenius() {
         quiz_submission_count: 1
       });
 
-      // Create user behavior record
+      // Update or create comprehensive user behavior record
       try {
-        await base44.entities.UserBehavior.create({
-          session_id: sessionId,
-          email: lead.email,
-          consent_given: true,
-          engagement_score: 100,
-          quiz_completion: 100,
-          pages_viewed: ['QuizGeenius'],
-          interactions: [
-            { type: 'quiz_started', timestamp: Date.now() - 120000 },
-            { type: 'quiz_completed', timestamp: Date.now() }
-          ]
-        });
+        const behaviors = await base44.entities.UserBehavior.filter({ session_id: sessionId });
+        
+        if (behaviors.length > 0) {
+          await base44.entities.UserBehavior.update(behaviors[0].id, {
+            email: lead.email,
+            consent_given: true,
+            engagement_score: 100,
+            scroll_depth: scrollDepth,
+            click_count: clickCount,
+            time_on_page: totalTime,
+            quiz_completion: 100,
+            interactions: [
+              ...(behaviors[0].interactions || []),
+              {
+                type: 'quiz_completed',
+                timestamp: Date.now(),
+                lead_id: lead.id,
+                business_name: lead.business_name,
+                health_score: lead.health_score
+              }
+            ],
+            quiz_progress: {
+              total_steps: totalSteps,
+              completed_steps: totalSteps,
+              completion_time: totalTime,
+              email_captured: lead.email,
+              phone_captured: lead.phone
+            }
+          });
+        } else {
+          await base44.entities.UserBehavior.create({
+            session_id: sessionId,
+            email: lead.email,
+            consent_given: true,
+            engagement_score: 100,
+            scroll_depth: scrollDepth,
+            click_count: clickCount,
+            time_on_page: totalTime,
+            quiz_completion: 100,
+            pages_viewed: ['QuizGeenius'],
+            interactions: [
+              { type: 'quiz_started', timestamp: startTime },
+              { type: 'quiz_completed', timestamp: Date.now(), lead_id: lead.id }
+            ],
+            first_visit: new Date(startTime).toISOString(),
+            total_visits: 1,
+            device_info: {
+              user_agent: navigator.userAgent,
+              platform: navigator.platform
+            },
+            traffic_source: utmParams,
+            quiz_progress: {
+              total_steps: totalSteps,
+              completed_steps: totalSteps,
+              completion_time: totalTime
+            }
+          });
+        }
       } catch (behaviorError) {
         console.error('Behavior tracking failed:', behaviorError);
       }
 
-      // Send email
+      // Send email with tracking context
       try {
         await base44.functions.invoke('sendGeeniusEmail', {
           leadData: lead,
-          sessionId: sessionId
+          sessionId: sessionId,
+          utmParams: utmParams,
+          campaignData: campaignData,
+          behaviorData: {
+            time_on_page: totalTime,
+            scroll_depth: scrollDepth,
+            click_count: clickCount
+          }
         });
       } catch (emailError) {
         console.error('Email send failed:', emailError);
       }
 
-      // Track lead creation
+      // Track lead creation with full context
       await base44.analytics.track({
         eventName: 'geenius_lead_created',
         properties: {
           lead_id: lead.id,
           business_name: lead.business_name,
-          health_score: lead.health_score
+          health_score: lead.health_score,
+          email: lead.email,
+          phone: lead.phone,
+          completion_time: totalTime,
+          engagement_score: 100,
+          ...utmParams,
+          ...campaignData
         }
       });
 
@@ -140,6 +334,20 @@ export default function QuizGeenius() {
       
     } catch (error) {
       console.error('Quiz completion error:', error);
+      
+      // Log error
+      base44.entities.ErrorLog.create({
+        error_type: 'system_error',
+        severity: 'high',
+        message: error.message,
+        stack_trace: error.stack,
+        metadata: {
+          component: 'QuizGeenius',
+          session_id: sessionId,
+          step: 'completion'
+        }
+      }).catch(console.error);
+      
       alert('Something went wrong. Please try again.');
     }
   };
@@ -186,6 +394,22 @@ export default function QuizGeenius() {
           </div>
         </div>
       </div>
+
+      {/* Cookie Consent Tracker */}
+      <CookieConsentTracker
+        sessionId={sessionId}
+        onConsent={(consent) => {
+          base44.entities.UserBehavior.filter({ session_id: sessionId })
+            .then(behaviors => {
+              if (behaviors.length > 0) {
+                base44.entities.UserBehavior.update(behaviors[0].id, {
+                  consent_given: consent
+                });
+              }
+            })
+            .catch(console.error);
+        }}
+      />
 
       {/* Quiz Steps */}
       <div className="relative z-10 px-4 pb-16">

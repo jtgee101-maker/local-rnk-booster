@@ -14,7 +14,8 @@ import { motion } from 'framer-motion';
 export default function ResultsGeenius() {
   const [lead, setLead] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [emailSent, setEmailSent] = useState(false);
+  const [sessionId, setSessionId] = useState(null);
+  const [viewStartTime] = useState(Date.now());
 
   useEffect(() => {
     const init = async () => {
@@ -35,16 +36,42 @@ export default function ResultsGeenius() {
 
         setLead(leads[0]);
 
+        // Get session from behavior tracking
+        const behaviors = await base44.entities.UserBehavior.filter({ 
+          email: leads[0].email 
+        });
+        const userSessionId = behaviors.length > 0 ? behaviors[0].session_id : `results_${Date.now()}`;
+        setSessionId(userSessionId);
+
         // Track results view
         await base44.entities.ConversionEvent.create({
           funnel_version: 'geenius',
           event_name: 'results_viewed',
           lead_id: leadId,
+          session_id: userSessionId,
           properties: {
             business_name: leads[0].business_name,
-            health_score: leads[0].health_score
+            health_score: leads[0].health_score,
+            email: leads[0].email,
+            phone: leads[0].phone
           }
         });
+
+        // Update user behavior
+        if (behaviors.length > 0) {
+          await base44.entities.UserBehavior.update(behaviors[0].id, {
+            pages_viewed: [...(behaviors[0].pages_viewed || []), 'ResultsGeenius'],
+            interactions: [
+              ...(behaviors[0].interactions || []),
+              {
+                type: 'results_viewed',
+                timestamp: Date.now(),
+                lead_id: leadId,
+                health_score: leads[0].health_score
+              }
+            ]
+          });
+        }
 
         await base44.analytics.track({
           eventName: 'geenius_results_viewed',
@@ -67,13 +94,36 @@ export default function ResultsGeenius() {
   const handleContinue = async () => {
     if (!lead) return;
 
+    const timeOnResults = Math.round((Date.now() - viewStartTime) / 1000);
+
     try {
       await base44.entities.ConversionEvent.create({
         funnel_version: 'geenius',
         event_name: 'continue_to_pathways',
         lead_id: lead.id,
-        properties: { from_results: true }
+        session_id: sessionId,
+        properties: {
+          from_results: true,
+          time_on_results: timeOnResults,
+          email: lead.email,
+          phone: lead.phone
+        }
       });
+
+      // Update user behavior
+      const behaviors = await base44.entities.UserBehavior.filter({ session_id: sessionId });
+      if (behaviors.length > 0) {
+        await base44.entities.UserBehavior.update(behaviors[0].id, {
+          interactions: [
+            ...(behaviors[0].interactions || []),
+            {
+              type: 'continue_to_pathways_clicked',
+              timestamp: Date.now(),
+              time_on_results: timeOnResults
+            }
+          ]
+        });
+      }
 
       window.location.href = createPageUrl('BridgeGeenius') + `?lead_id=${lead.id}`;
     } catch (error) {

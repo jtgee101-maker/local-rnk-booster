@@ -3,7 +3,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const { leadData, sessionId } = await req.json();
+    const { leadData, sessionId, utmParams = {}, campaignData = {}, behaviorData = {} } = await req.json();
 
     if (!leadData || !leadData.email) {
       return Response.json({ error: 'Lead data and email required' }, { status: 400 });
@@ -146,7 +146,7 @@ Deno.serve(async (req) => {
       body: emailBody
     });
 
-    // Log email
+    // Log email with full tracking context
     await base44.asServiceRole.entities.EmailLog.create({
       to: leadData.email,
       from: 'GeeNiusPath Team',
@@ -156,14 +156,46 @@ Deno.serve(async (req) => {
       metadata: {
         lead_id: leadData.id,
         session_id: sessionId,
-        funnel_version: 'geenius'
+        funnel_version: 'geenius',
+        utm_source: utmParams.utm_source,
+        utm_medium: utmParams.utm_medium,
+        utm_campaign: utmParams.utm_campaign,
+        campaign_id: campaignData.campaign_id,
+        short_code: campaignData.short_code,
+        referrer: utmParams.referrer,
+        time_on_page: behaviorData.time_on_page,
+        engagement_score: 100
       }
     });
+
+    // Create lead score record for future recommendations
+    try {
+      await base44.asServiceRole.entities.ConversionEvent.create({
+        funnel_version: 'geenius',
+        event_name: 'email_sent',
+        session_id: sessionId,
+        lead_id: leadData.id,
+        properties: {
+          email: leadData.email,
+          health_score: leadData.health_score,
+          ...utmParams,
+          ...campaignData,
+          ...behaviorData
+        }
+      });
+    } catch (trackError) {
+      console.error('Email tracking failed:', trackError);
+    }
 
     return Response.json({ 
       success: true, 
       email: leadData.email,
-      bridge_url: bridgeUrl
+      bridge_url: bridgeUrl,
+      tracking: {
+        session_id: sessionId,
+        utm: utmParams,
+        campaign: campaignData
+      }
     });
 
   } catch (error) {
