@@ -14,15 +14,24 @@ import CustomDomainGuide from './pages/CustomDomainGuide';
 import Dashboard from './pages/Dashboard';
 import DataCleanup from './pages/DataCleanup';
 import DentistsLanding from './pages/DentistsLanding';
+import DeploymentStatus from './pages/DeploymentStatus';
+import DocsHome from './pages/DocsHome';
 import DomainConfigGuide from './pages/DomainConfigGuide';
 import DomainSetup from './pages/DomainSetup';
 import ElectriciansLanding from './pages/ElectriciansLanding';
+import Error403 from './pages/Error403';
+import Error404 from './pages/Error404';
+import Error500 from './pages/Error500';
+import Features from './pages/Features';
 import FinalLaunchChecklist from './pages/FinalLaunchChecklist';
+import GettingStarted from './pages/GettingStarted';
+import GuideQuizGeenius from './pages/GuideQuizGeenius';
 import HVACLanding from './pages/HVACLanding';
 import Home from './pages/Home';
 import LandscapingLanding from './pages/LandscapingLanding';
 import LegalLanding from './pages/LegalLanding';
 import PlumbersLanding from './pages/PlumbersLanding';
+import PreDeploymentAudit from './pages/PreDeploymentAudit';
 import Pricing from './pages/Pricing';
 import Privacy from './pages/Privacy';
 import ProductionChecklist from './pages/ProductionChecklist';
@@ -36,6 +45,7 @@ import RealEstateLanding from './pages/RealEstateLanding';
 import Referrals from './pages/Referrals';
 import RestaurantsLanding from './pages/RestaurantsLanding';
 import ResultsGeenius from './pages/ResultsGeenius';
+import Roadmap from './pages/Roadmap';
 import RoofersLanding from './pages/RoofersLanding';
 import SecurityAudit from './pages/SecurityAudit';
 import Settings from './pages/Settings';
@@ -48,16 +58,7 @@ import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import UserJourneyTest from './pages/UserJourneyTest';
 import V2Start from './pages/V2Start';
-import Error404 from './pages/Error404';
-import Error403 from './pages/Error403';
-import Error500 from './pages/Error500';
-import DocsHome from './pages/DocsHome';
-import GuideQuizGeenius from './pages/GuideQuizGeenius';
-import Roadmap from './pages/Roadmap';
-import Features from './pages/Features';
-import GettingStarted from './pages/GettingStarted';
-import DeploymentStatus from './pages/DeploymentStatus';
-import PreDeploymentAudit from './pages/PreDeploymentAudit';
+import ProductionFinalChecklist from './pages/ProductionFinalChecklist';
 import __Layout from './Layout.jsx';
 
 
@@ -78,15 +79,24 @@ export const PAGES = {
     "Dashboard": Dashboard,
     "DataCleanup": DataCleanup,
     "DentistsLanding": DentistsLanding,
+    "DeploymentStatus": DeploymentStatus,
+    "DocsHome": DocsHome,
     "DomainConfigGuide": DomainConfigGuide,
     "DomainSetup": DomainSetup,
     "ElectriciansLanding": ElectriciansLanding,
+    "Error403": Error403,
+    "Error404": Error404,
+    "Error500": Error500,
+    "Features": Features,
     "FinalLaunchChecklist": FinalLaunchChecklist,
+    "GettingStarted": GettingStarted,
+    "GuideQuizGeenius": GuideQuizGeenius,
     "HVACLanding": HVACLanding,
     "Home": Home,
     "LandscapingLanding": LandscapingLanding,
     "LegalLanding": LegalLanding,
     "PlumbersLanding": PlumbersLanding,
+    "PreDeploymentAudit": PreDeploymentAudit,
     "Pricing": Pricing,
     "Privacy": Privacy,
     "ProductionChecklist": ProductionChecklist,
@@ -100,6 +110,7 @@ export const PAGES = {
     "Referrals": Referrals,
     "RestaurantsLanding": RestaurantsLanding,
     "ResultsGeenius": ResultsGeenius,
+    "Roadmap": Roadmap,
     "RoofersLanding": RoofersLanding,
     "SecurityAudit": SecurityAudit,
     "Settings": Settings,
@@ -112,16 +123,7 @@ export const PAGES = {
     "Upsell1": Upsell1,
     "UserJourneyTest": UserJourneyTest,
     "V2Start": V2Start,
-    "Error404": Error404,
-    "Error403": Error403,
-    "Error500": Error500,
-    "DocsHome": DocsHome,
-    "GuideQuizGeenius": GuideQuizGeenius,
-    "Roadmap": Roadmap,
-    "Features": Features,
-    "GettingStarted": GettingStarted,
-    "DeploymentStatus": DeploymentStatus,
-    "PreDeploymentAudit": PreDeploymentAudit,
+    "ProductionFinalChecklist": ProductionFinalChecklist,
 }
 
 export const pagesConfig = {
