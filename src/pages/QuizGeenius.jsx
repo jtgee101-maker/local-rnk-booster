@@ -237,30 +237,9 @@ export default function QuizGeenius() {
         }
       });
 
-      // Calculate health score using backend enhanced analysis
-      let healthScore = 50;
-      let criticalIssues = [];
-      
-      try {
-        const analysisResponse = await base44.functions.invoke('enhancedGMBAnalysis', {
-          leadData: completeData
-        });
-        
-        if (analysisResponse?.data?.success && analysisResponse?.data?.analysis) {
-          healthScore = analysisResponse.data.analysis.score || 50;
-          
-          // Generate critical issues from competitive insights
-          const insights = analysisResponse.data.analysis.competitiveInsights || {};
-          if (insights.vulnerabilities && insights.vulnerabilities.length > 0) {
-            criticalIssues = insights.vulnerabilities;
-          }
-        }
-      } catch (analysisError) {
-        console.error('Enhanced analysis failed, using fallback:', analysisError);
-        // Fallback to basic calculation
-        healthScore = calculateBasicHealthScore(completeData);
-        criticalIssues = generateBasicCriticalIssues(completeData);
-      }
+      // Calculate health score using robust formula
+      const healthScore = calculateRobustHealthScore(completeData);
+      const criticalIssues = generateRobustCriticalIssues(completeData);
 
       // Create lead with calculated health score
       const lead = await base44.entities.Lead.create({
@@ -392,46 +371,90 @@ export default function QuizGeenius() {
     }
   };
 
-  // Fallback health score calculation
-  const calculateBasicHealthScore = (data) => {
-    let score = 20;
+  // Robust health score calculation matching enhancedGMBAnalysis algorithm
+  const calculateRobustHealthScore = (data) => {
+    let score = 20; // Base score
     
-    if (data.gmb_rating >= 4.7) score += 15;
-    else if (data.gmb_rating >= 4.5) score += 10;
-    else if (data.gmb_rating >= 4.0) score += 5;
+    // Rating scoring (max 15 points)
+    if (data.gmb_rating >= 4.8) score += 15;
+    else if (data.gmb_rating >= 4.7) score += 12;
+    else if (data.gmb_rating >= 4.5) score += 8;
+    else if (data.gmb_rating >= 4.0) score += 4;
+    else score -= 5;
     
-    if (data.gmb_reviews_count >= 100) score += 15;
-    else if (data.gmb_reviews_count >= 50) score += 10;
-    else if (data.gmb_reviews_count >= 25) score += 5;
+    // Reviews count (max 15 points)
+    if (data.gmb_reviews_count >= 150) score += 15;
+    else if (data.gmb_reviews_count >= 100) score += 12;
+    else if (data.gmb_reviews_count >= 75) score += 10;
+    else if (data.gmb_reviews_count >= 50) score += 8;
+    else if (data.gmb_reviews_count >= 30) score += 5;
+    else if (data.gmb_reviews_count >= 15) score += 2;
+    else score -= 3;
     
-    if (data.gmb_photos_count >= 50) score += 15;
-    else if (data.gmb_photos_count >= 30) score += 10;
-    else if (data.gmb_photos_count >= 15) score += 5;
+    // Photos count (max 20 points)
+    if (data.gmb_photos_count >= 60) score += 20;
+    else if (data.gmb_photos_count >= 50) score += 16;
+    else if (data.gmb_photos_count >= 35) score += 12;
+    else if (data.gmb_photos_count >= 20) score += 8;
+    else if (data.gmb_photos_count >= 10) score += 4;
+    else score -= 5;
     
-    score += data.gmb_has_hours ? 5 : -5;
+    // Profile completeness (max 20 points)
+    score += data.gmb_has_hours ? 5 : -4;
     score += data.website ? 5 : -3;
-    score += data.phone ? 5 : -3;
+    score += data.phone ? 5 : -5;
+    score += (data.gmb_types?.length >= 2) ? 5 : -2;
     
-    return Math.max(10, Math.min(90, score));
+    // Review velocity bonus (max 5 points)
+    if (data.gmb_reviews && data.gmb_reviews.length > 0) {
+      const recentReviews = data.gmb_reviews.filter(r => {
+        const reviewDate = new Date(r.time * 1000);
+        const monthsAgo = (Date.now() - reviewDate.getTime()) / (1000 * 60 * 60 * 24 * 30);
+        return monthsAgo <= 3;
+      });
+      if (recentReviews.length >= 5) score += 5;
+      else if (recentReviews.length >= 3) score += 3;
+    }
+    
+    // Engagement signals (max 10 points)
+    if (data.q_and_a_count) score += Math.min(5, Math.floor(data.q_and_a_count / 5));
+    if (data.service_area_set) score += 5;
+    
+    // Cap between 10-95
+    return Math.max(10, Math.min(95, score));
   };
 
-  const generateBasicCriticalIssues = (data) => {
+  const generateRobustCriticalIssues = (data) => {
     const issues = [];
+    
     if (data.gmb_rating < 4.5) {
-      issues.push(`Rating at ${data.gmb_rating}★ - Businesses above 4.7★ get 67% more clicks`);
+      issues.push(`⚠️ Rating at ${data.gmb_rating}★ - Businesses above 4.7★ get 67% more clicks`);
     }
+    
     if (data.gmb_reviews_count < 50) {
-      issues.push(`Only ${data.gmb_reviews_count} reviews - Top competitors average 100+ (losing 58% visibility)`);
+      issues.push(`📊 Only ${data.gmb_reviews_count} reviews detected - Top competitors average 100+ (losing 58% visibility)`);
     }
+    
     if (data.gmb_photos_count < 30) {
-      issues.push(`${data.gmb_photos_count} photos vs industry standard 50+ (missing 73% more direction requests)`);
+      issues.push(`📸 Critical photo gap: ${data.gmb_photos_count} photos vs industry standard 50+ (missing 73% more direction requests)`);
     }
+    
     if (!data.gmb_has_hours) {
-      issues.push('Missing business hours - Invisible in 40% of searches');
+      issues.push('🕐 Missing business hours - Invisible in 40% of searches');
     }
+    
     if (!data.phone) {
-      issues.push('No phone number - Blocking 89% of mobile users');
+      issues.push('📞 No phone number - Blocking 89% of mobile users from calling');
     }
+    
+    if (!data.website) {
+      issues.push('🌐 No website linked - Missing 52% more web traffic from Maps');
+    }
+    
+    if (!data.gmb_types || data.gmb_types.length < 2) {
+      issues.push('🏷️ Incomplete categories - 2.3x lower ranking in related searches');
+    }
+    
     return issues;
   };
 
