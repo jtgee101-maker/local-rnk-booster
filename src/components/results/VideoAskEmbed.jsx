@@ -110,7 +110,7 @@ export default function VideoAskEmbed({ leadId }) {
           >
             <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />
           </motion.span>
-        </motion.a>
+        </motion.button>
       </motion.div>
     </motion.div>
   );
