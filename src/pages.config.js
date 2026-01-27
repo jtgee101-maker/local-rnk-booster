@@ -42,8 +42,10 @@ import TestingChecklist from './pages/TestingChecklist';
 import ThankYou from './pages/ThankYou';
 import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
-import V2Start from './pages/V2Start';
 import UserJourneyTest from './pages/UserJourneyTest';
+import V2Start from './pages/V2Start';
+import QuizGeenius from './pages/QuizGeenius';
+import BridgeGeenius from './pages/BridgeGeenius';
 import __Layout from './Layout.jsx';
 
 
@@ -92,8 +94,10 @@ export const PAGES = {
     "ThankYou": ThankYou,
     "Upsell": Upsell,
     "Upsell1": Upsell1,
-    "V2Start": V2Start,
     "UserJourneyTest": UserJourneyTest,
+    "V2Start": V2Start,
+    "QuizGeenius": QuizGeenius,
+    "BridgeGeenius": BridgeGeenius,
 }
 
 export const pagesConfig = {
