@@ -71,12 +71,12 @@ export default function HandymanLanding() {
     
     benefitsIntro: 'We show you how to position your licensed, insured business above competitors',
     benefits: [
-      'Why homeowners pick cheaper, uninsured handymen (and how to beat that)',
-      'Credibility positioning that gets you premium rates',
-      'How to get 30+ verified reviews (builds trust vs. competitors)',
-      'The exact keywords homeowners use when they WANT quality (not price)',
-      'Service area strategy that dominates your neighborhood',
-      'Insurance positioning that justifies your higher prices'
+      "Why homeowners pick cheaper, uninsured handymen (and how to beat that)",
+      "Credibility positioning that gets you premium rates",
+      "How to get 30+ verified reviews (builds trust vs. competitors)",
+      "The exact keywords homeowners use when they WANT quality (not price)",
+      "Service area strategy that dominates your neighborhood",
+      "Insurance positioning that justifies your higher prices"
     ],
     
     testimonials: [

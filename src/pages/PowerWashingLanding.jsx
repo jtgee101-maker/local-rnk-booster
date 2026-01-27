@@ -71,12 +71,12 @@ export default function PowerWashingLanding() {
     
     benefitsIntro: 'We analyze your actual Google My Business profile and map dominance strategy',
     benefits: [
-      'Why you're not showing for high-value service area searches',
-      'Which keywords profitable customers are using (that you're missing)',
-      'Exact gaps in your profile vs. top-ranked competitors',
-      'Your GMB Health Score vs. top power washing companies',
-      'Proven review strategy to get 50+ 5-stars in 90 days',
-      'How to rank for "power washing near me" without paid ads'
+      "Why you're not showing for high-value service area searches",
+      "Which keywords profitable customers are using (that you're missing)",
+      "Exact gaps in your profile vs. top-ranked competitors",
+      "Your GMB Health Score vs. top power washing companies",
+      "Proven review strategy to get 50+ 5-stars in 90 days",
+      "How to rank for power washing near me without paid ads"
     ],
     
     testimonials: [

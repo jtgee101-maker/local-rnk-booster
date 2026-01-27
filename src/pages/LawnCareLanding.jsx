@@ -71,12 +71,12 @@ export default function LawnCareLanding() {
     
     benefitsIntro: 'We show you exactly how to compete with and beat national franchises in local search',
     benefits: [
-      'Why homeowners call TruGreen instead of you (and how to fix it)',
-      'Critical GMB optimization that franchises miss',
-      'Review generation strategy: 40+ 5-stars in 60 days',
-      'Seasonal keywords competitors are bidding $30 CPM for (you can rank free)',
-      'Service package positioning that gets $15K+ annual contracts',
-      'Local dominance strategy that works spring, summer, fall & winter'
+      "Why homeowners call TruGreen instead of you (and how to fix it)",
+      "Critical GMB optimization that franchises miss",
+      "Review generation strategy: 40+ 5-stars in 60 days",
+      "Seasonal keywords competitors are bidding $30 CPM for (you can rank free)",
+      "Service package positioning that gets $15K+ annual contracts",
+      "Local dominance strategy that works spring, summer, fall and winter"
     ],
     
     testimonials: [

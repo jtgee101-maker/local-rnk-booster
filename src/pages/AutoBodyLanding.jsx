@@ -72,11 +72,11 @@ export default function AutoBodyLanding() {
     benefitsIntro: 'We analyze your Google My Business against local competitors and insurance networks',
     benefits: [
       "Why accident victims don't see your shop (even when they're searching nearby)",
-      'The 4 critical GMB gaps dealerships are exploiting',
-      'Review strategy that got top shops from 3.8 → 4.7 stars in 90 days',
-      'Insurance network keywords you should be ranking for',
-      'How to beat dealership financing offers in local search',
-      'Exact positioning to win direct Google/Maps leads (no insurance middleman)'
+      "The 4 critical GMB gaps dealerships are exploiting",
+      "Review strategy that got top shops from 3.8 to 4.7 stars in 90 days",
+      "Insurance network keywords you should be ranking for",
+      "How to beat dealership financing offers in local search",
+      "Exact positioning to win direct Google/Maps leads (no insurance middleman)"
     ],
     
     testimonials: [
