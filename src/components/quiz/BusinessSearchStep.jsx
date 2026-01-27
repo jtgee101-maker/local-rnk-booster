@@ -116,17 +116,25 @@ export default function BusinessSearchStep({ onNext, onBack, initialData }) {
   }, [isLoadingDetails]);
 
   const handleConfirm = () => {
-    if (!businessDetails || !onNext) return;
+    if (!businessDetails || !onNext) {
+      console.error('Missing businessDetails or onNext function');
+      return;
+    }
     
     try {
-      base44.analytics.track({ 
-        eventName: 'business_confirmed', 
-        properties: { 
-          business_name: businessDetails.name,
-          rating: businessDetails.rating,
-          reviews_count: businessDetails.total_reviews
-        } 
-      }).catch(console.error);
+      // Track analytics without blocking
+      try {
+        base44.analytics.track({ 
+          eventName: 'business_confirmed', 
+          properties: { 
+            business_name: businessDetails.name,
+            rating: businessDetails.rating,
+            reviews_count: businessDetails.total_reviews
+          } 
+        });
+      } catch (analyticsError) {
+        console.warn('Analytics tracking failed:', analyticsError);
+      }
       
       const businessData = {
         business_name: businessDetails.name,
@@ -143,17 +151,35 @@ export default function BusinessSearchStep({ onNext, onBack, initialData }) {
         location: businessDetails.location
       };
       
-      // Validate business data
-      const validation = validateInput(businessDataSchema, businessData);
-      if (!validation.success) {
-        console.error('Business data validation failed:', validation.error);
-      }
-      
-      if (typeof onNext === 'function') {
-        onNext(validation.success ? validation.data : businessData);
+      // Validate business data - but don't let it block
+      try {
+        const validation = validateInput(businessDataSchema, businessData);
+        if (!validation.success) {
+          console.error('Business data validation failed:', validation.error);
+        }
+        
+        if (typeof onNext === 'function') {
+          onNext(validation.success ? validation.data : businessData);
+        }
+      } catch (validationError) {
+        console.error('Validation error:', validationError);
+        // Continue anyway with the data we have
+        if (typeof onNext === 'function') {
+          onNext(businessData);
+        }
       }
     } catch (error) {
       console.error('Confirm error:', error);
+      // Last resort - still try to proceed
+      if (typeof onNext === 'function') {
+        onNext({
+          business_name: businessDetails.name,
+          place_id: businessDetails.place_id,
+          address: businessDetails.address,
+          gmb_rating: businessDetails.rating || 0,
+          gmb_reviews_count: businessDetails.total_reviews || 0
+        });
+      }
     }
   };
 
