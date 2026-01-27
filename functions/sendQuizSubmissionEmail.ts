@@ -1,9 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { Resend } from 'npm:resend@3.0.0';
 import { quizSubmissionTemplate } from './utils/emailTemplates.js';
 import { enhancedAuditTemplate } from './utils/enhancedEmailTemplates.js';
-
-const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
 Deno.serve(async (req) => {
   try {
@@ -14,26 +11,35 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Lead data and email required' }, { status: 400 });
     }
 
+    const apiKey = Deno.env.get('RESEND_API_KEY');
+    if (!apiKey) {
+      throw new Error('RESEND_API_KEY environment variable not configured');
+    }
+
     // Use enhanced template if analysis provided, otherwise standard
     const emailBody = analysis ? 
       enhancedAuditTemplate(leadData, analysis) : 
       quizSubmissionTemplate(leadData);
 
-    // Validate Resend API key
-    if (!Deno.env.get('RESEND_API_KEY')) {
-      throw new Error('RESEND_API_KEY environment variable not configured');
-    }
-
-    // Send via Resend directly
-    const emailResult = await resend.emails.send({
-      from: `LocalRank.ai <noreply@updates.localrnk.com>`,
-      to: leadData.email,
-      subject: `🎯 Your Lead Independence Audit Results - Score: ${leadData.health_score}/100`,
-      html: emailBody
+    // Send via Resend HTTP API directly
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: `LocalRank.ai <noreply@updates.localrnk.com>`,
+        to: leadData.email,
+        subject: `🎯 Your Lead Independence Audit Results - Score: ${leadData.health_score}/100`,
+        html: emailBody
+      })
     });
 
-    if (emailResult.error) {
-      throw new Error(`Resend error: ${emailResult.error.message}`);
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(`Resend API error: ${result.message || response.statusText}`);
     }
 
     // Log email send to EmailLog (fire and forget)
@@ -46,7 +52,7 @@ Deno.serve(async (req) => {
       metadata: { 
         lead_id: leadData.id,
         enhanced: !!analysis,
-        message_id: emailResult.data?.id
+        message_id: result.id
       }
     }).catch(err => console.error('Failed to log email:', err));
 
@@ -54,7 +60,7 @@ Deno.serve(async (req) => {
       success: true, 
       email: leadData.email,
       enhanced: !!analysis,
-      messageId: emailResult.data?.id
+      messageId: result.id
     });
 
   } catch (error) {

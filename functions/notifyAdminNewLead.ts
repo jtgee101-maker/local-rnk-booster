@@ -1,8 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { Resend } from 'npm:resend@3.0.0';
 import { adminLeadNotificationTemplate } from './utils/emailTemplates.js';
-
-const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
 Deno.serve(async (req) => {
   try {
@@ -22,6 +19,11 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Lead data with email required' }, { status: 400 });
     }
 
+    const apiKey = Deno.env.get('RESEND_API_KEY');
+    if (!apiKey) {
+      throw new Error('RESEND_API_KEY not configured');
+    }
+
     // Get admin email from AppSettings
     let adminEmail = null;
     try {
@@ -39,22 +41,27 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Admin email not configured in AppSettings' }, { status: 500 });
     }
 
-    if (!Deno.env.get('RESEND_API_KEY')) {
-      throw new Error('RESEND_API_KEY not configured');
-    }
-
     const emailBody = adminLeadNotificationTemplate(leadData);
 
-    // Send via Resend directly
-    const emailResult = await resend.emails.send({
-      from: `LocalRank.ai System <noreply@updates.localrnk.com>`,
-      to: adminEmail,
-      subject: `🆕 New Lead: ${leadData.business_name || 'New Business'} (Score: ${leadData.health_score || 'N/A'}/100)`,
-      html: emailBody
+    // Send via Resend HTTP API directly
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: `LocalRank.ai System <noreply@updates.localrnk.com>`,
+        to: adminEmail,
+        subject: `🆕 New Lead: ${leadData.business_name || 'New Business'} (Score: ${leadData.health_score || 'N/A'}/100)`,
+        html: emailBody
+      })
     });
 
-    if (emailResult.error) {
-      throw new Error(`Resend error: ${emailResult.error.message}`);
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(`Resend API error: ${result.message || response.statusText}`);
     }
 
     // Log successful send (fire and forget)
@@ -69,14 +76,14 @@ Deno.serve(async (req) => {
         lead_id: leadData.id,
         business_name: leadData.business_name,
         health_score: leadData.health_score,
-        message_id: emailResult.data?.id
+        message_id: result.id
       }
     }).catch(err => console.error('Failed to log email:', err));
 
     return Response.json({ 
       success: true, 
       notifiedEmail: adminEmail,
-      messageId: emailResult.data?.id
+      messageId: result.id
     });
 
   } catch (error) {
