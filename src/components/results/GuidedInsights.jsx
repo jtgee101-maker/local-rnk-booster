@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, AlertTriangle, CheckCircle, Zap, BarChart3, Lightbulb } from 'lucide-react';
+import { TrendingUp, AlertTriangle, CheckCircle, Zap, BarChart3, Lightbulb, ArrowRight } from 'lucide-react';
 
 export default function GuidedInsights({ healthScore, criticalIssues, onComplete }) {
   const insights = [
