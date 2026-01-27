@@ -249,7 +249,7 @@ export default function ResultsGeenius() {
                   exit={{ opacity: 0 }}
                   className="space-y-8"
                 >
-                  <VideoAskEmbed />
+                  <VideoAskEmbed leadId={lead.id} />
                 </motion.div>
               )}
             </AnimatePresence>
