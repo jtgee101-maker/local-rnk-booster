@@ -280,7 +280,7 @@ export default function GettingStarted() {
                   </Button>
                 </Link>
                 <Link to={createPageUrl('DocsHome')}>
-                  <Button variant="outline" className="border-gray-600 text-white hover:bg-gray-900 px-8 py-3 h-auto text-lg">
+                  <Button className="border border-[#c8ff00] bg-transparent hover:bg-[#c8ff00]/5 px-8 py-3 h-auto text-lg font-bold bg-gradient-to-r from-black via-[#c8ff00] to-[#c8ff00] bg-clip-text text-transparent hover:from-[#c8ff00] hover:via-black hover:to-[#c8ff00]">
                     Learn More
                   </Button>
                 </Link>
