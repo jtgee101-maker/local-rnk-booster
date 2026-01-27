@@ -75,64 +75,83 @@ export default function QuizGeenius() {
 
     // Fire and forget tracking (don't await)
     if (campaign.short_code || campaign.campaign_id) {
-      base44.entities.CampaignClick.create({
-        campaign_id: campaign.campaign_id || 'unknown',
-        short_code: campaign.short_code || campaign.ref || 'direct',
-        ip_address: 'client_side',
-        user_agent: navigator.userAgent,
-        device_type: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
-        browser: navigator.userAgent.includes('Chrome') ? 'Chrome' : 
-                 navigator.userAgent.includes('Firefox') ? 'Firefox' : 
-                 navigator.userAgent.includes('Safari') ? 'Safari' : 'Other',
-        os: navigator.platform,
-        referrer: document.referrer,
-        session_id: sessionId
-      }).catch(() => {});
+      try {
+        base44.entities.CampaignClick.create({
+          campaign_id: campaign.campaign_id || 'unknown',
+          short_code: campaign.short_code || campaign.ref || 'direct',
+          ip_address: 'client_side',
+          user_agent: navigator.userAgent,
+          device_type: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+          browser: navigator.userAgent.includes('Chrome') ? 'Chrome' : 
+                   navigator.userAgent.includes('Firefox') ? 'Firefox' : 
+                   navigator.userAgent.includes('Safari') ? 'Safari' : 'Other',
+          os: navigator.platform,
+          referrer: document.referrer,
+          session_id: sessionId
+        }).catch(() => {});
+      } catch (err) {
+        console.error('Campaign click tracking failed:', err);
+      }
     }
 
-    base44.entities.ConversionEvent.create({
-      funnel_version: 'geenius',
-      event_name: 'quiz_started',
-      session_id: sessionId,
-      properties: {
-        entry_page: 'QuizGeenius',
-        ...utm,
-        ...campaign,
-        device_type: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop'
-      }
-    }).catch(() => {});
-
-    base44.analytics.track({
-      eventName: 'geenius_quiz_started',
-      properties: {
+    try {
+      base44.entities.ConversionEvent.create({
+        funnel_version: 'geenius',
+        event_name: 'quiz_started',
         session_id: sessionId,
-        ...utm,
-        ...campaign
-      }
-    }).catch(() => {});
+        properties: {
+          entry_page: 'QuizGeenius',
+          ...utm,
+          ...campaign,
+          device_type: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop'
+        }
+      }).catch(() => {});
+    } catch (err) {
+      console.error('Conversion event tracking failed:', err);
+    }
 
-    base44.entities.UserBehavior.create({
-      session_id: sessionId,
-      consent_given: false,
-      engagement_score: 0,
-      scroll_depth: 0,
-      click_count: 0,
-      time_on_page: 0,
-      quiz_completion: 0,
-      pages_viewed: ['QuizGeenius'],
-      interactions: [
-        { type: 'quiz_started', timestamp: Date.now(), step: 0 }
-      ],
-      first_visit: new Date().toISOString(),
-      total_visits: 1,
-      device_info: {
-        user_agent: navigator.userAgent,
-        platform: navigator.platform,
-        screen_width: window.screen.width,
-        screen_height: window.screen.height
-      },
-      traffic_source: utm
-    }).catch(() => {});
+    try {
+      const analyticsRes = base44.analytics.track({
+        eventName: 'geenius_quiz_started',
+        properties: {
+          session_id: sessionId,
+          ...utm,
+          ...campaign
+        }
+      });
+      if (analyticsRes && typeof analyticsRes.catch === 'function') {
+        analyticsRes.catch(() => {});
+      }
+    } catch (err) {
+      console.error('Analytics tracking failed:', err);
+    }
+
+    try {
+      base44.entities.UserBehavior.create({
+        session_id: sessionId,
+        consent_given: false,
+        engagement_score: 0,
+        scroll_depth: 0,
+        click_count: 0,
+        time_on_page: 0,
+        quiz_completion: 0,
+        pages_viewed: ['QuizGeenius'],
+        interactions: [
+          { type: 'quiz_started', timestamp: Date.now(), step: 0 }
+        ],
+        first_visit: new Date().toISOString(),
+        total_visits: 1,
+        device_info: {
+          user_agent: navigator.userAgent,
+          platform: navigator.platform,
+          screen_width: window.screen.width,
+          screen_height: window.screen.height
+        },
+        traffic_source: utm
+      }).catch(() => {});
+    } catch (err) {
+      console.error('User behavior tracking failed:', err);
+    }
 
     const handleScroll = () => {
       if (scrollTimeout) return;
