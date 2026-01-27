@@ -58,14 +58,6 @@ export default function HomePage() {
     );
   }
 
-  // Render the appropriate funnel based on admin setting
-  switch (activeFunnel) {
-    case 'v3':
-      return <QuizV3 />;
-    case 'v2':
-      return <QuizV2 />;
-    case 'geenius':
-    default:
-      return <QuizGeenius />;
-  }
+  // Always render QuizGeenius
+  return <QuizGeenius />;
 }

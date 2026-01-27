@@ -17,7 +17,7 @@ export default function PlumbersLanding() {
 
   const handleCTA = () => {
     base44.analytics.track({ eventName: 'plumbers_landing_cta_clicked' });
-    window.location.href = createPageUrl('QuizV3');
+    window.location.href = createPageUrl('QuizGeenius');
   };
 
   return (

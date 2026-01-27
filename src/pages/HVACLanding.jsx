@@ -72,14 +72,14 @@ export default function HVACLanding() {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Button
-                onClick={() => navigate(createPageUrl('QuizV3'))}
+                onClick={() => navigate(createPageUrl('QuizGeenius'))}
                 size="lg"
                 className="bg-[#c8ff00] text-gray-900 hover:bg-[#b8ef00] active:bg-[#a8df00] text-lg px-8 py-6 font-bold min-h-[56px] touch-manipulation"
               >
                 Get Your Free HVAC Visibility Audit
               </Button>
               <Button
-                 onClick={() => navigate(createPageUrl('QuizV3'))}
+                 onClick={() => navigate(createPageUrl('QuizGeenius'))}
                  size="lg"
                  className="border-2 border-[#c8ff00] bg-[#c8ff00]/20 text-white hover:bg-[#c8ff00]/30 active:bg-[#c8ff00]/40 text-lg px-8 py-6 font-bold min-h-[56px] touch-manipulation"
                >
@@ -212,7 +212,7 @@ export default function HVACLanding() {
           </p>
           <div className="flex justify-center">
             <Button
-              onClick={() => navigate(createPageUrl('QuizV3'))}
+              onClick={() => navigate(createPageUrl('QuizGeenius'))}
               size="lg"
               className="bg-gray-900 text-white hover:bg-gray-800 active:bg-gray-700 text-base md:text-lg px-6 md:px-10 py-5 md:py-6 font-bold min-h-[48px] md:min-h-[56px] w-full sm:w-auto touch-manipulation"
             >

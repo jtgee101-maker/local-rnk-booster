@@ -17,7 +17,7 @@ export default function DentistsLanding() {
 
   const handleCTA = () => {
     base44.analytics.track({ eventName: 'dentists_landing_cta_clicked' });
-    window.location.href = createPageUrl('QuizV3');
+    window.location.href = createPageUrl('QuizGeenius');
   };
 
   return (
