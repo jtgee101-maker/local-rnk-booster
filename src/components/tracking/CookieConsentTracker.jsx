@@ -120,24 +120,23 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
   };
 
   const trackSessionStart = (session) => {
+    if (!session?.session_id || !base44?.analytics?.track) return;
     try {
-      if (!session?.session_id) return;
-      const result = base44?.analytics?.track({
-        eventName: 'tracking_session_started',
-        properties: {
-          session_id: session.session_id,
-          is_returning_user: session.total_visits > 1,
-          total_visits: session.total_visits,
-          days_since_first_visit: session.first_visit 
-            ? Math.floor((Date.now() - new Date(session.first_visit).getTime()) / (1000 * 60 * 60 * 24))
-            : 0
-        }
-      });
-      if (result && typeof result.catch === 'function') {
-        result.catch(() => {});
-      }
+      Promise.resolve(
+        base44.analytics.track({
+          eventName: 'tracking_session_started',
+          properties: {
+            session_id: session.session_id,
+            is_returning_user: session.total_visits > 1,
+            total_visits: session.total_visits,
+            days_since_first_visit: session.first_visit 
+              ? Math.floor((Date.now() - new Date(session.first_visit).getTime()) / (1000 * 60 * 60 * 24))
+              : 0
+          }
+        })
+      ).catch(() => {});
     } catch (error) {
-      console.error('Session tracking error:', error);
+      console.warn('Session tracking error:', error);
     }
   };
 
@@ -159,26 +158,35 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
 
     // Track clicks
     const handleClick = (e) => {
+      if (!e?.target) return;
       interactionCount++;
       const interaction = {
         type: 'click',
-        element: e.target.tagName,
-        text: e.target.innerText?.substring(0, 50) || '',
+        element: e.target.tagName || 'unknown',
+        text: (e.target.innerText || '')?.substring(0, 50) || '',
         timestamp: new Date().toISOString()
       };
-      
+
       updateSessionData({ 
         interactions: [...(sessionData.interactions || []), interaction],
         interaction_count: interactionCount
       });
 
-      base44.analytics.track({
-        eventName: 'user_interaction',
-        properties: {
-          session_id: session.session_id,
-          ...interaction
+      if (base44?.analytics?.track && session?.session_id) {
+        try {
+          Promise.resolve(
+            base44.analytics.track({
+              eventName: 'user_interaction',
+              properties: {
+                session_id: session.session_id,
+                ...interaction
+              }
+            })
+          ).catch(() => {});
+        } catch (e) {
+          console.warn('Click tracking error:', e);
         }
-      });
+      }
     };
 
     // Track form field interactions
@@ -211,16 +219,22 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
       const timeOnPage = Math.floor((Date.now() - startTime) / 1000);
       updateSessionData({ time_on_page: timeOnPage });
       
-      if (timeOnPage % 30 === 0) { // Every 30 seconds
-        base44.analytics.track({
-          eventName: 'engagement_milestone',
-          properties: {
-            session_id: session.session_id,
-            time_on_page: timeOnPage,
-            scroll_depth: maxScroll,
-            interactions: interactionCount
-          }
-        });
+      if (timeOnPage % 30 === 0 && base44?.analytics?.track && session?.session_id) {
+        try {
+          Promise.resolve(
+            base44.analytics.track({
+              eventName: 'engagement_milestone',
+              properties: {
+                session_id: session.session_id,
+                time_on_page: timeOnPage,
+                scroll_depth: maxScroll,
+                interactions: interactionCount
+              }
+            })
+          ).catch(() => {});
+        } catch (e) {
+          console.warn('Engagement tracking error:', e);
+        }
       }
     }, 10000);
 
@@ -269,16 +283,22 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
 
   // Track quiz progress
   useEffect(() => {
-    if (hasConsented && quizStep) {
-      base44.analytics.track({
-        eventName: 'quiz_progress_tracked',
-        properties: {
-          session_id: sessionData.session_id,
-          current_step: quizStep,
-          quiz_data: quizData,
-          timestamp: new Date().toISOString()
-        }
-      });
+    if (hasConsented && quizStep && base44?.analytics?.track && sessionData?.session_id) {
+      try {
+        Promise.resolve(
+          base44.analytics.track({
+            eventName: 'quiz_progress_tracked',
+            properties: {
+              session_id: sessionData.session_id,
+              current_step: quizStep,
+              quiz_data: quizData,
+              timestamp: new Date().toISOString()
+            }
+          })
+        ).catch(() => {});
+      } catch (e) {
+        console.warn('Quiz progress tracking error:', e);
+      }
 
       updateSessionData({
         quiz_progress: {
@@ -297,25 +317,26 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
       }
       setHasConsented(true);
       setShowBanner(false);
-      
-      try {
-        const result = base44?.analytics?.track({
-          eventName: 'tracking_consent_accepted',
-          properties: {
-            timestamp: new Date().toISOString()
-          }
-        });
-        if (result && typeof result.catch === 'function') {
-          result.catch(() => {});
+
+      if (base44?.analytics?.track) {
+        try {
+          Promise.resolve(
+            base44.analytics.track({
+              eventName: 'tracking_consent_accepted',
+              properties: {
+                timestamp: new Date().toISOString()
+              }
+            })
+          ).catch(() => {});
+        } catch (e) {
+          console.warn('Analytics tracking error:', e);
         }
-      } catch (e) {
-        console.warn('Analytics tracking error:', e);
       }
 
       initializeTracking();
       syncBehaviorToBackend();
     } catch (error) {
-      console.error('Accept consent error:', error);
+      console.warn('Accept consent error:', error);
       setHasConsented(true);
       setShowBanner(false);
     }
@@ -324,47 +345,67 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
   const syncBehaviorToBackend = async () => {
     try {
       const behaviorDataRaw = localStorage?.getItem('lr_session_data') || '{}';
-      const behaviorData = typeof behaviorDataRaw === 'string' ? JSON.parse(behaviorDataRaw) : behaviorDataRaw;
-      const engagementScore = parseInt(localStorage?.getItem('lr_engagement_score') || '0') || 0;
-      
-      const firstTouchRaw = localStorage?.getItem('lr_first_touch') || '{}';
-      const firstTouch = typeof firstTouchRaw === 'string' ? JSON.parse(firstTouchRaw) : firstTouchRaw;
-      
-      const lastTouchRaw = sessionStorage?.getItem('lr_last_touch') || '{}';
-      const lastTouch = typeof lastTouchRaw === 'string' ? JSON.parse(lastTouchRaw) : lastTouchRaw;
+      let behaviorData;
+      try {
+        behaviorData = typeof behaviorDataRaw === 'string' ? JSON.parse(behaviorDataRaw) : behaviorDataRaw;
+      } catch (e) {
+        console.warn('Failed to parse behavior data:', e);
+        behaviorData = {};
+      }
 
-      if (!behaviorData.session_id) {
-        console.warn('No session ID for sync');
+      const engagementScore = parseInt(localStorage?.getItem('lr_engagement_score') || '0') || 0;
+
+      const firstTouchRaw = localStorage?.getItem('lr_first_touch') || '{}';
+      let firstTouch;
+      try {
+        firstTouch = typeof firstTouchRaw === 'string' ? JSON.parse(firstTouchRaw) : firstTouchRaw;
+      } catch (e) {
+        firstTouch = {};
+      }
+
+      const lastTouchRaw = sessionStorage?.getItem('lr_last_touch') || '{}';
+      let lastTouch;
+      try {
+        lastTouch = typeof lastTouchRaw === 'string' ? JSON.parse(lastTouchRaw) : lastTouchRaw;
+      } catch (e) {
+        lastTouch = {};
+      }
+
+      if (!behaviorData?.session_id || !base44?.functions?.invoke) {
         return;
       }
 
-      await base44.functions.invoke('syncUserBehavior', {
-        session_id: behaviorData.session_id,
-        consent_given: true,
-        engagement_score: engagementScore,
-        scroll_depth: behaviorData.scroll_depth || 0,
-        click_count: behaviorData.interaction_count || 0,
-        time_on_page: behaviorData.time_on_page || 0,
-        quiz_completion: behaviorData.quiz_progress?.current_step ? (behaviorData.quiz_progress.current_step / 7) * 100 : 0,
-        interactions: Array.isArray(behaviorData.interactions) ? behaviorData.interactions : [],
-        quiz_progress: behaviorData.quiz_progress || {},
-        is_returning: (behaviorData.total_visits || 0) > 1,
-        first_visit: behaviorData.first_visit,
-        last_visit: behaviorData.last_visit,
-        total_visits: behaviorData.total_visits || 1,
-        pages_viewed: Array.isArray(behaviorData.pages_viewed) ? behaviorData.pages_viewed : [],
-        device_info: {
-          user_agent: navigator.userAgent,
-          screen_width: window.innerWidth,
-          screen_height: window.innerHeight
-        },
-        traffic_source: {
-          first_touch: firstTouch,
-          last_touch: lastTouch
-        }
-      });
+      try {
+        await base44.functions.invoke('syncUserBehavior', {
+          session_id: behaviorData.session_id,
+          consent_given: true,
+          engagement_score: engagementScore,
+          scroll_depth: behaviorData.scroll_depth || 0,
+          click_count: behaviorData.interaction_count || 0,
+          time_on_page: behaviorData.time_on_page || 0,
+          quiz_completion: behaviorData.quiz_progress?.current_step ? (behaviorData.quiz_progress.current_step / 7) * 100 : 0,
+          interactions: Array.isArray(behaviorData.interactions) ? behaviorData.interactions : [],
+          quiz_progress: behaviorData.quiz_progress || {},
+          is_returning: (behaviorData.total_visits || 0) > 1,
+          first_visit: behaviorData.first_visit,
+          last_visit: behaviorData.last_visit,
+          total_visits: behaviorData.total_visits || 1,
+          pages_viewed: Array.isArray(behaviorData.pages_viewed) ? behaviorData.pages_viewed : [],
+          device_info: {
+            user_agent: navigator?.userAgent || 'unknown',
+            screen_width: window?.innerWidth || 0,
+            screen_height: window?.innerHeight || 0
+          },
+          traffic_source: {
+            first_touch: firstTouch,
+            last_touch: lastTouch
+          }
+        });
+      } catch (syncError) {
+        console.warn('Sync request error:', syncError);
+      }
     } catch (error) {
-      console.error('Failed to sync behavior data:', error);
+      console.warn('Failed to prepare behavior sync:', error);
     }
   };
 
@@ -374,22 +415,23 @@ export default function CookieConsentTracker({ quizStep, quizData }) {
         localStorage.setItem('lr_tracking_consent', 'declined');
       }
       setShowBanner(false);
-      
-      try {
-        const result = base44?.analytics?.track({
-          eventName: 'tracking_consent_declined',
-          properties: {
-            timestamp: new Date().toISOString()
-          }
-        });
-        if (result && typeof result.catch === 'function') {
-          result.catch(() => {});
+
+      if (base44?.analytics?.track) {
+        try {
+          Promise.resolve(
+            base44.analytics.track({
+              eventName: 'tracking_consent_declined',
+              properties: {
+                timestamp: new Date().toISOString()
+              }
+            })
+          ).catch(() => {});
+        } catch (e) {
+          console.warn('Analytics tracking error:', e);
         }
-      } catch (e) {
-        console.warn('Analytics tracking error:', e);
       }
     } catch (error) {
-      console.error('Decline consent error:', error);
+      console.warn('Decline consent error:', error);
       setShowBanner(false);
     }
   };
