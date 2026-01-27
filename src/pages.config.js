@@ -59,6 +59,10 @@ import Upsell1 from './pages/Upsell1';
 import UserJourneyTest from './pages/UserJourneyTest';
 import V2Start from './pages/V2Start';
 import ProductionFinalChecklist from './pages/ProductionFinalChecklist';
+import PowerWashingLanding from './pages/PowerWashingLanding';
+import AutoBodyLanding from './pages/AutoBodyLanding';
+import LawnCareLanding from './pages/LawnCareLanding';
+import HandymanLanding from './pages/HandymanLanding';
 import __Layout from './Layout.jsx';
 
 
@@ -124,6 +128,10 @@ export const PAGES = {
     "UserJourneyTest": UserJourneyTest,
     "V2Start": V2Start,
     "ProductionFinalChecklist": ProductionFinalChecklist,
+    "PowerWashingLanding": PowerWashingLanding,
+    "AutoBodyLanding": AutoBodyLanding,
+    "LawnCareLanding": LawnCareLanding,
+    "HandymanLanding": HandymanLanding,
 }
 
 export const pagesConfig = {
