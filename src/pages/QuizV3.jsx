@@ -254,8 +254,9 @@ function QuizV3Content() {
     }, 1800);
   }, [step]);
 
-  const handleGoalsSelect = useCallback((goals) => {
+  const handleGoalsSelect = useCallback((data) => {
     if (step !== 'goals') return;
+    const goals = data.goals || [];
     const trafficData = JSON.parse(sessionStorage.getItem('traffic_data') || '{}');
     
     base44.analytics.track({ 
