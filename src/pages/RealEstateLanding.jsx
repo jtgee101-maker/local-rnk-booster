@@ -23,7 +23,7 @@ export default function RealEstateLanding() {
     secondaryCTA: 'See Where You Rank',
     
     monthlyLoss: '18',
-    painPointsIntro: 'Real estate agents leave $240K+ annually in commissions to brokerages that dominate local search',
+    painPointsIntro: "Real estate agents leave $240K+ annually in commissions to brokerages that dominate local search",
     
     painPoints: [
       {

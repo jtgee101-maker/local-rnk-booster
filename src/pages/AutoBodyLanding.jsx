@@ -69,7 +69,7 @@ export default function AutoBodyLanding() {
       { value: '3.8x', label: 'Higher Booking Rate' }
     ],
     
-    benefitsIntro: 'We analyze your Google My Business against local competitors and insurance networks',
+    benefitsIntro: "We analyze your Google My Business against local competitors and insurance networks",
     benefits: [
       "Why accident victims don't see your shop (even when they're searching nearby)",
       "The 4 critical GMB gaps dealerships are exploiting",

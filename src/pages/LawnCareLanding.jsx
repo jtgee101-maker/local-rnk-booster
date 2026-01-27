@@ -69,7 +69,7 @@ export default function LawnCareLanding() {
       { value: '87%', label: 'Cheaper Than Franchises' }
     ],
     
-    benefitsIntro: 'We show you exactly how to compete with and beat national franchises in local search',
+    benefitsIntro: "We show you exactly how to compete with and beat national franchises in local search",
     benefits: [
       "Why homeowners call TruGreen instead of you (and how to fix it)",
       "Critical GMB optimization that franchises miss",

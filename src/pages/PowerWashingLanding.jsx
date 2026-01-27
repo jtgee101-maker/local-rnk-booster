@@ -69,7 +69,7 @@ export default function PowerWashingLanding() {
       { value: '92%', label: 'Cheaper Than Google Ads' }
     ],
     
-    benefitsIntro: 'We analyze your actual Google My Business profile and map dominance strategy',
+    benefitsIntro: "We analyze your actual Google My Business profile and map dominance strategy",
     benefits: [
       "Why you're not showing for high-value service area searches",
       "Which keywords profitable customers are using (that you're missing)",
