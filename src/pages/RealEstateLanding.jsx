@@ -105,4 +105,6 @@ export default function RealEstateLanding() {
         <meta name="keywords" content="real estate marketing, real estate seo, real estate leads, google my business realtors" />
       </Helmet>
       <IndustryLandingTemplate config={config} />
+    </>
+  );
 }
