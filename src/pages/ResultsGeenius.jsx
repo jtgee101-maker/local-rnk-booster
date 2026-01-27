@@ -258,6 +258,6 @@ export default function ResultsGeenius() {
           </div>
         </div>
       </div>
-    </ResultsErrorBoundary>
+    </div>
   );
 }
