@@ -2,6 +2,7 @@ import ABTestDashboard from './pages/ABTestDashboard';
 import Admin from './pages/Admin';
 import AdminControlCenter from './pages/AdminControlCenter';
 import AnalyticsVerification from './pages/AnalyticsVerification';
+import AutoBodyLanding from './pages/AutoBodyLanding';
 import AutoRepairLanding from './pages/AutoRepairLanding';
 import BridgeGeenius from './pages/BridgeGeenius';
 import BridgeV3 from './pages/BridgeV3';
@@ -27,14 +28,18 @@ import FinalLaunchChecklist from './pages/FinalLaunchChecklist';
 import GettingStarted from './pages/GettingStarted';
 import GuideQuizGeenius from './pages/GuideQuizGeenius';
 import HVACLanding from './pages/HVACLanding';
+import HandymanLanding from './pages/HandymanLanding';
 import Home from './pages/Home';
 import LandscapingLanding from './pages/LandscapingLanding';
+import LawnCareLanding from './pages/LawnCareLanding';
 import LegalLanding from './pages/LegalLanding';
 import PlumbersLanding from './pages/PlumbersLanding';
+import PowerWashingLanding from './pages/PowerWashingLanding';
 import PreDeploymentAudit from './pages/PreDeploymentAudit';
 import Pricing from './pages/Pricing';
 import Privacy from './pages/Privacy';
 import ProductionChecklist from './pages/ProductionChecklist';
+import ProductionFinalChecklist from './pages/ProductionFinalChecklist';
 import ProductionLaunchChecklist from './pages/ProductionLaunchChecklist';
 import ProductionReadinessCheck from './pages/ProductionReadinessCheck';
 import Quiz from './pages/Quiz';
@@ -58,11 +63,6 @@ import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import UserJourneyTest from './pages/UserJourneyTest';
 import V2Start from './pages/V2Start';
-import ProductionFinalChecklist from './pages/ProductionFinalChecklist';
-import PowerWashingLanding from './pages/PowerWashingLanding';
-import AutoBodyLanding from './pages/AutoBodyLanding';
-import LawnCareLanding from './pages/LawnCareLanding';
-import HandymanLanding from './pages/HandymanLanding';
 import __Layout from './Layout.jsx';
 
 
@@ -71,6 +71,7 @@ export const PAGES = {
     "Admin": Admin,
     "AdminControlCenter": AdminControlCenter,
     "AnalyticsVerification": AnalyticsVerification,
+    "AutoBodyLanding": AutoBodyLanding,
     "AutoRepairLanding": AutoRepairLanding,
     "BridgeGeenius": BridgeGeenius,
     "BridgeV3": BridgeV3,
@@ -96,14 +97,18 @@ export const PAGES = {
     "GettingStarted": GettingStarted,
     "GuideQuizGeenius": GuideQuizGeenius,
     "HVACLanding": HVACLanding,
+    "HandymanLanding": HandymanLanding,
     "Home": Home,
     "LandscapingLanding": LandscapingLanding,
+    "LawnCareLanding": LawnCareLanding,
     "LegalLanding": LegalLanding,
     "PlumbersLanding": PlumbersLanding,
+    "PowerWashingLanding": PowerWashingLanding,
     "PreDeploymentAudit": PreDeploymentAudit,
     "Pricing": Pricing,
     "Privacy": Privacy,
     "ProductionChecklist": ProductionChecklist,
+    "ProductionFinalChecklist": ProductionFinalChecklist,
     "ProductionLaunchChecklist": ProductionLaunchChecklist,
     "ProductionReadinessCheck": ProductionReadinessCheck,
     "Quiz": Quiz,
@@ -127,11 +132,6 @@ export const PAGES = {
     "Upsell1": Upsell1,
     "UserJourneyTest": UserJourneyTest,
     "V2Start": V2Start,
-    "ProductionFinalChecklist": ProductionFinalChecklist,
-    "PowerWashingLanding": PowerWashingLanding,
-    "AutoBodyLanding": AutoBodyLanding,
-    "LawnCareLanding": LawnCareLanding,
-    "HandymanLanding": HandymanLanding,
 }
 
 export const pagesConfig = {
