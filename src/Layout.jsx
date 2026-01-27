@@ -36,8 +36,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Home', path: createPageUrl('QuizV3') },
     { name: 'Industries', path: createPageUrl('PlumbersLanding'), dropdown: true },
     { name: 'Pricing', path: createPageUrl('Pricing') },
-    { name: 'Referrals', path: createPageUrl('Referrals') },
-    ...(isAdmin ? [{ name: 'Admin Tools', path: createPageUrl('ProductionChecklist'), dropdown: true, adminOnly: true }] : [])
+    { name: 'Referrals', path: createPageUrl('Referrals') }
   ];
 
   const adminTools = [
