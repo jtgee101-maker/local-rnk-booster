@@ -132,7 +132,7 @@ export const PAGES = {
     "AutoBodyLanding": AutoBodyLanding,
     "LawnCareLanding": LawnCareLanding,
     "HandymanLanding": HandymanLanding,
-}
+    }
 
 export const pagesConfig = {
     mainPage: "Home",
