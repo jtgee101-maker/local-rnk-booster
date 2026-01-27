@@ -1,170 +1,380 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Target, TrendingUp, AlertCircle, RefreshCw } from 'lucide-react';
-import { LeadScoringEngine } from '@/components/analytics/LeadScoringEngine';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
+import {
+  TrendingUp, AlertTriangle, CheckCircle, Target,
+  RefreshCw, Search, Filter, ArrowUpDown, Sparkles,
+  Mail, Phone, Award, Zap
+} from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function LeadScoringDashboard() {
-  const [leads, setLeads] = useState([]);
-  const [scoredLeads, setScoredLeads] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [scoring, setScoring] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterGrade, setFilterGrade] = useState('all');
+  const [sortBy, setSortBy] = useState('score_desc');
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    loadLeads();
-  }, []);
-
-  const loadLeads = async () => {
-    try {
-      const allLeads = await base44.entities.Lead.list('-created_date', 50);
-      setLeads(allLeads);
-      await scoreAllLeads(allLeads);
-    } catch (error) {
-      console.error('Error loading leads:', error);
-    } finally {
-      setLoading(false);
+  const { data: leads = [], isLoading } = useQuery({
+    queryKey: ['leads-with-scores'],
+    queryFn: async () => {
+      const allLeads = await base44.entities.Lead.list('-created_date', 100);
+      return allLeads;
     }
+  });
+
+  const scoreMutation = useMutation({
+    mutationFn: async (leadId) => {
+      const result = await base44.functions.invoke('calculateLeadScore', { lead_id: leadId });
+      return result.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leads-with-scores'] });
+      toast.success('Lead scored successfully!');
+    },
+    onError: (error) => {
+      toast.error(`Scoring failed: ${error.message}`);
+    }
+  });
+
+  const scoreAllMutation = useMutation({
+    mutationFn: async () => {
+      const results = [];
+      for (const lead of leads.slice(0, 20)) {
+        try {
+          const result = await base44.functions.invoke('calculateLeadScore', { 
+            lead_id: lead.id 
+          });
+          results.push(result.data);
+        } catch (error) {
+          console.error(`Failed to score ${lead.id}:`, error);
+        }
+      }
+      return results;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leads-with-scores'] });
+      toast.success('All leads scored successfully!');
+    }
+  });
+
+  const getScoreData = async (lead) => {
+    try {
+      const events = await base44.entities.ConversionEvent.filter({
+        lead_id: lead.id,
+        event_name: 'lead_scored'
+      });
+      
+      if (events.length > 0) {
+        return events[0].properties;
+      }
+    } catch (error) {
+      console.error('Error fetching score:', error);
+    }
+    return null;
   };
 
-  const scoreAllLeads = async (leadsToScore) => {
-    setScoring(true);
-    try {
-      const scored = await Promise.all(
-        leadsToScore.map(async (lead) => {
-          const scoreData = await LeadScoringEngine.calculateScore(lead.id);
-          return { ...lead, ...scoreData };
-        })
-      );
-      setScoredLeads(scored.sort((a, b) => b.score - a.score));
-    } catch (error) {
-      console.error('Scoring error:', error);
-    } finally {
-      setScoring(false);
+  const [scoresCache, setScoresCache] = useState({});
+
+  React.useEffect(() => {
+    const loadScores = async () => {
+      const cache = {};
+      for (const lead of leads.slice(0, 20)) {
+        const scoreData = await getScoreData(lead);
+        if (scoreData) {
+          cache[lead.id] = scoreData;
+        }
+      }
+      setScoresCache(cache);
+    };
+    if (leads.length > 0) {
+      loadScores();
     }
-  };
+  }, [leads]);
+
+  const filteredLeads = leads.filter(lead => {
+    const matchesSearch = !searchTerm || 
+      lead.business_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lead.email?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const scoreData = scoresCache[lead.id];
+    const matchesGrade = filterGrade === 'all' || 
+      (scoreData && scoreData.grade?.startsWith(filterGrade));
+    
+    return matchesSearch && matchesGrade;
+  });
+
+  const sortedLeads = [...filteredLeads].sort((a, b) => {
+    const scoreA = scoresCache[a.id]?.score || 0;
+    const scoreB = scoresCache[b.id]?.score || 0;
+    
+    if (sortBy === 'score_desc') return scoreB - scoreA;
+    if (sortBy === 'score_asc') return scoreA - scoreB;
+    if (sortBy === 'recent') return new Date(b.created_date) - new Date(a.created_date);
+    return 0;
+  });
 
   const getGradeColor = (grade) => {
-    switch (grade) {
-      case 'A': return 'text-green-400 bg-green-500/10 border-green-500/30';
-      case 'B': return 'text-blue-400 bg-blue-500/10 border-blue-500/30';
-      case 'C': return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30';
-      default: return 'text-gray-400 bg-gray-500/10 border-gray-500/30';
-    }
+    if (!grade) return 'bg-gray-500';
+    if (grade.startsWith('A')) return 'bg-green-500';
+    if (grade.startsWith('B')) return 'bg-blue-500';
+    if (grade.startsWith('C')) return 'bg-yellow-500';
+    if (grade.startsWith('D')) return 'bg-orange-500';
+    return 'bg-red-500';
   };
 
-  if (loading) {
-    return <div className="text-gray-400">Loading leads...</div>;
+  const stats = {
+    total: leads.length,
+    scored: Object.keys(scoresCache).length,
+    avgScore: Object.values(scoresCache).reduce((sum, s) => sum + (s.score || 0), 0) / 
+              Math.max(1, Object.keys(scoresCache).length),
+    hotLeads: Object.values(scoresCache).filter(s => (s.score || 0) >= 80).length
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <RefreshCw className="w-6 h-6 animate-spin text-purple-500" />
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-xl font-bold text-white flex items-center gap-2">
-            <Target className="w-5 h-5 text-[#c8ff00]" />
-            Lead Scoring Dashboard
-          </h3>
-          <p className="text-sm text-gray-400 mt-1">
-            AI-powered lead quality scoring (0-100)
-          </p>
-        </div>
-        <Button
-          onClick={() => scoreAllLeads(leads)}
-          disabled={scoring}
-          variant="outline"
-          size="sm"
-          className="gap-2"
-        >
-          <RefreshCw className={`w-4 h-4 ${scoring ? 'animate-spin' : ''}`} />
-          {scoring ? 'Scoring...' : 'Refresh Scores'}
-        </Button>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">Total Leads</p>
+                <p className="text-2xl font-bold">{stats.total}</p>
+              </div>
+              <Target className="w-8 h-8 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">Scored</p>
+                <p className="text-2xl font-bold">{stats.scored}</p>
+              </div>
+              <Award className="w-8 h-8 text-purple-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">Avg Score</p>
+                <p className="text-2xl font-bold">{Math.round(stats.avgScore)}</p>
+              </div>
+              <TrendingUp className="w-8 h-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">Hot Leads</p>
+                <p className="text-2xl font-bold">{stats.hotLeads}</p>
+              </div>
+              <Zap className="w-8 h-8 text-orange-500" />
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Score Distribution */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {['A', 'B', 'C', 'D'].map(grade => {
-          const count = scoredLeads.filter(l => l.grade === grade).length;
+      {/* Controls */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-wrap gap-4 items-center justify-between">
+            <div className="flex gap-2 flex-1 max-w-md">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search leads..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <select
+                value={filterGrade}
+                onChange={(e) => setFilterGrade(e.target.value)}
+                className="px-3 py-2 border rounded-lg text-sm"
+              >
+                <option value="all">All Grades</option>
+                <option value="A">Grade A</option>
+                <option value="B">Grade B</option>
+                <option value="C">Grade C</option>
+                <option value="D">Grade D</option>
+                <option value="F">Grade F</option>
+              </select>
+
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-3 py-2 border rounded-lg text-sm"
+              >
+                <option value="score_desc">Score: High to Low</option>
+                <option value="score_asc">Score: Low to High</option>
+                <option value="recent">Most Recent</option>
+              </select>
+
+              <Button
+                onClick={() => scoreAllMutation.mutate()}
+                disabled={scoreAllMutation.isPending}
+                variant="outline"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                {scoreAllMutation.isPending ? 'Scoring...' : 'Score All'}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Leads List */}
+      <div className="space-y-3">
+        {sortedLeads.map(lead => {
+          const scoreData = scoresCache[lead.id];
+          
           return (
-            <Card key={grade} className={`bg-gray-800/50 border-gray-700 ${getGradeColor(grade)}`}>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm">Grade {grade}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{count}</div>
-                <div className="text-xs text-gray-400 mt-1">
-                  {grade === 'A' && 'Hot leads'}
-                  {grade === 'B' && 'Warm leads'}
-                  {grade === 'C' && 'Cold leads'}
-                  {grade === 'D' && 'Low priority'}
+            <Card key={lead.id} className="hover:shadow-lg transition-shadow">
+              <CardContent className="pt-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-semibold text-lg">{lead.business_name || 'Unknown Business'}</h3>
+                      {scoreData && (
+                        <Badge className={`${getGradeColor(scoreData.grade)} text-white`}>
+                          {scoreData.grade}
+                        </Badge>
+                      )}
+                    </div>
+
+                    <div className="flex gap-4 text-sm text-gray-600">
+                      {lead.email && (
+                        <div className="flex items-center gap-1">
+                          <Mail className="w-4 h-4" />
+                          {lead.email}
+                        </div>
+                      )}
+                      {lead.phone && (
+                        <div className="flex items-center gap-1">
+                          <Phone className="w-4 h-4" />
+                          {lead.phone}
+                        </div>
+                      )}
+                    </div>
+
+                    {scoreData && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm font-medium">Score:</span>
+                          <Progress value={scoreData.score} className="flex-1 max-w-xs" />
+                          <span className="text-lg font-bold">{scoreData.score}/100</span>
+                        </div>
+
+                        {scoreData.recommendation && (
+                          <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <div className="flex items-start gap-2">
+                              <Target className="w-5 h-5 text-blue-600 mt-0.5" />
+                              <div>
+                                <p className="font-semibold text-blue-900">
+                                  Recommended: {scoreData.recommendation.name}
+                                </p>
+                                <p className="text-sm text-blue-700">
+                                  {scoreData.recommendation.reason}
+                                </p>
+                                <Badge className="mt-1 bg-blue-200 text-blue-800">
+                                  {scoreData.recommendation.confidence} confidence
+                                </Badge>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {scoreData.breakdown && (
+                          <div className="grid grid-cols-5 gap-2 text-xs">
+                            <div className="text-center">
+                              <div className="font-semibold">{scoreData.breakdown.health_score}</div>
+                              <div className="text-gray-500">Health</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="font-semibold">{scoreData.breakdown.engagement}</div>
+                              <div className="text-gray-500">Engage</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="font-semibold">{scoreData.breakdown.completion}</div>
+                              <div className="text-gray-500">Complete</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="font-semibold">{scoreData.breakdown.business_quality}</div>
+                              <div className="text-gray-500">Quality</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="font-semibold">{scoreData.breakdown.traffic_quality}</div>
+                              <div className="text-gray-500">Traffic</div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2">
+                    {!scoreData && (
+                      <Button
+                        onClick={() => scoreMutation.mutate(lead.id)}
+                        disabled={scoreMutation.isPending}
+                        size="sm"
+                      >
+                        <Sparkles className="w-4 h-4 mr-1" />
+                        Score
+                      </Button>
+                    )}
+                    {scoreData && (
+                      <Button
+                        onClick={() => scoreMutation.mutate(lead.id)}
+                        disabled={scoreMutation.isPending}
+                        size="sm"
+                        variant="outline"
+                      >
+                        <RefreshCw className="w-4 h-4 mr-1" />
+                        Rescore
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
           );
         })}
+
+        {sortedLeads.length === 0 && (
+          <Card>
+            <CardContent className="py-12 text-center text-gray-500">
+              No leads found matching your filters
+            </CardContent>
+          </Card>
+        )}
       </div>
-
-      {/* Top Leads */}
-      <Card className="bg-gray-800/50 border-gray-700">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <TrendingUp className="w-5 h-5" />
-            Top Scored Leads
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {scoredLeads.slice(0, 10).map((lead) => (
-              <div
-                key={lead.id}
-                className="flex items-center justify-between p-4 bg-gray-900/50 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors"
-              >
-                <div className="flex-1">
-                  <div className="flex items-center gap-3">
-                    <div className={`px-3 py-1 rounded-full font-bold text-sm border ${getGradeColor(lead.grade)}`}>
-                      {lead.grade}
-                    </div>
-                    <div>
-                      <div className="text-white font-semibold">{lead.business_name || lead.email}</div>
-                      <div className="text-sm text-gray-400">{lead.email}</div>
-                    </div>
-                  </div>
-                  <div className="mt-2 text-xs text-gray-500">
-                    {lead.recommendation}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-[#c8ff00]">{lead.score}</div>
-                  <div className="text-xs text-gray-400">/ 100</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Scoring Factors (for top lead) */}
-      {scoredLeads.length > 0 && (
-        <Card className="bg-gray-800/50 border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <AlertCircle className="w-5 h-5" />
-              Scoring Factors - {scoredLeads[0].business_name}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {scoredLeads[0].factors?.map((factor, i) => (
-                <div key={i} className="flex items-center gap-2 text-sm">
-                  <div className="w-2 h-2 bg-[#c8ff00] rounded-full" />
-                  <span className="text-gray-300">{factor}</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }
