@@ -315,9 +315,10 @@ export default function QuizGeenius() {
         console.error('Behavior tracking failed:', behaviorError);
       }
 
-      // Send email with tracking context
-      try {
-        await base44.functions.invoke('sendGeeniusEmail', {
+      // Send emails in parallel - don't wait for both
+      Promise.all([
+        // Send welcome email to lead
+        base44.functions.invoke('sendGeeniusEmail', {
           leadData: lead,
           sessionId: sessionId,
           utmParams: utmParams,
@@ -327,19 +328,32 @@ export default function QuizGeenius() {
             scroll_depth: scrollDepth,
             click_count: clickCount
           }
-        });
-      } catch (emailError) {
-        console.error('Email send failed:', emailError);
-      }
-
-      // Notify admin of new lead
-      try {
-        await base44.functions.invoke('notifyAdminNewLead', {
+        }).catch(err => {
+          console.error('Lead email failed:', err);
+          base44.entities.ErrorLog.create({
+            error_type: 'email_failure',
+            severity: 'high',
+            message: `Lead welcome email failed: ${err.message}`,
+            metadata: { lead_id: lead.id, email: lead.email }
+          }).catch(() => {});
+        }),
+        
+        // Notify admin of new lead
+        base44.functions.invoke('notifyAdminNewLead', {
           leadData: lead
-        });
-      } catch (adminEmailError) {
-        console.error('Admin notification failed:', adminEmailError);
-      }
+        }).catch(err => {
+          console.error('Admin notification failed:', err);
+          base44.entities.ErrorLog.create({
+            error_type: 'email_failure',
+            severity: 'medium',
+            message: `Admin notification failed: ${err.message}`,
+            metadata: { lead_id: lead.id }
+          }).catch(() => {});
+        })
+      ]).catch(() => {
+        // Continue even if emails fail
+        console.warn('Some emails failed but continuing');
+      });
 
       // Track lead creation with full context
       await base44.analytics.track({

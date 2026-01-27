@@ -138,13 +138,32 @@ Deno.serve(async (req) => {
       </html>
     `;
 
-    // Send email
-    await base44.asServiceRole.integrations.Core.SendEmail({
-      from_name: 'GeeNiusPath Team',
-      to: leadData.email,
-      subject: `✨ ${leadData.business_name || 'Your'} - Choose Your Exclusive Pathway`,
-      body: emailBody
-    });
+    // Send email - retry up to 3 times on failure
+    let emailSent = false;
+    let lastError = null;
+    
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await base44.asServiceRole.integrations.Core.SendEmail({
+          from_name: 'GeeNiusPath Team',
+          to: leadData.email,
+          subject: `✨ ${leadData.business_name || 'Your'} - Choose Your Exclusive Pathway`,
+          body: emailBody
+        });
+        emailSent = true;
+        break;
+      } catch (emailError) {
+        lastError = emailError;
+        console.error(`Email attempt ${attempt} failed:`, emailError.message);
+        if (attempt < 3) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Wait before retry
+        }
+      }
+    }
+    
+    if (!emailSent) {
+      throw new Error(`Failed to send email after 3 attempts: ${lastError?.message || 'Unknown error'}`);
+    }
 
     // Log email with full tracking context
     await base44.asServiceRole.entities.EmailLog.create({
