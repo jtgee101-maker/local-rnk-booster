@@ -1,8 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { sendCustomerEmail } from './utils/resendEmailService.js';
 import { quizSubmissionTemplate } from './utils/emailTemplates.js';
 import { enhancedAuditTemplate } from './utils/enhancedEmailTemplates.js';
-import { logError, handleFunctionError } from './utils/errorLogging.js';
-import { sendEmailWithRetry } from './utils/emailRetry.js';
 import { getProductionDomain } from './utils/domainConfig.js';
 
 Deno.serve(async (req) => {
@@ -37,46 +36,51 @@ Deno.serve(async (req) => {
       ? enhancedAuditTemplate(leadData, analysis, domain)
       : quizSubmissionTemplate(leadData, domain);
 
-    await sendEmailWithRetry(
-      (data) => base44.asServiceRole.integrations.Core.SendEmail(data),
-      {
-        to: leadData.email,
-        from_name: 'LocalRank.ai',
-        subject: `🎯 Your Lead Independence Audit Results - Score: ${leadData.health_score}/100`,
-        body: emailBody
-      }
+    // Send via production-grade service
+    const emailResult = await sendCustomerEmail(
+      leadData.email,
+      `🎯 Your Lead Independence Audit Results - Score: ${leadData.health_score}/100`,
+      emailBody,
+      'LocalRank.ai'
     );
 
     // Log email send to EmailLog
     await base44.asServiceRole.entities.EmailLog.create({
       to: leadData.email,
       from: 'LocalRank.ai',
-      subject: `🎯 Your Lead Independence Audit Results - Score: ${leadData.health_score}/100`,
+      subject: `Your Lead Independence Audit Results`,
       type: 'welcome',
       status: 'sent',
-      metadata: { lead_id: leadData.id }
-    });
+      metadata: { 
+        lead_id: leadData.id,
+        enhanced: !!analysis,
+        message_id: emailResult.messageId
+      }
+    }).catch(err => console.error('Failed to log email:', err));
 
     return Response.json({ 
       success: true, 
       email: leadData.email,
-      enhanced: !!analysis 
+      enhanced: !!analysis,
+      messageId: emailResult.messageId
     });
   } catch (error) {
-    const errorInfo = handleFunctionError(error, {
-      functionName: 'sendQuizSubmissionEmail',
-      errorType: 'email_failure',
-      additionalContext: { email: error?.payload?.email }
-    });
+    console.error('SendQuizSubmissionEmail error:', error);
 
-    await logError(createClientFromRequest(req), {
-      type: 'email_failure',
-      severity: 'high',
-      message: `Failed to send quiz submission email: ${error.message}`,
-      stackTrace: error.stack,
-      metadata: { function: 'sendQuizSubmissionEmail', errorId: errorInfo.logId }
-    }).catch(() => {});
+    // Log error
+    try {
+      const base44 = createClientFromRequest(req);
+      await base44.asServiceRole.entities.ErrorLog.create({
+        error_type: 'email_failure',
+        severity: 'high',
+        message: `Failed to send quiz submission email: ${error.message}`,
+        stack_trace: error.stack,
+        metadata: { function: 'sendQuizSubmissionEmail', email: payload?.leadData?.email }
+      });
+    } catch (logErr) {
+      console.error('Error logging failed:', logErr);
+    }
 
-    return Response.json({ error: error.message, errorId: errorInfo.logId }, { status: 500 });
+    return Response.json({ error: error.message }, { status: 500 });
   }
 });
