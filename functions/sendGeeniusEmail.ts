@@ -113,6 +113,8 @@ Deno.serve(async (req) => {
     }
 
     // Send via Resend directly
+    console.log('Attempting to send via Resend...', { to: leadData.email, from: 'noreply@updates.localrnk.com' });
+    
     const emailResult = await resend.emails.send({
       from: `GeeNiusPath Team <noreply@updates.localrnk.com>`,
       to: leadData.email,
@@ -120,47 +122,11 @@ Deno.serve(async (req) => {
       html: emailBody
     });
 
+    console.log('Resend response:', emailResult);
+
     if (emailResult.error) {
       throw new Error(`Resend error: ${emailResult.error.message}`);
     }
-
-    // Log email with full tracking context (fire and forget)
-    base44.asServiceRole.entities.EmailLog.create({
-      to: leadData.email,
-      from: 'GeeNiusPath Team',
-      subject: `Choose Your Exclusive Pathway`,
-      type: 'welcome',
-      status: 'sent',
-      metadata: {
-        lead_id: leadData.id,
-        session_id: sessionId,
-        funnel_version: 'geenius',
-        message_id: emailResult.data?.id,
-        utm_source: utmParams.utm_source,
-        utm_medium: utmParams.utm_medium,
-        utm_campaign: utmParams.utm_campaign,
-        campaign_id: campaignData.campaign_id,
-        short_code: campaignData.short_code,
-        referrer: utmParams.referrer,
-        time_on_page: behaviorData.time_on_page,
-        engagement_score: 100
-      }
-    }).catch(err => console.error('Failed to log email:', err));
-
-    // Track event (fire and forget)
-    base44.asServiceRole.entities.ConversionEvent.create({
-      funnel_version: 'geenius',
-      event_name: 'email_sent',
-      session_id: sessionId,
-      lead_id: leadData.id,
-      properties: {
-        email: leadData.email,
-        health_score: leadData.health_score,
-        ...utmParams,
-        ...campaignData,
-        ...behaviorData
-      }
-    }).catch(trackError => console.error('Email tracking failed:', trackError));
 
     return Response.json({ 
       success: true, 
@@ -176,16 +142,6 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('SendGeeniusEmail error:', error);
-    
-    // Log error (fire and forget)
-    base44.asServiceRole.entities.ErrorLog.create({
-      error_type: 'email_failure',
-      severity: 'high',
-      message: error.message,
-      stack_trace: error.stack,
-      metadata: { function: 'sendGeeniusEmail', email: leadData?.email }
-    }).catch(logError => console.error('Error logging failed:', logError));
-
     return Response.json({ 
       error: error.message,
       success: false 
