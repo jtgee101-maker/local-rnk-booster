@@ -1,14 +1,12 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { Resend } from 'npm:resend@3.0.0';
 import { adminLeadNotificationTemplate } from './utils/emailTemplates.js';
-import { logError, handleFunctionError } from './utils/errorLogging.js';
-import { sendEmailWithRetry } from './utils/emailRetry.js';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
     
-    // INTERNAL FUNCTION ONLY - Service role required
-    // This should only be called from backend automations, not client
     const payload = await req.json();
     
     let leadData;
@@ -24,7 +22,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Lead data with email required' }, { status: 400 });
     }
 
-    // Get admin email from AppSettings (no hardcoded default)
+    // Get admin email from AppSettings
     let adminEmail = null;
     try {
       const settings = await base44.asServiceRole.entities.AppSettings.filter({
@@ -43,18 +41,23 @@ Deno.serve(async (req) => {
 
     const emailBody = adminLeadNotificationTemplate(leadData);
 
-    // Send email with robust retry
+    // Send email via Resend with retry
     let emailSent = false;
     let lastError = null;
     
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
-        await base44.asServiceRole.integrations.Core.SendEmail({
+        const result = await resend.emails.send({
+          from: 'LocalRank.ai <noreply@localrank.ai>',
           to: adminEmail,
-          from_name: 'LocalRank.ai System',
           subject: `🆕 New Lead: ${leadData.business_name || 'New Business'} (Score: ${leadData.health_score || 'N/A'}/100)`,
-          body: emailBody
+          html: emailBody
         });
+        
+        if (result.error) {
+          throw new Error(result.error.message);
+        }
+        
         emailSent = true;
         console.log(`Admin notification sent successfully on attempt ${attempt}`);
         break;
@@ -69,7 +72,6 @@ Deno.serve(async (req) => {
     
     if (!emailSent) {
       console.error(`Failed to send admin notification after 3 attempts: ${lastError?.message}`);
-      // Log but don't fail - admin notification is non-critical
       try {
         await base44.asServiceRole.entities.ErrorLog.create({
           error_type: 'email_failure',
@@ -92,19 +94,7 @@ Deno.serve(async (req) => {
       attempts: emailSent ? 'Success' : 'Failed after 3 attempts'
     });
   } catch (error) {
-    const errorInfo = handleFunctionError(error, {
-      functionName: 'notifyAdminNewLead',
-      errorType: 'email_failure'
-    });
-
-    await logError(createClientFromRequest(req), {
-      type: 'email_failure',
-      severity: 'high',
-      message: `Failed to notify admin of new lead: ${error.message}`,
-      stackTrace: error.stack,
-      metadata: { function: 'notifyAdminNewLead', errorId: errorInfo.logId }
-    }).catch(() => {});
-
-    return Response.json({ error: error.message, errorId: errorInfo.logId }, { status: 500 });
+    console.error('Function error:', error);
+    return Response.json({ error: error.message }, { status: 500 });
   }
 });
