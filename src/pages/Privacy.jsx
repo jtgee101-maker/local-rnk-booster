@@ -1,14 +1,20 @@
 import React from 'react';
+import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-12 px-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-4xl mx-auto bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-8 md:p-12"
-      >
+    <>
+      <Helmet>
+        <title>Privacy Policy - LocalRank.ai</title>
+        <meta name="description" content="Privacy policy for LocalRank.ai. Learn how we collect, use, and protect your data." />
+      </Helmet>
+      <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f] py-12 px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-4xl mx-auto bg-gray-900/50 backdrop-blur border border-gray-800/50 rounded-2xl p-8 md:p-12"
+        >
         <h1 className="text-3xl md:text-4xl font-bold text-white mb-8">Privacy Policy</h1>
         
         <div className="space-y-6 text-gray-300">
