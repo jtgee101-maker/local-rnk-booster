@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Play, ArrowRight } from 'lucide-react';
+import { createPageUrl } from '@/utils';
 
 export default function VideoAskEmbed() {
   const [isLoading, setIsLoading] = useState(true);
