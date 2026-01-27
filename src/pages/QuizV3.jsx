@@ -673,25 +673,25 @@ function QuizV3Content() {
                 
                   <Suspense fallback={<LoadingSpinner />}>
                     {step === 'category' && (
-                      <CategoryStep key="category" onSelect={handleCategorySelect} />
+                      <CategoryStep key="category" onNext={handleCategorySelect} />
                     )}
                     
                     {step === 'painpoint' && (
-                      <PainPointStep key="painpoint" onSelect={handlePainPointSelect} />
+                      <PainPointStep key="painpoint" onNext={handlePainPointSelect} />
                     )}
                     
                     {step === 'goals' && (
-                      <GoalsStep key="goals" onContinue={handleGoalsSelect} />
+                      <GoalsStep key="goals" onNext={handleGoalsSelect} />
                     )}
                     
                     {step === 'timeline' && (
-                      <TimelineStep key="timeline" onSelect={handleTimelineSelect} />
+                      <TimelineStep key="timeline" onNext={handleTimelineSelect} />
                     )}
                     
                     {step === 'businessSearch' && (
                       <BusinessSearchStep 
                         key="businessSearch" 
-                        onSelect={handleBusinessSearchSelect}
+                        onNext={handleBusinessSearchSelect}
                         isLoading={isLoading}
                       />
                     )}
