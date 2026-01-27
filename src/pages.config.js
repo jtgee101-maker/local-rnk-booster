@@ -19,6 +19,7 @@ import DomainSetup from './pages/DomainSetup';
 import ElectriciansLanding from './pages/ElectriciansLanding';
 import FinalLaunchChecklist from './pages/FinalLaunchChecklist';
 import HVACLanding from './pages/HVACLanding';
+import Home from './pages/Home';
 import LandscapingLanding from './pages/LandscapingLanding';
 import LegalLanding from './pages/LegalLanding';
 import PlumbersLanding from './pages/PlumbersLanding';
@@ -47,7 +48,6 @@ import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import UserJourneyTest from './pages/UserJourneyTest';
 import V2Start from './pages/V2Start';
-import Home from './pages/Home';
 import __Layout from './Layout.jsx';
 
 
@@ -73,6 +73,7 @@ export const PAGES = {
     "ElectriciansLanding": ElectriciansLanding,
     "FinalLaunchChecklist": FinalLaunchChecklist,
     "HVACLanding": HVACLanding,
+    "Home": Home,
     "LandscapingLanding": LandscapingLanding,
     "LegalLanding": LegalLanding,
     "PlumbersLanding": PlumbersLanding,
@@ -101,7 +102,6 @@ export const PAGES = {
     "Upsell1": Upsell1,
     "UserJourneyTest": UserJourneyTest,
     "V2Start": V2Start,
-    "Home": Home,
 }
 
 export const pagesConfig = {
