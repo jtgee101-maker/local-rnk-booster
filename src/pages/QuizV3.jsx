@@ -131,13 +131,14 @@ function QuizV3Content() {
   }, []);
 
   React.useEffect(() => {
-    if (step !== 'welcome') {
+       if (step !== 'welcome') {
        const stepStartTime = Date.now();
        try {
-         base44.analytics.track({ 
+         const res = base44?.analytics?.track({ 
            eventName: 'quizv3_step_viewed', 
            properties: { step, step_number: currentStepNumber } 
-         }).catch(() => {});
+         });
+         if (res && typeof res.catch === 'function') res.catch(() => {});
        } catch (e) {
          console.warn('Step view tracking failed:', e);
        }
@@ -145,10 +146,11 @@ function QuizV3Content() {
        return () => {
          const timeOnStep = (Date.now() - stepStartTime) / 1000;
          try {
-           base44.analytics.track({ 
+           const res = base44?.analytics?.track({ 
              eventName: 'quizv3_step_exit', 
              properties: { step, time_spent: Math.round(timeOnStep) } 
-           }).catch(() => {});
+           });
+           if (res && typeof res.catch === 'function') res.catch(() => {});
          } catch (e) {
            console.warn('Step exit tracking failed:', e);
          }
@@ -174,20 +176,21 @@ function QuizV3Content() {
     const timeOnPage = Date.now() - performance.timing.navigationStart;
     
     try {
-      base44.analytics.track({ 
+      const res = base44?.analytics?.track({ 
         eventName: 'quizv3_started',
         properties: { 
           ...trafficData,
           time_to_start_ms: timeOnPage,
           has_affiliate: !!trafficData.affiliate_code
         }
-      }).catch(() => {});
+      });
+      if (res && typeof res.catch === 'function') res.catch(() => {});
     } catch (e) {
       console.warn('Analytics tracking failed:', e);
     }
 
     try {
-      base44.entities.ConversionEvent.create({
+      const res = base44?.entities?.ConversionEvent?.create({
         funnel_version: 'v3',
         event_name: 'quizv3_started',
         session_id: sessionId,
@@ -195,7 +198,8 @@ function QuizV3Content() {
           ...trafficData,
           time_to_start_ms: timeOnPage
         }
-      }).catch(() => {});
+      });
+      if (res && typeof res.catch === 'function') res.catch(() => {});
     } catch (e) {
       console.warn('Event creation failed:', e);
     }
