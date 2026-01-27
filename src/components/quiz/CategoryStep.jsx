@@ -14,13 +14,15 @@ export default function CategoryStep({ onSelect }) {
   const [selectedId, setSelectedId] = React.useState(null);
 
   const handleSelect = async (id) => {
-    if (selectedId) return;
+    if (selectedId || !onSelect) return;
     
     setSelectedId(id);
     
     // Small delay for visual feedback
     setTimeout(() => {
-      onSelect(id);
+      if (typeof onSelect === 'function') {
+        onSelect(id);
+      }
     }, 300);
   };
 
