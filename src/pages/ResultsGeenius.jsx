@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import {
-  Sparkles, Loader2, AlertCircle, CheckCircle
-} from 'lucide-react';
+import { Sparkles, Loader2, AlertCircle } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import HealthScoreReveal from '@/components/results/HealthScoreReveal';
