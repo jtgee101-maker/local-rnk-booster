@@ -10,18 +10,18 @@ const categories = [
   { id: 'other', label: 'Other', icon: MoreHorizontal, desc: 'Tell us more' },
 ];
 
-export default function CategoryStep({ onSelect }) {
+export default function CategoryStep({ onNext, onBack }) {
   const [selectedId, setSelectedId] = React.useState(null);
 
   const handleSelect = async (id) => {
-    if (selectedId || !onSelect) return;
+    if (selectedId || !onNext) return;
     
     setSelectedId(id);
     
     // Small delay for visual feedback
     setTimeout(() => {
-      if (typeof onSelect === 'function') {
-        onSelect(id);
+      if (typeof onNext === 'function') {
+        onNext({ business_category: id });
       }
     }, 300);
   };
