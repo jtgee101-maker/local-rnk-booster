@@ -91,18 +91,12 @@ function QuizV3Content() {
     const sessionId = sessionStorage.getItem('ab_session_id') || `session_${Date.now()}`;
     sessionStorage.setItem('ab_session_id', sessionId);
     
-    // Capture affiliate source data
     const urlParams = new URLSearchParams(window.location.search);
-    const affiliateCode = urlParams.get('ref') || urlParams.get('aff') || urlParams.get('affiliate');
-    const utmSource = urlParams.get('utm_source');
-    const utmMedium = urlParams.get('utm_medium');
-    const utmCampaign = urlParams.get('utm_campaign');
-    
     const trafficData = {
-      affiliate_code: affiliateCode,
-      utm_source: utmSource,
-      utm_medium: utmMedium,
-      utm_campaign: utmCampaign,
+      affiliate_code: urlParams.get('ref') || urlParams.get('aff') || urlParams.get('affiliate'),
+      utm_source: urlParams.get('utm_source'),
+      utm_medium: urlParams.get('utm_medium'),
+      utm_campaign: urlParams.get('utm_campaign'),
       referrer: document.referrer,
       landing_page: window.location.pathname,
       device_type: /Mobile|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
@@ -116,14 +110,14 @@ function QuizV3Content() {
     base44.analytics.track({ 
       eventName: 'quizv3_page_viewed',
       properties: trafficData
-    });
+    }).catch(() => {});
     base44.entities.ConversionEvent.create({
       funnel_version: 'v3',
       event_name: 'quizv3_page_viewed',
       session_id: sessionId,
       properties: trafficData
-    }).catch(err => console.error('Error tracking event:', err));
-  }, [step]);
+    }).catch(() => {});
+  }, []);
 
   React.useEffect(() => {
     if (step !== 'welcome') {
@@ -131,14 +125,14 @@ function QuizV3Content() {
       base44.analytics.track({ 
         eventName: 'quizv3_step_viewed', 
         properties: { step, step_number: currentStepNumber } 
-      });
+      }).catch(() => {});
 
       return () => {
         const timeOnStep = (Date.now() - stepStartTime) / 1000;
         base44.analytics.track({ 
           eventName: 'quizv3_step_exit', 
           properties: { step, time_spent: Math.round(timeOnStep) } 
-        });
+        }).catch(() => {});
       };
     }
   }, [step, currentStepNumber]);
