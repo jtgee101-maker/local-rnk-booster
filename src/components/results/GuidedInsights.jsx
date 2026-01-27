@@ -3,39 +3,52 @@ import { motion } from 'framer-motion';
 import { TrendingUp, AlertTriangle, CheckCircle, Zap, BarChart3, Lightbulb, ArrowRight } from 'lucide-react';
 
 export default function GuidedInsights({ healthScore, criticalIssues, onComplete }) {
+  const [selectedInsight, setSelectedInsight] = useState(null);
+
   const insights = [
     {
       icon: AlertTriangle,
-      title: 'What Your Score Means',
+      title: 'Your Score Analysis',
       description:
         healthScore >= 80
-          ? 'Your GMB profile is well-maintained with strong fundamentals. Focus on growth optimization.'
+          ? 'Your GMB profile is well-maintained with strong fundamentals. Now focus on competitive advantages.'
           : healthScore >= 60
-          ? 'Your profile has a solid foundation but significant untapped potential for visibility gains.'
-          : 'Your profile needs critical attention. Quick improvements will dramatically boost visibility.',
+          ? 'You have a solid foundation with significant untapped potential for visibility gains.'
+          : 'Critical improvements available. Quick wins can dramatically boost visibility.',
+      details:
+        healthScore >= 80
+          ? 'Continue optimizing photos, reviews, and Q&A to maintain competitive advantage.'
+          : healthScore >= 60
+          ? 'Focus on increasing reviews, adding photos, and optimizing your service areas.'
+          : 'Priority: improve rating, increase recent reviews, add more high-quality photos.',
       color: healthScore >= 80 ? 'green' : healthScore >= 60 ? 'yellow' : 'red',
     },
     {
       icon: TrendingUp,
       title: 'Why It Matters',
       description:
-        'Businesses with optimized GMB profiles get 5x more calls, 3x more website traffic, and rank 2.8x higher in local search. Your current score determines how much opportunity you\'re missing.',
+        'Optimized GMB profiles receive 5x more calls, 3x more website clicks, and rank 2.8x higher in local search results.',
+      details:
+        `A ${healthScore}% profile means you're likely missing ${100 - healthScore}% of potential customer actions. Even a 10-point improvement can mean hundreds of extra calls and inquiries per month.`,
       color: 'purple',
     },
     {
       icon: Zap,
-      title: 'The Quick Wins',
+      title: 'Quick Wins Found',
       description:
-        'We found ' +
-        criticalIssues.length +
-        ' quick-fix opportunities. Addressing these can boost your visibility within days, not months.',
+        `${criticalIssues.length} specific opportunities identified to boost your visibility immediately.`,
+      details:
+        criticalIssues.length > 0
+          ? 'These fixes typically take 5-30 minutes each and show results within 3-7 days.'
+          : 'Your profile is already well-optimized. Focus on maintaining and growing reviews.',
       color: 'blue',
     },
     {
       icon: CheckCircle,
-      title: 'Next Steps',
+      title: 'Personalized Action Plan',
       description:
-        'Our automated optimization guide will walk you through each improvement, with actionable tasks that take 5-15 minutes each.',
+        'Watch our AI guide walk you through each improvement with step-by-step video instructions.',
+      details: 'Most improvements take 5-15 minutes. Results typically visible within one week.',
       color: 'pink',
     },
   ];
