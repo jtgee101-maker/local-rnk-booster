@@ -332,6 +332,15 @@ export default function QuizGeenius() {
         console.error('Email send failed:', emailError);
       }
 
+      // Notify admin of new lead
+      try {
+        await base44.functions.invoke('notifyAdminNewLead', {
+          leadData: lead
+        });
+      } catch (adminEmailError) {
+        console.error('Admin notification failed:', adminEmailError);
+      }
+
       // Track lead creation with full context
       await base44.analytics.track({
         eventName: 'geenius_lead_created',
