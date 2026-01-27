@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Sparkles } from 'lucide-react';
 import { createPageUrl } from '@/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 import GeeniusErrorBoundary from '@/components/geenius/GeeniusErrorBoundary';
 import CookieConsentTracker from '@/components/tracking/CookieConsentTracker';
 
