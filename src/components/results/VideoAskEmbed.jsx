@@ -8,6 +8,7 @@ export default function VideoAskEmbed({ leadId }) {
 
   const handlePathwaysClick = () => {
     window.location.href = createPageUrl('BridgeGeenius') + `?lead_id=${leadId}`;
+  };
 
   return (
     <motion.div
