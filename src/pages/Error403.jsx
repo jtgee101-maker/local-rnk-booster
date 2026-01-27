@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { createPageUrl } from '@/utils';
 import { Lock, ArrowLeft, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import DocsFooter from '@/components/docs/DocsFooter';
 
 export default function Error403Page() {
   return (
@@ -89,6 +90,8 @@ export default function Error403Page() {
           </motion.div>
         </div>
       </div>
+
+      <DocsFooter />
     </>
   );
 }

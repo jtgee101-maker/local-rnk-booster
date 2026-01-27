@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { createPageUrl } from '@/utils';
 import { AlertTriangle, RefreshCw, Home, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import DocsFooter from '@/components/docs/DocsFooter';
 
 export default function Error500Page() {
   const [copied, setCopied] = useState(false);
@@ -119,6 +120,8 @@ export default function Error500Page() {
           </motion.div>
         </div>
       </div>
+
+      <DocsFooter />
     </>
   );
 }
