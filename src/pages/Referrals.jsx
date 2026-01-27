@@ -47,7 +47,8 @@ export default function ReferralsPage() {
             <Leaderboard />
           </TabsContent>
         </Tabs>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
