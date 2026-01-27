@@ -1,7 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import { sendCustomerEmail } from './utils/resendEmailService.js';
 import { quizSubmissionTemplate } from './utils/emailTemplates.js';
-import { getProductionDomain } from './utils/domainConfig.js';
 
 Deno.serve(async (req) => {
   try {
@@ -21,15 +20,16 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Lead data and email required' }, { status: 400 });
     }
 
-    // Get production domain
-    const domain = await getProductionDomain(base44);
+    // Default domain for email template
+    const domain = 'https://localrank.ai';
     const emailBody = quizSubmissionTemplate(leadData, domain);
 
-    // Send via production-grade Resend service (bypasses Base44's external email restriction)
+    // Validate Resend API key
     if (!Deno.env.get('RESEND_API_KEY')) {
-      throw new Error('RESEND_API_KEY not configured');
+      throw new Error('RESEND_API_KEY environment variable not configured');
     }
 
+    // Send via Resend directly
     const emailResult = await sendCustomerEmail(
       leadData.email,
       `🎯 ${leadData.business_name || 'Your Business'} - Your GMB Audit Results (Score: ${leadData.health_score}/100)`,
@@ -57,7 +57,7 @@ Deno.serve(async (req) => {
       messageId: emailResult.messageId
     });
   } catch (error) {
-    console.error('SendWelcomeEmail error:', error);
+    console.error('SendWelcomeEmail error:', error.message);
 
     // Log error
     try {

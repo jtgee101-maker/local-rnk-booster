@@ -44,12 +44,16 @@ Deno.serve(async (req) => {
         const email = session.properties?.email || session.properties?.contact_email;
         if (!email) continue;
         
-        await base44.asServiceRole.integrations.Core.SendEmail({
-          to: email,
-          from_name: 'LocalRank.ai',
-          subject: '⏰ Your GMB Audit is Almost Done (2 Minutes Left)',
-          body: getAbandonedTemplate(session.properties?.business_name)
-        });
+        // Import Resend service
+        const { sendCustomerEmail } = await import('../utils/resendEmailService.js');
+        
+        const emailBody = getAbandonedTemplate(session.properties?.business_name);
+        await sendCustomerEmail(
+          email,
+          '⏰ Your GMB Audit is Almost Done (2 Minutes Left)',
+          emailBody,
+          'LocalRank.ai'
+        );
         
         await base44.asServiceRole.entities.EmailLog.create({
           to: email,
