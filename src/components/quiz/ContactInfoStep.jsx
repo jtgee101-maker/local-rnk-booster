@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Mail, Phone, CheckCircle2, Award, Shield } from 'lucide-react';
 import { emailSchema, phoneSchema, validateInput } from '@/components/utils/validation';
 
-export default function ContactInfoStep({ onSubmit, businessName }) {
+export default function ContactInfoStep({ onNext, onBack, initialData }) {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [consent, setConsent] = useState(false);
@@ -42,14 +42,26 @@ export default function ContactInfoStep({ onSubmit, businessName }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (validateForm()) {
+    
+    if (!validateForm()) {
+      return;
+    }
+    
+    if (!onNext || typeof onNext !== 'function') {
+      console.error('ContactInfoStep: onNext prop is missing or not a function');
+      return;
+    }
+    
+    try {
       // Save contact info to sessionStorage merged with existing lead data
       const stored = sessionStorage.getItem('quizLead');
       const existingLead = stored ? JSON.parse(stored) : {};
       const updatedLead = { ...existingLead, email, phone, consent };
       sessionStorage.setItem('quizLead', JSON.stringify(updatedLead));
       
-      onSubmit({ email, phone, consent });
+      onNext({ email, phone, consent });
+    } catch (error) {
+      console.error('ContactInfoStep submit error:', error);
     }
   };
 
