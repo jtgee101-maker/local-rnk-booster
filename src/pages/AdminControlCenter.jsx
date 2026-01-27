@@ -10,7 +10,7 @@ import {
   BarChart3, Users, DollarSign, TrendingUp, AlertCircle, Mail, Bug, Repeat,
   Settings, Eye, Shield, RefreshCw, Download, Lock, Target, Brain, Zap,
   Activity, TrendingDown, CheckCircle2, XCircle, Clock, ArrowUpRight,
-  Loader2, ChevronDown, ChevronUp, ExternalLink
+  Loader2, ChevronDown, ChevronUp, ExternalLink, Sparkles
 } from 'lucide-react';
 
 // Lazy load components
@@ -98,6 +98,12 @@ function FunnelModeSwitcher() {
   const [isEditingLink, setIsEditingLink] = useState(false);
   const [isEditingTimer, setIsEditingTimer] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
+  const [geeniusPathways, setGeeniusPathways] = useState({
+    pathway1_url: 'https://example.com/govtech-grant',
+    pathway2_url: 'https://example.com/done-for-you',
+    pathway3_checkout_url: 'https://buy.stripe.com/test_example'
+  });
+  const [isEditingGeenius, setIsEditingGeenius] = useState(false);
 
   useEffect(() => {
     loadFunnelMode();
@@ -105,10 +111,11 @@ function FunnelModeSwitcher() {
 
   const loadFunnelMode = async () => {
     try {
-      const [modeSettings, linkSettings, timerSettings] = await Promise.all([
+      const [modeSettings, linkSettings, timerSettings, geeniusSettings] = await Promise.all([
         base44.entities.AppSettings.filter({ setting_key: 'funnel_mode' }),
         base44.entities.AppSettings.filter({ setting_key: 'affiliate_link' }),
-        base44.entities.AppSettings.filter({ setting_key: 'bridge_timer' })
+        base44.entities.AppSettings.filter({ setting_key: 'bridge_timer' }),
+        base44.entities.AppSettings.filter({ setting_key: 'geenius_pathways' })
       ]);
       
       if (modeSettings.length > 0) {
@@ -119,6 +126,9 @@ function FunnelModeSwitcher() {
       }
       if (timerSettings.length > 0) {
         setBridgeTimer(timerSettings[0].setting_value.seconds || 3);
+      }
+      if (geeniusSettings.length > 0) {
+        setGeeniusPathways(geeniusSettings[0].setting_value);
       }
     } catch (error) {
       console.error('Error loading funnel mode:', error);
@@ -219,10 +229,35 @@ function FunnelModeSwitcher() {
     );
   }
 
+  const updateGeeniusPathways = async () => {
+    try {
+      const existing = await base44.entities.AppSettings.filter({ setting_key: 'geenius_pathways' });
+      
+      if (existing.length > 0) {
+        await base44.entities.AppSettings.update(existing[0].id, {
+          setting_value: geeniusPathways
+        });
+      } else {
+        await base44.entities.AppSettings.create({
+          setting_key: 'geenius_pathways',
+          setting_value: geeniusPathways,
+          category: 'general',
+          description: 'GeeNius pathway URLs configuration'
+        });
+      }
+      
+      setIsEditingGeenius(false);
+      base44.analytics.track({ eventName: 'geenius_pathways_updated' });
+    } catch (error) {
+      console.error('Error updating geenius pathways:', error);
+      alert('Failed to update pathways');
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Mode Selection Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -314,6 +349,52 @@ function FunnelModeSwitcher() {
             </div>
           </div>
         </motion.button>
+
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => switchMode('geenius')}
+          disabled={isSwitching}
+          className={`relative p-6 rounded-xl border-2 text-left transition-all ${
+            currentMode === 'geenius'
+              ? 'border-purple-500 bg-gradient-to-br from-purple-500/10 to-transparent'
+              : 'border-gray-700 bg-gray-900/30 hover:border-gray-600'
+          } ${isSwitching ? 'opacity-50 cursor-not-allowed' : ''}`}
+        >
+          {currentMode === 'geenius' && (
+            <div className="absolute top-4 right-4">
+              <Badge className="bg-purple-500 text-black font-bold">ACTIVE</Badge>
+            </div>
+          )}
+          
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-500/20 rounded-lg">
+                <Sparkles className="w-5 h-5 text-purple-400" />
+              </div>
+              <h3 className="text-xl font-bold text-white">QuizGeenius</h3>
+            </div>
+            
+            <p className="text-sm text-gray-400">
+              3-pathway bridge: Gov Grant, DFY, DIY
+            </p>
+            
+            <div className="space-y-1.5 pt-2">
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <CheckCircle2 className="w-3 h-3 text-purple-400" />
+                Quiz → Results → 3 Pathways
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <CheckCircle2 className="w-3 h-3 text-purple-400" />
+                Gov Tech Grant eligibility
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <CheckCircle2 className="w-3 h-3 text-purple-400" />
+                DFY + DIY options
+              </div>
+            </div>
+          </div>
+        </motion.button>
       </div>
 
       {/* Current Status */}
@@ -323,22 +404,32 @@ function FunnelModeSwitcher() {
         className={`p-4 rounded-xl border ${
           currentMode === 'v2' 
             ? 'border-[#c8ff00]/30 bg-[#c8ff00]/5' 
-            : 'border-green-500/30 bg-green-500/5'
+            : currentMode === 'v3'
+            ? 'border-green-500/30 bg-green-500/5'
+            : 'border-purple-500/30 bg-purple-500/5'
         }`}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className={`w-2.5 h-2.5 rounded-full ${
-              currentMode === 'v2' ? 'bg-[#c8ff00]' : 'bg-green-500'
+              currentMode === 'v2' ? 'bg-[#c8ff00]' : 
+              currentMode === 'v3' ? 'bg-green-500' : 
+              'bg-purple-500'
             } animate-pulse`} />
             <div>
               <p className="text-white font-semibold text-sm">
-                Currently Running: {currentMode === 'v2' ? 'Quiz V2 (Stripe)' : 'Quiz V3 (Affiliate)'}
+                Currently Running: {
+                  currentMode === 'v2' ? 'Quiz V2 (Stripe)' : 
+                  currentMode === 'v3' ? 'Quiz V3 (Affiliate)' :
+                  'QuizGeenius (3-Pathway)'
+                }
               </p>
               <p className="text-xs text-gray-400 mt-0.5">
                 {currentMode === 'v2' 
                   ? 'Users see pricing & checkout after quiz'
-                  : 'Users see results with affiliate CTA'
+                  : currentMode === 'v3'
+                  ? 'Users see results with affiliate CTA'
+                  : 'Users choose from 3 exclusive pathways'
                 }
               </p>
             </div>
@@ -364,7 +455,7 @@ function FunnelModeSwitcher() {
             className="space-y-4"
           >
             {/* Entry Points */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 bg-gray-800/30 rounded-xl border border-gray-700">
                 <p className="text-xs text-gray-400 mb-2">V2 Entry Point</p>
                 <code className="text-sm text-[#c8ff00] font-mono">/Quiz</code>
@@ -372,6 +463,10 @@ function FunnelModeSwitcher() {
               <div className="p-4 bg-gray-800/30 rounded-xl border border-gray-700">
                 <p className="text-xs text-gray-400 mb-2">V3 Entry Point</p>
                 <code className="text-sm text-green-400 font-mono">/QuizV3</code>
+              </div>
+              <div className="p-4 bg-gray-800/30 rounded-xl border border-gray-700">
+                <p className="text-xs text-gray-400 mb-2">GeeNius Entry Point</p>
+                <code className="text-sm text-purple-400 font-mono">/QuizGeenius</code>
               </div>
             </div>
 
@@ -470,6 +565,161 @@ function FunnelModeSwitcher() {
                   <p className="text-xs text-gray-500 mt-2">
                     How long the "Syncing" screen displays before redirect (1-10s)
                   </p>
+                </div>
+
+                {/* GeeNius Pathways Configuration */}
+                <div className="p-4 rounded-xl border border-purple-500/30 bg-purple-500/5">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-purple-400" />
+                      <h4 className="text-sm font-semibold text-white">GeeNius Pathway URLs</h4>
+                    </div>
+                    <Button
+                      onClick={() => setIsEditingGeenius(!isEditingGeenius)}
+                      variant="ghost"
+                      size="sm"
+                      className="text-purple-400 hover:text-purple-300"
+                    >
+                      {isEditingGeenius ? 'Cancel' : 'Edit'}
+                    </Button>
+                  </div>
+                  
+                  {isEditingGeenius ? (
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-xs text-gray-400 mb-1 block">Pathway #1: Gov Tech Grant</label>
+                        <Input
+                          value={geeniusPathways.pathway1_url}
+                          onChange={(e) => setGeeniusPathways({...geeniusPathways, pathway1_url: e.target.value})}
+                          className="bg-gray-900 border-purple-500/30 text-white font-mono text-sm"
+                          placeholder="https://..."
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-400 mb-1 block">Pathway #2: Done For You</label>
+                        <Input
+                          value={geeniusPathways.pathway2_url}
+                          onChange={(e) => setGeeniusPathways({...geeniusPathways, pathway2_url: e.target.value})}
+                          className="bg-gray-900 border-purple-500/30 text-white font-mono text-sm"
+                          placeholder="https://..."
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-400 mb-1 block">Pathway #3: DIY Checkout</label>
+                        <Input
+                          value={geeniusPathways.pathway3_checkout_url}
+                          onChange={(e) => setGeeniusPathways({...geeniusPathways, pathway3_checkout_url: e.target.value})}
+                          className="bg-gray-900 border-purple-500/30 text-white font-mono text-sm"
+                          placeholder="https://buy.stripe.com/..."
+                        />
+                      </div>
+                      <Button
+                        onClick={updateGeeniusPathways}
+                        className="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold"
+                        size="sm"
+                      >
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        Save Pathways
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="p-2 bg-gray-900/50 rounded">
+                        <div className="text-xs text-gray-400 mb-1">Pathway #1</div>
+                        <div className="font-mono text-xs text-purple-400 break-all">{geeniusPathways.pathway1_url}</div>
+                      </div>
+                      <div className="p-2 bg-gray-900/50 rounded">
+                        <div className="text-xs text-gray-400 mb-1">Pathway #2</div>
+                        <div className="font-mono text-xs text-purple-400 break-all">{geeniusPathways.pathway2_url}</div>
+                      </div>
+                      <div className="p-2 bg-gray-900/50 rounded">
+                        <div className="text-xs text-gray-400 mb-1">Pathway #3</div>
+                        <div className="font-mono text-xs text-purple-400 break-all">{geeniusPathways.pathway3_checkout_url}</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {/* GeeNius Specific Controls */}
+            {currentMode === 'geenius' && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-4"
+              >
+                {/* GeeNius Pathways Configuration */}
+                <div className="p-4 rounded-xl border border-purple-500/30 bg-purple-500/5">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-purple-400" />
+                      <h4 className="text-sm font-semibold text-white">GeeNius Pathway URLs</h4>
+                    </div>
+                    <Button
+                      onClick={() => setIsEditingGeenius(!isEditingGeenius)}
+                      variant="ghost"
+                      size="sm"
+                      className="text-purple-400 hover:text-purple-300"
+                    >
+                      {isEditingGeenius ? 'Cancel' : 'Edit'}
+                    </Button>
+                  </div>
+                  
+                  {isEditingGeenius ? (
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-xs text-gray-400 mb-1 block">Pathway #1: Gov Tech Grant</label>
+                        <Input
+                          value={geeniusPathways.pathway1_url}
+                          onChange={(e) => setGeeniusPathways({...geeniusPathways, pathway1_url: e.target.value})}
+                          className="bg-gray-900 border-purple-500/30 text-white font-mono text-sm"
+                          placeholder="https://..."
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-400 mb-1 block">Pathway #2: Done For You</label>
+                        <Input
+                          value={geeniusPathways.pathway2_url}
+                          onChange={(e) => setGeeniusPathways({...geeniusPathways, pathway2_url: e.target.value})}
+                          className="bg-gray-900 border-purple-500/30 text-white font-mono text-sm"
+                          placeholder="https://..."
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-400 mb-1 block">Pathway #3: DIY Checkout</label>
+                        <Input
+                          value={geeniusPathways.pathway3_checkout_url}
+                          onChange={(e) => setGeeniusPathways({...geeniusPathways, pathway3_checkout_url: e.target.value})}
+                          className="bg-gray-900 border-purple-500/30 text-white font-mono text-sm"
+                          placeholder="https://buy.stripe.com/..."
+                        />
+                      </div>
+                      <Button
+                        onClick={updateGeeniusPathways}
+                        className="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold"
+                        size="sm"
+                      >
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        Save Pathways
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="p-2 bg-gray-900/50 rounded">
+                        <div className="text-xs text-gray-400 mb-1">Pathway #1</div>
+                        <div className="font-mono text-xs text-purple-400 break-all">{geeniusPathways.pathway1_url}</div>
+                      </div>
+                      <div className="p-2 bg-gray-900/50 rounded">
+                        <div className="text-xs text-gray-400 mb-1">Pathway #2</div>
+                        <div className="font-mono text-xs text-purple-400 break-all">{geeniusPathways.pathway2_url}</div>
+                      </div>
+                      <div className="p-2 bg-gray-900/50 rounded">
+                        <div className="text-xs text-gray-400 mb-1">Pathway #3</div>
+                        <div className="font-mono text-xs text-purple-400 break-all">{geeniusPathways.pathway3_checkout_url}</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}
