@@ -21,19 +21,19 @@ export default function ReferralsPage() {
           </div>
           <Tabs defaultValue="referrals" className="space-y-6">
             <TabsList className="bg-gray-900/50 border border-gray-800/50 backdrop-blur-sm">
-            <TabsTrigger value="referrals">
-              <Gift className="w-4 h-4 mr-2" />
-              My Referrals
-            </TabsTrigger>
-            <TabsTrigger value="affiliate">
-              <Award className="w-4 h-4 mr-2" />
-              Affiliate Portal
-            </TabsTrigger>
-            <TabsTrigger value="leaderboard">
-              <Trophy className="w-4 h-4 mr-2" />
-              Leaderboard
-            </TabsTrigger>
-          </TabsList>
+              <TabsTrigger value="referrals" className="data-[state=active]:text-[#c8ff00] data-[state=active]:border-[#c8ff00]">
+                <Gift className="w-4 h-4 mr-2" />
+                My Referrals
+              </TabsTrigger>
+              <TabsTrigger value="affiliate" className="data-[state=active]:text-[#c8ff00] data-[state=active]:border-[#c8ff00]">
+                <Award className="w-4 h-4 mr-2" />
+                Affiliate Portal
+              </TabsTrigger>
+              <TabsTrigger value="leaderboard" className="data-[state=active]:text-[#c8ff00] data-[state=active]:border-[#c8ff00]">
+                <Trophy className="w-4 h-4 mr-2" />
+                Leaderboard
+              </TabsTrigger>
+            </TabsList>
 
           <TabsContent value="referrals">
             <ReferralDashboard />
