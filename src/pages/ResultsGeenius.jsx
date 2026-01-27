@@ -166,21 +166,21 @@ export default function ResultsGeenius() {
         <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-pink-500/5 rounded-full blur-3xl animate-pulse delay-1000" />
       </div>
 
-      <div className="relative z-10 px-4 py-12 md:py-20">
-        <div className="max-w-4xl mx-auto space-y-8">
+      <div className="relative z-10 px-4 py-8 sm:py-12 md:py-20">
+        <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center space-y-4"
+            className="text-center space-y-3 sm:space-y-4"
           >
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Sparkles className="w-8 h-8 text-purple-400 animate-pulse" />
-              <h1 className="text-4xl md:text-5xl font-black text-white">
+            <div className="flex items-center justify-center gap-2 mb-2 sm:mb-4">
+              <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400 animate-pulse" />
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white">
                 Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">GeeNius</span> Report
               </h1>
             </div>
-            <p className="text-xl text-gray-300">
+            <p className="text-lg sm:text-xl text-gray-300 px-4">
               {lead.business_name}
             </p>
           </motion.div>
@@ -192,13 +192,13 @@ export default function ResultsGeenius() {
             transition={{ delay: 0.1 }}
           >
             <Card className="bg-gradient-to-br from-purple-900/40 via-purple-800/30 to-purple-900/40 border-purple-500/50 overflow-hidden">
-              <CardContent className="p-8">
-                <div className="text-center space-y-6">
+              <CardContent className="p-4 sm:p-6 md:p-8">
+                <div className="text-center space-y-4 sm:space-y-6">
                   <div>
-                    <p className="text-gray-400 mb-2">GMB Health Score</p>
-                    <div className={`text-7xl md:text-8xl font-black ${getScoreColor(healthScore)}`}>
+                    <p className="text-gray-400 mb-2 text-sm sm:text-base">GMB Health Score</p>
+                    <div className={`text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black ${getScoreColor(healthScore)}`}>
                       {healthScore}
-                      <span className="text-4xl">/100</span>
+                      <span className="text-2xl sm:text-3xl md:text-4xl">/100</span>
                     </div>
                   </div>
 
@@ -209,8 +209,8 @@ export default function ResultsGeenius() {
                   </p>
 
                   {/* Score Breakdown */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
-                    <div className="p-4 bg-gray-900/50 rounded-xl border border-gray-700">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-4">
+                    <div className="p-3 sm:p-4 bg-gray-900/50 rounded-xl border border-gray-700">
                       <TrendingUp className="w-6 h-6 text-purple-400 mx-auto mb-2" />
                       <div className="text-2xl font-bold text-white mb-1">
                         {lead.gmb_rating || 'N/A'}
@@ -308,13 +308,13 @@ export default function ResultsGeenius() {
             <Button
               onClick={handleContinue}
               size="lg"
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-lg px-12 py-8 rounded-2xl shadow-2xl shadow-purple-500/30 group"
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-base sm:text-lg px-8 sm:px-12 py-6 sm:py-8 rounded-2xl shadow-2xl shadow-purple-500/30 group touch-manipulation w-full sm:w-auto"
             >
-              <Sparkles className="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform" />
-              View Your Exclusive Pathways
-              <ArrowRight className="w-6 h-6 ml-3 group-hover:translate-x-2 transition-transform" />
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 group-hover:rotate-12 transition-transform" />
+              <span className="flex-1 sm:flex-none">View Your Exclusive Pathways</span>
+              <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 ml-2 sm:ml-3 group-hover:translate-x-2 transition-transform" />
             </Button>
-            <p className="text-gray-500 text-sm mt-4">
+            <p className="text-gray-500 text-xs sm:text-sm mt-4 px-4">
               Discover 3 exclusive pathways tailored to your business
             </p>
           </motion.div>
@@ -324,18 +324,18 @@ export default function ResultsGeenius() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="flex items-center justify-center gap-8 text-gray-500 text-sm"
+            className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 md:gap-8 text-gray-500 text-xs sm:text-sm px-4"
           >
             <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-green-400" />
+              <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" />
               <span>Instant Access</span>
             </div>
             <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-green-400" />
+              <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" />
               <span>No Credit Card</span>
             </div>
             <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-green-400" />
+              <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" />
               <span>100% Tailored</span>
             </div>
           </motion.div>

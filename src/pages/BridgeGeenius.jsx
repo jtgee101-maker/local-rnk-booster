@@ -178,36 +178,36 @@ export default function BridgeGeenius() {
         <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-blue-500/5 rounded-full blur-3xl animate-pulse delay-1000" />
       </div>
 
-      <div className="relative z-10 px-4 py-12 md:py-20">
-        <div className="max-w-6xl mx-auto space-y-12">
+      <div className="relative z-10 px-4 py-8 sm:py-12 md:py-16 lg:py-20">
+        <div className="max-w-6xl mx-auto space-y-8 sm:space-y-10 md:space-y-12">
           {/* Header */}
-          <div className="text-center space-y-6">
-            <div className="flex items-center justify-center gap-3">
-              <Sparkles className="w-10 h-10 md:w-12 md:h-12 text-purple-400 animate-pulse" />
-              <h1 className="text-4xl md:text-6xl font-black text-white">
+          <div className="text-center space-y-4 sm:space-y-6">
+            <div className="flex items-center justify-center gap-2 sm:gap-3">
+              <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-purple-400 animate-pulse" />
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-white leading-tight">
                 Choose Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">GeeNius Path</span>
               </h1>
             </div>
             
             {lead && (
-              <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-full">
-                <Award className="w-5 h-5 text-purple-400" />
-                <span className="text-white font-semibold">{lead.business_name}</span>
+              <div className="inline-flex flex-wrap items-center justify-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-full">
+                <Award className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
+                <span className="text-white font-semibold text-sm sm:text-base">{lead.business_name}</span>
                 {lead.health_score && (
-                  <Badge className="bg-purple-500/30 text-purple-200 border-purple-400/50">
+                  <Badge className="bg-purple-500/30 text-purple-200 border-purple-400/50 text-xs">
                     Score: {lead.health_score}/100
                   </Badge>
                 )}
               </div>
             )}
 
-            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-4">
               Based on your audit results, we've identified <span className="text-purple-400 font-bold">three exclusive pathways</span> to transform your business growth
             </p>
           </div>
 
           {/* Pathways Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {/* Pathway 1: Gov Tech Grant */}
             <Card className="relative bg-gradient-to-br from-purple-900/40 via-purple-800/30 to-purple-900/40 border-purple-500/50 hover:border-purple-400/80 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20 hover:-translate-y-2 overflow-hidden group">
               <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />

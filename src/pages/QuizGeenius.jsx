@@ -45,6 +45,8 @@ export default function QuizGeenius() {
   const totalSteps = 7;
 
   useEffect(() => {
+    let mounted = true;
+    
     const initTracking = async () => {
       // Capture UTM parameters and campaign data
       const params = new URLSearchParams(window.location.search);
@@ -57,6 +59,7 @@ export default function QuizGeenius() {
         referrer: document.referrer,
         landing_page: window.location.href
       };
+      if (!mounted) return;
       setUtmParams(utm);
 
       // Capture campaign/QR tracking
@@ -66,6 +69,7 @@ export default function QuizGeenius() {
         campaign_id: params.get('cid'),
         affiliate_code: params.get('aff')
       };
+      if (!mounted) return;
       setCampaignData(campaign);
 
     // Track campaign click if present
@@ -139,31 +143,44 @@ export default function QuizGeenius() {
       console.error('Tracking initialization failed:', err);
     }
 
-    // Track scroll depth
+    // Track scroll depth (throttled)
+    let scrollTimeout;
     const handleScroll = () => {
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const depth = Math.round((scrollTop + windowHeight) / documentHeight * 100);
-      setScrollDepth(Math.max(scrollDepth, depth));
+      if (scrollTimeout) return;
+      scrollTimeout = setTimeout(() => {
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const depth = Math.round((scrollTop + windowHeight) / documentHeight * 100);
+        if (mounted) setScrollDepth(prev => Math.max(prev, depth));
+        scrollTimeout = null;
+      }, 200);
     };
 
-    // Track clicks
+    // Track clicks (throttled)
+    let clickTimeout;
     const handleClick = () => {
-      setClickCount(prev => prev + 1);
+      if (clickTimeout) return;
+      clickTimeout = setTimeout(() => {
+        if (mounted) setClickCount(prev => prev + 1);
+        clickTimeout = null;
+      }, 100);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    document.addEventListener('click', handleClick);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    document.addEventListener('click', handleClick, { passive: true });
 
       return () => {
+        mounted = false;
         window.removeEventListener('scroll', handleScroll);
         document.removeEventListener('click', handleClick);
+        if (scrollTimeout) clearTimeout(scrollTimeout);
+        if (clickTimeout) clearTimeout(clickTimeout);
       };
     };
 
     initTracking();
-  }, [sessionId]);
+  }, []);
 
   const trackStep = (stepName, stepNumber) => {
     base44.entities.ConversionEvent.create({
@@ -501,25 +518,26 @@ export default function QuizGeenius() {
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDMpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30" />
 
       {/* Header */}
-      <div className="relative z-10 pt-8 pb-4 px-4">
+      <div className="relative z-10 pt-6 sm:pt-8 pb-4 px-4">
         <div className="max-w-2xl mx-auto text-center space-y-3">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <Sparkles className="w-7 h-7 text-purple-400" />
-            <h1 className="text-3xl md:text-4xl font-black text-white">
+            <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-purple-400" />
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white">
               GeeNius<span className="text-purple-400">Path</span>
             </h1>
           </div>
-          <p className="text-gray-400 text-sm md:text-base">
+          <p className="text-gray-400 text-xs sm:text-sm md:text-base">
             Discover exclusive pathways to transform your business growth
           </p>
         </div>
 
         {/* Progress Bar */}
-        <div className="max-w-xl mx-auto mt-6">
+        <div className="max-w-xl mx-auto mt-4 sm:mt-6">
           <Progress value={progress} className="h-2 bg-gray-800" />
           <div className="flex justify-between mt-2 text-xs text-gray-500">
             <span>Step {currentStep + 1} of {totalSteps}</span>
-            <span>{Math.round(progress)}% Complete</span>
+            <span className="hidden xs:inline">{Math.round(progress)}% Complete</span>
+            <span className="xs:hidden">{Math.round(progress)}%</span>
           </div>
         </div>
       </div>
@@ -542,9 +560,19 @@ export default function QuizGeenius() {
       />
 
       {/* Quiz Steps */}
-      <div className="relative z-10 px-4 pb-16">
+      <div className="relative z-10 px-4 pb-12 sm:pb-16">
         <div className="max-w-2xl mx-auto">
-          {steps[currentStep]}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentStep}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {steps[currentStep]}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </div>

@@ -156,7 +156,7 @@ export default function ProcessingStepEnhanced({ onComplete, formData = {} }) {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6">
+    <div className="max-w-2xl mx-auto px-4">
       {/* Main Processing UI */}
       <AnimatePresence mode="wait">
         <motion.div
@@ -166,16 +166,16 @@ export default function ProcessingStepEnhanced({ onComplete, formData = {} }) {
           exit={{ opacity: 0 }}
           className="text-center"
         >
-          {/* Scanner Animation - P1-1 FIX: Replace rotation with pulse (GPU-accelerated) */}
+          {/* Scanner Animation - Optimized */}
           <motion.div
-            className="relative w-32 h-32 mx-auto mb-8"
+            className="relative w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-6 sm:mb-8"
             animate={{ scale: [1, 1.05, 1] }}
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
           >
-            <div className="absolute inset-0 rounded-full border-4 border-gray-800" />
-            <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#c8ff00] border-r-[#c8ff00] animate-spin" style={{ animationDuration: '3s' }} />
-            <div className="absolute inset-4 rounded-full bg-[#c8ff00]/10 flex items-center justify-center">
-              <Loader2 className="w-12 h-12 text-[#c8ff00]" />
+            <div className="absolute inset-0 rounded-full border-2 sm:border-4 border-gray-800" />
+            <div className="absolute inset-0 rounded-full border-2 sm:border-4 border-transparent border-t-[#c8ff00] border-r-[#c8ff00] animate-spin" style={{ animationDuration: '3s' }} />
+            <div className="absolute inset-3 sm:inset-4 rounded-full bg-[#c8ff00]/10 flex items-center justify-center">
+              <Loader2 className="w-8 h-8 sm:w-12 sm:h-12 text-[#c8ff00]" />
             </div>
           </motion.div>
 
@@ -183,7 +183,7 @@ export default function ProcessingStepEnhanced({ onComplete, formData = {} }) {
           <motion.h2
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-2xl md:text-3xl font-bold text-white mb-2"
+            className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2"
           >
             Analyzing {businessName}
           </motion.h2>
@@ -197,18 +197,18 @@ export default function ProcessingStepEnhanced({ onComplete, formData = {} }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
-            className="inline-flex items-center gap-4 bg-gray-900/50 border border-gray-800 rounded-full px-6 py-3 mb-8"
+            className="inline-flex flex-wrap items-center justify-center gap-3 sm:gap-4 bg-gray-900/50 border border-gray-800 rounded-full px-4 sm:px-6 py-2 sm:py-3 mb-6 sm:mb-8"
           >
             <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-[#c8ff00]" />
-              <span className="text-white font-semibold text-sm">7M+ Users</span>
+              <Users className="w-3 h-3 sm:w-4 sm:h-4 text-[#c8ff00]" />
+              <span className="text-white font-semibold text-xs sm:text-sm">7M+ Users</span>
             </div>
-            <div className="w-px h-4 bg-gray-700" />
+            <div className="w-px h-3 sm:h-4 bg-gray-700" />
             <div className="flex items-center gap-1">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-3 h-3 text-[#c8ff00] fill-[#c8ff00]" />
+                <Star key={i} className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#c8ff00] fill-[#c8ff00]" />
               ))}
-              <span className="text-white font-semibold text-sm ml-1">4.9</span>
+              <span className="text-white font-semibold text-xs sm:text-sm ml-1">4.9</span>
             </div>
           </motion.div>
 
@@ -236,8 +236,8 @@ export default function ProcessingStepEnhanced({ onComplete, formData = {} }) {
           </div>
 
           {/* Rotating Testimonials */}
-          <div className="mt-12">
-            <h3 className="text-white font-bold text-lg mb-6">
+          <div className="mt-8 sm:mt-10 md:mt-12">
+            <h3 className="text-white font-bold text-base sm:text-lg mb-4 sm:mb-6">
               While you wait, see what others discovered:
             </h3>
             <AnimatePresence mode="wait">
@@ -247,19 +247,19 @@ export default function ProcessingStepEnhanced({ onComplete, formData = {} }) {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -50 }}
                 transition={{ duration: 0.5 }}
-                className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6 max-w-lg mx-auto"
+                className="bg-gray-900/50 border border-gray-800 rounded-2xl p-4 sm:p-6 max-w-lg mx-auto"
               >
-                <Quote className="w-8 h-8 text-[#c8ff00]/30 mb-3" />
-                <div className="flex gap-1 mb-3">
+                <Quote className="w-6 h-6 sm:w-8 sm:h-8 text-[#c8ff00]/30 mb-2 sm:mb-3" />
+                <div className="flex gap-1 mb-2 sm:mb-3">
                   {[...Array(testimonials[currentTestimonialIndex].rating)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 text-[#c8ff00] fill-[#c8ff00]" />
+                    <Star key={i} className="w-3 h-3 sm:w-4 sm:h-4 text-[#c8ff00] fill-[#c8ff00]" />
                   ))}
                 </div>
-                <p className="text-gray-300 text-sm mb-4 leading-relaxed italic">
+                <p className="text-gray-300 text-xs sm:text-sm mb-3 sm:mb-4 leading-relaxed italic">
                   "{testimonials[currentTestimonialIndex].text}"
                 </p>
                 <div className="text-left">
-                  <p className="text-white font-semibold text-sm">
+                  <p className="text-white font-semibold text-xs sm:text-sm">
                     {testimonials[currentTestimonialIndex].author}
                   </p>
                   <p className="text-gray-500 text-xs">
