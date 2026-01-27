@@ -48,6 +48,13 @@ import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import UserJourneyTest from './pages/UserJourneyTest';
 import V2Start from './pages/V2Start';
+import Error404 from './pages/Error404';
+import Error403 from './pages/Error403';
+import Error500 from './pages/Error500';
+import DocsHome from './pages/DocsHome';
+import GuideQuizGeenius from './pages/GuideQuizGeenius';
+import Roadmap from './pages/Roadmap';
+import Features from './pages/Features';
 import __Layout from './Layout.jsx';
 
 
@@ -102,6 +109,13 @@ export const PAGES = {
     "Upsell1": Upsell1,
     "UserJourneyTest": UserJourneyTest,
     "V2Start": V2Start,
+    "Error404": Error404,
+    "Error403": Error403,
+    "Error500": Error500,
+    "DocsHome": DocsHome,
+    "GuideQuizGeenius": GuideQuizGeenius,
+    "Roadmap": Roadmap,
+    "Features": Features,
 }
 
 export const pagesConfig = {
