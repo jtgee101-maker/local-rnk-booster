@@ -13,9 +13,16 @@ import MobileViewportFix from '@/components/utils/MobileViewportFix';
  */
 export default function IndustryLandingTemplate({ config }) {
   React.useEffect(() => {
-    base44.analytics.track({ 
-      eventName: `${config.industry}_landing_viewed` 
-    }).catch(() => {});
+    const trackView = async () => {
+      try {
+        await base44.analytics.track({ 
+          eventName: `${config.industry}_landing_viewed` 
+        });
+      } catch (err) {
+        console.error('Analytics tracking failed:', err);
+      }
+    };
+    trackView();
   }, [config.industry]);
 
   const handleCTA = () => {
