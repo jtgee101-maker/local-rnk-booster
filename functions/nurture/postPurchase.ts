@@ -7,69 +7,119 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const { order_id, step } = await req.json();
+    const { step } = await req.json();
 
-    if (!order_id || !step) {
-      return Response.json({ error: 'order_id and step required' }, { status: 400 });
+    if (!step) {
+      return Response.json({ error: 'step parameter required' }, { status: 400 });
     }
 
-    const order = await base44.asServiceRole.entities.Order.get(order_id);
-    if (!order) {
-      return Response.json({ error: 'Order not found' }, { status: 404 });
-    }
-
-    // Get lead details for personalization
-    const lead = order.lead_id 
-      ? await base44.asServiceRole.entities.Lead.get(order.lead_id).catch(() => null)
-      : null;
-
-    const businessName = lead?.business_name || 'there';
-
-    const templates = {
-      day1: {
-        subject: `🎉 Welcome to LocalRank - Your Onboarding Starts Now`,
-        body: getDay1Template(businessName, order)
-      },
-      day7: {
-        subject: `Week 1 Progress: Here's What We've Done`,
-        body: getDay7Template(businessName)
-      },
-      day14: {
-        subject: `${businessName} - Your GMB is Getting Noticed 📈`,
-        body: getDay14Template(businessName)
-      },
-      day30: {
-        subject: `30-Day Results: ${businessName}'s Transformation`,
-        body: getDay30Template(businessName)
-      }
+    // Find orders completed exactly N days ago based on step
+    const stepDays = {
+      'day1': 1,
+      'day7': 7,
+      'day14': 14,
+      'day30': 30
     };
 
-    const template = templates[step];
-    if (!template) {
-      return Response.json({ error: 'Invalid step' }, { status: 400 });
+    const daysAgo = stepDays[step] || 1;
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() - daysAgo);
+    targetDate.setHours(0, 0, 0, 0);
+
+    const nextDay = new Date(targetDate);
+    nextDay.setDate(nextDay.getDate() + 1);
+
+    // Get orders from that specific day
+    const orders = await base44.asServiceRole.entities.Order.filter({
+      status: 'completed',
+      created_date: { $gte: targetDate.toISOString(), $lt: nextDay.toISOString() }
+    }, '-created_date', 100);
+
+    if (orders.length === 0) {
+      return Response.json({ success: true, processed: 0, message: 'No orders found for this day' });
     }
 
-    await base44.asServiceRole.integrations.Core.SendEmail({
-      to: order.email,
-      from_name: 'LocalRank.ai',
-      subject: template.subject,
-      body: template.body
-    });
+    let processed = 0;
 
-    await base44.asServiceRole.entities.EmailLog.create({
-      to: order.email,
-      from: 'LocalRank.ai',
-      subject: template.subject,
-      type: 'post_conversion',
-      status: 'sent',
-      metadata: { 
-        order_id: order.id,
-        sequence: 'post_purchase',
-        step: step
+    for (const order of orders.slice(0, 50)) { // Limit to 50 per run
+
+      try {
+        // Get lead details for personalization
+        const lead = order.lead_id 
+          ? await base44.asServiceRole.entities.Lead.get(order.lead_id).catch(() => null)
+          : null;
+
+        const businessName = lead?.business_name || 'there';
+
+        const templates = {
+          day1: {
+            subject: `🎉 Welcome to LocalRank - Your Onboarding Starts Now`,
+            body: getDay1Template(businessName, order)
+          },
+          day7: {
+            subject: `Week 1 Progress: Here's What We've Done`,
+            body: getDay7Template(businessName)
+          },
+          day14: {
+            subject: `${businessName} - Your GMB is Getting Noticed 📈`,
+            body: getDay14Template(businessName)
+          },
+          day30: {
+            subject: `30-Day Results: ${businessName}'s Transformation`,
+            body: getDay30Template(businessName)
+          }
+        };
+
+        const template = templates[step];
+        if (!template) continue;
+
+        // Check if already sent
+        const existing = await base44.asServiceRole.entities.EmailLog.filter({
+          metadata: { order_id: order.id, step: step }
+        });
+        if (existing.length > 0) continue;
+
+        // Send via Resend HTTP API
+        const apiKey = Deno.env.get('RESEND_API_KEY');
+        const response = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            from: 'LocalRank.ai Team <noreply@updates.localrnk.com>',
+            to: order.email,
+            subject: template.subject,
+            html: template.body
+          })
+        });
+
+        if (!response.ok) throw new Error(`Resend API failed: ${response.statusText}`);
+
+        const result = await response.json();
+
+        await base44.asServiceRole.entities.EmailLog.create({
+          to: order.email,
+          from: 'LocalRank.ai',
+          subject: template.subject,
+          type: 'post_conversion',
+          status: 'sent',
+          metadata: { 
+            order_id: order.id,
+            sequence: 'post_purchase',
+            step: step,
+            message_id: result.id
+          }
+        });
+
+        processed++;
+      } catch (error) {
+        console.error(`Failed to send ${step} email for order ${order.id}:`, error);
       }
-    });
+    }
 
-    return Response.json({ success: true, step });
+    return Response.json({ success: true, step, processed });
   } catch (error) {
     console.error('Post-purchase error:', error);
     return Response.json({ error: error.message }, { status: 500 });
