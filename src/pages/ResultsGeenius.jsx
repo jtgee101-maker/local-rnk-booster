@@ -201,8 +201,29 @@ export default function ResultsGeenius() {
 
             {/* Stage 3: VideoAsk Guide */}
             {revealStage === 'videoask' && (
-              <motion.div key="videoask">
+              <motion.div key="videoask" className="space-y-8">
                 <VideoAskEmbed />
+                
+                {/* CTA Button */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                  className="text-center"
+                >
+                  <Button
+                    onClick={handleContinue}
+                    size="lg"
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-base sm:text-lg px-8 sm:px-12 py-6 sm:py-8 rounded-2xl shadow-2xl shadow-purple-500/30 group touch-manipulation w-full sm:w-auto"
+                  >
+                    <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 group-hover:rotate-12 transition-transform" />
+                    <span className="flex-1 sm:flex-none">View Your Exclusive Pathways</span>
+                    <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 ml-2 sm:ml-3 group-hover:translate-x-2 transition-transform" />
+                  </Button>
+                  <p className="text-gray-500 text-xs sm:text-sm mt-4 px-4">
+                    Discover 3 exclusive pathways tailored to your business
+                  </p>
+                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
