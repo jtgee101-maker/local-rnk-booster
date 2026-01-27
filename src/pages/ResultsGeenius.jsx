@@ -168,32 +168,51 @@ export default function ResultsGeenius() {
   const criticalIssues = lead.critical_issues || [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#1a0a2e] to-[#0a0a0f] relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent" />
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-purple-500/5 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-pink-500/5 rounded-full blur-3xl animate-pulse delay-1000" />
-      </div>
+    <ResultsErrorBoundary>
+      <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#1a0a2e] to-[#0a0a0f] relative overflow-hidden">
+        {/* Premium Background Effects */}
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(168,85,247,0.15),rgba(0,0,0,0))]" />
+          <div className="absolute top-0 -right-1/4 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-0 -left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+        </div>
 
-      <div className="relative z-10 px-4 py-8 sm:py-12 md:py-20">
-        <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
-          {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center space-y-3 sm:space-y-4"
-          >
-            <div className="flex items-center justify-center gap-2 mb-2 sm:mb-4">
-              <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400 animate-pulse" />
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white">
-                Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">GeeNius</span> Report
-              </h1>
-            </div>
-            <p className="text-lg sm:text-xl text-gray-300 px-4">
-              {lead.business_name}
-            </p>
-          </motion.div>
+        <div className="relative z-10 px-4 py-8 sm:py-12 md:py-20">
+          <div className="max-w-5xl mx-auto">
+            {/* Premium Header */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-center mb-12 sm:mb-16"
+            >
+              <motion.div
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 3, repeat: Infinity }}
+                className="flex items-center justify-center gap-3 mb-4"
+              >
+                <Sparkles className="w-7 h-7 sm:w-8 sm:h-8 text-purple-400" />
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white">
+                  Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400">GeeNius</span> Report
+                </h1>
+              </motion.div>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="text-lg sm:text-xl text-gray-300 mb-2"
+              >
+                {lead.business_name}
+              </motion.p>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="text-sm sm:text-base text-gray-500"
+              >
+                {lead.address && `📍 ${lead.address}`}
+              </motion.p>
+            </motion.div>
 
           {/* Stage 1: Health Score Reveal */}
           <AnimatePresence mode="wait">
