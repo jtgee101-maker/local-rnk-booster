@@ -12,11 +12,11 @@ import MobileViewportFix from '@/components/utils/MobileViewportFix';
 
 export default function DentistsLanding() {
   React.useEffect(() => {
-    base44.analytics.track({ eventName: 'dentists_landing_viewed' });
+    Promise.resolve(base44.analytics.track({ eventName: 'dentists_landing_viewed' })).catch(() => {});
   }, []);
 
   const handleCTA = () => {
-    base44.analytics.track({ eventName: 'dentists_landing_cta_clicked' });
+    Promise.resolve(base44.analytics.track({ eventName: 'dentists_landing_cta_clicked' })).catch(() => {});
     window.location.href = createPageUrl('QuizGeenius');
   };
 
