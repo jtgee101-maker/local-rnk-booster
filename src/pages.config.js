@@ -56,6 +56,7 @@ import GuideQuizGeenius from './pages/GuideQuizGeenius';
 import Roadmap from './pages/Roadmap';
 import Features from './pages/Features';
 import GettingStarted from './pages/GettingStarted';
+import DeploymentStatus from './pages/DeploymentStatus';
 import __Layout from './Layout.jsx';
 
 
@@ -118,6 +119,7 @@ export const PAGES = {
     "Roadmap": Roadmap,
     "Features": Features,
     "GettingStarted": GettingStarted,
+    "DeploymentStatus": DeploymentStatus,
 }
 
 export const pagesConfig = {
