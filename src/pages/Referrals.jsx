@@ -20,7 +20,7 @@ export default function ReferralsPage() {
             <p className="text-gray-400">Earn recurring commissions by referring businesses to LocalRank.ai</p>
           </div>
           <Tabs defaultValue="referrals" className="space-y-6">
-          <TabsList className="bg-gray-900 border-gray-800">
+            <TabsList className="bg-gray-900/50 border border-gray-800/50 backdrop-blur-sm">
             <TabsTrigger value="referrals">
               <Gift className="w-4 h-4 mr-2" />
               My Referrals
