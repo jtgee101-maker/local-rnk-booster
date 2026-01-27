@@ -7,8 +7,35 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'POST only' }, { status: 405 });
     }
 
+    // Validate webhook signature
+    const signature = req.headers.get('svix-signature');
+    const timestamp = req.headers.get('svix-timestamp');
+    const msgId = req.headers.get('svix-msg-id');
+    const webhookSecret = Deno.env.get('RESEND_WEBHOOK_SECRET');
+
+    if (!signature || !timestamp || !msgId || !webhookSecret) {
+      console.warn('Missing webhook headers');
+      return Response.json({ error: 'Invalid webhook' }, { status: 401 });
+    }
+
     const base44 = createClientFromRequest(req);
-    const payload = await req.json();
+    const bodyText = await req.text();
+    const payload = JSON.parse(bodyText);
+
+    // Verify signature: svix-id.timestamp.signature
+    const signedContent = `${msgId}.${timestamp}.${bodyText}`;
+    const encoder = new TextEncoder();
+    const signatureBytes = encoder.encode(signature.split(' ')[1]);
+    const contentBytes = encoder.encode(signedContent);
+    const keyBytes = encoder.encode(webhookSecret);
+
+    const key = await crypto.subtle.importKey('raw', keyBytes, { name: 'HMAC', hash: 'SHA-256' }, false, ['verify']);
+    const isValid = await crypto.subtle.verify('HMAC', key, signatureBytes, contentBytes);
+
+    if (!isValid) {
+      console.warn('Invalid webhook signature');
+      return Response.json({ error: 'Invalid signature' }, { status: 401 });
+    }
 
     console.log('=== RESEND WEBHOOK EVENT ===');
     console.log('Event Type:', payload.type);
