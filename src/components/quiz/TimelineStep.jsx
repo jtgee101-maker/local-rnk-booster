@@ -9,13 +9,19 @@ const timelines = [
   { id: 'planning', label: 'Just Planning Ahead', icon: TrendingUp, desc: 'Long-term strategy', color: 'text-blue-400' }
 ];
 
-export default function TimelineStep({ onSelect }) {
-  const [isSelecting, setIsSelecting] = React.useState(false);
+export default function TimelineStep({ onNext, onBack, initialValue }) {
+  const [selectedId, setSelectedId] = React.useState(null);
 
   const handleSelect = (id) => {
-    if (isSelecting) return;
-    setIsSelecting(true);
-    onSelect(id);
+    if (selectedId || !onNext) return;
+    
+    setSelectedId(id);
+    
+    setTimeout(() => {
+      if (typeof onNext === 'function') {
+        onNext({ timeline: id });
+      }
+    }, 300);
   };
 
   return (
@@ -44,31 +50,69 @@ export default function TimelineStep({ onSelect }) {
       <div className="space-y-3 md:space-y-4">
         {timelines.map((timeline, index) => {
           const Icon = timeline.icon;
+          const isSelected = selectedId === timeline.id;
+          const isDisabled = selectedId && !isSelected;
           
           return (
             <motion.button
               key={timeline.id}
               initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.06, duration: 0.3 }}
-              whileTap={{ scale: 0.98 }}
+              animate={{ 
+                opacity: isDisabled ? 0.4 : 1, 
+                x: 0,
+                scale: isSelected ? 1.02 : 1
+              }}
+              transition={{ delay: index * 0.05, duration: 0.3 }}
+              whileHover={!selectedId ? { scale: 1.02 } : {}}
+              whileTap={!selectedId ? { scale: 0.98 } : {}}
               onClick={() => handleSelect(timeline.id)}
-              disabled={isSelecting}
-              className="group w-full bg-gray-900/50 backdrop-blur border border-gray-800 rounded-2xl p-5 md:p-6 text-left transition-all duration-200 active:border-[#c8ff00]/50 active:bg-gray-900/80 min-h-[96px] touch-manipulation disabled:opacity-50"
+              disabled={!!selectedId}
+              className={`
+                group w-full bg-gradient-to-br from-gray-900/80 to-gray-900/50 
+                backdrop-blur-sm border rounded-2xl p-5 md:p-6 text-left 
+                transition-all duration-300 min-h-[96px] touch-manipulation
+                ${isSelected 
+                  ? 'border-[#c8ff00] bg-[#c8ff00]/5 shadow-[0_0_20px_rgba(200,255,0,0.3)]' 
+                  : 'border-gray-800 hover:border-gray-700 hover:bg-gray-900/70'
+                }
+                ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}
+              `}
             >
               <div className="flex items-center gap-3 md:gap-4">
-                <div className="p-2.5 md:p-3 rounded-xl bg-gray-800 group-active:bg-[#c8ff00]/10 transition-colors">
-                  <Icon className={`w-5 h-5 md:w-6 md:h-6 ${timeline.color} group-active:text-[#c8ff00] transition-colors`} />
-                </div>
+                <motion.div 
+                  className={`
+                    p-2.5 md:p-3 rounded-xl transition-all duration-300
+                    ${isSelected ? 'bg-[#c8ff00]/20 shadow-lg' : 'bg-gray-800/80 group-hover:bg-gray-800'}
+                  `}
+                  animate={isSelected ? { rotate: [0, -10, 10, 0] } : {}}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Icon className={`
+                    w-5 h-5 md:w-6 md:h-6 transition-colors duration-300
+                    ${isSelected ? 'text-[#c8ff00]' : `${timeline.color} group-hover:text-gray-300`}
+                  `} />
+                </motion.div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-white text-base md:text-lg group-active:text-[#c8ff00] transition-colors">
+                  <h3 className={`
+                    font-semibold text-base md:text-lg transition-colors duration-300
+                    ${isSelected ? 'text-[#c8ff00]' : 'text-white group-hover:text-gray-100'}
+                  `}>
                     {timeline.label}
                   </h3>
                   <p className="text-xs md:text-sm text-gray-500 mt-0.5">{timeline.desc}</p>
                 </div>
-                <div className="text-[#c8ff00] opacity-0 group-active:opacity-100 transition-opacity text-xl">
-                  →
-                </div>
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ 
+                    opacity: isSelected ? 1 : 0,
+                    x: isSelected ? 0 : -10
+                  }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <div className="w-8 h-8 rounded-full bg-[#c8ff00] flex items-center justify-center">
+                    <span className="text-gray-900 text-lg">→</span>
+                  </div>
+                </motion.div>
               </div>
             </motion.button>
           );

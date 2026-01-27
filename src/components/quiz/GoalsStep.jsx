@@ -12,11 +12,13 @@ const goals = [
   { id: 'increase_revenue', label: 'Boost Revenue', icon: DollarSign, desc: 'Higher sales' }
 ];
 
-export default function GoalsStep({ onContinue }) {
-  const [selectedGoals, setSelectedGoals] = useState([]);
+export default function GoalsStep({ onNext, onBack, initialValue }) {
+  const [selectedGoals, setSelectedGoals] = useState(initialValue || []);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const toggleGoal = (goalId) => {
+    if (isSubmitting) return;
+    
     setSelectedGoals(prev => 
       prev.includes(goalId) 
         ? prev.filter(id => id !== goalId)
@@ -25,9 +27,13 @@ export default function GoalsStep({ onContinue }) {
   };
 
   const handleContinue = () => {
-    if (selectedGoals.length > 0 && !isSubmitting) {
+    if (selectedGoals.length > 0 && !isSubmitting && onNext) {
       setIsSubmitting(true);
-      onContinue(selectedGoals);
+      setTimeout(() => {
+        if (typeof onNext === 'function') {
+          onNext({ goals: selectedGoals });
+        }
+      }, 200);
     }
   };
 
@@ -70,11 +76,16 @@ export default function GoalsStep({ onContinue }) {
               transition={{ delay: index * 0.05, duration: 0.3 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => toggleGoal(goal.id)}
-              className={`relative group border-2 rounded-2xl p-5 md:p-6 text-left transition-all duration-200 min-h-[100px] touch-manipulation ${
-                isSelected
-                  ? 'border-[#c8ff00] bg-[#c8ff00]/5'
-                  : 'border-gray-800 bg-gray-900/30 active:border-gray-700'
-              }`}
+              disabled={isSubmitting}
+              className={`
+                relative group border-2 rounded-2xl p-5 md:p-6 text-left 
+                transition-all duration-300 min-h-[100px] touch-manipulation
+                ${isSelected
+                  ? 'border-[#c8ff00] bg-[#c8ff00]/5 shadow-[0_0_15px_rgba(200,255,0,0.2)]'
+                  : 'border-gray-800 bg-gray-900/30 hover:border-gray-700 hover:bg-gray-900/50'
+                }
+                ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}
+              `}
             >
               {/* Checkmark */}
               <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
