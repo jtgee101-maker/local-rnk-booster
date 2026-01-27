@@ -255,9 +255,9 @@ export default function ResultsGeenius() {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
-          </div>
-          </div>
-          </div>
-          );
-          }
+            </div>
+            </div>
+            </div>
+            </div>
+            );
+            }
