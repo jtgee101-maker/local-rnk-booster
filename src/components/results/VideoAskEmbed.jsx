@@ -3,8 +3,11 @@ import { motion } from 'framer-motion';
 import { Sparkles, Play, ArrowRight } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 
-export default function VideoAskEmbed() {
+export default function VideoAskEmbed({ leadId }) {
   const [isLoading, setIsLoading] = useState(true);
+
+  const handlePathwaysClick = () => {
+    window.location.href = createPageUrl('BridgeGeenius') + `?lead_id=${leadId}`;
 
   return (
     <motion.div
