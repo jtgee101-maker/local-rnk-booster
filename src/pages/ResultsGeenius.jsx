@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import {
-  Sparkles, AlertTriangle, TrendingUp, CheckCircle, XCircle,
-  ArrowRight, Award, Loader2, Mail, Eye
+  Sparkles, Loader2, AlertCircle, CheckCircle
 } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import HealthScoreReveal from '@/components/results/HealthScoreReveal';
 import GuidedInsights from '@/components/results/GuidedInsights';
 import VideoAskEmbed from '@/components/results/VideoAskEmbed';
+import ResultsErrorBoundary from '@/components/results/ResultsErrorBoundary';
 
 export default function ResultsGeenius() {
   const [lead, setLead] = useState(null);
