@@ -214,6 +214,24 @@ export default function Layout({ children, currentPageName }) {
             </div>
 
             <div>
+              <h4 className="text-white font-semibold mb-4">Documentation</h4>
+              <div className="space-y-2">
+                <Link to={createPageUrl('DocsHome')} className="block text-gray-400 hover:text-white text-sm">
+                  All Docs & Guides
+                </Link>
+                <Link to={createPageUrl('GuideQuizGeenius')} className="block text-gray-400 hover:text-white text-sm">
+                  QuizGeenius Flow
+                </Link>
+                <Link to={createPageUrl('Roadmap')} className="block text-gray-400 hover:text-white text-sm">
+                  12-Month Roadmap
+                </Link>
+                <Link to={createPageUrl('Features')} className="block text-gray-400 hover:text-white text-sm">
+                  Features
+                </Link>
+              </div>
+            </div>
+
+            <div>
               <h4 className="text-white font-semibold mb-4">Industries</h4>
               <div className="space-y-2">
                 <Link to={createPageUrl('PlumbersLanding')} className="block text-gray-400 hover:text-white text-sm">
