@@ -17,34 +17,8 @@ export default function HomePage() {
   }, []);
 
   const loadActiveFunnel = async () => {
-    try {
-      const settings = await base44.entities.AppSettings.filter({
-        setting_key: 'active_funnel_mode'
-      });
-
-      if (settings.length > 0) {
-        const funnelId = settings[0].setting_value.funnel_id || 'geenius';
-        setActiveFunnel(funnelId);
-        
-        // Track funnel view
-        await base44.analytics.track({
-          eventName: 'funnel_viewed',
-          properties: {
-            funnel_id: funnelId,
-            timestamp: Date.now()
-          }
-        });
-      } else {
-        // Default to geenius if no setting exists
-        setActiveFunnel('geenius');
-      }
-    } catch (error) {
-      console.error('Error loading funnel mode:', error);
-      // Fallback to geenius on error
-      setActiveFunnel('geenius');
-    } finally {
-      setLoading(false);
-    }
+    setActiveFunnel('geenius');
+    setLoading(false);
   };
 
   if (loading) {

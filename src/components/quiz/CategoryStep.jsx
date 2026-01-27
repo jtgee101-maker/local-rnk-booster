@@ -13,17 +13,14 @@ const categories = [
 export default function CategoryStep({ onNext, onBack }) {
   const [selectedId, setSelectedId] = React.useState(null);
 
-  const handleSelect = async (id) => {
+  const handleSelect = (id) => {
     if (selectedId || !onNext) return;
     
     setSelectedId(id);
     
-    // Small delay for visual feedback
     setTimeout(() => {
-      if (typeof onNext === 'function') {
-        onNext({ business_category: id });
-      }
-    }, 300);
+      onNext({ business_category: id });
+    }, 250);
   };
 
   return (
