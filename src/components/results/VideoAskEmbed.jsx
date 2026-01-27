@@ -97,8 +97,8 @@ export default function VideoAskEmbed({ leadId }) {
         <p className="text-gray-300 mb-8 max-w-2xl mx-auto text-base sm:text-lg">
           Three exclusive pathways are available to accelerate your results. Choose the plan that fits your goals and timeline.
         </p>
-        <motion.a
-          href="#pathways"
+        <motion.button
+          onClick={handlePathwaysClick}
           whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.98 }}
           className="inline-flex items-center gap-3 px-10 sm:px-14 py-4 sm:py-5 rounded-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold text-base sm:text-lg transition-all shadow-lg shadow-green-500/30 hover:shadow-2xl hover:shadow-green-500/50 active:scale-95 touch-manipulation"
