@@ -114,6 +114,7 @@ export default function TermsPage() {
           </section>
         </div>
       </motion.div>
-    </div>
-  );
-}
+      </div>
+      </>
+      );
+      }
