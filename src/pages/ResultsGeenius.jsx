@@ -258,6 +258,5 @@ export default function ResultsGeenius() {
             </div>
             </div>
             </div>
-            </div>
             );
             }
