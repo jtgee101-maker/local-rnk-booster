@@ -1,6 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { sendCustomerEmail } from './utils/resendEmailService.js';
+import { Resend } from 'npm:resend@3.0.0';
 import { quizSubmissionTemplate } from './utils/emailTemplates.js';
+
+const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
 Deno.serve(async (req) => {
   try {
@@ -30,12 +32,16 @@ Deno.serve(async (req) => {
     }
 
     // Send via Resend directly
-    const emailResult = await sendCustomerEmail(
-      leadData.email,
-      `🎯 ${leadData.business_name || 'Your Business'} - Your GMB Audit Results (Score: ${leadData.health_score}/100)`,
-      emailBody,
-      'LocalRank.ai'
-    );
+    const emailResult = await resend.emails.send({
+      from: `LocalRank.ai <noreply@updates.localrnk.com>`,
+      to: leadData.email,
+      subject: `🎯 ${leadData.business_name || 'Your Business'} - Your GMB Audit Results (Score: ${leadData.health_score}/100)`,
+      html: emailBody
+    });
+
+    if (emailResult.error) {
+      throw new Error(`Resend error: ${emailResult.error.message}`);
+    }
 
     // Log successful send
     await base44.asServiceRole.entities.EmailLog.create({
@@ -47,14 +53,14 @@ Deno.serve(async (req) => {
       metadata: {
         lead_id: leadData.id,
         health_score: leadData.health_score,
-        message_id: emailResult.messageId
+        message_id: emailResult.data?.id
       }
     }).catch(err => console.error('Failed to log email:', err));
 
     return Response.json({ 
       success: true, 
       email: leadData.email,
-      messageId: emailResult.messageId
+      messageId: emailResult.data?.id
     });
   } catch (error) {
     console.error('SendWelcomeEmail error:', error.message);
