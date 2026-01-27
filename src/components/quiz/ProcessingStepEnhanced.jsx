@@ -43,7 +43,8 @@ const engagementQuestions = [
   }
 ];
 
-export default function ProcessingStepEnhanced({ onComplete, businessName }) {
+export default function ProcessingStepEnhanced({ onComplete, formData = {} }) {
+  const businessName = formData?.business_name || 'Your Business';
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
@@ -55,13 +56,22 @@ export default function ProcessingStepEnhanced({ onComplete, businessName }) {
 
   // P0-2 FIX: Safety timeout to prevent stuck spinner
   useEffect(() => {
+    if (!onComplete || typeof onComplete !== 'function') {
+      console.error('ProcessingStepEnhanced: onComplete is not a function');
+      return;
+    }
+
     const safetyTimeout = setTimeout(() => {
       console.warn('ProcessingStep safety timeout triggered');
-      onComplete();
+      try {
+        onComplete(formData);
+      } catch (error) {
+        console.error('ProcessingStep safety timeout error:', error);
+      }
     }, 20000); // 20 second max
 
     return () => clearTimeout(safetyTimeout);
-  }, [onComplete]);
+  }, [onComplete, formData]);
 
   useEffect(() => {
     // Show first engagement modal after 4 seconds
@@ -102,7 +112,15 @@ export default function ProcessingStepEnhanced({ onComplete, businessName }) {
         } else {
           clearInterval(progressInterval);
           setProgress(100);
-          setTimeout(onComplete, 500);
+          setTimeout(() => {
+            if (onComplete && typeof onComplete === 'function') {
+              try {
+                onComplete(formData);
+              } catch (error) {
+                console.error('ProcessingStep onComplete error:', error);
+              }
+            }
+          }, 500);
         }
       }, currentStep.duration);
     };
