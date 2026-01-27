@@ -7,24 +7,13 @@ const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const payload = await req.json();
-    
-    let leadData;
-    if (payload.leadData) {
-      leadData = payload.leadData;
-    } else if (payload.event && payload.data) {
-      leadData = payload.data;
-    } else {
-      return Response.json({ error: 'Lead data required' }, { status: 400 });
-    }
+    const { leadData } = await req.json();
 
     if (!leadData || !leadData.email) {
       return Response.json({ error: 'Lead data and email required' }, { status: 400 });
     }
 
-    // Default domain for email template
-    const domain = 'https://localrank.ai';
-    const emailBody = quizSubmissionTemplate(leadData, domain);
+    const emailBody = quizSubmissionTemplate(leadData);
 
     // Validate Resend API key
     if (!Deno.env.get('RESEND_API_KEY')) {
@@ -43,8 +32,8 @@ Deno.serve(async (req) => {
       throw new Error(`Resend error: ${emailResult.error.message}`);
     }
 
-    // Log successful send
-    await base44.asServiceRole.entities.EmailLog.create({
+    // Log successful send (fire and forget)
+    base44.asServiceRole.entities.EmailLog.create({
       to: leadData.email,
       from: 'LocalRank.ai',
       subject: `Your GMB Audit Results`,
@@ -62,23 +51,25 @@ Deno.serve(async (req) => {
       email: leadData.email,
       messageId: emailResult.data?.id
     });
+
   } catch (error) {
-    console.error('SendWelcomeEmail error:', error.message);
+    console.error('Error sending welcome email:', error);
 
-    // Log error
-    try {
-      const base44 = createClientFromRequest(req);
-      await base44.asServiceRole.entities.ErrorLog.create({
-        error_type: 'email_failure',
-        severity: 'high',
-        message: `Failed to send welcome email: ${error.message}`,
-        stack_trace: error.stack,
-        metadata: { function: 'sendWelcomeEmail', email: payload?.leadData?.email }
-      });
-    } catch (logErr) {
-      console.error('Error logging failed:', logErr);
-    }
+    // Log error (fire and forget)
+    base44.asServiceRole.entities.ErrorLog.create({
+      error_type: 'email_failure',
+      severity: 'high',
+      message: error.message,
+      stack_trace: error.stack,
+      metadata: { 
+        function: 'sendWelcomeEmail',
+        email: leadData?.email
+      }
+    }).catch(err => console.error('Error logging failed:', err));
 
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ 
+      error: error.message,
+      success: false 
+    }, { status: 500 });
   }
 });

@@ -8,34 +8,16 @@ const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const payload = await req.json();
-    
-    let leadData;
-    if (payload.leadData) {
-      leadData = payload.leadData;
-    } else if (payload.event && payload.data) {
-      leadData = payload.data;
-    } else {
-      return Response.json({ error: 'Lead data required' }, { status: 400 });
-    }
+    const { leadData, analysis } = await req.json();
 
     if (!leadData || !leadData.email) {
       return Response.json({ error: 'Lead data and email required' }, { status: 400 });
     }
 
-    // Default domain for email links
-    const domain = 'https://localrank.ai';
-    
-    // Try to get enhanced analysis if available
-    let analysis = null;
-    if (payload.analysis) {
-      analysis = payload.analysis;
-    }
-
-    // Use enhanced template if analysis available, fallback to standard
-    const emailBody = analysis 
-      ? enhancedAuditTemplate(leadData, analysis, domain)
-      : quizSubmissionTemplate(leadData, domain);
+    // Use enhanced template if analysis provided, otherwise standard
+    const emailBody = analysis ? 
+      enhancedAuditTemplate(leadData, analysis) : 
+      quizSubmissionTemplate(leadData);
 
     // Validate Resend API key
     if (!Deno.env.get('RESEND_API_KEY')) {
@@ -54,8 +36,8 @@ Deno.serve(async (req) => {
       throw new Error(`Resend error: ${emailResult.error.message}`);
     }
 
-    // Log email send to EmailLog
-    await base44.asServiceRole.entities.EmailLog.create({
+    // Log email send to EmailLog (fire and forget)
+    base44.asServiceRole.entities.EmailLog.create({
       to: leadData.email,
       from: 'LocalRank.ai',
       subject: `Your Lead Independence Audit Results`,
@@ -74,23 +56,25 @@ Deno.serve(async (req) => {
       enhanced: !!analysis,
       messageId: emailResult.data?.id
     });
+
   } catch (error) {
-    console.error('SendQuizSubmissionEmail error:', error.message);
+    console.error('Error sending quiz submission email:', error);
 
-    // Log error
-    try {
-      const base44 = createClientFromRequest(req);
-      await base44.asServiceRole.entities.ErrorLog.create({
-        error_type: 'email_failure',
-        severity: 'high',
-        message: `Failed to send quiz submission email: ${error.message}`,
-        stack_trace: error.stack,
-        metadata: { function: 'sendQuizSubmissionEmail', email: payload?.leadData?.email }
-      });
-    } catch (logErr) {
-      console.error('Error logging failed:', logErr);
-    }
+    // Log error (fire and forget)
+    base44.asServiceRole.entities.ErrorLog.create({
+      error_type: 'email_failure',
+      severity: 'high',
+      message: error.message,
+      stack_trace: error.stack,
+      metadata: { 
+        function: 'sendQuizSubmissionEmail',
+        email: leadData?.email
+      }
+    }).catch(err => console.error('Error logging failed:', err));
 
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ 
+      error: error.message,
+      success: false 
+    }, { status: 500 });
   }
 });

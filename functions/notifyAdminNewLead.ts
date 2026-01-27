@@ -1,6 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { sendAdminEmail } from './utils/resendEmailService.js';
+import { Resend } from 'npm:resend@3.0.0';
 import { adminLeadNotificationTemplate } from './utils/emailTemplates.js';
+
+const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
 Deno.serve(async (req) => {
   try {
@@ -37,64 +39,69 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Admin email not configured in AppSettings' }, { status: 500 });
     }
 
+    if (!Deno.env.get('RESEND_API_KEY')) {
+      throw new Error('RESEND_API_KEY not configured');
+    }
+
     const emailBody = adminLeadNotificationTemplate(leadData);
 
-    // Send email via production-grade service
-    try {
-      const result = await sendAdminEmail(
-        adminEmail,
-        `🆕 New Lead: ${leadData.business_name || 'New Business'} (Score: ${leadData.health_score || 'N/A'}/100)`,
-        emailBody
-      );
-      
-      // Log successful send
-      await base44.asServiceRole.entities.EmailLog.create({
-        to: adminEmail,
-        from: 'LocalRank.ai System',
-        subject: `New Lead: ${leadData.business_name || 'New Business'}`,
-        type: 'admin_notification',
-        status: 'sent',
-        metadata: {
-          function: 'notifyAdminNewLead',
-          lead_id: leadData.id,
-          business_name: leadData.business_name,
-          health_score: leadData.health_score,
-          message_id: result.messageId
-        }
-      }).catch(err => console.error('Failed to log email:', err));
+    // Send via Resend directly
+    const emailResult = await resend.emails.send({
+      from: `LocalRank.ai System <noreply@updates.localrnk.com>`,
+      to: adminEmail,
+      subject: `🆕 New Lead: ${leadData.business_name || 'New Business'} (Score: ${leadData.health_score || 'N/A'}/100)`,
+      html: emailBody
+    });
 
-      return Response.json({ 
-        success: true, 
-        notifiedEmail: adminEmail,
-        messageId: result.messageId
-      });
-    } catch (emailError) {
-      console.error('Failed to send admin notification:', emailError.message);
-      
-      // Log the error
-      try {
-        await base44.asServiceRole.entities.ErrorLog.create({
-          error_type: 'email_failure',
-          severity: 'medium',
-          message: `Admin notification failed: ${emailError.message}`,
-          stack_trace: emailError.stack,
-          metadata: { 
-            function: 'notifyAdminNewLead',
-            lead_id: leadData.id,
-            admin_email: adminEmail
-          }
-        });
-      } catch (logErr) {
-        console.error('Error logging failed:', logErr);
-      }
-
-      return Response.json({ 
-        success: false, 
-        error: emailError.message 
-      }, { status: 500 });
+    if (emailResult.error) {
+      throw new Error(`Resend error: ${emailResult.error.message}`);
     }
+
+    // Log successful send (fire and forget)
+    base44.asServiceRole.entities.EmailLog.create({
+      to: adminEmail,
+      from: 'LocalRank.ai System',
+      subject: `New Lead: ${leadData.business_name || 'New Business'}`,
+      type: 'admin_notification',
+      status: 'sent',
+      metadata: {
+        function: 'notifyAdminNewLead',
+        lead_id: leadData.id,
+        business_name: leadData.business_name,
+        health_score: leadData.health_score,
+        message_id: emailResult.data?.id
+      }
+    }).catch(err => console.error('Failed to log email:', err));
+
+    return Response.json({ 
+      success: true, 
+      notifiedEmail: adminEmail,
+      messageId: emailResult.data?.id
+    });
+
   } catch (error) {
     console.error('Function error:', error);
-    return Response.json({ error: error.message }, { status: 500 });
+
+    // Log error (fire and forget)
+    try {
+      const base44 = createClientFromRequest(req);
+      await base44.asServiceRole.entities.ErrorLog.create({
+        error_type: 'email_failure',
+        severity: 'medium',
+        message: `Admin notification failed: ${error.message}`,
+        stack_trace: error.stack,
+        metadata: { 
+          function: 'notifyAdminNewLead',
+          lead_id: leadData?.id
+        }
+      });
+    } catch (logErr) {
+      console.error('Error logging failed:', logErr);
+    }
+
+    return Response.json({ 
+      error: error.message,
+      success: false 
+    }, { status: 500 });
   }
 });
