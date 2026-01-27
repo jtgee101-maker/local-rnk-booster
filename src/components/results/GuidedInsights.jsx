@@ -168,56 +168,100 @@ export default function GuidedInsights({ healthScore, criticalIssues, onComplete
         })}
       </motion.div>
 
-      {/* Critical Issues Preview */}
+      {/* Critical Issues Section */}
       {criticalIssues.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.7 }}
-          className="p-6 rounded-2xl border-2 border-red-500/30 bg-red-500/5 backdrop-blur-sm"
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="p-7 rounded-2xl border-2 border-red-500/30 bg-red-500/5 backdrop-blur-sm mb-12"
         >
-          <div className="flex gap-3 mb-4">
-            <AlertTriangle className="w-6 h-6 text-red-400 flex-shrink-0" />
-            <h3 className="text-lg font-bold text-white">
-              {criticalIssues.length} Opportunities Identified
-            </h3>
+          <div className="flex items-start gap-3 mb-5">
+            <motion.div
+              animate={{ y: [0, -3, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <AlertTriangle className="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" />
+            </motion.div>
+            <div>
+              <h3 className="text-lg sm:text-xl font-bold text-white">
+                {criticalIssues.length} {criticalIssues.length === 1 ? 'Issue' : 'Issues'} Found
+              </h3>
+              <p className="text-sm text-gray-400 mt-1">Quick fixes to boost visibility</p>
+            </div>
           </div>
-          <div className="space-y-2 mb-4">
-            {criticalIssues.slice(0, 3).map((issue, idx) => (
-              <div key={idx} className="flex gap-2 text-sm text-gray-300">
-                <span className="text-red-400 flex-shrink-0">•</span>
+          <div className="space-y-3">
+            {criticalIssues.slice(0, 4).map((issue, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.7 + idx * 0.05 }}
+                className="flex gap-3 text-sm text-gray-300"
+              >
+                <span className="text-red-400 font-bold flex-shrink-0">✓</span>
                 <span>{issue}</span>
-              </div>
+              </motion.div>
             ))}
           </div>
-          {criticalIssues.length > 3 && (
-            <p className="text-sm text-gray-400">
-              +{criticalIssues.length - 3} more issues found
-            </p>
+          {criticalIssues.length > 4 && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1 }}
+              className="text-sm text-gray-400 mt-4 pl-7"
+            >
+              +{criticalIssues.length - 4} more issues (revealed in your action plan)
+            </motion.p>
           )}
         </motion.div>
       )}
 
-      {/* CTA Section */}
+      {/* Premium CTA Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.9 }}
-        className="mt-12 p-8 rounded-2xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-2 border-purple-500/30 text-center"
+        transition={{ duration: 0.5, delay: 0.8 }}
+        className="relative p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-purple-600/20 via-pink-600/10 to-purple-600/20 border-2 border-purple-500/40 backdrop-blur-sm overflow-hidden group"
       >
-        <Lightbulb className="w-8 h-8 text-yellow-400 mx-auto mb-4" />
-        <h3 className="text-2xl font-bold text-white mb-3">Ready to Improve?</h3>
-        <p className="text-gray-300 mb-6 max-w-xl mx-auto">
-          Our AI-powered optimization guide will walk you through each improvement step-by-step.
-          Most businesses see results within 7 days.
-        </p>
-        <button
-          onClick={onComplete}
-          className="inline-flex items-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold transition-all hover:shadow-lg hover:shadow-purple-500/30 active:scale-95"
-        >
-          <BarChart3 className="w-5 h-5" />
-          See Your Optimization Plan
-        </button>
+        {/* Animated background */}
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+          className="absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity"
+        />
+
+        <div className="relative z-10 text-center">
+          <motion.div
+            animate={{ y: [0, -5, 0], rotate: [0, 5, -5, 0] }}
+            transition={{ duration: 3, repeat: Infinity }}
+          >
+            <Lightbulb className="w-10 h-10 text-yellow-400 mx-auto mb-4" />
+          </motion.div>
+
+          <h3 className="text-2xl sm:text-3xl font-black text-white mb-3">
+            Ready for Your Action Plan?
+          </h3>
+          <p className="text-gray-300 mb-8 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed">
+            Our AI guide walks you through each improvement with step-by-step video instructions. Most changes take 5–15 minutes and show results within days.
+          </p>
+
+          <motion.button
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={onComplete}
+            className="inline-flex items-center gap-3 px-8 sm:px-12 py-4 sm:py-5 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-base sm:text-lg transition-all shadow-lg shadow-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/50 active:scale-95 touch-manipulation"
+          >
+            <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6" />
+            View Your Action Plan
+            <motion.span
+              animate={{ x: [0, 5, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />
+            </motion.span>
+          </motion.button>
+        </div>
       </motion.div>
     </motion.div>
   );
