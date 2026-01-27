@@ -129,10 +129,12 @@ function PricingContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] relative overflow-x-hidden">
-      <Helmet>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
-      </Helmet>
+  <div className="min-h-screen bg-[#0a0a0f] relative overflow-x-hidden">
+  <Helmet>
+    <title>Pricing - LocalRank.ai | Affordable GMB Optimization</title>
+    <meta name="description" content="Choose your GMB optimization plan. Starting from just $0.13/day. 30-day money-back guarantee." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+  </Helmet>
       <MobileOptimizations />
       <MobileViewportFix />
 
