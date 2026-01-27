@@ -57,6 +57,7 @@ import Roadmap from './pages/Roadmap';
 import Features from './pages/Features';
 import GettingStarted from './pages/GettingStarted';
 import DeploymentStatus from './pages/DeploymentStatus';
+import PreDeploymentAudit from './pages/PreDeploymentAudit';
 import __Layout from './Layout.jsx';
 
 
@@ -120,6 +121,7 @@ export const PAGES = {
     "Features": Features,
     "GettingStarted": GettingStarted,
     "DeploymentStatus": DeploymentStatus,
+    "PreDeploymentAudit": PreDeploymentAudit,
 }
 
 export const pagesConfig = {
