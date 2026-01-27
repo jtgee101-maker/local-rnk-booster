@@ -25,7 +25,11 @@ Deno.serve(async (req) => {
     const domain = await getProductionDomain(base44);
     const emailBody = quizSubmissionTemplate(leadData, domain);
 
-    // Send via production-grade service
+    // Send via production-grade Resend service (bypasses Base44's external email restriction)
+    if (!Deno.env.get('RESEND_API_KEY')) {
+      throw new Error('RESEND_API_KEY not configured');
+    }
+
     const emailResult = await sendCustomerEmail(
       leadData.email,
       `🎯 ${leadData.business_name || 'Your Business'} - Your GMB Audit Results (Score: ${leadData.health_score}/100)`,

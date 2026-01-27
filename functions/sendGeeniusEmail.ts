@@ -105,7 +105,11 @@ Deno.serve(async (req) => {
       </html>
     `;
 
-    // Send email via production service
+    // Send email via Resend directly (bypasses Base44's external email restriction)
+    if (!Deno.env.get('RESEND_API_KEY')) {
+      throw new Error('RESEND_API_KEY not configured');
+    }
+
     const emailResult = await sendCustomerEmail(
       leadData.email,
       `✨ ${leadData.business_name || 'Your'} - Choose Your Exclusive Pathway`,
