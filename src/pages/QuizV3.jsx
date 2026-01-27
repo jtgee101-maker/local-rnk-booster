@@ -107,32 +107,32 @@ function QuizV3Content() {
     
     sessionStorage.setItem('traffic_data', JSON.stringify(trafficData));
     
-    base44.analytics.track({ 
+    Promise.resolve(base44.analytics.track({ 
       eventName: 'quizv3_page_viewed',
       properties: trafficData
-    }).catch(() => {});
-    base44.entities.ConversionEvent.create({
+    })).catch(() => {});
+    Promise.resolve(base44.entities.ConversionEvent.create({
       funnel_version: 'v3',
       event_name: 'quizv3_page_viewed',
       session_id: sessionId,
       properties: trafficData
-    }).catch(() => {});
+    })).catch(() => {});
   }, []);
 
   React.useEffect(() => {
     if (step !== 'welcome') {
       const stepStartTime = Date.now();
-      base44.analytics.track({ 
+      Promise.resolve(base44.analytics.track({ 
         eventName: 'quizv3_step_viewed', 
         properties: { step, step_number: currentStepNumber } 
-      }).catch(() => {});
+      })).catch(() => {});
 
       return () => {
         const timeOnStep = (Date.now() - stepStartTime) / 1000;
-        base44.analytics.track({ 
+        Promise.resolve(base44.analytics.track({ 
           eventName: 'quizv3_step_exit', 
           properties: { step, time_spent: Math.round(timeOnStep) } 
-        }).catch(() => {});
+        })).catch(() => {});
       };
     }
   }, [step, currentStepNumber]);
