@@ -7,7 +7,6 @@ import { Sparkles } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import GeeniusErrorBoundary from '@/components/geenius/GeeniusErrorBoundary';
-import FoxMascot from '@/components/shared/FoxMascot';
 import CookieConsentTracker from '@/components/tracking/CookieConsentTracker';
 
 // Import quiz step components
@@ -500,15 +499,9 @@ export default function QuizGeenius() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent" />
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDMpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30" />
 
-      {/* Header with Mascot */}
+      {/* Header */}
       <div className="relative z-10 pt-6 sm:pt-8 pb-4 px-4">
         <div className="max-w-2xl mx-auto text-center space-y-3">
-          <FoxMascot 
-            category={formData.business_category || 'contractor'} 
-            size="md"
-            animate={true}
-            className="mx-auto mb-4"
-          />
           <div className="flex items-center justify-center gap-2 mb-2">
             <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-purple-400" />
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white">
@@ -516,7 +509,7 @@ export default function QuizGeenius() {
             </h1>
           </div>
           <p className="text-gray-400 text-xs sm:text-sm md:text-base">
-            Your LocalRnk Fox guide to business optimization
+            Discover exclusive pathways to transform your business growth
           </p>
         </div>
 
