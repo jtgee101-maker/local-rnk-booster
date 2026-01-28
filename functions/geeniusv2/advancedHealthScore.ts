@@ -102,23 +102,26 @@ function calculatePostFrequency(posts) {
 }
 
 function calculateInteractionProminence(gmbData) {
-  // Based on user actions: calls, directions, website clicks
+  // 2026 UPDATE: "Openness" Signal - businesses marked "Open" rank higher
   const hasPhone = !!gmbData.phone;
   const hasWebsite = !!gmbData.website;
   const hasDirections = !!gmbData.location;
+  const isOpen = gmbData.businessStatus === 'OPERATIONAL' && gmbData.currentOpeningHours?.openNow;
   
   let score = 0;
-  if (hasPhone) score += 7;
-  if (hasWebsite) score += 7;
-  if (hasDirections) score += 6;
-
+  if (hasPhone) score += 5;
+  if (hasWebsite) score += 5;
+  if (hasDirections) score += 5;
+  if (isOpen) score += 5; // Openness bonus
+  
   return {
     weight: 20,
     score,
     status: score >= 15 ? 'pass' : 'fail',
     value: `${score}/20`,
     target: '20/20',
-    message: `Interaction signals: Phone (${hasPhone}), Website (${hasWebsite}), Directions (${hasDirections})`
+    message: `Openness Signal: ${isOpen ? 'Open Now ✓' : 'Closed ✗'} | Phone: ${hasPhone} | Website: ${hasWebsite}`,
+    opennessBonus: isOpen
   };
 }
 
