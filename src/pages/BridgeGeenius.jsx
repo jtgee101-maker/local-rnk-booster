@@ -180,8 +180,14 @@ export default function BridgeGeenius() {
 
       <div className="relative z-10 px-4 py-8 sm:py-12 md:py-16 lg:py-20">
         <div className="max-w-6xl mx-auto space-y-8 sm:space-y-10 md:space-y-12">
-          {/* Header */}
+          {/* Header with Mascot */}
           <div className="text-center space-y-4 sm:space-y-6">
+            <FoxMascot 
+              category={lead?.business_category || 'contractor'} 
+              size="xl"
+              animate={true}
+              className="mx-auto mb-6"
+            />
             <div className="flex items-center justify-center gap-2 sm:gap-3">
               <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-purple-400 animate-pulse" />
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-white leading-tight">
