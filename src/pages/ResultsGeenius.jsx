@@ -238,6 +238,7 @@ export default function ResultsGeenius() {
                   <GuidedInsights
                     healthScore={healthScore}
                     criticalIssues={criticalIssues}
+                    lead={lead}
                     onComplete={() => setRevealStage('videoask')}
                   />
                 </motion.div>
