@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
       headers: {
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': apiKey,
-        'X-Goog-FieldMask': 'displayName,formattedAddress,nationalPhoneNumber,websiteUri,rating,userRatingCount,reviews,photos,regularOpeningHours,types,location,editorialSummary,businessStatus,userRatingCount,currentOpeningHours,primaryType,regularSecondaryOpeningHours,verificationStatus'
+        'X-Goog-FieldMask': 'displayName,formattedAddress,nationalPhoneNumber,websiteUri,rating,userRatingCount,reviews,photos,regularOpeningHours,types,location,editorialSummary,businessStatus,primaryType'
       }
     });
     
