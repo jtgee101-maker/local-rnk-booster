@@ -8,6 +8,7 @@ import GuidedInsights from '@/components/results/GuidedInsights';
 import VideoAskEmbed from '@/components/results/VideoAskEmbed';
 import CompetitorBenchmark from '@/components/results/CompetitorBenchmark';
 import CaseStudiesShowcase from '@/components/results/CaseStudiesShowcase';
+import FoxMascot from '@/components/shared/FoxMascot';
 
 export default function ResultsGeenius() {
   const [lead, setLead] = useState(null);
@@ -177,13 +178,19 @@ export default function ResultsGeenius() {
 
         <div className="relative z-10 px-4 py-8 sm:py-12 md:py-20">
           <div className="max-w-5xl mx-auto">
-            {/* Premium Header */}
+            {/* Premium Header with Mascot */}
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               className="text-center mb-12 sm:mb-16"
             >
+              <FoxMascot 
+                category={lead.business_category || 'contractor'} 
+                size="xl"
+                animate={true}
+                className="mx-auto mb-6"
+              />
               <motion.div
                 animate={{ y: [0, -5, 0] }}
                 transition={{ duration: 3, repeat: Infinity }}
