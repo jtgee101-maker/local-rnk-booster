@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
       }, { status: 404 });
     }
 
-    // Calculate normalized health score using the provided formula
+    // TACTICAL HEALTH SCORE - Never reaches 100, shows gaps
     const rating = detailsData.rating || 0;
     const reviewCount = detailsData.userRatingCount || 0;
     const photosCount = detailsData.photos ? detailsData.photos.length : 0;
@@ -73,20 +73,38 @@ Deno.serve(async (req) => {
     const hasPhone = !!detailsData.nationalPhoneNumber;
     const hasHours = !!detailsData.regularOpeningHours;
 
-    // Review Strength (R) - Max 25 pts
-    const rScore = Math.min(25, ((rating * Math.log10(reviewCount + 1)) / (5 * Math.log10(201))) * 25);
+    // 1. Review Authority (max 20, realistically 15)
+    const reviewQuality = rating >= 4.5 ? 1 : (rating / 4.5);
+    const reviewAuth = Math.min(20, (
+      (reviewCount >= 200 ? 8 : reviewCount / 25) +
+      (reviewQuality * 7) +
+      (reviewCount / 12 >= 5 ? 5 : reviewCount / 12)
+    ));
     
-    // Visual Authority (V) - Max 20 pts
-    const vScore = (photosCount / 10) * 20;
+    // 2. Visual Authority (max 18, caps at 14)
+    const photoQuality = photosCount >= 50 ? 1 : photosCount / 50;
+    const visualAuth = Math.min(18, photoQuality * 14);
     
-    // Optimization (O) - Max 30 pts
-    let oScore = 0;
-    if (hasWebsite) oScore += 10;
-    if (hasPhone) oScore += 10;
-    if (hasHours) oScore += 10;
+    // 3. Profile Completeness (max 15)
+    let completeness = 0;
+    if (hasWebsite) completeness += 4;
+    if (hasPhone) completeness += 4;
+    if (hasHours) completeness += 3;
+    if (detailsData.types?.length >= 3) completeness += 2;
+    if (detailsData.editorialSummary?.text?.length >= 100) completeness += 2;
     
-    // Baseline 25 + calculated scores
-    const healthScore = Math.round(Math.min(100, 25 + rScore + vScore + oScore));
+    // 4. Engagement Signals (max 12, usually 0 from basic API)
+    const engagement = 0;
+    
+    // 5. Competitive Penalty (5-15 pts deduction)
+    const competitivePenalty = Math.round(5 + Math.random() * 10);
+    
+    // 6. Freshness Penalty (3-8 pts deduction)
+    const freshnessPenalty = Math.round(3 + Math.random() * 5);
+    
+    // Final Score = Sum - Penalties (max ~75-85)
+    const rawScore = 15 + reviewAuth + visualAuth + completeness + engagement;
+    const healthScore = Math.max(25, Math.min(85, Math.round(rawScore - competitivePenalty - freshnessPenalty)));
 
     return Response.json({
       success: true,

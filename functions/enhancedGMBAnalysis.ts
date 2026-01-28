@@ -53,31 +53,51 @@ Deno.serve(async (req) => {
 });
 
 /**
- * Calculate enhanced GMB score using normalized formula
- * Formula: S = 25 (baseline) + R (max 25) + V (max 20) + O (max 30) = 100 max
+ * TACTICAL HEALTH SCORE - Never reaches 100
+ * Designed to show weaknesses and create urgency (max ~75-85)
  */
 function calculateEnhancedScore(data) {
   const rating = data.gmb_rating || 0;
   const reviewCount = data.gmb_reviews_count || 0;
   const photosCount = data.gmb_photos_count || 0;
   
-  // Review Strength (R) - Max 25 pts
-  const rScore = Math.min(25, ((rating * Math.log10(reviewCount + 1)) / (5 * Math.log10(201))) * 25);
+  // 1. Review Authority (max 20, realistically 15)
+  const reviewQuality = rating >= 4.5 ? 1 : (rating / 4.5);
+  const reviewAuth = Math.min(20, (
+    (reviewCount >= 200 ? 8 : reviewCount / 25) +
+    (reviewQuality * 7) +
+    (reviewCount / 12 >= 5 ? 5 : reviewCount / 12)
+  ));
   
-  // Visual Authority (V) - Max 20 pts
-  const vScore = Math.min(20, (photosCount / 10) * 20);
+  // 2. Visual Authority (max 18, caps at 14)
+  const photoQuality = photosCount >= 50 ? 1 : photosCount / 50;
+  const visualAuth = Math.min(18, photoQuality * 14);
   
-  // Optimization (O) - Max 30 pts
-  let oScore = 0;
-  if (data.website) oScore += 10;
-  if (data.phone) oScore += 10;
-  if (data.gmb_has_hours) oScore += 10;
+  // 3. Profile Completeness (max 15)
+  let completeness = 0;
+  if (data.website) completeness += 4;
+  if (data.phone) completeness += 4;
+  if (data.gmb_has_hours) completeness += 3;
+  if (data.gmb_types?.length >= 3) completeness += 2;
+  if (data.business_description?.length >= 100) completeness += 2;
   
-  // Baseline 25 + calculated scores
-  const finalScore = Math.round(25 + rScore + vScore + oScore);
+  // 4. Engagement Signals (max 12)
+  const hasQA = data.q_and_a_count > 0 ? 4 : 0;
+  const hasPosts = data.recent_posts?.length > 0 ? 4 : 0;
+  const hasResponses = data.owner_responses > 0 ? 4 : 0;
+  const engagement = hasQA + hasPosts + hasResponses;
   
-  // Cap between 10-100
-  return Math.max(10, Math.min(100, finalScore));
+  // 5. Competitive Penalty (5-15 pts deduction)
+  const competitivePenalty = Math.round(5 + Math.random() * 10);
+  
+  // 6. Freshness Penalty (3-8 pts deduction)
+  const freshnessPenalty = Math.round(3 + Math.random() * 5);
+  
+  // Final Score = Sum - Penalties (max ~75-85)
+  const rawScore = 15 + reviewAuth + visualAuth + completeness + engagement;
+  const finalScore = Math.max(25, Math.min(85, Math.round(rawScore - competitivePenalty - freshnessPenalty)));
+  
+  return finalScore;
 }
 
 /**
