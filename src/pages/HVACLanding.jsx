@@ -70,6 +70,20 @@ export default function HVACLanding() {
               If you're not in the Map Pack, you don't exist.
             </p>
 
+            {/* Mascot Hero Image */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="mb-8 flex justify-center"
+            >
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/f50022943_image_029b4f8a-3246-40dd-9195-7399d4682f28.png"
+                alt="LocalRank HVAC Mascot"
+                className="w-full max-w-md rounded-3xl shadow-2xl shadow-[#c8ff00]/20"
+              />
+            </motion.div>
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Button
                 onClick={() => navigate(createPageUrl('QuizGeenius'))}

@@ -69,6 +69,20 @@ export default function AutoRepairLanding() {
               If you're not visible, Meineke and Pep Boys are taking your customers.
             </p>
 
+            {/* Mascot Hero Image */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="mb-8 flex justify-center"
+            >
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/b5f5e18c8_image_66e859df-3f63-4464-9522-a65fc0b499f9.png"
+                alt="LocalRank Auto Repair Mascot"
+                className="w-full max-w-md rounded-3xl shadow-2xl shadow-red-500/20"
+              />
+            </motion.div>
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Button
                 onClick={() => navigate(createPageUrl('QuizGeenius'))}

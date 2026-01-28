@@ -61,6 +61,20 @@ export default function DentistsLanding() {
               Free AI-powered audit reveals why new patients can't find your practice on Google Maps — and how to fix it in 72 hours.
             </p>
 
+            {/* Mascot Hero Image */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="mb-8 flex justify-center"
+            >
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/cb4091e0f_image_b889927d-b8d1-4989-a178-a45db30b245a.png"
+                alt="LocalRank Dentist Mascot"
+                className="w-full max-w-md rounded-3xl shadow-2xl shadow-cyan-500/20"
+              />
+            </motion.div>
+
             <Button
               onClick={handleCTA}
               className="bg-gradient-to-r from-[#c8ff00] to-green-400 hover:from-[#d4ff33] hover:to-green-300 text-black font-bold px-8 md:px-12 py-6 md:py-8 text-lg md:text-xl rounded-full transition-all duration-300 hover:shadow-[0_0_60px_rgba(200,255,0,0.5)] transform hover:scale-105 min-h-[56px] md:min-h-[64px] touch-manipulation"

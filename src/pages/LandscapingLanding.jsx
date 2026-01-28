@@ -69,6 +69,20 @@ export default function LandscapingLanding() {
               If you're invisible, TruGreen and local competitors are getting your projects.
             </p>
 
+            {/* Mascot Hero Image */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="mb-8 flex justify-center"
+            >
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/4295ffcd1_image_fcc179d7-2946-4786-8889-8798b0547c14.png"
+                alt="LocalRank Landscaping Mascot"
+                className="w-full max-w-md rounded-3xl shadow-2xl shadow-green-500/20"
+              />
+            </motion.div>
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Button
                 onClick={() => navigate(createPageUrl('QuizV3'))}
