@@ -15,7 +15,7 @@ export default function Layout({ children, currentPageName }) {
   const isFullWidth = fullWidthPages.includes(currentPageName);
 
   // Pages that shouldn't show nav (funnel pages)
-  const noNavPages = ['Quiz', 'QuizV2', 'QuizV3', 'Checkout', 'CheckoutV2', 'Upsell', 'Upsell1', 'BridgeV3', 'ThankYou'];
+  const noNavPages = ['Quiz', 'QuizV2', 'QuizV3', 'Checkout', 'CheckoutV2', 'Upsell', 'Upsell1', 'BridgeV3', 'ThankYou', 'QuizGeenius', 'ResultsGeenius', 'BridgeGeenius'];
   const showNav = !noNavPages.includes(currentPageName);
 
   useEffect(() => {

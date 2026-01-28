@@ -135,7 +135,7 @@ export const PAGES = {
 }
 
 export const pagesConfig = {
-    mainPage: "Home",
+    mainPage: "QuizGeenius",
     Pages: PAGES,
     Layout: __Layout,
 };
