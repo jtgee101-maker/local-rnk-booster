@@ -146,8 +146,75 @@ export default function FoxyHealthScore({ scoreData, onRevealComplete }) {
                   </div>
                   <Progress value={(data.score / data.weight) * 100} className="h-2" />
                   <p className="text-gray-500 text-xs mt-1">{data.message}</p>
+                  {data.opennessBonus !== undefined && (
+                    <p className="text-[#c8ff00] text-xs mt-1 flex items-center gap-1">
+                      🕐 {data.opennessBonus ? 'Open now = Higher rank' : 'Currently closed'}
+                    </p>
+                  )}
                 </div>
               ))}
+            </motion.div>
+          )}
+
+          {/* Velocity Metrics (NEW) */}
+          {revealed && scoreData.velocityMetrics && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+              className="bg-[#c8ff00]/10 border-2 border-[#c8ff00]/30 rounded-xl p-4 space-y-3"
+            >
+              <h4 className="text-white font-bold flex items-center gap-2">
+                ⚡ 2026 Velocity Signals
+              </h4>
+              
+              {scoreData.velocityMetrics.reviewVelocity && (
+                <div className="bg-gray-900/50 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-gray-300 text-sm">Review Velocity</span>
+                    <Badge className={`${
+                      scoreData.velocityMetrics.reviewVelocity.status === 'excellent' ? 'bg-green-500' :
+                      scoreData.velocityMetrics.reviewVelocity.status === 'good' ? 'bg-yellow-500' :
+                      'bg-red-500'
+                    } text-white text-xs`}>
+                      {scoreData.velocityMetrics.reviewVelocity.status}
+                    </Badge>
+                  </div>
+                  <p className="text-gray-400 text-xs">{scoreData.velocityMetrics.reviewVelocity.message}</p>
+                </div>
+              )}
+
+              {scoreData.velocityMetrics.visualFreshness && (
+                <div className="bg-gray-900/50 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-gray-300 text-sm">Visual Freshness</span>
+                    <Badge className={`${
+                      scoreData.velocityMetrics.visualFreshness.status === 'excellent' ? 'bg-green-500' :
+                      scoreData.velocityMetrics.visualFreshness.status === 'good' ? 'bg-yellow-500' :
+                      'bg-red-500'
+                    } text-white text-xs`}>
+                      {scoreData.velocityMetrics.visualFreshness.photoCount} photos
+                    </Badge>
+                  </div>
+                  <p className="text-gray-400 text-xs">{scoreData.velocityMetrics.visualFreshness.message}</p>
+                </div>
+              )}
+
+              {scoreData.velocityMetrics.napSync && (
+                <div className="bg-gray-900/50 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-gray-300 text-sm">NAP Sync (Entity Trust)</span>
+                    <Badge className={`${
+                      scoreData.velocityMetrics.napSync.score === 100 ? 'bg-green-500' :
+                      scoreData.velocityMetrics.napSync.score >= 66 ? 'bg-yellow-500' :
+                      'bg-red-500'
+                    } text-white text-xs`}>
+                      {Math.round(scoreData.velocityMetrics.napSync.score)}%
+                    </Badge>
+                  </div>
+                  <p className="text-gray-400 text-xs">{scoreData.velocityMetrics.napSync.message}</p>
+                </div>
+              )}
             </motion.div>
           )}
 

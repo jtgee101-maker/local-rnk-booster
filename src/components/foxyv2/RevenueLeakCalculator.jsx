@@ -120,6 +120,27 @@ export default function RevenueLeakCalculator({ revenueData }) {
             </div>
           )}
 
+          {/* Loss Breakdown (NEW) */}
+          {revenueData.lossBreakdown && (
+            <div className="bg-gray-900/50 rounded-xl p-4 space-y-3">
+              <h4 className="text-white font-semibold">📊 Revenue Loss Breakdown</h4>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-3 bg-red-500/10 rounded-lg">
+                  <span className="text-gray-300 text-sm">Ranking Position Loss</span>
+                  <span className="text-red-400 font-bold">${revenueData.lossBreakdown.rankingLoss.toLocaleString()}/mo</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-orange-500/10 rounded-lg">
+                  <span className="text-gray-300 text-sm">AI Visibility Loss</span>
+                  <span className="text-orange-400 font-bold">${revenueData.lossBreakdown.aiVisibilityLoss.toLocaleString()}/mo</span>
+                </div>
+                <div className="text-xs text-gray-500 pt-2">
+                  ⚠️ AI Overviews appear in {revenueData.lossBreakdown.aiOverviewRate} of searches, 
+                  capturing traffic before organic results
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Foxy Alert */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -130,15 +151,19 @@ export default function RevenueLeakCalculator({ revenueData }) {
             <div className="flex items-start gap-3">
               <AlertCircle className="w-6 h-6 text-[#c8ff00] flex-shrink-0 mt-0.5" />
               <div>
-                <h4 className="text-white font-bold mb-1">🦊 Foxy's Analysis</h4>
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  Every hour you stay at rank #{currentRank}, you're losing approximately{' '}
-                  <span className="text-[#c8ff00] font-bold">
-                    ${Math.round(monthlyLoss / 30 / 24)}
-                  </span>{' '}
-                  to competitors. In 2026, AI is 30x more selective—if you're not in the top 3, 
-                  you're invisible to ChatGPT, Gemini, and voice search.
+                <h4 className="text-white font-bold mb-1">🦊 Foxy's Unified Economic Loss Model</h4>
+                <p className="text-gray-300 text-sm leading-relaxed mb-2">
+                  {revenueData.foxyInsight || `Every hour you stay at rank #${currentRank}, you're losing approximately $${Math.round(monthlyLoss / 30 / 24)} to competitors.`}
                 </p>
+                <div className="bg-gray-900/50 rounded-lg p-3 mt-3">
+                  <div className="text-gray-400 text-xs mb-1">Hourly Revenue Leak:</div>
+                  <div className="text-[#c8ff00] text-2xl font-bold">
+                    ${Math.round(monthlyLoss / 30 / 24)}/hour
+                  </div>
+                  <p className="text-gray-500 text-xs mt-1">
+                    That's ${Math.round(monthlyLoss / 30)}/day • ${monthlyLoss.toLocaleString()}/month
+                  </p>
+                </div>
               </div>
             </div>
           </motion.div>

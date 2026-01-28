@@ -101,16 +101,74 @@ export default function GeoHeatmapDisplay({ heatmapData }) {
             </div>
           )}
 
+          {/* Proximity Leaks & Competitor Analysis */}
+          {heatmapData.proximityLeaks && heatmapData.proximityLeaks.length > 0 && (
+            <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
+              <h4 className="text-white font-semibold mb-2 flex items-center gap-2">
+                🚨 Proximity Leaks Detected
+              </h4>
+              <p className="text-gray-400 text-sm mb-3">
+                You're ranking poorly within 1 mile of your location—competitors have better prominence signals
+              </p>
+              <div className="space-y-1">
+                {heatmapData.proximityLeaks.slice(0, 3).map((leak, idx) => (
+                  <div key={idx} className="flex items-center justify-between text-xs">
+                    <span className="text-gray-300">📍 {leak.distance} miles away</span>
+                    <Badge variant="destructive">Rank #{leak.rank}</Badge>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {heatmapData.competitorGaps && (
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+              <h4 className="text-white font-semibold mb-2">🎯 Competitor Service Gaps</h4>
+              <p className="text-gray-400 text-sm mb-2">
+                Competitors are listing {heatmapData.competitorGaps.totalServices} service types
+              </p>
+              {heatmapData.competitorGaps.serviceGaps && (
+                <div className="flex flex-wrap gap-1">
+                  {heatmapData.competitorGaps.serviceGaps.map((service, idx) => (
+                    <Badge key={idx} variant="outline" className="text-xs">
+                      {service}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {heatmapData.engagementAnalysis && (
+            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4">
+              <h4 className="text-white font-semibold mb-2">💬 Engagement Signal Analysis</h4>
+              <p className="text-gray-400 text-sm">
+                {heatmapData.engagementAnalysis.message}
+              </p>
+              <div className="grid grid-cols-2 gap-3 mt-3">
+                <div className="bg-gray-900/50 rounded-lg p-2 text-center">
+                  <div className="text-green-400 font-bold">{heatmapData.engagementAnalysis.highEngagementZones}</div>
+                  <div className="text-gray-500 text-xs">High Activity</div>
+                </div>
+                <div className="bg-gray-900/50 rounded-lg p-2 text-center">
+                  <div className="text-blue-400 font-bold">{heatmapData.engagementAnalysis.lowEngagementZones}</div>
+                  <div className="text-gray-500 text-xs">Opportunity</div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Foxy Insight */}
           <div className="bg-purple-500/10 border-2 border-purple-500/30 rounded-xl p-4">
             <div className="flex items-start gap-3">
               <MapPin className="w-6 h-6 text-purple-400 flex-shrink-0 mt-0.5" />
               <div>
-                <h4 className="text-white font-bold mb-1">🦊 Foxy's Geo-Intelligence</h4>
+                <h4 className="text-white font-bold mb-1">🦊 The Neighborhood Sniffer</h4>
                 <p className="text-gray-300 text-sm leading-relaxed">
                   Your business ranks well near your physical location, but visibility drops 
-                  significantly in {weakZones} neighboring areas. This "proximity bias" is costing 
-                  you customers who are actively searching just a few blocks away.
+                  significantly in {weakZones} neighboring areas. Even with a hidden address, 
+                  Google bases your rank on your physical verification point. Foxy identified 
+                  specific blocks where the proximity hard-cap is hurting you.
                 </p>
               </div>
             </div>

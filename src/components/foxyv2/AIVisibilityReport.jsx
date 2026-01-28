@@ -170,18 +170,84 @@ export default function AIVisibilityReport({ aiData }) {
             </div>
           )}
 
+          {/* AEO Metrics (NEW) */}
+          {aiData.entityDensity && (
+            <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4">
+              <h4 className="text-white font-semibold mb-2 flex items-center gap-2">
+                🧬 Entity Density Check
+              </h4>
+              <p className="text-gray-400 text-sm mb-3">{aiData.entityDensity.message}</p>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-300">Found on:</span>
+                  <span className="text-green-400">{aiData.entityDensity.foundOn?.join(', ') || 'None'}</span>
+                </div>
+                {aiData.entityDensity.missingFrom?.length > 0 && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-300">Missing from:</span>
+                    <span className="text-red-400">{aiData.entityDensity.missingFrom.slice(0, 2).join(', ')}</span>
+                  </div>
+                )}
+              </div>
+              <Badge className="mt-2" variant={aiData.entityDensity.score >= 80 ? 'default' : 'destructive'}>
+                {Math.round(aiData.entityDensity.score)}% Entity Confidence
+              </Badge>
+            </div>
+          )}
+
+          {aiData.answerReadiness && (
+            <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4">
+              <h4 className="text-white font-semibold mb-2 flex items-center gap-2">
+                💬 Answer-First Extraction
+              </h4>
+              <p className="text-gray-400 text-sm mb-2">{aiData.answerReadiness.message}</p>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className={`flex items-center gap-1 ${aiData.answerReadiness.hasQA ? 'text-green-400' : 'text-red-400'}`}>
+                  {aiData.answerReadiness.hasQA ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
+                  Q&A Section
+                </div>
+                <div className={`flex items-center gap-1 ${aiData.answerReadiness.hasConciseDesc ? 'text-green-400' : 'text-red-400'}`}>
+                  {aiData.answerReadiness.hasConciseDesc ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
+                  Concise Descriptions
+                </div>
+              </div>
+            </div>
+          )}
+
+          {aiData.expertCitations && (
+            <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-4">
+              <h4 className="text-white font-semibold mb-2 flex items-center gap-2">
+                🏆 Expert Citation Opportunities
+              </h4>
+              <p className="text-gray-400 text-sm mb-3">{aiData.expertCitations.message}</p>
+              <div className="space-y-1">
+                <div className="text-xs text-gray-500">Found in: {aiData.expertCitations.foundIn?.join(', ') || 'None'}</div>
+                {aiData.expertCitations.missingFrom?.length > 0 && (
+                  <div className="text-xs text-red-400">Missing: {aiData.expertCitations.missingFrom.join(', ')}</div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Foxy AI Insight */}
           <div className="bg-blue-500/10 border-2 border-blue-500/30 rounded-xl p-4">
             <div className="flex items-start gap-3">
               <Brain className="w-6 h-6 text-blue-400 flex-shrink-0 mt-0.5" />
               <div>
-                <h4 className="text-white font-bold mb-1">🦊 Foxy's AI Analysis</h4>
-                <p className="text-gray-300 text-sm leading-relaxed">
+                <h4 className="text-white font-bold mb-1">🦊 Answer Engine Optimization (AEO)</h4>
+                <p className="text-gray-300 text-sm leading-relaxed mb-2">
                   In 2026, AI assistants like ChatGPT and Gemini recommend just <span className="text-[#c8ff00] font-bold">1.2%</span> of 
                   local businesses. You're currently {summary.foundIn > 0 ? 'visible' : 'invisible'} in AI 
-                  search results. To rank, you need presence on "Best-of" lists, structured data, and 
-                  consistent NAP citations across the web.
+                  search results.
                 </p>
+                <div className="bg-gray-900/50 rounded-lg p-3 mt-2">
+                  <div className="text-xs text-gray-400 mb-1">AEO Priority:</div>
+                  <ul className="text-xs text-gray-300 space-y-1">
+                    <li>✓ Entity Density: Strong presence across {aiData.entityDensity?.foundOn?.length || 0} platforms</li>
+                    <li>✓ Answer-Ready: {aiData.answerReadiness?.score || 0}% extraction readiness</li>
+                    <li>✓ Expert Citations: Found in {aiData.expertCitations?.foundIn?.length || 0} citation sources</li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
