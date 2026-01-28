@@ -21,16 +21,17 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
-    // Get lead data
-    const lead = await base44.entities.Lead.get(lead_id);
-    if (!lead) {
+    // Get lead data using service role for admin operations
+    const leads = await base44.asServiceRole.entities.Lead.filter({ id: lead_id });
+    if (leads.length === 0) {
       return Response.json({ error: 'Lead not found' }, { status: 404 });
     }
+    const lead = leads[0];
 
     // Get user behavior for context
     let userBehavior = null;
     try {
-      const behaviors = await base44.entities.UserBehavior.filter({ email: lead.email });
+      const behaviors = await base44.asServiceRole.entities.UserBehavior.filter({ email: lead.email });
       if (behaviors.length > 0) {
         userBehavior = behaviors[0];
       }
@@ -58,7 +59,7 @@ Deno.serve(async (req) => {
           });
 
           // Store generated content
-          const locationContent = await base44.entities.LocationContent.create({
+          const locationContent = await base44.asServiceRole.entities.LocationContent.create({
             lead_id: lead.id,
             business_name: lead.business_name,
             target_location: {
@@ -233,7 +234,7 @@ The content should feel local, mention the area naturally, and drive conversions
   }
 
   try {
-    const result = await base44.integrations.Core.InvokeLLM({
+    const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt,
       add_context_from_internet: false,
       response_json_schema: responseSchema
