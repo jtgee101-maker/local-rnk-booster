@@ -53,43 +53,31 @@ Deno.serve(async (req) => {
 });
 
 /**
- * Calculate enhanced GMB score with detailed breakdown
+ * Calculate enhanced GMB score using normalized formula
+ * Formula: S = 25 (baseline) + R (max 25) + V (max 20) + O (max 30) = 100 max
  */
 function calculateEnhancedScore(data) {
-  let score = 20; // Base score for participation
-
-  // Profile Completeness (20 points)
-  const completenessFactors = {
-    hasPhone: data.phone ? 5 : -3,
-    hasWebsite: data.website ? 5 : -3,
-    hasHours: data.gmb_has_hours ? 5 : -4,
-    hasTypes: (data.gmb_types?.length || 0) >= 2 ? 5 : -2
-  };
-  score += Object.values(completenessFactors).reduce((a, b) => a + b, 0);
-
-  // Review Quality & Velocity (25 points)
-  const reviewFactors = {
-    rating: data.gmb_rating >= 4.7 ? 10 : 
-            data.gmb_rating >= 4.5 ? 6 :
-            data.gmb_rating >= 4.0 ? 2 : -5,
-    count: data.gmb_reviews_count >= 100 ? 10 :
-           data.gmb_reviews_count >= 50 ? 6 :
-           data.gmb_reviews_count >= 25 ? 3 : -2,
-    velocity: getReviewVelocityScore(data)
-  };
-  score += Object.values(reviewFactors).reduce((a, b) => a + b, 0);
-
-  // Visual Content (20 points)
-  score += data.gmb_photos_count >= 50 ? 15 :
-           data.gmb_photos_count >= 30 ? 10 :
-           data.gmb_photos_count >= 15 ? 5 : -5;
-
-  // Engagement Signals (15 points)
-  const engagementScore = calculateEngagementScore(data);
-  score += engagementScore;
-
-  // Cap score between 10-90 to show room for improvement
-  return Math.max(10, Math.min(90, score));
+  const rating = data.gmb_rating || 0;
+  const reviewCount = data.gmb_reviews_count || 0;
+  const photosCount = data.gmb_photos_count || 0;
+  
+  // Review Strength (R) - Max 25 pts
+  const rScore = Math.min(25, ((rating * Math.log10(reviewCount + 1)) / (5 * Math.log10(201))) * 25);
+  
+  // Visual Authority (V) - Max 20 pts
+  const vScore = Math.min(20, (photosCount / 10) * 20);
+  
+  // Optimization (O) - Max 30 pts
+  let oScore = 0;
+  if (data.website) oScore += 10;
+  if (data.phone) oScore += 10;
+  if (data.gmb_has_hours) oScore += 10;
+  
+  // Baseline 25 + calculated scores
+  const finalScore = Math.round(25 + rScore + vScore + oScore);
+  
+  // Cap between 10-100
+  return Math.max(10, Math.min(100, finalScore));
 }
 
 /**
@@ -322,30 +310,31 @@ async function generateAIRecommendations(data, insights) {
 }
 
 /**
- * Calculate detailed revenue impact
+ * Calculate detailed revenue impact using "Lead-Theft" algorithm
  */
 function calculateRevenueImpact(data, score) {
-  const currentGap = 100 - score;
-  const costPerLead = 95;
-  const conversionRate = 0.15;
-  const avgOrderValue = 2500;
+  // Industry defaults for local businesses
+  const monthlySearchVolume = 1000;
+  const avgLeadValue = 150;
+  const conversionRate = 0.10;
+  const mapPackCaptureRate = 0.70; // Top 3 capture 70% of clicks
 
-  // Monthly revenue loss from visibility gap
-  const monthlyLeadsLost = Math.ceil((currentGap / 100) * 20);
-  const monthlyRevenueLoss = monthlyLeadsLost * costPerLead * conversionRate * avgOrderValue;
+  // Visibility gap calculation
+  const visibilityGap = (100 - score) / 100;
+  
+  // Lost Revenue Formula: (SearchVolume * CaptureRate) * LeadValue * ConversionRate * Gap
+  const monthlyRevenueLoss = (monthlySearchVolume * mapPackCaptureRate) * avgLeadValue * conversionRate * visibilityGap;
   const annualRevenueLoss = monthlyRevenueLoss * 12;
 
-  // Opportunity if fixed
-  const opportunityIfFixed = {
-    monthlyRevenuePotential: monthlyLeadsLost * avgOrderValue * 0.25, // Conservative 25% conversion
-    yearlyRevenuePotential: monthlyLeadsLost * avgOrderValue * 0.25 * 12,
-    roiOnOptimization: 'Typically 400-600% in 90 days'
-  };
+  // Recovery potential (80% is realistic with optimization)
+  const recoveryPotential = monthlyRevenueLoss * 0.80;
 
   return {
     currentMonthlyLoss: Math.round(monthlyRevenueLoss),
     annualRevenueLoss: Math.round(annualRevenueLoss),
-    opportunity: opportunityIfFixed,
-    breakEven: '15-25 days of recovered leads'
+    visibilityGap: Math.round(visibilityGap * 100),
+    recoveryPotential: Math.round(recoveryPotential),
+    leadsLostPerMonth: Math.round((monthlySearchVolume * mapPackCaptureRate * visibilityGap) * conversionRate),
+    breakEven: '30-45 days of optimization'
   };
 }

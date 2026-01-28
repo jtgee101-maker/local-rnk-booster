@@ -35,13 +35,20 @@ Deno.serve(async (req) => {
       }, { status: 500 });
     }
 
-    // Get detailed business info using Place Details API
-    const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_address,formatted_phone_number,website,rating,user_ratings_total,reviews,photos,opening_hours,types,geometry,business_status&key=${apiKey}`;
+    // Get detailed business info using Place Details API (New)
+    const detailsUrl = `https://places.googleapis.com/v1/places/${placeId}`;
     
-    const detailsResponse = await fetch(detailsUrl);
+    const detailsResponse = await fetch(detailsUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': apiKey,
+        'X-Goog-FieldMask': 'displayName,formattedAddress,nationalPhoneNumber,websiteUri,rating,userRatingCount,reviews,photos,regularOpeningHours,types,location'
+      }
+    });
     
     if (!detailsResponse.ok) {
-      console.error('Google Maps API HTTP error:', detailsResponse.status);
+      console.error('Google Places API (New) HTTP error:', detailsResponse.status);
       return Response.json({ 
         error: 'Unable to load business details',
         code: 'MAPS_HTTP_ERROR'
@@ -50,47 +57,59 @@ Deno.serve(async (req) => {
     
     const detailsData = await detailsResponse.json();
     
-    if (detailsData.status === 'REQUEST_DENIED') {
-      console.error('Google Maps API key denied:', detailsData.error_message);
-      return Response.json({ 
-        error: 'Service temporarily unavailable',
-        code: 'MAPS_API_DENIED'
-      }, { status: 500 });
-    }
-    
-    if (detailsData.status === 'OVER_QUERY_LIMIT') {
-      console.error('Google Maps API quota exceeded');
-      return Response.json({ 
-        error: 'Service at capacity. Please try again shortly.',
-        code: 'MAPS_QUOTA_EXCEEDED'
-      }, { status: 429 });
-    }
-
-    if (detailsData.status !== 'OK' || !detailsData.result) {
+    // New API doesn't use status codes the same way
+    if (!detailsData.displayName) {
       return Response.json({ 
         error: 'Business not found or details unavailable',
-        code: detailsData.status 
+        code: 'NOT_FOUND'
       }, { status: 404 });
     }
 
-    const business = detailsData.result;
+    // Calculate normalized health score using the provided formula
+    const rating = detailsData.rating || 0;
+    const reviewCount = detailsData.userRatingCount || 0;
+    const photosCount = detailsData.photos ? detailsData.photos.length : 0;
+    const hasWebsite = !!detailsData.websiteUri;
+    const hasPhone = !!detailsData.nationalPhoneNumber;
+    const hasHours = !!detailsData.regularOpeningHours;
+
+    // Review Strength (R) - Max 25 pts
+    const rScore = Math.min(25, ((rating * Math.log10(reviewCount + 1)) / (5 * Math.log10(201))) * 25);
+    
+    // Visual Authority (V) - Max 20 pts
+    const vScore = (photosCount / 10) * 20;
+    
+    // Optimization (O) - Max 30 pts
+    let oScore = 0;
+    if (hasWebsite) oScore += 10;
+    if (hasPhone) oScore += 10;
+    if (hasHours) oScore += 10;
+    
+    // Baseline 25 + calculated scores
+    const healthScore = Math.round(Math.min(100, 25 + rScore + vScore + oScore));
 
     return Response.json({
       success: true,
       business: {
         place_id: placeId,
-        name: business.name,
-        address: business.formatted_address,
-        phone: business.formatted_phone_number,
-        website: business.website,
-        rating: business.rating || 0,
-        total_reviews: business.user_ratings_total || 0,
-        reviews: business.reviews || [],
-        photos_count: business.photos ? business.photos.length : 0,
-        has_hours: business.opening_hours ? true : false,
-        types: business.types || [],
-        business_status: business.business_status,
-        location: business.geometry?.location
+        name: detailsData.displayName?.text || detailsData.displayName,
+        address: detailsData.formattedAddress,
+        phone: detailsData.nationalPhoneNumber,
+        website: detailsData.websiteUri,
+        rating: rating,
+        total_reviews: reviewCount,
+        reviews: detailsData.reviews || [],
+        photos_count: photosCount,
+        has_hours: hasHours,
+        types: detailsData.types || [],
+        location: detailsData.location,
+        health_score: healthScore,
+        score_breakdown: {
+          review_strength: Math.round(rScore),
+          visual_authority: Math.round(vScore),
+          optimization: oScore,
+          baseline: 25
+        }
       }
     });
 
