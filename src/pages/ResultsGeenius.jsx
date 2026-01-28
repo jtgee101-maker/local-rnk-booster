@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import HealthScoreReveal from '@/components/results/HealthScoreReveal';
 import GuidedInsights from '@/components/results/GuidedInsights';
 import VideoAskEmbed from '@/components/results/VideoAskEmbed';
-import CompetitorBenchmark from '@/components/results/CompetitorBenchmark';
 import CaseStudiesShowcase from '@/components/results/CaseStudiesShowcase';
 
 export default function ResultsGeenius() {
@@ -253,22 +252,6 @@ export default function ResultsGeenius() {
                   className="space-y-8"
                 >
                   <VideoAskEmbed leadId={lead.id} />
-
-                  {/* Competitor Benchmarking */}
-                  <CompetitorBenchmark 
-                    currentBusiness={{
-                      place_id: lead.place_id,
-                      name: lead.business_name,
-                      gmb_rating: lead.gmb_rating,
-                      gmb_reviews_count: lead.gmb_reviews_count,
-                      gmb_photos_count: lead.gmb_photos_count,
-                      website: lead.website,
-                      phone: lead.phone,
-                      gmb_has_hours: lead.gmb_has_hours,
-                      health_score: healthScore
-                    }}
-                    leadId={lead.id}
-                  />
 
                   {/* Case Studies */}
                   <CaseStudiesShowcase />
