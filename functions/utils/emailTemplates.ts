@@ -72,12 +72,22 @@ export const quizSubmissionTemplate = (leadData, domain = 'https://localrnk.com'
         </div>
         
         ${leadData.critical_issues && leadData.critical_issues.length > 0 ? `
-          <h3 style="color: #fff; margin-top: 30px;">Critical Issues Identified:</h3>
-          <ul style="color: #ccc; line-height: 1.8; margin: 15px 0; padding-left: 20px;">
-            ${leadData.critical_issues.slice(0, 3).map(issue => 
-              `<li style="margin: 8px 0;">${issue}</li>`
-            ).join('')}
-          </ul>
+          <h3 style="color: #fff; margin-top: 30px;">🚨 Critical Issues Identified:</h3>
+          <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 20px; margin: 15px 0;">
+            ${leadData.critical_issues.slice(0, 3).map(issue => {
+              const issueObj = typeof issue === 'string' ? { issue } : issue;
+              return `
+                <div style="margin: 15px 0; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+                  <div style="color: #ff6b6b; font-weight: bold; margin-bottom: 5px;">
+                    ${issueObj.tier ? `[${issueObj.tier}] ` : ''}${issueObj.issue}
+                  </div>
+                  ${issueObj.impact ? `<div style="color: #ccc; font-size: 13px; margin: 4px 0;">💥 ${issueObj.impact}</div>` : ''}
+                  ${issueObj.revenue_loss ? `<div style="color: #ef4444; font-size: 14px; font-weight: bold; margin: 4px 0;">💸 Lost Revenue: ${issueObj.revenue_loss}</div>` : ''}
+                  ${issueObj.fix ? `<div style="color: #10b981; font-size: 13px; margin: 4px 0;">✅ Fix: ${issueObj.fix}</div>` : ''}
+                </div>
+              `;
+            }).join('')}
+          </div>
         ` : ''}
         
         <div style="${styles.urgencyBox}">
@@ -371,11 +381,21 @@ export const adminLeadNotificationTemplate = (leadData, domain = 'https://localr
         </table>
         
         ${leadData.critical_issues?.length ? `
-        <div style="margin-top: 20px;">
-          <h4 style="color: #ef4444; margin-bottom: 10px;">🚨 Critical Issues:</h4>
-          <ul style="color: #333; line-height: 1.6;">
-            ${leadData.critical_issues.slice(0, 3).map(issue => `<li>${issue}</li>`).join('')}
-          </ul>
+        <div style="margin-top: 20px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; padding: 15px;">
+          <h4 style="color: #ef4444; margin-bottom: 10px;">🚨 Critical Issues Found:</h4>
+          ${leadData.critical_issues.slice(0, 3).map(issue => {
+            const issueObj = typeof issue === 'string' ? { issue } : issue;
+            return `
+              <div style="margin: 10px 0; padding: 10px; background: #fff; border-left: 3px solid #ef4444; border-radius: 4px;">
+                <div style="color: #111; font-weight: bold; margin-bottom: 4px;">
+                  ${issueObj.tier ? `[${issueObj.tier}] ` : ''}${issueObj.issue}
+                </div>
+                ${issueObj.impact ? `<div style="color: #666; font-size: 13px;">💥 ${issueObj.impact}</div>` : ''}
+                ${issueObj.revenue_loss ? `<div style="color: #ef4444; font-size: 13px; font-weight: bold;">💸 ${issueObj.revenue_loss}</div>` : ''}
+                ${issueObj.ranking_impact ? `<div style="color: #f59e0b; font-size: 12px;">📉 ${issueObj.ranking_impact}</div>` : ''}
+              </div>
+            `;
+          }).join('')}
         </div>
         ` : ''}
         

@@ -72,6 +72,7 @@ Deno.serve(async (req) => {
             lead_id: lead.id,
             sequence: `abandoned_geenius_${daysSince}d`,
             health_score: lead.health_score,
+            critical_issues_count: lead.critical_issues?.length || 0,
             message_id: result.id
           }
         });
@@ -118,8 +119,23 @@ function getTemplate(daysSince, lead) {
               You received your GMB Health Score of <span style="color: ${scoreColor}; font-weight: bold; font-size: 18px;">${lead.health_score}/100</span> but didn't choose your growth pathway yet.
             </p>
             
+            ${lead.critical_issues && lead.critical_issues.length > 0 ? `
+            <div style="background: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 20px; margin: 20px 0;">
+              <h3 style="color: #ff6b6b; margin: 0 0 12px 0;">🚨 Why You're Losing Leads:</h3>
+              ${lead.critical_issues.slice(0, 2).map(issue => {
+                const issueObj = typeof issue === 'string' ? { issue } : issue;
+                return `
+                  <div style="margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+                    <div style="color: #fff; font-weight: bold; margin-bottom: 4px;">${issueObj.issue}</div>
+                    ${issueObj.revenue_loss ? `<div style="color: #ff6b6b; font-size: 13px;">💸 ${issueObj.revenue_loss}</div>` : ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+            ` : ''}
+            
             <div style="background: rgba(147, 51, 234, 0.1); border: 2px solid rgba(147, 51, 234, 0.3); border-radius: 12px; padding: 25px; margin: 25px 0;">
-              <h3 style="color: #a855f7; margin: 0 0 15px 0;">Your 3 Pathways:</h3>
+              <h3 style="color: #a855f7; margin: 0 0 15px 0;">Your 3 Pathways to Fix This:</h3>
               <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(147, 51, 234, 0.2);">
                 <div style="color: #fff; font-weight: bold; margin-bottom: 5px;">👑 GeeNius Gov Tech Grant</div>
                 <p style="color: #ccc; margin: 0; font-size: 13px;">Free infrastructure upgrade program</p>

@@ -67,6 +67,24 @@ Deno.serve(async (req) => {
             </div>
             ` : ''}
 
+            ${leadData.critical_issues && leadData.critical_issues.length > 0 ? `
+            <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+              <h3 style="color: #ff6b6b; margin: 0 0 16px 0; font-size: 18px;">🚨 Critical Issues Found:</h3>
+              ${leadData.critical_issues.slice(0, 3).map(issue => {
+                const issueObj = typeof issue === 'string' ? { issue } : issue;
+                return `
+                  <div style="margin: 12px 0; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                    <div style="color: #fff; font-weight: bold; margin-bottom: 6px;">
+                      ${issueObj.tier ? `<span style="color: #ff6b6b;">[${issueObj.tier}]</span> ` : ''}${issueObj.issue}
+                    </div>
+                    ${issueObj.impact ? `<div style="color: #d1d5db; font-size: 13px; margin: 4px 0;">💥 ${issueObj.impact}</div>` : ''}
+                    ${issueObj.revenue_loss ? `<div style="color: #ff6b6b; font-size: 14px; font-weight: bold; margin: 4px 0;">💸 ${issueObj.revenue_loss}</div>` : ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+            ` : ''}
+
             <div style="margin-bottom: 32px;">
               <h2 style="color: #ffffff; font-size: 20px; margin: 0 0 20px 0;">Your Exclusive Pathways:</h2>
               <div style="background: rgba(147, 51, 234, 0.1); border-left: 4px solid #9333ea; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
