@@ -112,7 +112,7 @@ import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import UserJourneyTest from './pages/UserJourneyTest';
 import V2Start from './pages/V2Start';
-import FoxyAudit from './pages/FoxyAudit';
+import QuizGeeniusV2 from './pages/QuizGeeniusV2';
 import __Layout from './Layout.jsx';
 
 
@@ -182,7 +182,7 @@ export const PAGES = {
     "Upsell1": Upsell1,
     "UserJourneyTest": UserJourneyTest,
     "V2Start": V2Start,
-    "FoxyAudit": FoxyAudit,
+    "QuizGeeniusV2": QuizGeeniusV2,
 }
 
 export const pagesConfig = {
