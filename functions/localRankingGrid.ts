@@ -33,10 +33,18 @@ Deno.serve(async (req) => {
     const avgRank = rankingResults.filter(r => r.found).reduce((sum, r) => sum + r.rank, 0) / 
                     Math.max(1, rankingResults.filter(r => r.found).length);
 
-    // Identify weak zones
+    // Identify weak zones with full location data
     const weakZones = rankingResults
       .filter(r => !r.found || r.rank > 3)
-      .map(r => r.direction);
+      .map((r, idx) => ({
+        name: `${r.direction} Zone`,
+        direction: r.direction,
+        lat: gridPoints[idx].lat,
+        lng: gridPoints[idx].lng,
+        found: r.found,
+        current_position: r.rank,
+        distance: '5 miles from center'
+      }));
 
     return Response.json({
       success: true,
@@ -44,7 +52,8 @@ Deno.serve(async (req) => {
       averageRank: avgRank || null,
       gridResults: rankingResults,
       weakZones,
-      recommendations: generateRecommendations(visibilityScore, weakZones)
+      weakZonesList: weakZones.map(z => z.direction),
+      recommendations: generateRecommendations(visibilityScore, weakZones.map(z => z.direction))
     });
 
   } catch (error) {

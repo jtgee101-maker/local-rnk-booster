@@ -395,6 +395,29 @@ export default function QuizGeenius() {
         }
       });
 
+      // Trigger location content generation in background (fire and forget)
+      try {
+        if (lead.place_id && lead.location) {
+          base44.functions.invoke('localRankingGrid', {
+            placeId: lead.place_id,
+            businessName: lead.business_name,
+            location: lead.location
+          }).then(async (gridResponse) => {
+            if (gridResponse.data?.success && gridResponse.data?.weakZones?.length > 0) {
+              // Generate location-specific content for weak zones
+              await base44.functions.invoke('generateLocationContent', {
+                lead_id: lead.id,
+                weak_zones: gridResponse.data.weakZones,
+                business_location: lead.location,
+                content_types: ['gmb_post', 'landing_page']
+              }).catch(err => console.error('Content generation failed:', err));
+            }
+          }).catch(err => console.error('Ranking grid failed:', err));
+        }
+      } catch (err) {
+        console.error('Background tasks failed:', err);
+      }
+
       // Redirect to results page
       window.location.href = createPageUrl('ResultsGeenius') + `?lead_id=${lead.id}`;
       

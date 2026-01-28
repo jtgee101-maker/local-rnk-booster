@@ -8,16 +8,18 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, DollarSign, TrendingUp, AlertCircle, Download, Search, RefreshCw, BarChart3, UserCog, Mail, Bug, Repeat, Radio } from 'lucide-react';
+import { Users, DollarSign, TrendingUp, AlertCircle, Download, Search, RefreshCw, BarChart3, UserCog, Mail, Bug, Repeat, Radio, MapPin } from 'lucide-react';
 import UserManagement from '@/components/admin/UserManagement';
 import EmailTracking from '@/components/admin/EmailTracking';
 import ErrorMonitoring from '@/components/admin/ErrorMonitoring';
 import LeadNurture from '@/components/admin/LeadNurture';
 import FunnelModeControl from '@/components/admin/FunnelModeControl';
+import LocationContentManager from '@/components/admin/LocationContentManager';
 
 export default function AdminPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [refundingOrderId, setRefundingOrderId] = useState(null);
+  const [selectedLeadId, setSelectedLeadId] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: leads = [], isLoading: leadsLoading } = useQuery({
@@ -217,6 +219,10 @@ export default function AdminPage() {
               <Repeat className="w-4 h-4 mr-2" />
               Nurture
             </TabsTrigger>
+            <TabsTrigger value="content" className="data-[state=active]:bg-gray-700">
+              <MapPin className="w-4 h-4 mr-2" />
+              Location Content
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="funnel">
@@ -241,7 +247,7 @@ export default function AdminPage() {
                   </TableHeader>
                   <TableBody>
                     {filteredLeads.slice(0, 50).map((lead) => (
-                      <TableRow key={lead.id} className="border-gray-700">
+                      <TableRow key={lead.id} className="border-gray-700 cursor-pointer hover:bg-gray-700/50" onClick={() => setSelectedLeadId(lead.id)}>
                         <TableCell className="text-white font-medium">{lead.business_name || 'N/A'}</TableCell>
                         <TableCell className="text-gray-300">{lead.email}</TableCell>
                         <TableCell className="text-gray-400">{lead.business_category?.replace(/_/g, ' ')}</TableCell>
@@ -410,6 +416,30 @@ export default function AdminPage() {
 
           <TabsContent value="nurture">
             <LeadNurture />
+          </TabsContent>
+
+          <TabsContent value="content">
+            {selectedLeadId ? (
+              <div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setSelectedLeadId(null)}
+                  className="mb-4"
+                >
+                  ← Back to Leads
+                </Button>
+                <LocationContentManager leadId={selectedLeadId} />
+              </div>
+            ) : (
+              <Card className="bg-gray-800 border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-white">Location-Specific Content</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-400">Select a lead from the Leads tab to view their location-specific content.</p>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
       </div>
