@@ -29,13 +29,24 @@ Deno.serve(async (req) => {
       }, { status: 500 });
     }
 
-    // Search for businesses using Places API Text Search
-    const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(searchQuery)}&key=${apiKey}`;
+    // Search for businesses using Places API (New) - Text Search
+    const searchUrl = `https://places.googleapis.com/v1/places:searchText`;
     
-    const searchResponse = await fetch(searchUrl);
+    const searchResponse = await fetch(searchUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': apiKey,
+        'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.types,places.location'
+      },
+      body: JSON.stringify({
+        textQuery: searchQuery,
+        maxResultCount: 5
+      })
+    });
     
     if (!searchResponse.ok) {
-      console.error('Google Maps API HTTP error:', searchResponse.status);
+      console.error('Google Places API (New) HTTP error:', searchResponse.status);
       return Response.json({ 
         error: 'Search service temporarily unavailable',
         code: 'MAPS_HTTP_ERROR'
@@ -45,33 +56,9 @@ Deno.serve(async (req) => {
     const searchData = await searchResponse.json();
 
     // Log the actual API response for debugging
-    console.log('Google API Response:', { status: searchData.status, error_message: searchData.error_message, results_count: searchData.results?.length || 0 });
+    console.log('Google Places API (New) Response:', { places_count: searchData.places?.length || 0 });
 
-    if (searchData.status === 'REQUEST_DENIED') {
-      console.error('Google Maps API key denied:', searchData.error_message);
-      return Response.json({ 
-        error: 'Search temporarily unavailable',
-        code: 'MAPS_API_DENIED'
-      }, { status: 500 });
-    }
-    
-    if (searchData.status === 'OVER_QUERY_LIMIT') {
-      console.error('Google Maps API quota exceeded');
-      return Response.json({ 
-        error: 'Service at capacity. Please try again in a moment.',
-        code: 'MAPS_QUOTA_EXCEEDED'
-      }, { status: 429 });
-    }
-
-    if (searchData.status !== 'OK') {
-      console.error('Google Places API Error:', searchData.error_message || 'Unknown error');
-      return Response.json({ 
-        error: searchData.error_message || 'Unable to search businesses',
-        code: searchData.status
-      }, { status: 400 });
-    }
-
-    if (!searchData.results || searchData.results.length === 0) {
+    if (!searchData.places || searchData.places.length === 0) {
       return Response.json({ 
         success: false,
         results: [],
@@ -79,15 +66,15 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Get top 5 results
-    const businesses = searchData.results.slice(0, 5).map(place => ({
-      place_id: place.place_id,
-      name: place.name,
-      address: place.formatted_address,
+    // Map results to expected format
+    const businesses = searchData.places.map(place => ({
+      place_id: place.id,
+      name: place.displayName?.text || place.displayName,
+      address: place.formattedAddress,
       rating: place.rating || 0,
-      user_ratings_total: place.user_ratings_total || 0,
+      user_ratings_total: place.userRatingCount || 0,
       types: place.types || [],
-      geometry: place.geometry
+      geometry: { location: place.location }
     }));
 
     return Response.json({
