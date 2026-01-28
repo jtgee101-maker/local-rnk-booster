@@ -418,57 +418,32 @@ export default function QuizGeenius() {
     }
   };
 
-  // Robust health score calculation matching enhancedGMBAnalysis algorithm
+  // Normalized health score calculation using Google Places API formula
+  // Formula: S = 25 (baseline) + R (Review Strength, max 25) + V (Visual Authority, max 20) + O (Optimization, max 30)
   const calculateRobustHealthScore = (data) => {
-    let score = 20; // Base score
+    const rating = data.gmb_rating || 0;
+    const reviewCount = data.gmb_reviews_count || 0;
+    const photosCount = data.gmb_photos_count || 0;
     
-    // Rating scoring (max 15 points)
-    if (data.gmb_rating >= 4.8) score += 15;
-    else if (data.gmb_rating >= 4.7) score += 12;
-    else if (data.gmb_rating >= 4.5) score += 8;
-    else if (data.gmb_rating >= 4.0) score += 4;
-    else score -= 5;
+    // Review Strength (R) - Max 25 pts
+    // Formula: R = min(25, ((Rating * log10(Count + 1)) / (5 * log10(201))) * 25)
+    const rScore = Math.min(25, ((rating * Math.log10(reviewCount + 1)) / (5 * Math.log10(201))) * 25);
     
-    // Reviews count (max 15 points)
-    if (data.gmb_reviews_count >= 150) score += 15;
-    else if (data.gmb_reviews_count >= 100) score += 12;
-    else if (data.gmb_reviews_count >= 75) score += 10;
-    else if (data.gmb_reviews_count >= 50) score += 8;
-    else if (data.gmb_reviews_count >= 30) score += 5;
-    else if (data.gmb_reviews_count >= 15) score += 2;
-    else score -= 3;
+    // Visual Authority (V) - Max 20 pts
+    // Formula: V = (photos / 10) * 20 (capped at 20 for 10+ photos)
+    const vScore = Math.min(20, (photosCount / 10) * 20);
     
-    // Photos count (max 20 points)
-    if (data.gmb_photos_count >= 60) score += 20;
-    else if (data.gmb_photos_count >= 50) score += 16;
-    else if (data.gmb_photos_count >= 35) score += 12;
-    else if (data.gmb_photos_count >= 20) score += 8;
-    else if (data.gmb_photos_count >= 10) score += 4;
-    else score -= 5;
+    // Optimization (O) - Max 30 pts (10 pts each for website, phone, hours)
+    let oScore = 0;
+    if (data.website) oScore += 10;
+    if (data.phone) oScore += 10;
+    if (data.gmb_has_hours) oScore += 10;
     
-    // Profile completeness (max 20 points)
-    score += data.gmb_has_hours ? 5 : -4;
-    score += data.website ? 5 : -3;
-    score += data.phone ? 5 : -5;
-    score += (data.gmb_types?.length >= 2) ? 5 : -2;
+    // Final Score = 25 (baseline) + R + V + O
+    const finalScore = Math.round(25 + rScore + vScore + oScore);
     
-    // Review velocity bonus (max 5 points)
-    if (data.gmb_reviews && data.gmb_reviews.length > 0) {
-      const recentReviews = data.gmb_reviews.filter(r => {
-        const reviewDate = new Date(r.time * 1000);
-        const monthsAgo = (Date.now() - reviewDate.getTime()) / (1000 * 60 * 60 * 24 * 30);
-        return monthsAgo <= 3;
-      });
-      if (recentReviews.length >= 5) score += 5;
-      else if (recentReviews.length >= 3) score += 3;
-    }
-    
-    // Engagement signals (max 10 points)
-    if (data.q_and_a_count) score += Math.min(5, Math.floor(data.q_and_a_count / 5));
-    if (data.service_area_set) score += 5;
-    
-    // Cap between 10-95
-    return Math.max(10, Math.min(95, score));
+    // Cap between 10-100
+    return Math.max(10, Math.min(100, finalScore));
   };
 
   const generateRobustCriticalIssues = (data) => {
