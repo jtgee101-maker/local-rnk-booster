@@ -8,13 +8,15 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, DollarSign, TrendingUp, AlertCircle, Download, Search, RefreshCw, BarChart3, UserCog, Mail, Bug, Repeat, Radio, MapPin } from 'lucide-react';
+import { Users, DollarSign, TrendingUp, AlertCircle, Download, Search, RefreshCw, BarChart3, UserCog, Mail, Bug, Repeat, Radio, MapPin, Shield, Activity } from 'lucide-react';
 import UserManagement from '@/components/admin/UserManagement';
 import EmailTracking from '@/components/admin/EmailTracking';
 import ErrorMonitoring from '@/components/admin/ErrorMonitoring';
 import LeadNurture from '@/components/admin/LeadNurture';
 import FunnelModeControl from '@/components/admin/FunnelModeControl';
 import LocationContentManager from '@/components/admin/LocationContentManager';
+import SuperAdminControls from '@/components/admin/SuperAdminControls';
+import RealTimeAnalytics from '@/components/admin/RealTimeAnalytics';
 
 export default function AdminPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -190,9 +192,13 @@ export default function AdminPage() {
         {/* Tabs */}
         <Tabs defaultValue="funnel" className="space-y-4">
           <TabsList className="bg-gray-800 border-gray-700 flex-wrap">
+            <TabsTrigger value="live" className="data-[state=active]:bg-gray-700">
+              <Activity className="w-4 h-4 mr-2" />
+              Live
+            </TabsTrigger>
             <TabsTrigger value="funnel" className="data-[state=active]:bg-gray-700">
               <Radio className="w-4 h-4 mr-2" />
-              Funnel Control
+              Funnel
             </TabsTrigger>
             <TabsTrigger value="leads" className="data-[state=active]:bg-gray-700">
               Leads ({filteredLeads.length})
@@ -221,9 +227,17 @@ export default function AdminPage() {
             </TabsTrigger>
             <TabsTrigger value="content" className="data-[state=active]:bg-gray-700">
               <MapPin className="w-4 h-4 mr-2" />
-              Location Content
+              Content
+            </TabsTrigger>
+            <TabsTrigger value="super" className="data-[state=active]:bg-gray-700">
+              <Shield className="w-4 h-4 mr-2" />
+              System
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="live">
+            <RealTimeAnalytics />
+          </TabsContent>
 
           <TabsContent value="funnel">
             <FunnelModeControl />
@@ -440,6 +454,10 @@ export default function AdminPage() {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          <TabsContent value="super">
+            <SuperAdminControls />
           </TabsContent>
         </Tabs>
       </div>
