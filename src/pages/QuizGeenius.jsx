@@ -418,32 +418,46 @@ export default function QuizGeenius() {
     }
   };
 
-  // Normalized health score calculation using Google Places API formula
-  // Formula: S = 25 (baseline) + R (Review Strength, max 25) + V (Visual Authority, max 20) + O (Optimization, max 30)
+  // TACTICAL HEALTH SCORE - Matches backend algorithm
+  // Designed to show weaknesses and create urgency (max ~75-85)
   const calculateRobustHealthScore = (data) => {
     const rating = data.gmb_rating || 0;
     const reviewCount = data.gmb_reviews_count || 0;
     const photosCount = data.gmb_photos_count || 0;
     
-    // Review Strength (R) - Max 25 pts
-    // Formula: R = min(25, ((Rating * log10(Count + 1)) / (5 * log10(201))) * 25)
-    const rScore = Math.min(25, ((rating * Math.log10(reviewCount + 1)) / (5 * Math.log10(201))) * 25);
+    // 1. Review Authority (max 20, realistically 15)
+    const reviewQuality = rating >= 4.5 ? 1 : (rating / 4.5);
+    const reviewAuth = Math.min(20, (
+      (reviewCount >= 200 ? 8 : reviewCount / 25) +
+      (reviewQuality * 7) +
+      (reviewCount / 12 >= 5 ? 5 : reviewCount / 12)
+    ));
     
-    // Visual Authority (V) - Max 20 pts
-    // Formula: V = (photos / 10) * 20 (capped at 20 for 10+ photos)
-    const vScore = Math.min(20, (photosCount / 10) * 20);
+    // 2. Visual Authority (max 18, caps at 14)
+    const photoQuality = photosCount >= 50 ? 1 : photosCount / 50;
+    const visualAuth = Math.min(18, photoQuality * 14);
     
-    // Optimization (O) - Max 30 pts (10 pts each for website, phone, hours)
-    let oScore = 0;
-    if (data.website) oScore += 10;
-    if (data.phone) oScore += 10;
-    if (data.gmb_has_hours) oScore += 10;
+    // 3. Profile Completeness (max 15)
+    let completeness = 0;
+    if (data.website) completeness += 4;
+    if (data.phone) completeness += 4;
+    if (data.gmb_has_hours) completeness += 3;
+    if (data.gmb_types?.length >= 3) completeness += 2;
+    if (data.business_description?.length >= 100) completeness += 2;
     
-    // Final Score = 25 (baseline) + R + V + O
-    const finalScore = Math.round(25 + rScore + vScore + oScore);
+    // 4. Engagement (max 12)
+    const engagement = 0; // Frontend doesn't have engagement data
     
-    // Cap between 10-100
-    return Math.max(10, Math.min(100, finalScore));
+    // 5. Penalties (always deduct 8-23 pts)
+    const competitivePenalty = Math.round(5 + Math.random() * 10);
+    const freshnessPenalty = Math.round(3 + Math.random() * 8);
+    
+    // Final Score
+    const rawScore = 15 + reviewAuth + visualAuth + completeness + engagement;
+    const finalScore = Math.round(rawScore - competitivePenalty - freshnessPenalty);
+    
+    // Cap between 25-85
+    return Math.max(25, Math.min(85, finalScore));
   };
 
   const generateRobustCriticalIssues = (data) => {
