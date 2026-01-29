@@ -16,7 +16,7 @@ export default function CompetitorComparison({ competitorData, businessName }) {
   };
 
   const metrics = [
-    { key: 'rating', label: 'Rating', format: (v) => v?.toFixed(1) || 'N/A' },
+    { key: 'rating', label: 'Rating', format: (v) => typeof v === 'number' ? v.toFixed(1) : 'N/A' },
     { key: 'reviewCount', label: 'Reviews', format: (v) => v || 0 },
     { key: 'photoCount', label: 'Photos', format: (v) => v || 0 },
     { key: 'postFrequency', label: 'Posts/Mo', format: (v) => v || 0 },
