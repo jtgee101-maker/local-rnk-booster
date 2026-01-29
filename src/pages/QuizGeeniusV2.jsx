@@ -94,6 +94,12 @@ export default function QuizGeeniusV2() {
       // Step 1: Advanced Health Score with Places API
       setAuditStage('health');
       try {
+        console.log('🏥 Starting health check with lead data:', {
+          place_id: lead.place_id,
+          business_name: lead.business_name,
+          location: lead.location
+        });
+
         const healthResponse = await base44.functions.invoke('geeniusv2/advancedHealthScore', {
           placeId: lead.place_id,
           gmbData: {

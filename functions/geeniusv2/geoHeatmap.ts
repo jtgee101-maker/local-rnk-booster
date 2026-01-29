@@ -11,6 +11,12 @@ Deno.serve(async (req) => {
 
     const { placeId, businessName, location, keyword, radiusMiles } = await req.json();
 
+    console.log('🗺️ Heatmap request:', { placeId, businessName, location, keyword, radiusMiles });
+
+    if (!location || !location.lat || !location.lng) {
+      throw new Error('Valid location coordinates required');
+    }
+
     const apiKey = Deno.env.get('GOOGLE_MAPS_API_KEY');
     if (!apiKey) {
       throw new Error('Google Maps API key not configured');
@@ -19,6 +25,8 @@ Deno.serve(async (req) => {
     // Generate geo-grid nodes in a circular pattern
     const radius = (radiusMiles || 5) * 1609.34; // Convert miles to meters
     const gridNodes = generateGridNodes(location.lat, location.lng, radius);
+    
+    console.log(`✅ Generated ${gridNodes.length} grid nodes`);
 
     // Check ranking at each node
     const heatmapData = [];
@@ -49,6 +57,15 @@ Deno.serve(async (req) => {
     const visibilityScore = calculateVisibilityScore(heatmapData);
     const weakZones = heatmapData.filter(node => node.rank > 10 || node.rank === null);
     const strongZones = heatmapData.filter(node => node.rank <= 3);
+    const avgRank = calculateAverageRank(heatmapData);
+
+    console.log('📊 Heatmap results:', {
+      gridSize: gridNodes.length,
+      visibilityScore,
+      avgRank,
+      strongZones: strongZones.length,
+      weakZones: weakZones.length
+    });
 
     return Response.json({
       success: true,
@@ -58,7 +75,7 @@ Deno.serve(async (req) => {
         centerLocation: location,
         heatmapData,
         visibilityScore,
-        averageRank: calculateAverageRank(heatmapData),
+        averageRank: avgRank,
         strongZones: strongZones.length,
         weakZones: weakZones.length,
         recommendations: generateGeoRecommendations(heatmapData, weakZones)
@@ -111,6 +128,17 @@ async function checkRankingAtLocation(apiKey, targetPlaceId, lat, lng, keyword, 
   try {
     const url = 'https://places.googleapis.com/v1/places:searchText';
     
+    const requestBody = {
+      textQuery: keyword,
+      locationBias: {
+        circle: {
+          center: { latitude: lat, longitude: lng },
+          radius: 500.0 // 500m proximity focus
+        }
+      },
+      maxResultCount: 20
+    };
+
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -118,37 +146,33 @@ async function checkRankingAtLocation(apiKey, targetPlaceId, lat, lng, keyword, 
         'X-Goog-Api-Key': apiKey,
         'X-Goog-FieldMask': 'places.id,places.displayName'
       },
-      body: JSON.stringify({
-        textQuery: keyword,
-        locationBias: {
-          circle: {
-            center: { latitude: lat, longitude: lng },
-            radius: 500.0 // 500m proximity focus
-          }
-        },
-        maxResultCount: 20
-      })
+      body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {
-      console.error('Places API error:', response.status);
+      const errorText = await response.text();
+      console.error('❌ Places API error:', response.status, errorText);
       return null;
     }
 
     const data = await response.json();
     const places = data.places || [];
 
+    console.log(`🔍 Checked location (${lat.toFixed(4)}, ${lng.toFixed(4)}): Found ${places.length} results`);
+
     // Find rank of target business
     for (let i = 0; i < places.length; i++) {
       if (places[i].id === targetPlaceId || 
           places[i].displayName?.text?.toLowerCase().includes(businessName.toLowerCase())) {
+        console.log(`✅ Found business "${businessName}" at rank ${i + 1}`);
         return i + 1; // Rank (1-indexed)
       }
     }
 
+    console.log(`⚠️ Business "${businessName}" not found in top ${places.length} results`);
     return null; // Not found in top 20
   } catch (error) {
-    console.error('Ranking check failed:', error);
+    console.error('❌ Ranking check failed:', error);
     return null;
   }
 }
