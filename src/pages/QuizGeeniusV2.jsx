@@ -254,7 +254,7 @@ export default function QuizGeeniusV2() {
             <div className="max-w-2xl mx-auto text-center space-y-3">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <img 
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/44d29a024_542a98412_Screenshot2026-01-28at82831PM-removebg-preview1.png" 
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/2f56189cf_Gemini_Generated_Image_yyfn0byyfn0byyfn-removebg-preview.png" 
                   alt="Foxy Mascot" 
                   className="w-16 h-16 sm:w-20 sm:h-20 object-contain"
                 />
@@ -304,7 +304,7 @@ export default function QuizGeeniusV2() {
                 >
                   <div className="flex items-center justify-center gap-2 mb-4">
                     <motion.img
-                      src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/44d29a024_542a98412_Screenshot2026-01-28at82831PM-removebg-preview1.png"
+                      src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/2f56189cf_Gemini_Generated_Image_yyfn0byyfn0byyfn-removebg-preview.png"
                       alt="Foxy Mascot"
                       animate={{ rotate: [0, 10, -10, 0] }}
                       transition={{ duration: 2, repeat: Infinity }}
@@ -518,7 +518,7 @@ export default function QuizGeeniusV2() {
                       <div className="relative bg-gradient-to-r from-[#c8ff00] via-[#00ff88] to-[#c8ff00] p-1 rounded-2xl">
                         <div className="bg-gray-900 rounded-xl p-8 sm:p-12 text-center">
                           <motion.img
-                            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/44d29a024_542a98412_Screenshot2026-01-28at82831PM-removebg-preview1.png"
+                            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/2f56189cf_Gemini_Generated_Image_yyfn0byyfn0byyfn-removebg-preview.png"
                             alt="Foxy Mascot"
                             animate={{ y: [0, -10, 0] }}
                             transition={{ duration: 2, repeat: Infinity }}
