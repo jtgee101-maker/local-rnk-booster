@@ -340,7 +340,7 @@ export default function QuizGeeniusV2() {
                             { name: 'Competitor C', rating: 4.4, reviewCount: 65, photoCount: 18, postFrequency: 2, responseRate: 70 },
                           ],
                         }}
-                        businessName={leadData?.business_name}
+                        businessName={formData?.business_name}
                       />
 
                       <InteractiveROICalculator revenueData={auditData.revenue} />
