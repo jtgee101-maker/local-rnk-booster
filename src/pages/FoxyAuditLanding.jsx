@@ -521,8 +521,8 @@ export default function FoxyAuditLanding() {
                 />
               </motion.div>
               
-              <h2 className="text-4xl sm:text-5xl font-black mb-6">
-                Ready to Stop <span className="text-red-400">Bleeding Revenue?</span>
+              <h2 className="text-4xl sm:text-5xl font-black mb-6 bg-gradient-to-r from-[#c8ff00] via-[#d4ff33] to-[#c8ff00] bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(200,255,0,0.5)]">
+                Ready to Stop <span className="text-red-400 font-extrabold drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]">Bleeding Revenue?</span>
               </h2>
               
               <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
