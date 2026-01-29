@@ -21,9 +21,6 @@ export default function RevenueLeakCalculator({ revenueData }) {
     monthlySearchVolume = 0
   } = revenueData;
 
-  const monthlyLoss = monthlyOpportunity;
-  const annualLoss = annualOpportunity;
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -54,7 +51,7 @@ export default function RevenueLeakCalculator({ revenueData }) {
             >
               <DollarSign className="w-10 h-10 text-red-400 mx-auto mb-2" />
               <div className="text-5xl font-black text-red-400 mb-1">
-                ${monthlyLoss.toLocaleString()}
+                ${monthlyOpportunity.toLocaleString()}
               </div>
               <p className="text-gray-200 font-medium text-base">Lost per Month</p>
               <p className="text-gray-400 text-sm mt-2">
@@ -70,7 +67,7 @@ export default function RevenueLeakCalculator({ revenueData }) {
             >
               <TrendingUp className="w-10 h-10 text-orange-400 mx-auto mb-2" />
               <div className="text-5xl font-black text-orange-400 mb-1">
-                ${annualLoss.toLocaleString()}
+                ${annualOpportunity.toLocaleString()}
               </div>
               <p className="text-gray-200 font-medium text-base">Lost per Year</p>
               <p className="text-gray-400 text-sm mt-2">
@@ -203,15 +200,15 @@ export default function RevenueLeakCalculator({ revenueData }) {
               <div>
                 <h4 className="text-white font-bold mb-1">🦊 Foxy's Unified Economic Loss Model</h4>
                 <p className="text-gray-300 text-sm leading-relaxed mb-2">
-                  {foxyInsight || `Every hour you stay at rank #${currentRank}, you're losing approximately $${Math.round(monthlyLoss / 30 / 24)} to competitors.`}
+                  {foxyInsight || `Every hour you stay at rank #${currentRank}, you're losing approximately $${Math.round(monthlyOpportunity / 30 / 24)} to competitors.`}
                 </p>
                 <div className="bg-gray-900/50 rounded-lg p-3 mt-3">
                   <div className="text-gray-400 text-xs mb-1">Hourly Revenue Leak:</div>
                   <div className="text-[#c8ff00] text-2xl font-bold">
-                    ${Math.round(monthlyLoss / 30 / 24)}/hour
+                    ${Math.round(monthlyOpportunity / 30 / 24)}/hour
                   </div>
                   <p className="text-gray-500 text-xs mt-1">
-                    That's ${Math.round(monthlyLoss / 30)}/day • ${monthlyLoss.toLocaleString()}/month
+                    That's ${Math.round(monthlyOpportunity / 30)}/day • ${monthlyOpportunity.toLocaleString()}/month
                   </p>
                 </div>
               </div>

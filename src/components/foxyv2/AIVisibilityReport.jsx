@@ -12,7 +12,10 @@ export default function AIVisibilityReport({ aiData }) {
     overallScore = 0, 
     platforms = {}, 
     summary = { foundIn: 0, totalPlatforms: 6, averageRank: 'N/A', trustScore: 0 },
-    recommendations = []
+    recommendations = [],
+    entityDensity,
+    answerReadiness,
+    expertCitations
   } = aiData;
 
   // Convert platforms object to array
@@ -183,64 +186,64 @@ export default function AIVisibilityReport({ aiData }) {
           )}
 
           {/* AEO Metrics (NEW) */}
-          {aiData.entityDensity && (
+          {entityDensity && (
             <div className="bg-gradient-to-br from-purple-500/20 to-purple-500/5 border-2 border-purple-500/40 rounded-xl p-5">
               <h4 className="text-white font-bold text-base mb-3 flex items-center gap-2">
                 🧬 Entity Density Score
               </h4>
-              <p className="text-gray-200 text-sm mb-4 leading-relaxed">{aiData.entityDensity.message}</p>
+              <p className="text-gray-200 text-sm mb-4 leading-relaxed">{entityDensity.message}</p>
               <div className="space-y-3">
                 <div className="bg-gray-900/50 rounded-lg p-3 border border-green-500/30">
                   <div className="text-green-300 text-xs font-medium mb-1">Found on:</div>
-                  <div className="text-green-400 font-bold">{aiData.entityDensity.foundOn?.join(', ') || 'None'}</div>
+                  <div className="text-green-400 font-bold">{entityDensity.foundOn?.join(', ') || 'None'}</div>
                 </div>
-                {aiData.entityDensity.missingFrom?.length > 0 && (
+                {entityDensity.missingFrom?.length > 0 && (
                   <div className="bg-gray-900/50 rounded-lg p-3 border border-red-500/30">
                     <div className="text-red-300 text-xs font-medium mb-1">Missing from:</div>
-                    <div className="text-red-400 font-bold">{aiData.entityDensity.missingFrom.slice(0, 2).join(', ')}</div>
+                    <div className="text-red-400 font-bold">{entityDensity.missingFrom.slice(0, 2).join(', ')}</div>
                   </div>
                 )}
               </div>
-              <Badge className={`mt-4 text-base px-4 py-1.5 ${aiData.entityDensity.score >= 80 ? 'bg-green-500' : 'bg-red-500'} text-white font-bold`}>
-                {Math.round(aiData.entityDensity.score)}% Entity Confidence
+              <Badge className={`mt-4 text-base px-4 py-1.5 ${entityDensity.score >= 80 ? 'bg-green-500' : 'bg-red-500'} text-white font-bold`}>
+                {Math.round(entityDensity.score)}% Entity Confidence
               </Badge>
             </div>
           )}
 
-          {aiData.answerReadiness && (
+          {answerReadiness && (
             <div className="bg-gradient-to-br from-green-500/20 to-green-500/5 border-2 border-green-500/40 rounded-xl p-5">
               <h4 className="text-white font-bold text-base mb-3 flex items-center gap-2">
                 💬 Answer-First Extraction
               </h4>
-              <p className="text-gray-200 text-sm mb-4 leading-relaxed">{aiData.answerReadiness.message}</p>
+              <p className="text-gray-200 text-sm mb-4 leading-relaxed">{answerReadiness.message}</p>
               <div className="grid grid-cols-2 gap-3">
-                <div className={`bg-gray-900/50 rounded-lg p-3 border ${aiData.answerReadiness.hasQA ? 'border-green-500/40' : 'border-red-500/40'}`}>
-                  {aiData.answerReadiness.hasQA ? <CheckCircle className="w-5 h-5 text-green-400 mb-1" /> : <XCircle className="w-5 h-5 text-red-400 mb-1" />}
+                <div className={`bg-gray-900/50 rounded-lg p-3 border ${answerReadiness.hasQA ? 'border-green-500/40' : 'border-red-500/40'}`}>
+                  {answerReadiness.hasQA ? <CheckCircle className="w-5 h-5 text-green-400 mb-1" /> : <XCircle className="w-5 h-5 text-red-400 mb-1" />}
                   <div className="text-gray-200 font-medium text-sm">Q&A Section</div>
                 </div>
-                <div className={`bg-gray-900/50 rounded-lg p-3 border ${aiData.answerReadiness.hasConciseDesc ? 'border-green-500/40' : 'border-red-500/40'}`}>
-                  {aiData.answerReadiness.hasConciseDesc ? <CheckCircle className="w-5 h-5 text-green-400 mb-1" /> : <XCircle className="w-5 h-5 text-red-400 mb-1" />}
+                <div className={`bg-gray-900/50 rounded-lg p-3 border ${answerReadiness.hasConciseDesc ? 'border-green-500/40' : 'border-red-500/40'}`}>
+                  {answerReadiness.hasConciseDesc ? <CheckCircle className="w-5 h-5 text-green-400 mb-1" /> : <XCircle className="w-5 h-5 text-red-400 mb-1" />}
                   <div className="text-gray-200 font-medium text-sm">Concise Descriptions</div>
                 </div>
               </div>
             </div>
           )}
 
-          {aiData.expertCitations && (
+          {expertCitations && (
             <div className="bg-gradient-to-br from-orange-500/20 to-orange-500/5 border-2 border-orange-500/40 rounded-xl p-5">
               <h4 className="text-white font-bold text-base mb-3 flex items-center gap-2">
                 🏆 Expert Citation Opportunities
               </h4>
-              <p className="text-gray-200 text-sm mb-4 leading-relaxed">{aiData.expertCitations.message}</p>
+              <p className="text-gray-200 text-sm mb-4 leading-relaxed">{expertCitations.message}</p>
               <div className="space-y-2">
                 <div className="bg-gray-900/50 rounded-lg p-3 border border-green-500/30">
                   <div className="text-green-300 text-xs font-medium mb-1">Found in:</div>
-                  <div className="text-green-400 font-bold">{aiData.expertCitations.foundIn?.join(', ') || 'None'}</div>
+                  <div className="text-green-400 font-bold">{expertCitations.foundIn?.join(', ') || 'None'}</div>
                 </div>
-                {aiData.expertCitations.missingFrom?.length > 0 && (
+                {expertCitations.missingFrom?.length > 0 && (
                   <div className="bg-gray-900/50 rounded-lg p-3 border border-red-500/30">
                     <div className="text-red-300 text-xs font-medium mb-1">Missing from:</div>
-                    <div className="text-red-400 font-bold">{aiData.expertCitations.missingFrom.join(', ')}</div>
+                    <div className="text-red-400 font-bold">{expertCitations.missingFrom.join(', ')}</div>
                   </div>
                 )}
               </div>
@@ -263,15 +266,15 @@ export default function AIVisibilityReport({ aiData }) {
                   <ul className="text-sm text-gray-200 space-y-2">
                     <li className="flex items-start gap-2">
                       <span className="text-[#c8ff00] flex-shrink-0">✓</span>
-                      <span><span className="font-bold">Entity Density:</span> Present on {aiData.entityDensity?.foundOn?.length || 0} platforms</span>
+                      <span><span className="font-bold">Entity Density:</span> Present on {entityDensity?.foundOn?.length || 0} platforms</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-[#c8ff00] flex-shrink-0">✓</span>
-                      <span><span className="font-bold">Answer-Ready:</span> {aiData.answerReadiness?.score || 0}% extraction readiness</span>
+                      <span><span className="font-bold">Answer-Ready:</span> {answerReadiness?.score || 0}% extraction readiness</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-[#c8ff00] flex-shrink-0">✓</span>
-                      <span><span className="font-bold">Expert Citations:</span> Found in {aiData.expertCitations?.foundIn?.length || 0} sources</span>
+                      <span><span className="font-bold">Expert Citations:</span> Found in {expertCitations?.foundIn?.length || 0} sources</span>
                     </li>
                   </ul>
                 </div>

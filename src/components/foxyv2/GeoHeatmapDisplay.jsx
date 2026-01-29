@@ -14,7 +14,10 @@ export default function GeoHeatmapDisplay({ heatmapData }) {
     averageRank = 0, 
     strongZones = 0, 
     weakZones = 0, 
-    recommendations = [] 
+    recommendations = [],
+    proximityLeaks,
+    competitorGaps,
+    engagementAnalysis
   } = heatmapData;
 
   return (
@@ -111,7 +114,7 @@ export default function GeoHeatmapDisplay({ heatmapData }) {
           )}
 
           {/* Proximity Leaks & Competitor Analysis */}
-          {heatmapData.proximityLeaks && heatmapData.proximityLeaks.length > 0 && (
+          {proximityLeaks && proximityLeaks.length > 0 && (
             <div className="bg-gradient-to-br from-red-500/20 to-red-500/5 border-2 border-red-500/40 rounded-xl p-5">
               <h4 className="text-white font-bold text-base mb-3 flex items-center gap-2">
                 🚨 Proximity Leaks Detected
@@ -120,7 +123,7 @@ export default function GeoHeatmapDisplay({ heatmapData }) {
                 You're ranking poorly within 1 mile of your location—competitors have better prominence signals
               </p>
               <div className="space-y-2">
-                {heatmapData.proximityLeaks.slice(0, 3).map((leak, idx) => (
+                {proximityLeaks.slice(0, 3).map((leak, idx) => (
                   <div key={idx} className="bg-gray-900/50 rounded-lg p-3 flex items-center justify-between border border-red-500/30">
                     <span className="text-gray-200 font-medium">📍 {leak.distance} miles away</span>
                     <Badge className="bg-red-500 text-white font-bold">Rank #{leak.rank}</Badge>
@@ -130,15 +133,15 @@ export default function GeoHeatmapDisplay({ heatmapData }) {
             </div>
           )}
 
-          {heatmapData.competitorGaps && (
+          {competitorGaps && (
             <div className="bg-gradient-to-br from-blue-500/20 to-blue-500/5 border-2 border-blue-500/40 rounded-xl p-5">
               <h4 className="text-white font-bold text-base mb-3">🎯 Competitor Service Gaps</h4>
               <p className="text-gray-200 text-sm mb-3 leading-relaxed">
-                Competitors are listing {heatmapData.competitorGaps.totalServices} service types
+                Competitors are listing {competitorGaps.totalServices} service types
               </p>
-              {heatmapData.competitorGaps.serviceGaps && (
+              {competitorGaps.serviceGaps && (
                 <div className="flex flex-wrap gap-2">
-                  {heatmapData.competitorGaps.serviceGaps.map((service, idx) => (
+                  {competitorGaps.serviceGaps.map((service, idx) => (
                     <Badge key={idx} className="bg-blue-500/20 border border-blue-500/40 text-blue-200 text-sm">
                       {service}
                     </Badge>
@@ -148,19 +151,19 @@ export default function GeoHeatmapDisplay({ heatmapData }) {
             </div>
           )}
 
-          {heatmapData.engagementAnalysis && (
+          {engagementAnalysis && (
             <div className="bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 border-2 border-yellow-500/40 rounded-xl p-5">
               <h4 className="text-white font-bold text-base mb-3">💬 Engagement Signal Analysis</h4>
               <p className="text-gray-200 text-sm mb-4 leading-relaxed">
-                {heatmapData.engagementAnalysis.message}
+                {engagementAnalysis.message}
               </p>
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-gray-900/70 border border-green-500/30 rounded-lg p-4 text-center">
-                  <div className="text-green-400 font-black text-3xl mb-1">{heatmapData.engagementAnalysis.highEngagementZones}</div>
+                  <div className="text-green-400 font-black text-3xl mb-1">{engagementAnalysis.highEngagementZones}</div>
                   <div className="text-gray-300 text-sm font-medium">High Activity</div>
                 </div>
                 <div className="bg-gray-900/70 border border-blue-500/30 rounded-lg p-4 text-center">
-                  <div className="text-blue-400 font-black text-3xl mb-1">{heatmapData.engagementAnalysis.lowEngagementZones}</div>
+                  <div className="text-blue-400 font-black text-3xl mb-1">{engagementAnalysis.lowEngagementZones}</div>
                   <div className="text-gray-300 text-sm font-medium">Opportunity</div>
                 </div>
               </div>
