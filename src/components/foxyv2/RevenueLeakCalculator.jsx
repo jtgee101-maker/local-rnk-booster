@@ -8,6 +8,14 @@ import FoxyMascot from './FoxyMascot';
 export default function RevenueLeakCalculator({ revenueData }) {
   if (!revenueData) return null;
 
+  const monthlyOpportunity = revenueData.monthlyOpportunity || 0;
+  const annualOpportunity = revenueData.annualOpportunity || 0;
+  const currentRank = revenueData.currentRank || 10;
+  const targetRank = revenueData.targetRank || 1;
+  const currentCTR = revenueData.currentCTR || '0';
+  const targetCTR = revenueData.targetCTR || '0';
+  const rankBreakdown = revenueData.rankBreakdown || [];
+
   const monthlyLoss = revenueData.monthlyOpportunity || 0;
   const annualLoss = revenueData.annualOpportunity || 0;
   const currentRank = revenueData.currentRank || 9;

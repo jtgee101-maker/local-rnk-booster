@@ -8,6 +8,12 @@ import FoxyMascot from './FoxyMascot';
 export default function GeoHeatmapDisplay({ heatmapData }) {
   if (!heatmapData) return null;
 
+  const visibilityScore = heatmapData.visibilityScore || 0;
+  const strongZones = heatmapData.strongZones || 0;
+  const weakZones = heatmapData.weakZones || 0;
+  const averageRank = heatmapData.averageRank || 0;
+  const recommendations = heatmapData.recommendations || [];
+
   const { gridSize, visibilityScore, averageRank, strongZones, weakZones, recommendations } = heatmapData;
 
   return (
