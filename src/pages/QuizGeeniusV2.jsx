@@ -253,7 +253,11 @@ export default function QuizGeeniusV2() {
           <div className="relative z-10 pt-6 sm:pt-8 pb-4 px-4">
             <div className="max-w-2xl mx-auto text-center space-y-3">
               <div className="flex items-center justify-center gap-2 mb-2">
-                <span className="text-6xl">🦊</span>
+                <img 
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/542a98412_Screenshot2026-01-28at82831PM.png" 
+                  alt="Foxy Mascot" 
+                  className="w-16 h-16 sm:w-20 sm:h-20 object-contain"
+                />
                 <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white">
                   Foxy's <span className="text-[#c8ff00]">PathFinder</span>
                 </h1>
@@ -299,13 +303,13 @@ export default function QuizGeeniusV2() {
                   className="mb-8 text-center"
                 >
                   <div className="flex items-center justify-center gap-2 mb-4">
-                    <motion.span
+                    <motion.img
+                      src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/542a98412_Screenshot2026-01-28at82831PM.png"
+                      alt="Foxy Mascot"
                       animate={{ rotate: [0, 10, -10, 0] }}
                       transition={{ duration: 2, repeat: Infinity }}
-                      className="text-5xl"
-                    >
-                      🦊
-                    </motion.span>
+                      className="w-14 h-14 sm:w-16 sm:h-16 object-contain"
+                    />
                     <h2 className="text-3xl font-black text-white">
                       Foxy's <span className="text-[#c8ff00]">Deep Dive Audit</span>
                     </h2>
@@ -513,13 +517,13 @@ export default function QuizGeeniusV2() {
                       
                       <div className="relative bg-gradient-to-r from-[#c8ff00] via-[#00ff88] to-[#c8ff00] p-1 rounded-2xl">
                         <div className="bg-gray-900 rounded-xl p-8 sm:p-12 text-center">
-                          <motion.div
+                          <motion.img
+                            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/542a98412_Screenshot2026-01-28at82831PM.png"
+                            alt="Foxy Mascot"
                             animate={{ y: [0, -10, 0] }}
                             transition={{ duration: 2, repeat: Infinity }}
-                            className="text-7xl mb-6"
-                          >
-                            🦊
-                          </motion.div>
+                            className="w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-6 object-contain"
+                          />
                           
                           <h2 className="text-3xl sm:text-4xl font-black text-white mb-4">
                             Foxy's Ready to <span className="text-[#c8ff00]">Fix Everything</span>
