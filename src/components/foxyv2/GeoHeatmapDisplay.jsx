@@ -18,7 +18,7 @@ export default function GeoHeatmapDisplay({ heatmapData }) {
   
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY
   });
 
   console.log('🗺️ GeoHeatmapDisplay received data:', heatmapData);
