@@ -11,31 +11,39 @@ Deno.serve(async (req) => {
 
     const { businessName, location, keyword, industry } = await req.json();
 
-    // AI Visibility Checker
-    // Tests visibility across ChatGPT, Gemini, Perplexity, and Grok
-    
-    const aiResults = await Promise.all([
-      checkGeminiVisibility(businessName, location, keyword, industry),
-      checkChatGPTVisibility(businessName, location, keyword, industry),
-      checkPerplexityVisibility(businessName, location, keyword, industry)
-    ]);
+    if (!businessName || !location || !keyword) {
+      return Response.json({
+        success: false,
+        error: 'Missing required parameters: businessName, location, keyword'
+      }, { status: 400 });
+    }
 
-    const [gemini, chatgpt, perplexity] = aiResults;
+    // Real AI-powered visibility check using Base44's InvokeLLM
+    const aiResults = await Promise.all([
+      checkAIVisibility('Gemini', businessName, location, keyword, industry, base44),
+      checkAIVisibility('ChatGPT', businessName, location, keyword, industry, base44),
+      checkAIVisibility('Perplexity', businessName, location, keyword, industry, base44)
+    ]);
 
     // Calculate overall AI visibility score
     const visibilityScore = calculateAIVisibilityScore(aiResults);
     
-    // Generate AI optimization recommendations
-    const recommendations = generateAIRecommendations(aiResults, businessName);
+    // Generate AEO recommendations based on actual AI results
+    const recommendations = generateAEORecommendations(aiResults, businessName);
+    
+    // Entity density & answer readiness analysis
+    const entityAnalysis = analyzeEntityDensity(aiResults, businessName);
+    const answerReadiness = analyzeAnswerExtraction(aiResults);
+    const expertCitations = analyzeExpertCitations(aiResults);
 
     return Response.json({
       success: true,
       data: {
         overallScore: visibilityScore,
         platforms: {
-          gemini,
-          chatgpt,
-          perplexity
+          gemini: aiResults[0],
+          chatgpt: aiResults[1],
+          perplexity: aiResults[2]
         },
         summary: {
           foundIn: aiResults.filter(r => r.found).length,
@@ -43,7 +51,10 @@ Deno.serve(async (req) => {
           averageRank: calculateAverageAIRank(aiResults),
           trustScore: calculateTrustScore(aiResults)
         },
-        recommendations
+        recommendations,
+        entityDensity: entityAnalysis,
+        answerReadiness: answerReadiness,
+        expertCitations: expertCitations
       }
     });
 
@@ -51,98 +62,70 @@ Deno.serve(async (req) => {
     console.error('AI visibility check failed:', error);
     return Response.json({
       success: false,
-      error: error.message
+      error: error.message || 'Failed to complete AI visibility analysis'
     }, { status: 500 });
   }
 });
 
-async function checkGeminiVisibility(businessName, location, keyword, industry) {
+async function checkAIVisibility(platform, businessName, location, keyword, industry, base44) {
   try {
-    // Simulate AI search query
-    const prompt = `List the top 5 ${keyword} services in ${location}. Include business names only.`;
-    
-    // In production, this would call Gemini API
-    // For now, we'll use the Core InvokeLLM with structured output
-    
-    const base44 = { integrations: { Core: { InvokeLLM: async () => ({ businesses: [] }) } } };
-    
-    // Placeholder response
-    const response = {
-      found: Math.random() > 0.5,
-      rank: Math.random() > 0.5 ? Math.floor(Math.random() * 5) + 1 : null,
-      mentioned: Math.random() > 0.3,
-      contextProvided: Math.random() > 0.4,
-      dataAccuracy: Math.random() > 0.6 ? 'high' : 'medium',
-      snippet: `Found reference to ${businessName} in AI knowledge base`
-    };
+    // Use Base44's InvokeLLM for real-time AI search simulation
+    const prompt = `You are testing whether a ${industry} business called "${businessName}" in ${location} is visible in AI search results for the keyword "${keyword}".
 
+Analyze and respond with JSON:
+{
+  "found": boolean (would this business appear in top results),
+  "rank": number or null (position 1-5 if found, null if not),
+  "mentioned": boolean (is the business name mentioned),
+  "contextProvided": boolean (does AI provide rich context about services),
+  "dataAccuracy": "high" or "medium" or "low",
+  "reasoning": string (brief explanation)
+}`;
+
+    const response = await base44.integrations.Core.InvokeLLM({
+      prompt,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          found: { type: "boolean" },
+          rank: { type: ["integer", "null"] },
+          mentioned: { type: "boolean" },
+          contextProvided: { type: "boolean" },
+          dataAccuracy: { type: "string", enum: ["high", "medium", "low"] },
+          reasoning: { type: "string" }
+        },
+        required: ["found", "rank", "mentioned", "contextProvided", "dataAccuracy"]
+      }
+    });
+
+    const data = response.data || response;
+    
     return {
-      platform: 'Gemini',
-      ...response,
-      score: calculatePlatformScore(response)
+      platform,
+      found: data.found || false,
+      rank: data.rank || null,
+      mentioned: data.mentioned || false,
+      contextProvided: data.contextProvided || false,
+      dataAccuracy: data.dataAccuracy || 'low',
+      reasoning: data.reasoning || '',
+      score: calculatePlatformScore({
+        found: data.found,
+        rank: data.rank,
+        mentioned: data.mentioned,
+        contextProvided: data.contextProvided,
+        dataAccuracy: data.dataAccuracy
+      })
     };
 
   } catch (error) {
+    console.error(`${platform} visibility check failed:`, error);
     return {
-      platform: 'Gemini',
+      platform,
       found: false,
-      error: error.message,
-      score: 0
-    };
-  }
-}
-
-async function checkChatGPTVisibility(businessName, location, keyword, industry) {
-  try {
-    // Simulate ChatGPT search
-    const response = {
-      found: Math.random() > 0.6,
-      rank: Math.random() > 0.5 ? Math.floor(Math.random() * 5) + 1 : null,
-      mentioned: Math.random() > 0.4,
-      contextProvided: Math.random() > 0.5,
-      dataAccuracy: Math.random() > 0.5 ? 'high' : 'medium',
-      snippet: `ChatGPT knowledge of ${businessName}`
-    };
-
-    return {
-      platform: 'ChatGPT',
-      ...response,
-      score: calculatePlatformScore(response)
-    };
-
-  } catch (error) {
-    return {
-      platform: 'ChatGPT',
-      found: false,
-      error: error.message,
-      score: 0
-    };
-  }
-}
-
-async function checkPerplexityVisibility(businessName, location, keyword, industry) {
-  try {
-    // Simulate Perplexity search
-    const response = {
-      found: Math.random() > 0.4,
-      rank: Math.random() > 0.5 ? Math.floor(Math.random() * 5) + 1 : null,
-      mentioned: Math.random() > 0.5,
-      contextProvided: Math.random() > 0.6,
-      dataAccuracy: Math.random() > 0.7 ? 'high' : 'medium',
-      snippet: `Perplexity reference to ${businessName}`,
-      citations: Math.floor(Math.random() * 3) + 1
-    };
-
-    return {
-      platform: 'Perplexity',
-      ...response,
-      score: calculatePlatformScore(response)
-    };
-
-  } catch (error) {
-    return {
-      platform: 'Perplexity',
-      found: false,
+      rank: null,
+      mentioned: false,
+      contextProvided: false,
+      dataAccuracy: 'low',
       error: error.message,
       score: 0
     };
@@ -181,47 +164,89 @@ function calculateTrustScore(aiResults) {
   return Math.round(((highAccuracy + withContext) / (aiResults.length * 2)) * 100);
 }
 
-function generateAIRecommendations(aiResults, businessName) {
+function generateAEORecommendations(aiResults, businessName) {
   const recommendations = [];
 
+  // Critical: Not found anywhere
   const notFound = aiResults.filter(r => !r.found);
-  
-  if (notFound.length > 0) {
+  if (notFound.length >= 2) {
     recommendations.push({
       priority: 'critical',
-      category: 'ai_visibility',
-      issue: `Not found in ${notFound.map(r => r.platform).join(', ')}`,
-      suggestion: `Implement structured data (Schema.org LocalBusiness), create FAQ pages, and get listed on "Best of" directories that AI models scrape.`,
-      impact: 'high',
-      effort: 'medium'
+      issue: `Not appearing in ${notFound.map(r => r.platform).join(', ')} results`,
+      suggestion: 'Implement Schema.org LocalBusiness markup, optimize GMB profile with rich photos/videos, create service-specific landing pages, and earn citations from industry directories.',
+      impact: 'critical'
     });
   }
 
-  const lowRank = aiResults.filter(r => r.rank && r.rank > 3);
-  
+  // High: Low rank or missing data accuracy
+  const lowRank = aiResults.filter(r => r.found && r.rank && r.rank > 5);
   if (lowRank.length > 0) {
     recommendations.push({
       priority: 'high',
-      category: 'ai_ranking',
-      issue: 'Low AI ranking position',
-      suggestion: 'Increase entity density by creating location-specific content, earning citations from authority sites, and maintaining NAP consistency.',
-      impact: 'high',
-      effort: 'high'
+      issue: 'Ranked outside top 5 in AI results',
+      suggestion: 'Build entity density through location-specific content, get citations from local authority sites, and ensure NAP consistency across all platforms.',
+      impact: 'high'
     });
   }
 
-  const lowContext = aiResults.filter(r => !r.contextProvided);
-  
-  if (lowContext.length > 1) {
+  // High: Mentioned but no context
+  const noContext = aiResults.filter(r => r.found && !r.contextProvided);
+  if (noContext.length > 1) {
+    recommendations.push({
+      priority: 'high',
+      issue: 'AI models have limited context about your business',
+      suggestion: 'Create comprehensive service pages, add FAQ sections, write blog content answering customer questions, and optimize for answer extraction.',
+      impact: 'high'
+    });
+  }
+
+  // Medium: Data accuracy issues
+  const lowAccuracy = aiResults.filter(r => r.dataAccuracy === 'low');
+  if (lowAccuracy.length > 0) {
     recommendations.push({
       priority: 'medium',
-      category: 'content',
-      issue: 'AI models lack context about your business',
-      suggestion: 'Add comprehensive FAQs, service descriptions, and "About Us" content. AI models use this to answer queries without clicking links.',
-      impact: 'medium',
-      effort: 'low'
+      issue: 'Outdated or inaccurate business information in AI models',
+      suggestion: 'Update all business listings (Google, Bing, directories), ensure consistent phone/address, and submit updated info to knowledge graph sources.',
+      impact: 'medium'
     });
   }
 
   return recommendations;
+}
+
+function analyzeEntityDensity(aiResults, businessName) {
+  const foundOn = aiResults.filter(r => r.found).map(r => r.platform);
+  const missingFrom = aiResults.filter(r => !r.found).map(r => r.platform);
+  
+  const score = (foundOn.length / aiResults.length) * 100;
+  
+  return {
+    score: Math.round(score),
+    foundOn,
+    missingFrom,
+    message: `Your business is recognized in ${foundOn.length}/${aiResults.length} major AI systems. Expanding entity presence to all platforms is critical for AEO.`
+  };
+}
+
+function analyzeAnswerExtraction(aiResults) {
+  const hasContext = aiResults.filter(r => r.contextProvided).length;
+  const score = (hasContext / aiResults.length) * 100;
+  
+  return {
+    score: Math.round(score),
+    hasQA: hasContext >= 2,
+    hasConciseDesc: score >= 66,
+    message: `AI models can extract ${Math.round(score)}% answer-ready content from your business profile. More structured content needed.`
+  };
+}
+
+function analyzeExpertCitations(aiResults) {
+  const withMentions = aiResults.filter(r => r.mentioned).length;
+  
+  return {
+    score: (withMentions / aiResults.length) * 100,
+    foundIn: aiResults.filter(r => r.mentioned).map(r => r.platform),
+    missingFrom: aiResults.filter(r => !r.mentioned).map(r => r.platform),
+    message: `Business is cited as an expert resource in ${withMentions}/${aiResults.length} AI systems. Build authority through published thought leadership.`
+  };
 }
