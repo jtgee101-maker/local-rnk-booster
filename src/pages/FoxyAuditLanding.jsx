@@ -18,6 +18,9 @@ import TrustBadges from '@/components/shared/TrustBadges';
 import ScarcityTimer from '@/components/shared/ScarcityTimer';
 import GuaranteeSection from '@/components/shared/GuaranteeSection';
 import TrustLogos from '@/components/shared/TrustLogos';
+import FAQAccordion from '@/components/shared/FAQAccordion';
+import ComparisonTable from '@/components/shared/ComparisonTable';
+import VideoTestimonial from '@/components/shared/VideoTestimonial';
 
 export default function FoxyAuditLanding() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
@@ -535,23 +538,32 @@ export default function FoxyAuditLanding() {
         </div>
       </section>
 
-      {/* Social Proof Section */}
-      <section className="py-20 px-4 bg-gradient-to-b from-transparent via-gray-900/50 to-transparent">
+      {/* Video Testimonials */}
+      <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-12"
           >
             <Badge className="bg-green-500/20 border-green-500/50 text-green-300 px-4 py-2 mb-4">
-              Trusted by Thousands
+              Success Stories
             </Badge>
-            <h2 className="text-4xl sm:text-5xl font-black mb-6">
-              Real Results from <span className="text-[#c8ff00]">Real Businesses</span>
+            <h2 className="text-3xl sm:text-4xl font-black text-white mb-4">
+              Real Business Owners. <span className="text-[#c8ff00]">Real Results.</span>
             </h2>
+            <p className="text-gray-400 text-lg">
+              See how Foxy helped local businesses dominate their markets
+            </p>
           </motion.div>
+          <VideoTestimonial variant="grid" />
+        </div>
+      </section>
 
+      {/* Social Proof Section */}
+      <section className="py-20 px-4 bg-gradient-to-b from-transparent via-gray-900/50 to-transparent">
+        <div className="max-w-7xl mx-auto">
           {/* Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
             {stats.map((stat, idx) => (
@@ -623,6 +635,13 @@ export default function FoxyAuditLanding() {
         </div>
       </section>
 
+      {/* Comparison Table */}
+      <section className="py-20 px-4">
+        <div className="max-w-7xl mx-auto">
+          <ComparisonTable />
+        </div>
+      </section>
+
       {/* Guarantee Section */}
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
@@ -630,53 +649,10 @@ export default function FoxyAuditLanding() {
         </div>
       </section>
 
-      {/* Objection Crusher */}
+      {/* FAQ Section */}
       <section className="py-20 px-4">
-        <div className="max-w-5xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-4xl sm:text-5xl font-black mb-6">
-              Why This is <span className="text-[#c8ff00]">Different</span> From Everything Else
-            </h2>
-          </motion.div>
-
-          <div className="space-y-4">
-            {[
-              {
-                question: "Is this really free?",
-                answer: "Yes, 100% free. No credit card, no trial, no catch. We built this to help local businesses discover the hidden money they're leaving on the table."
-              },
-              {
-                question: "How long does it take?",
-                answer: "60 seconds. Just enter your business name and Foxy does the rest. You'll get your complete audit instantly."
-              },
-              {
-                question: "Will this work for my industry?",
-                answer: "If you serve local customers and have a Google Business Profile, yes. We've helped plumbers, dentists, lawyers, contractors, and 100+ other industries."
-              },
-              {
-                question: "What makes Foxy AI different?",
-                answer: "Traditional GMB tools show surface-level metrics. Foxy actually tests your visibility from 20+ locations in your service area, analyzes 47 ranking factors, and calculates your exact revenue leak."
-              }
-            ].map((item, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
-              >
-                <Card className="bg-gradient-to-r from-gray-900 to-gray-800 border-2 border-gray-700 p-6 hover:border-[#c8ff00]/50 transition-all">
-                  <h3 className="text-[#c8ff00] font-bold text-lg mb-2">{item.question}</h3>
-                  <p className="text-gray-300 leading-relaxed">{item.answer}</p>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
+        <div className="max-w-7xl mx-auto">
+          <FAQAccordion />
         </div>
       </section>
 
