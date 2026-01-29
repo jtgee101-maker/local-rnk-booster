@@ -35,16 +35,16 @@ export default function ExpandableAuditSection({
       <Card className={`bg-gradient-to-br ${gradient} border-2 border-gray-700/50 overflow-hidden`}>
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full p-6 flex items-center justify-between hover:bg-gray-800/30 transition-all"
+          className="w-full p-4 sm:p-6 flex items-center justify-between hover:bg-gray-800/30 transition-all touch-manipulation"
         >
-          <div className="flex items-center gap-4">
-            <div className={`p-3 rounded-xl bg-${accentColor}/10 border-2 border-${accentColor}/30`}>
-              <Icon className={`w-7 h-7 text-${accentColor}`} />
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+            <div className={`p-2 sm:p-3 rounded-xl bg-${accentColor}/10 border-2 border-${accentColor}/30 flex-shrink-0`}>
+              <Icon className={`w-5 sm:w-7 h-5 sm:h-7 text-${accentColor}`} />
             </div>
-            <div className="text-left">
-              <h3 className="text-white text-xl font-black">{title}</h3>
-              <p className="text-gray-400 text-sm">
-                {isExpanded ? 'Click to collapse details' : 'Click to view full analysis'}
+            <div className="text-left min-w-0">
+              <h3 className="text-white text-lg sm:text-xl font-black truncate">{title}</h3>
+              <p className="text-gray-400 text-xs sm:text-sm hidden sm:block">
+                {isExpanded ? 'Click to collapse' : 'Click to view'}
               </p>
             </div>
           </div>
@@ -52,11 +52,12 @@ export default function ExpandableAuditSection({
           <motion.div
             animate={{ rotate: isExpanded ? 180 : 0 }}
             transition={{ duration: 0.3 }}
+            className="flex-shrink-0 ml-3"
           >
             {isExpanded ? (
-              <ChevronUp className={`w-6 h-6 text-${accentColor}`} />
+              <ChevronUp className={`w-5 sm:w-6 h-5 sm:h-6 text-${accentColor}`} />
             ) : (
-              <ChevronDown className="w-6 h-6 text-gray-400" />
+              <ChevronDown className="w-5 sm:w-6 h-5 sm:h-6 text-gray-400" />
             )}
           </motion.div>
         </button>
@@ -69,8 +70,8 @@ export default function ExpandableAuditSection({
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <CardContent className="pt-0 pb-6 px-6">
-                <div className="border-t border-gray-700/50 pt-6">
+              <CardContent className="pt-0 pb-4 sm:pb-6 px-4 sm:px-6">
+                <div className="border-t border-gray-700/50 pt-4 sm:pt-6">
                   {isLoading ? (
                     <div className="flex items-center justify-center py-12">
                       <Loader2 className="w-8 h-8 text-[#c8ff00] animate-spin" />
