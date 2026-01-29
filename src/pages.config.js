@@ -93,6 +93,7 @@ import ProductionLaunchChecklist from './pages/ProductionLaunchChecklist';
 import ProductionReadinessCheck from './pages/ProductionReadinessCheck';
 import Quiz from './pages/Quiz';
 import QuizGeenius from './pages/QuizGeenius';
+import QuizGeeniusV2 from './pages/QuizGeeniusV2';
 import QuizV2 from './pages/QuizV2';
 import QuizV3 from './pages/QuizV3';
 import RealEstateLanding from './pages/RealEstateLanding';
@@ -112,7 +113,6 @@ import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import UserJourneyTest from './pages/UserJourneyTest';
 import V2Start from './pages/V2Start';
-import QuizGeeniusV2 from './pages/QuizGeeniusV2';
 import __Layout from './Layout.jsx';
 
 
@@ -163,6 +163,7 @@ export const PAGES = {
     "ProductionReadinessCheck": ProductionReadinessCheck,
     "Quiz": Quiz,
     "QuizGeenius": QuizGeenius,
+    "QuizGeeniusV2": QuizGeeniusV2,
     "QuizV2": QuizV2,
     "QuizV3": QuizV3,
     "RealEstateLanding": RealEstateLanding,
@@ -182,7 +183,6 @@ export const PAGES = {
     "Upsell1": Upsell1,
     "UserJourneyTest": UserJourneyTest,
     "V2Start": V2Start,
-    "QuizGeeniusV2": QuizGeeniusV2,
 }
 
 export const pagesConfig = {

@@ -22,6 +22,9 @@ import FoxyHealthScore from '@/components/foxyv2/FoxyHealthScore';
 import RevenueLeakCalculator from '@/components/foxyv2/RevenueLeakCalculator';
 import GeoHeatmapDisplay from '@/components/foxyv2/GeoHeatmapDisplay';
 import AIVisibilityReport from '@/components/foxyv2/AIVisibilityReport';
+import CompetitorComparison from '@/components/foxyv2/CompetitorComparison';
+import ActionRoadmap from '@/components/foxyv2/ActionRoadmap';
+import InteractiveROICalculator from '@/components/foxyv2/InteractiveROICalculator';
 
 export default function QuizGeeniusV2() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -307,6 +310,43 @@ export default function QuizGeeniusV2() {
 
                   {(auditStage === 'ai' || auditStage === 'complete') && auditData.ai && (
                     <AIVisibilityReport aiData={auditData.ai} />
+                  )}
+
+                  {/* Competitive Intelligence */}
+                  {auditStage === 'complete' && (
+                    <>
+                      <CompetitorComparison
+                        competitorData={{
+                          yourBusiness: {
+                            rating: auditData.health?.scoreBreakdown?.reviewVelocity?.value || 4.5,
+                            reviewCount: auditData.health?.scoreBreakdown?.reviewVelocity?.value * 20 || 50,
+                            photoCount: auditData.health?.scoreBreakdown?.visualFreshness?.value || 15,
+                            postFrequency: 2,
+                            responseRate: 75,
+                            marketRank: Math.ceil(auditData.heatmap?.averageRank || 7),
+                            advantages: [
+                              'Higher average rating than competitors',
+                              'Faster response time to customer inquiries',
+                            ],
+                            gaps: [
+                              'Fewer reviews than top 3 competitors',
+                              'Less frequent GMB posts',
+                              'Missing AI optimization signals',
+                            ],
+                          },
+                          competitors: [
+                            { name: 'Competitor A', rating: 4.8, reviewCount: 120, photoCount: 30, postFrequency: 4, responseRate: 90 },
+                            { name: 'Competitor B', rating: 4.6, reviewCount: 85, photoCount: 22, postFrequency: 3, responseRate: 80 },
+                            { name: 'Competitor C', rating: 4.4, reviewCount: 65, photoCount: 18, postFrequency: 2, responseRate: 70 },
+                          ],
+                        }}
+                        businessName={leadData?.business_name}
+                      />
+
+                      <InteractiveROICalculator revenueData={auditData.revenue} />
+
+                      <ActionRoadmap auditData={auditData} />
+                    </>
                   )}
 
                   {/* Final CTA */}
