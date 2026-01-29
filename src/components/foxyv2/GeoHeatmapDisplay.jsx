@@ -16,9 +16,9 @@ export default function GeoHeatmapDisplay({ heatmapData }) {
   const [selectedNode, setSelectedNode] = useState(null);
   const [mapExpanded, setMapExpanded] = useState(false);
   
-  const { isLoaded } = useJsApiLoader({
+  const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: 'AIzaSyBK3VxZ4dqZW9Iq5RnL7_DnBUQkXr3LXjY' // Using the GOOGLE_MAPS_API_KEY from env
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''
   });
 
   console.log('🗺️ GeoHeatmapDisplay received data:', heatmapData);
@@ -83,8 +83,15 @@ export default function GeoHeatmapDisplay({ heatmapData }) {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {/* Interactive Heatmap */}
-          {isLoaded && gridNodes.length > 0 && (
+           {/* Handle Map Load Error */}
+           {loadError && (
+             <div className="bg-red-500/20 border-2 border-red-500/40 rounded-xl p-5">
+               <p className="text-red-300">Map unavailable. Showing data overview instead.</p>
+             </div>
+           )}
+
+           {/* Interactive Heatmap */}
+           {isLoaded && !loadError && gridNodes.length > 0 && (
             <div className="relative">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-white font-bold text-lg">🗺️ Live Visibility Map</h4>
