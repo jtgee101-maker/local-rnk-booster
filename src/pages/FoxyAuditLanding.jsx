@@ -314,6 +314,121 @@ export default function FoxyAuditLanding() {
         </div>
       </section>
 
+      {/* Industries We Serve Section */}
+      <section className="py-20 px-4 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <Badge className="bg-[#c8ff00]/20 border-[#c8ff00]/50 text-[#c8ff00] px-4 py-2 mb-4">
+              Industries We Dominate
+            </Badge>
+            <h2 className="text-4xl sm:text-5xl font-black mb-6">
+              <span className="text-[#c8ff00]">Every Industry.</span> Every Neighborhood.<br />
+              <span className="text-white">Foxy Knows Your Business.</span>
+            </h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              From contractors to chiropractors, Foxy's trained to optimize visibility for your exact industry
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+            {[
+              {
+                name: "Contractors",
+                img: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/5621d14f6_image_4a6827e0-cd50-4185-bab5-fa7ecf3a2086-removebg-preview.png",
+                color: "from-yellow-500 to-orange-500"
+              },
+              {
+                name: "HVAC",
+                img: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/6e955e2a0_image_029b4f8a-3246-40dd-9195-7399d4682f28-removebg-preview.png",
+                color: "from-blue-500 to-cyan-500"
+              },
+              {
+                name: "Dentists",
+                img: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/14f08c7c1_image_b889927d-b8d1-4989-a178-a45db30b245a-removebg-preview.png",
+                color: "from-teal-500 to-emerald-500"
+              },
+              {
+                name: "Roofers",
+                img: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/d299082f2_image_e83e280e-f84a-465e-9658-b91853417110-removebg-preview.png",
+                color: "from-orange-500 to-red-500"
+              },
+              {
+                name: "Plumbers",
+                img: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/e0ae33ab6_image_1fa11bf0-524b-4495-8f41-041627a503bd-removebg-preview.png",
+                color: "from-blue-600 to-indigo-600"
+              },
+              {
+                name: "Auto Repair",
+                img: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/406283c2b_image_66e859df-3f63-4464-9522-a65fc0b499f9-removebg-preview.png",
+                color: "from-gray-600 to-gray-800"
+              },
+              {
+                name: "Landscaping",
+                img: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/d42bd0bf5_image_fcc179d7-2946-4786-8889-8798b0547c14-removebg-preview.png",
+                color: "from-green-500 to-lime-500"
+              },
+              {
+                name: "Chiropractors",
+                img: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/a92f5eaa6_image_e1e92fb4-0cac-4502-aab2-7966804f71ca-removebg-preview.png",
+                color: "from-purple-500 to-pink-500"
+              }
+            ].map((industry, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.05 }}
+                whileHover={{ scale: 1.05, y: -5 }}
+                className="group"
+              >
+                <Card className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border-2 border-gray-700 hover:border-[#c8ff00]/50 p-6 text-center transition-all h-full">
+                  <div className="relative mb-4">
+                    <motion.div 
+                      className={`absolute inset-0 bg-gradient-to-r ${industry.color} rounded-full blur-2xl opacity-0 group-hover:opacity-40`}
+                      transition={{ duration: 0.3 }}
+                    />
+                    <img
+                      src={industry.img}
+                      alt={industry.name}
+                      className="w-32 h-32 mx-auto object-contain relative z-10 group-hover:scale-110 transition-transform duration-300"
+                      style={{ filter: 'drop-shadow(0 0 15px rgba(200, 255, 0, 0.5))' }}
+                    />
+                  </div>
+                  <h3 className="text-white font-bold text-lg group-hover:text-[#c8ff00] transition-colors">
+                    {industry.name}
+                  </h3>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-center"
+          >
+            <p className="text-gray-300 text-lg mb-6">
+              <span className="text-[#c8ff00] font-bold">Plus 100+ more industries</span> including electricians, lawyers, restaurants, retail, and more
+            </p>
+            <Button
+              onClick={() => window.location.href = createPageUrl('QuizGeeniusV2')}
+              variant="outline"
+              className="border-2 border-[#c8ff00]/50 text-[#c8ff00] hover:bg-[#c8ff00]/10 font-bold"
+            >
+              See If We Serve Your Industry
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </motion.div>
+        </div>
+      </section>
+
       {/* What You Get Section */}
       <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
