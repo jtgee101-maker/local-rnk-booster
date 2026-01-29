@@ -21,6 +21,8 @@ import TrustLogos from '@/components/shared/TrustLogos';
 import FAQAccordion from '@/components/shared/FAQAccordion';
 import ComparisonTable from '@/components/shared/ComparisonTable';
 import VideoTestimonial from '@/components/shared/VideoTestimonial';
+import RemarketingPixels, { initializePixels, trackConversion } from '@/components/tracking/RemarketingPixels';
+import { CONVERSION_EVENTS } from '@/components/tracking/ConversionTracker';
 
 export default function FoxyAuditLanding() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
