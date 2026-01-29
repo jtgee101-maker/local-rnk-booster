@@ -44,8 +44,8 @@ export default function RevenueLeakCalculator({ revenueData }) {
               <div className="text-5xl font-black text-red-400 mb-1">
                 ${monthlyLoss.toLocaleString()}
               </div>
-              <p className="text-gray-400 text-sm">Lost per Month</p>
-              <p className="text-gray-500 text-xs mt-2">
+              <p className="text-gray-200 font-medium text-base">Lost per Month</p>
+              <p className="text-gray-400 text-sm mt-2">
                 Based on {revenueData.monthlySearchVolume?.toLocaleString()} monthly searches
               </p>
             </motion.div>
@@ -60,82 +60,120 @@ export default function RevenueLeakCalculator({ revenueData }) {
               <div className="text-5xl font-black text-orange-400 mb-1">
                 ${annualLoss.toLocaleString()}
               </div>
-              <p className="text-gray-400 text-sm">Lost per Year</p>
-              <p className="text-gray-500 text-xs mt-2">
+              <p className="text-gray-200 font-medium text-base">Lost per Year</p>
+              <p className="text-gray-400 text-sm mt-2">
                 Compounds over time as competitors strengthen
               </p>
             </motion.div>
           </div>
 
           {/* Current vs Target */}
-          <div className="bg-gray-900/50 rounded-xl p-6">
-            <h4 className="text-white font-semibold mb-4 flex items-center gap-2">
-              <Target className="w-5 h-5 text-[#c8ff00]" />
-              The Invisibility Gap
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 border-2 border-gray-700/50 rounded-xl p-6">
+            <h4 className="text-white font-bold text-lg mb-6 flex items-center gap-2">
+              <Target className="w-6 h-6 text-[#c8ff00]" />
+              The Visibility Gap
             </h4>
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <div className="text-gray-400 text-xs mb-1">Current Rank</div>
-                <div className="text-3xl font-bold text-red-400">#{currentRank}</div>
-                <div className="text-gray-500 text-xs mt-1">
+            <div className="grid grid-cols-3 gap-4 text-center items-center">
+              <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
+                <div className="text-gray-300 text-xs font-medium mb-2">Where You Are</div>
+                <div className="text-5xl font-black text-red-400 mb-2">#{currentRank}</div>
+                <div className="text-gray-400 text-sm font-medium">
                   {revenueData.currentCTR}% CTR
                 </div>
+                <div className="text-red-400 text-xs mt-2">🚫 Invisible to customers</div>
               </div>
               <div className="flex items-center justify-center">
-                <div className="text-[#c8ff00] text-2xl">→</div>
+                <motion.div
+                  animate={{ x: [0, 10, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                  className="text-[#c8ff00] text-4xl font-black"
+                >
+                  →
+                </motion.div>
               </div>
-              <div>
-                <div className="text-gray-400 text-xs mb-1">Target Rank</div>
-                <div className="text-3xl font-bold text-green-400">#1</div>
-                <div className="text-gray-500 text-xs mt-1">
+              <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4">
+                <div className="text-gray-300 text-xs font-medium mb-2">Where You Should Be</div>
+                <div className="text-5xl font-black text-green-400 mb-2">#1</div>
+                <div className="text-gray-400 text-sm font-medium">
                   {revenueData.targetCTR}% CTR
                 </div>
+                <div className="text-green-400 text-xs mt-2">✅ Maximum visibility</div>
               </div>
             </div>
           </div>
 
           {/* Rank Improvement Breakdown */}
           {revenueData.rankBreakdown && revenueData.rankBreakdown.length > 0 && (
-            <div className="space-y-2">
-              <h4 className="text-white font-semibold text-sm">Revenue by Rank Improvement</h4>
-              {revenueData.rankBreakdown.slice(0, 5).map((rank) => (
-                <div
+            <div className="space-y-3">
+              <h4 className="text-white font-bold text-lg flex items-center gap-2">
+                📈 Revenue Growth Potential
+              </h4>
+              {revenueData.rankBreakdown.slice(0, 5).map((rank, idx) => (
+                <motion.div
                   key={rank.rank}
-                  className="flex items-center justify-between bg-gray-900/30 rounded-lg p-3"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="bg-gradient-to-r from-gray-900/80 to-gray-800/50 border border-gray-700/50 rounded-xl p-4 hover:border-[#c8ff00]/30 transition-all"
                 >
-                  <div className="flex items-center gap-3">
-                    <Badge variant="outline" className="text-xs">Rank #{rank.rank}</Badge>
-                    <span className="text-gray-400 text-sm">{rank.ctr}% CTR</span>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-[#c8ff00] font-bold">
-                      +${rank.monthlyRevenue.toLocaleString()}/mo
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="bg-gradient-to-br from-[#c8ff00]/20 to-green-500/20 border border-[#c8ff00]/30 rounded-lg px-3 py-2">
+                        <div className="text-[#c8ff00] font-black text-xl">#{rank.rank}</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-200 font-medium text-sm">Move to Rank #{rank.rank}</div>
+                        <div className="text-gray-400 text-xs">{rank.ctr}% click-through rate</div>
+                      </div>
                     </div>
-                    <div className="text-gray-500 text-xs">
-                      ${rank.annualRevenue.toLocaleString()}/yr
+                    <div className="text-right">
+                      <div className="text-[#c8ff00] font-black text-xl">
+                        +${rank.monthlyRevenue.toLocaleString()}
+                      </div>
+                      <div className="text-gray-400 text-xs">
+                        ${rank.annualRevenue.toLocaleString()}/year
+                      </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}
 
           {/* Loss Breakdown (NEW) */}
           {revenueData.lossBreakdown && (
-            <div className="bg-gray-900/50 rounded-xl p-4 space-y-3">
-              <h4 className="text-white font-semibold">📊 Revenue Loss Breakdown</h4>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between p-3 bg-red-500/10 rounded-lg">
-                  <span className="text-gray-300 text-sm">Ranking Position Loss</span>
-                  <span className="text-red-400 font-bold">${revenueData.lossBreakdown.rankingLoss.toLocaleString()}/mo</span>
+            <div className="bg-gradient-to-br from-gray-900 to-gray-800 border-2 border-gray-700/50 rounded-xl p-6 space-y-4">
+              <h4 className="text-white font-bold text-lg flex items-center gap-2">
+                📊 Where Your Revenue is Bleeding
+              </h4>
+              <div className="space-y-3">
+                <div className="bg-gradient-to-r from-red-500/20 to-red-500/10 border border-red-500/40 rounded-xl p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-red-300 font-semibold text-sm mb-1">Ranking Position Loss</div>
+                      <div className="text-gray-400 text-xs">Not appearing in top 3 map pack results</div>
+                    </div>
+                    <div className="text-red-400 font-black text-2xl">
+                      ${revenueData.lossBreakdown.rankingLoss.toLocaleString()}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-orange-500/10 rounded-lg">
-                  <span className="text-gray-300 text-sm">AI Visibility Loss</span>
-                  <span className="text-orange-400 font-bold">${revenueData.lossBreakdown.aiVisibilityLoss.toLocaleString()}/mo</span>
+                <div className="bg-gradient-to-r from-orange-500/20 to-orange-500/10 border border-orange-500/40 rounded-xl p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-orange-300 font-semibold text-sm mb-1">AI Visibility Loss</div>
+                      <div className="text-gray-400 text-xs">Missing from ChatGPT, Gemini recommendations</div>
+                    </div>
+                    <div className="text-orange-400 font-black text-2xl">
+                      ${revenueData.lossBreakdown.aiVisibilityLoss.toLocaleString()}
+                    </div>
+                  </div>
                 </div>
-                <div className="text-xs text-gray-500 pt-2">
-                  ⚠️ AI Overviews appear in {revenueData.lossBreakdown.aiOverviewRate} of searches, 
-                  capturing traffic before organic results
+                <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3">
+                  <div className="text-xs text-gray-300 leading-relaxed">
+                    ⚠️ <span className="text-[#c8ff00] font-bold">{revenueData.lossBreakdown.aiOverviewRate}</span> of searches 
+                    now show AI Overviews that capture clicks <span className="text-red-400 font-bold">before</span> organic results ever appear
+                  </div>
                 </div>
               </div>
             </div>
