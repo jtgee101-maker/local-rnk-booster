@@ -15,8 +15,7 @@ const features = [
   { name: 'Review Management', foxy: true, diy: 'manual', agency: true },
   { name: 'Citation Building', foxy: true, diy: 'hours', agency: true },
   { name: 'AI Content Generation', foxy: true, diy: false, agency: false },
-  { name: 'Real-time Monitoring', foxy: true, diy: false, agency: 'partial' },
-  { name: 'Monthly Investment', foxy: '$497', diy: 'Free (time)', agency: '$1,500+' }
+  { name: 'Real-time Monitoring', foxy: true, diy: false, agency: 'partial' }
 ];
 
 const CheckIcon = ({ value, isHighlight = false }) => {
@@ -161,26 +160,6 @@ export default function ComparisonTable() {
         <div className="h-2 bg-gradient-to-r from-[#c8ff00] via-[#00ff88] to-[#c8ff00]" />
       </Card>
       </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        className="mt-8 grid md:grid-cols-3 gap-4"
-      >
-        <Card className="bg-gradient-to-br from-[#c8ff00]/10 to-gray-900 border-[#c8ff00]/30 p-6 text-center">
-          <div className="text-3xl font-black text-[#c8ff00] mb-2">$497/mo</div>
-          <div className="text-gray-400 text-sm">Foxy AI - All Included</div>
-        </Card>
-        <Card className="bg-gray-900 border-gray-800 p-6 text-center">
-          <div className="text-3xl font-black text-gray-500 mb-2">Free</div>
-          <div className="text-gray-400 text-sm">DIY - 20+ hrs/week</div>
-        </Card>
-        <Card className="bg-gray-900 border-gray-800 p-6 text-center">
-          <div className="text-3xl font-black text-gray-500 mb-2">$1,500+</div>
-          <div className="text-gray-400 text-sm">Agency - Monthly Retainer</div>
-        </Card>
-      </motion.div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
