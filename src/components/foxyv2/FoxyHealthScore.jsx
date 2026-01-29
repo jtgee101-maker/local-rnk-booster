@@ -131,27 +131,34 @@ export default function FoxyHealthScore({ scoreData, onRevealComplete }) {
               transition={{ delay: 0.5 }}
               className="space-y-3"
             >
+              <h4 className="text-white font-bold text-lg mb-3">Health Score Breakdown</h4>
               {Object.entries(scoreData.scoreBreakdown).map(([key, data], idx) => (
-                <div key={key} className="bg-gray-900/50 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-white font-medium capitalize">
+                <motion.div 
+                  key={key} 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 + idx * 0.1 }}
+                  className="bg-gradient-to-r from-gray-900 to-gray-800 border border-gray-700/50 rounded-xl p-5"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-white font-bold text-base capitalize">
                       {key.replace(/([A-Z])/g, ' $1').trim()}
                     </span>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={data.status === 'pass' ? 'default' : 'destructive'} className="text-xs">
+                    <div className="flex items-center gap-3">
+                      <Badge variant={data.status === 'pass' ? 'default' : 'destructive'} className="text-sm px-3 py-1">
                         {data.status === 'pass' ? '✓' : '✗'} {data.value}
                       </Badge>
-                      <span className="text-gray-400 text-sm">{data.score}/{data.weight}</span>
+                      <span className="text-gray-200 font-bold">{data.score}/{data.weight}</span>
                     </div>
                   </div>
-                  <Progress value={(data.score / data.weight) * 100} className="h-2" />
-                  <p className="text-gray-500 text-xs mt-1">{data.message}</p>
+                  <Progress value={(data.score / data.weight) * 100} className="h-3 mb-2" />
+                  <p className="text-gray-300 text-sm leading-relaxed">{data.message}</p>
                   {data.opennessBonus !== undefined && (
-                    <p className="text-[#c8ff00] text-xs mt-1 flex items-center gap-1">
+                    <p className="text-[#c8ff00] text-sm mt-2 flex items-center gap-2 font-medium">
                       🕐 {data.opennessBonus ? 'Open now = Higher rank' : 'Currently closed'}
                     </p>
                   )}
-                </div>
+                </motion.div>
               ))}
             </motion.div>
           )}
@@ -162,57 +169,57 @@ export default function FoxyHealthScore({ scoreData, onRevealComplete }) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
-              className="bg-[#c8ff00]/10 border-2 border-[#c8ff00]/30 rounded-xl p-4 space-y-3"
+              className="bg-gradient-to-br from-[#c8ff00]/20 to-green-500/10 border-2 border-[#c8ff00]/40 rounded-xl p-6 space-y-4"
             >
-              <h4 className="text-white font-bold flex items-center gap-2">
+              <h4 className="text-white font-black text-lg flex items-center gap-2">
                 ⚡ 2026 Velocity Signals
               </h4>
               
               {scoreData.velocityMetrics.reviewVelocity && (
-                <div className="bg-gray-900/50 rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-gray-300 text-sm">Review Velocity</span>
+                <div className="bg-gray-900/70 border border-gray-700/50 rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-gray-200 font-semibold">Review Velocity</span>
                     <Badge className={`${
                       scoreData.velocityMetrics.reviewVelocity.status === 'excellent' ? 'bg-green-500' :
                       scoreData.velocityMetrics.reviewVelocity.status === 'good' ? 'bg-yellow-500' :
                       'bg-red-500'
-                    } text-white text-xs`}>
+                    } text-white text-sm px-3 py-1 font-bold`}>
                       {scoreData.velocityMetrics.reviewVelocity.status}
                     </Badge>
                   </div>
-                  <p className="text-gray-400 text-xs">{scoreData.velocityMetrics.reviewVelocity.message}</p>
+                  <p className="text-gray-300 text-sm leading-relaxed">{scoreData.velocityMetrics.reviewVelocity.message}</p>
                 </div>
               )}
 
               {scoreData.velocityMetrics.visualFreshness && (
-                <div className="bg-gray-900/50 rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-gray-300 text-sm">Visual Freshness</span>
+                <div className="bg-gray-900/70 border border-gray-700/50 rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-gray-200 font-semibold">Visual Freshness</span>
                     <Badge className={`${
                       scoreData.velocityMetrics.visualFreshness.status === 'excellent' ? 'bg-green-500' :
                       scoreData.velocityMetrics.visualFreshness.status === 'good' ? 'bg-yellow-500' :
                       'bg-red-500'
-                    } text-white text-xs`}>
+                    } text-white text-sm px-3 py-1 font-bold`}>
                       {scoreData.velocityMetrics.visualFreshness.photoCount} photos
                     </Badge>
                   </div>
-                  <p className="text-gray-400 text-xs">{scoreData.velocityMetrics.visualFreshness.message}</p>
+                  <p className="text-gray-300 text-sm leading-relaxed">{scoreData.velocityMetrics.visualFreshness.message}</p>
                 </div>
               )}
 
               {scoreData.velocityMetrics.napSync && (
-                <div className="bg-gray-900/50 rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-gray-300 text-sm">NAP Sync (Entity Trust)</span>
+                <div className="bg-gray-900/70 border border-gray-700/50 rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-gray-200 font-semibold">NAP Sync (Entity Trust)</span>
                     <Badge className={`${
                       scoreData.velocityMetrics.napSync.score === 100 ? 'bg-green-500' :
                       scoreData.velocityMetrics.napSync.score >= 66 ? 'bg-yellow-500' :
                       'bg-red-500'
-                    } text-white text-xs`}>
+                    } text-white text-sm px-3 py-1 font-bold`}>
                       {Math.round(scoreData.velocityMetrics.napSync.score)}%
                     </Badge>
                   </div>
-                  <p className="text-gray-400 text-xs">{scoreData.velocityMetrics.napSync.message}</p>
+                  <p className="text-gray-300 text-sm leading-relaxed">{scoreData.velocityMetrics.napSync.message}</p>
                 </div>
               )}
             </motion.div>
@@ -221,18 +228,21 @@ export default function FoxyHealthScore({ scoreData, onRevealComplete }) {
           {/* Revenue Impact Alert */}
           {revealed && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 1 }}
-              className="bg-red-500/10 border-2 border-red-500/30 rounded-xl p-6 text-center"
+              className="relative"
             >
-              <TrendingDown className="w-12 h-12 text-red-400 mx-auto mb-3" />
-              <h3 className="text-white font-bold text-xl mb-2">
-                🚨 Revenue Leak Detected
-              </h3>
-              <p className="text-gray-400 text-sm">
-                Foxy found critical issues costing you money every hour
-              </p>
+              <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl blur-lg opacity-30 animate-pulse" />
+              <div className="relative bg-gradient-to-r from-red-500/20 to-orange-500/20 border-2 border-red-500/40 rounded-xl p-8 text-center">
+                <TrendingDown className="w-16 h-16 text-red-400 mx-auto mb-4" />
+                <h3 className="text-white font-black text-2xl mb-3">
+                  🚨 Revenue Leak Detected
+                </h3>
+                <p className="text-gray-200 text-base leading-relaxed">
+                  Foxy found critical issues costing you money every hour you wait to fix them
+                </p>
+              </div>
             </motion.div>
           )}
         </CardContent>
