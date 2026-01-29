@@ -155,7 +155,6 @@ export default function FoxyAuditLanding() {
           window.location.href = createPageUrl('QuizGeeniusV2');
         }}
       />
-      <SocialProofNotification enabled={true} />
       <ScrollTracker pageName="FoxyAuditLanding" enabled={true} />
       <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f] text-white overflow-hidden">
       {/* Floating Background Elements */}
@@ -253,7 +252,7 @@ export default function FoxyAuditLanding() {
             </div>
 
             {/* Trust Indicators */}
-            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-400">
+            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-400 mb-8">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-green-400" />
                 <span>No Credit Card Required</span>
@@ -267,6 +266,9 @@ export default function FoxyAuditLanding() {
                 <span>100% Free Forever</span>
               </div>
             </div>
+
+            {/* Inline Social Proof */}
+            <SocialProofNotification enabled={true} inline={true} />
 
             {/* Foxy Mascot Hero */}
             <motion.div

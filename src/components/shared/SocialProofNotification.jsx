@@ -10,39 +10,34 @@ const notifications = [
   { name: "Tom K.", location: "Portland, OR", action: "completed audit", time: "12 min ago" }
 ];
 
-export default function SocialProofNotification({ enabled = true }) {
+export default function SocialProofNotification({ enabled = true, inline = false }) {
   const [currentNotification, setCurrentNotification] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     if (!enabled) return;
 
-    const showInterval = setInterval(() => {
-      setIsVisible(true);
+    const interval = setInterval(() => {
       setCurrentNotification(prev => (prev + 1) % notifications.length);
-      
-      setTimeout(() => setIsVisible(false), 5000);
-    }, 15000);
+    }, 8000);
 
-    setTimeout(() => setIsVisible(true), 3000);
-
-    return () => clearInterval(showInterval);
+    return () => clearInterval(interval);
   }, [enabled]);
 
   if (!enabled) return null;
 
   const notification = notifications[currentNotification];
 
-  return (
-    <AnimatePresence>
-      {isVisible && (
-        <motion.div
-          initial={{ opacity: 0, x: -100 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -100 }}
-          className="fixed bottom-6 left-6 z-40 max-w-sm"
-        >
-          <div className="bg-gray-900 border-2 border-[#c8ff00]/50 rounded-xl shadow-2xl p-4 backdrop-blur-sm">
+  if (inline) {
+    return (
+      <div className="max-w-md mx-auto">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentNotification}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="bg-gray-900 border-2 border-[#c8ff00]/30 rounded-xl shadow-xl p-4"
+          >
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 bg-[#c8ff00] rounded-full flex items-center justify-center flex-shrink-0">
                 <CheckCircle className="w-5 h-5 text-gray-900" />
@@ -60,9 +55,11 @@ export default function SocialProofNotification({ enabled = true }) {
                 </p>
               </div>
             </div>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    );
+  }
+
+  return null;
 }
