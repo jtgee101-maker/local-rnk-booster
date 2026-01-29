@@ -75,6 +75,11 @@ export default function QuizGeeniusV2() {
     try {
       const completeData = { ...formData, ...finalData };
 
+      // Validate required data
+      if (!completeData.email || !completeData.business_name) {
+        throw new Error('Missing required contact information');
+      }
+
       // Create lead
       const lead = await base44.entities.Lead.create({
         ...completeData,
@@ -83,141 +88,170 @@ export default function QuizGeeniusV2() {
         quiz_submission_count: 1
       });
 
+      if (!lead?.id) {
+        throw new Error('Failed to create lead record');
+      }
+
       // Start Foxy V2 Audit
       setAuditStage('health');
       await runFoxyV2Audit(lead);
       
-      // Start nurture sequence in background
-      try {
-        await base44.functions.invoke('nurture/foxyAuditNurture', { leadId: lead.id });
-      } catch (error) {
-        console.error('Failed to start nurture sequence:', error);
-      }
+      // Start nurture sequence in background (non-blocking)
+      base44.functions.invoke('nurture/foxyAuditNurture', { leadId: lead.id })
+        .catch(error => {
+          console.error('Failed to start nurture sequence:', error);
+          // Log error but don't fail the user experience
+          base44.asServiceRole?.entities?.ErrorLog?.create?.({
+            error_type: 'nurture_sequence_failure',
+            severity: 'medium',
+            message: `Failed to start nurture for lead ${lead.id}: ${error.message}`,
+            metadata: { lead_id: lead.id }
+          }).catch(() => {});
+        });
 
     } catch (error) {
       console.error('Quiz completion error:', error);
+      setSectionErrors(prev => ({ ...prev, quiz: error.message }));
       setCurrentStep(prev => prev - 1);
     }
   };
 
   const runFoxyV2Audit = async (lead) => {
     try {
-      // Step 1: Advanced Health Score with Places API
+      // Timeout protection (30 seconds max)
+      const auditTimeout = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Audit timeout')), 30000)
+      );
+
+      // Step 1: Advanced Health Score
       setAuditStage('health');
       try {
+        const healthResponse = await Promise.race([
+          base44.functions.invoke('geeniusv2/advancedHealthScore', {
+            placeId: lead.place_id,
+            gmbData: {
+              displayName: lead.business_name,
+              formattedAddress: lead.address,
+              internationalPhoneNumber: lead.phone,
+              rating: lead.gmb_rating,
+              userRatingCount: lead.gmb_reviews_count,
+              photos: lead.gmb_photos_count ? Array(lead.gmb_photos_count).fill({}) : [],
+              types: lead.gmb_types || [],
+              businessStatus: 'OPERATIONAL',
+              currentOpeningHours: { openNow: lead.gmb_has_hours },
+              reviews: lead.gmb_reviews || [],
+              location: lead.location
+            }
+          }),
+          auditTimeout
+        ]);
 
-
-        const healthResponse = await base44.functions.invoke('geeniusv2/advancedHealthScore', {
-          placeId: lead.place_id,
-          gmbData: {
-            displayName: lead.business_name,
-            formattedAddress: lead.address,
-            internationalPhoneNumber: lead.phone,
-            rating: lead.gmb_rating,
-            userRatingCount: lead.gmb_reviews_count,
-            photos: lead.gmb_photos_count ? Array(lead.gmb_photos_count).fill({}) : [],
-            types: lead.gmb_types || [],
-            businessStatus: 'OPERATIONAL',
-            currentOpeningHours: { openNow: lead.gmb_has_hours },
-            reviews: lead.gmb_reviews || [],
-            location: lead.location
-          }
-        });
-
-        if (healthResponse.data?.success) {
+        if (healthResponse?.data?.success && healthResponse.data.data) {
           setAuditData(prev => ({ ...prev, health: healthResponse.data.data }));
-          await new Promise(resolve => setTimeout(resolve, 1500));
+          await new Promise(resolve => setTimeout(resolve, 1200));
           setAuditStage('revenue');
         } else {
-          throw new Error('Health score analysis failed');
+          throw new Error('Health score: No valid response');
         }
       } catch (error) {
         console.error('Health score error:', error);
         setSectionErrors(prev => ({ ...prev, health: error.message }));
-        setAuditStage('revenue'); // Continue anyway
+        setAuditStage('revenue');
       }
 
-      // Step 2: Revenue Opportunity with Unified Loss Model
+      // Step 2: Revenue Opportunity
       try {
-        const keyword = `${lead.business_category} ${lead.address?.split(',').pop()?.trim() || ''}`;
-        const revenueResponse = await base44.functions.invoke('geeniusv2/revenueOpportunity', {
-          keyword: keyword.trim(),
-          location: lead.address,
-          currentRank: auditData.health?.overallScore < 70 ? 9 : 5,
-          avgOrderValue: 350
-        });
+        const healthScore = auditData.health?.overallScore || 50;
+        const keyword = `${lead.business_category} ${lead.address?.split(',').pop()?.trim() || ''}`.trim();
+        
+        const revenueResponse = await Promise.race([
+          base44.functions.invoke('geeniusv2/revenueOpportunity', {
+            keyword,
+            location: lead.address,
+            currentRank: healthScore < 70 ? 9 : 5,
+            avgOrderValue: 350
+          }),
+          auditTimeout
+        ]);
 
-        if (revenueResponse.data?.success) {
+        if (revenueResponse?.data?.success && revenueResponse.data.data) {
           setAuditData(prev => ({ ...prev, revenue: revenueResponse.data.data }));
-          await new Promise(resolve => setTimeout(resolve, 1500));
+          await new Promise(resolve => setTimeout(resolve, 1200));
           setAuditStage('heatmap');
         } else {
-          throw new Error('Revenue analysis failed');
+          throw new Error('Revenue: No valid response');
         }
       } catch (error) {
         console.error('Revenue error:', error);
         setSectionErrors(prev => ({ ...prev, revenue: error.message }));
-        setAuditStage('heatmap'); // Continue
+        setAuditStage('heatmap');
       }
 
-      // Step 3: Geo Heatmap with Proximity Analysis
+      // Step 3: Geo Heatmap
       try {
-        const heatmapResponse = await base44.functions.invoke('geeniusv2/geoHeatmap', {
-          placeId: lead.place_id,
-          businessName: lead.business_name,
-          location: lead.location,
-          keyword: lead.business_category,
-          radiusMiles: 5
-        });
+        const heatmapResponse = await Promise.race([
+          base44.functions.invoke('geeniusv2/geoHeatmap', {
+            placeId: lead.place_id,
+            businessName: lead.business_name,
+            location: lead.location,
+            keyword: lead.business_category,
+            radiusMiles: 5
+          }),
+          auditTimeout
+        ]);
 
-        if (heatmapResponse.data?.success && heatmapResponse.data?.data) {
+        if (heatmapResponse?.data?.success && heatmapResponse.data.data) {
           setAuditData(prev => ({ ...prev, heatmap: heatmapResponse.data.data }));
-          await new Promise(resolve => setTimeout(resolve, 1500));
+          await new Promise(resolve => setTimeout(resolve, 1200));
           setAuditStage('ai');
         } else {
-          throw new Error(heatmapResponse.data?.message || 'Heatmap analysis failed');
+          throw new Error('Heatmap: No valid response');
         }
       } catch (error) {
+        console.error('Heatmap error:', error);
         setSectionErrors(prev => ({ ...prev, heatmap: error.message }));
-        setAuditStage('ai'); // Continue
+        setAuditStage('ai');
       }
 
-      // Step 4: AI Visibility & AEO Check
+      // Step 4: AI Visibility
       try {
-        const aiResponse = await base44.functions.invoke('geeniusv2/aiVisibilityCheck', {
-          businessName: lead.business_name,
-          location: lead.address,
-          keyword: lead.business_category,
-          industry: lead.business_category
-        });
+        const aiResponse = await Promise.race([
+          base44.functions.invoke('geeniusv2/aiVisibilityCheck', {
+            businessName: lead.business_name,
+            location: lead.address,
+            keyword: lead.business_category,
+            industry: lead.business_category
+          }),
+          auditTimeout
+        ]);
 
-        if (aiResponse.data?.success) {
+        if (aiResponse?.data?.success && aiResponse.data.data) {
           setAuditData(prev => ({ ...prev, ai: aiResponse.data.data }));
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise(resolve => setTimeout(resolve, 800));
           setAuditStage('complete');
           
-          // Track completion event
+          // Track completion
           base44.analytics.track({
             eventName: 'foxy_audit_complete',
             properties: {
               health_score: auditData.health?.overallScore || 0,
               monthly_opportunity: auditData.revenue?.monthlyOpportunity || 0,
               visibility_score: auditData.heatmap?.visibilityScore || 0,
-              ai_score: aiResponse.data.data.overallScore,
+              ai_score: aiResponse.data.data.overallScore || 0,
               sections_with_errors: Object.keys(sectionErrors).length
             }
-          });
+          }).catch(() => {});
         } else {
-          throw new Error('AI visibility check failed');
+          throw new Error('AI: No valid response');
         }
       } catch (error) {
         console.error('AI visibility error:', error);
         setSectionErrors(prev => ({ ...prev, ai: error.message }));
-        setAuditStage('complete'); // Complete anyway with available data
+        setAuditStage('complete');
       }
 
     } catch (error) {
-      console.error('Foxy V2 audit failed:', error);
+      console.error('Foxy V2 audit error:', error);
       setAuditStage('complete');
     }
   };
