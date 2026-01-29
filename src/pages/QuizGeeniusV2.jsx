@@ -86,6 +86,13 @@ export default function QuizGeeniusV2() {
       // Start Foxy V2 Audit
       setAuditStage('health');
       await runFoxyV2Audit(lead);
+      
+      // Start nurture sequence in background
+      try {
+        await base44.functions.invoke('nurture/foxyAuditNurture', { leadId: lead.id });
+      } catch (error) {
+        console.error('Failed to start nurture sequence:', error);
+      }
 
     } catch (error) {
       console.error('Quiz completion error:', error);
