@@ -168,8 +168,8 @@ export default function ComparisonTable() {
         className="mt-6 text-center"
       >
         <p className="text-gray-300 text-base max-w-3xl mx-auto leading-relaxed">
-          <span className="text-[#c8ff00] font-bold text-lg">The Bottom Line:</span> Get agency-level results at 67% less cost, 
-          with AI automation doing the heavy lifting 24/7. No manual work, no guessing, just results.
+          <span className="text-[#c8ff00] font-bold text-lg">The Bottom Line:</span> Stop wasting time on DIY tactics that don't scale 
+          and stop overpaying agencies for basic services. Foxy gives you the exact roadmap your business needs to dominate local search.
         </p>
       </motion.div>
     </div>
