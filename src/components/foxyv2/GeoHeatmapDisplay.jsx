@@ -1,12 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { GoogleMap, useJsApiLoader, Circle, InfoWindow } from '@react-google-maps/api';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, AlertTriangle } from 'lucide-react';
+import { MapPin, AlertTriangle, Maximize2 } from 'lucide-react';
 import FoxyMascot from './FoxyMascot';
 
+const mapContainerStyle = {
+  width: '100%',
+  height: '500px',
+  borderRadius: '12px'
+};
+
 export default function GeoHeatmapDisplay({ heatmapData }) {
-  // Debug logging
+  const [selectedNode, setSelectedNode] = useState(null);
+  const [mapExpanded, setMapExpanded] = useState(false);
+  
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: 'AIzaSyBK3VxZ4dqZW9Iq5RnL7_DnBUQkXr3LXjY' // Using the GOOGLE_MAPS_API_KEY from env
+  });
+
   console.log('🗺️ GeoHeatmapDisplay received data:', heatmapData);
   
   if (!heatmapData) {
@@ -21,10 +35,26 @@ export default function GeoHeatmapDisplay({ heatmapData }) {
     strongZones = 0, 
     weakZones = 0, 
     recommendations = [],
+    centerLocation,
+    heatmapData: gridNodes = [],
     proximityLeaks,
     competitorGaps,
     engagementAnalysis
   } = heatmapData;
+
+  const center = centerLocation || { lat: 40.7128, lng: -74.006 };
+
+  const getZoneColor = (rank) => {
+    if (!rank || rank > 10) return '#ef4444'; // red
+    if (rank <= 3) return '#22c55e'; // green
+    return '#eab308'; // yellow
+  };
+
+  const getZoneStatus = (rank) => {
+    if (!rank || rank > 10) return 'Weak Zone';
+    if (rank <= 3) return 'Strong Zone';
+    return 'At Risk';
+  };
 
   return (
     <motion.div
@@ -53,6 +83,165 @@ export default function GeoHeatmapDisplay({ heatmapData }) {
         </CardHeader>
 
         <CardContent className="space-y-6">
+          {/* Interactive Heatmap */}
+          {isLoaded && gridNodes.length > 0 && (
+            <div className="relative">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-white font-bold text-lg">🗺️ Live Visibility Map</h4>
+                <button
+                  onClick={() => setMapExpanded(!mapExpanded)}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  <Maximize2 className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div 
+                className="relative border-2 border-purple-500/40 rounded-xl overflow-hidden"
+                style={{ height: mapExpanded ? '700px' : '500px', transition: 'height 0.3s' }}
+              >
+                <GoogleMap
+                  mapContainerStyle={{ ...mapContainerStyle, height: '100%' }}
+                  center={center}
+                  zoom={12}
+                  options={{
+                    styles: [
+                      { elementType: 'geometry', stylers: [{ color: '#1a1a2e' }] },
+                      { elementType: 'labels.text.stroke', stylers: [{ color: '#1a1a2e' }] },
+                      { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
+                      {
+                        featureType: 'road',
+                        elementType: 'geometry',
+                        stylers: [{ color: '#2c2c3e' }]
+                      },
+                      {
+                        featureType: 'water',
+                        elementType: 'geometry',
+                        stylers: [{ color: '#0f0f1a' }]
+                      }
+                    ],
+                    disableDefaultUI: false,
+                    zoomControl: true,
+                    mapTypeControl: false,
+                    streetViewControl: false,
+                    fullscreenControl: true
+                  }}
+                >
+                  {/* Business Center Marker */}
+                  <Circle
+                    center={center}
+                    radius={100}
+                    options={{
+                      fillColor: '#c8ff00',
+                      fillOpacity: 0.8,
+                      strokeColor: '#c8ff00',
+                      strokeWeight: 3,
+                      strokeOpacity: 1
+                    }}
+                  />
+
+                  {/* Grid Node Circles */}
+                  {gridNodes.map((node, idx) => (
+                    <Circle
+                      key={idx}
+                      center={{ lat: node.lat, lng: node.lng }}
+                      radius={300}
+                      options={{
+                        fillColor: getZoneColor(node.rank),
+                        fillOpacity: 0.5,
+                        strokeColor: getZoneColor(node.rank),
+                        strokeWeight: 2,
+                        strokeOpacity: 0.8,
+                        clickable: true
+                      }}
+                      onClick={() => setSelectedNode(node)}
+                    />
+                  ))}
+
+                  {/* Info Window for Selected Node */}
+                  {selectedNode && (
+                    <InfoWindow
+                      position={{ lat: selectedNode.lat, lng: selectedNode.lng }}
+                      onCloseClick={() => setSelectedNode(null)}
+                    >
+                      <div className="bg-gray-900 p-4 rounded-lg text-white min-w-[200px]">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-bold text-lg">{selectedNode.label}</h4>
+                          <Badge className={`${
+                            selectedNode.rank <= 3 ? 'bg-green-500' :
+                            selectedNode.rank <= 10 ? 'bg-yellow-500' :
+                            'bg-red-500'
+                          } text-white`}>
+                            {getZoneStatus(selectedNode.rank)}
+                          </Badge>
+                        </div>
+                        
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between items-center py-1 border-b border-gray-700">
+                            <span className="text-gray-400">Ranking:</span>
+                            <span className="font-bold text-white">
+                              {selectedNode.rank ? `#${selectedNode.rank}` : 'Not Found'}
+                            </span>
+                          </div>
+                          
+                          <div className="flex justify-between items-center py-1 border-b border-gray-700">
+                            <span className="text-gray-400">Distance:</span>
+                            <span className="font-semibold">{selectedNode.distance || 0} miles</span>
+                          </div>
+                          
+                          <div className="flex justify-between items-center py-1">
+                            <span className="text-gray-400">Status:</span>
+                            <span className={`font-semibold ${
+                              selectedNode.rank <= 3 ? 'text-green-400' :
+                              selectedNode.rank <= 10 ? 'text-yellow-400' :
+                              'text-red-400'
+                            }`}>
+                              {selectedNode.rank <= 3 ? '✓ Visible' :
+                               selectedNode.rank <= 10 ? '⚠ At Risk' :
+                               '✗ Weak'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {selectedNode.rank > 10 && (
+                          <div className="mt-3 p-2 bg-red-500/20 border border-red-500/40 rounded text-xs">
+                            💡 <span className="font-semibold">Opportunity:</span> Create location-specific content for this area
+                          </div>
+                        )}
+                      </div>
+                    </InfoWindow>
+                  )}
+                </GoogleMap>
+
+                {/* Map Legend */}
+                <div className="absolute bottom-4 left-4 bg-gray-900/95 backdrop-blur-sm border-2 border-gray-700 rounded-lg p-3 text-xs">
+                  <div className="font-bold text-white mb-2">Visibility Legend</div>
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full bg-[#c8ff00]" />
+                      <span className="text-gray-300">Your Business</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full bg-green-500" />
+                      <span className="text-gray-300">Strong (Rank 1-3)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full bg-yellow-500" />
+                      <span className="text-gray-300">At Risk (Rank 4-10)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full bg-red-500" />
+                      <span className="text-gray-300">Weak (Rank 11+)</span>
+                    </div>
+                  </div>
+                  <div className="mt-2 pt-2 border-t border-gray-700 text-gray-400">
+                    💡 Click circles for details
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Stats Grid */}
           <div className="grid grid-cols-3 gap-4">
             <div className="bg-gradient-to-br from-green-500/20 to-green-500/5 border-2 border-green-500/40 rounded-xl p-5 text-center">
