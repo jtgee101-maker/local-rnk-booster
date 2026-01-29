@@ -97,17 +97,10 @@ export default function QuizGeeniusV2() {
       await runFoxyV2Audit(lead);
       
       // Start nurture sequence in background (non-blocking)
-      base44.functions.invoke('nurture/foxyAuditNurture', { leadId: lead.id })
-        .catch(error => {
-          console.error('Failed to start nurture sequence:', error);
-          // Log error but don't fail the user experience
-          base44.asServiceRole?.entities?.ErrorLog?.create?.({
-            error_type: 'nurture_sequence_failure',
-            severity: 'medium',
-            message: `Failed to start nurture for lead ${lead.id}: ${error.message}`,
-            metadata: { lead_id: lead.id }
-          }).catch(() => {});
-        });
+       base44.functions.invoke('nurture/foxyAuditNurture', { leadId: lead.id })
+         .catch(error => {
+           console.error('Failed to start nurture sequence:', error);
+         });
 
     } catch (error) {
       console.error('Quiz completion error:', error);
