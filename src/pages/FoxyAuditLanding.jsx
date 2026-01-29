@@ -30,6 +30,15 @@ export default function FoxyAuditLanding() {
   const { scrollY } = useScroll();
   const headerOpacity = useTransform(scrollY, [0, 200], [1, 0.8]);
 
+  // Initialize tracking pixels
+  useEffect(() => {
+    const FB_PIXEL_ID = 'YOUR_FB_PIXEL_ID'; 
+    const GOOGLE_ADS_ID = 'AW-XXXXXXXXXX';
+    
+    initializePixels(FB_PIXEL_ID, GOOGLE_ADS_ID);
+    trackConversion(CONVERSION_EVENTS.LANDING_PAGE_VIEW);
+  }, []);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setViewersCount(prev => {
@@ -49,6 +58,28 @@ export default function FoxyAuditLanding() {
     }, 5000);
     return () => clearInterval(interval);
   }, [isPaused]);
+
+  // Track scroll depth for remarketing
+  useEffect(() => {
+    let scroll50Tracked = false;
+    let scroll75Tracked = false;
+
+    const handleScroll = () => {
+      const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+      
+      if (scrollPercent >= 50 && !scroll50Tracked) {
+        trackConversion(CONVERSION_EVENTS.SCROLL_50);
+        scroll50Tracked = true;
+      }
+      if (scrollPercent >= 75 && !scroll75Tracked) {
+        trackConversion(CONVERSION_EVENTS.SCROLL_75);
+        scroll75Tracked = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const painPoints = [
     {
@@ -159,6 +190,7 @@ export default function FoxyAuditLanding() {
         title="Free Local SEO Audit - Find Your Revenue Leaks | LocalRank.ai"
         description="Discover why 73% of local customers can't find your business. Get a free AI-powered audit revealing your exact geographic blind spots and revenue opportunities in 60 seconds."
       />
+      <RemarketingPixels />
       <ExitIntentCapture 
         onCapture={(email) => {
           window.location.href = createPageUrl('QuizGeeniusV2');
@@ -258,7 +290,10 @@ export default function FoxyAuditLanding() {
                 whileTap={{ scale: 0.98 }}
               >
                 <Button
-                  onClick={() => window.location.href = createPageUrl('QuizGeeniusV2')}
+                  onClick={() => {
+                    trackConversion(CONVERSION_EVENTS.CTA_CLICK, { location: 'hero' });
+                    window.location.href = createPageUrl('QuizGeeniusV2');
+                  }}
                   className="relative bg-[#c8ff00] hover:bg-[#b8ef00] text-gray-900 font-black text-base sm:text-lg md:text-xl px-6 sm:px-8 py-6 sm:py-7 rounded-xl shadow-2xl shadow-[#c8ff00]/20 transition-all min-h-[56px] w-full sm:w-auto overflow-hidden group"
                 >
                   <motion.div
