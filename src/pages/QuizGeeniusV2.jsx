@@ -253,11 +253,15 @@ export default function QuizGeeniusV2() {
           <div className="relative z-10 pt-6 sm:pt-8 pb-4 px-4">
             <div className="max-w-2xl mx-auto text-center space-y-3">
               <div className="flex items-center justify-center gap-2 mb-2">
-                <img 
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/2f56189cf_Gemini_Generated_Image_yyfn0byyfn0byyfn-removebg-preview.png" 
-                  alt="Foxy Mascot" 
-                  className="w-16 h-16 sm:w-20 sm:h-20 object-contain"
-                />
+                <div className="relative">
+                  <div className="absolute inset-0 bg-[#c8ff00] rounded-full blur-xl opacity-60 animate-pulse" />
+                  <img 
+                    src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/2f56189cf_Gemini_Generated_Image_yyfn0byyfn0byyfn-removebg-preview.png" 
+                    alt="Foxy Mascot" 
+                    className="w-16 h-16 sm:w-20 sm:h-20 object-contain relative z-10"
+                    style={{ filter: 'drop-shadow(0 0 20px rgba(200, 255, 0, 0.8))' }}
+                  />
+                </div>
                 <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white">
                   Foxy's <span className="text-[#c8ff00]">PathFinder</span>
                 </h1>
@@ -303,13 +307,21 @@ export default function QuizGeeniusV2() {
                   className="mb-8 text-center"
                 >
                   <div className="flex items-center justify-center gap-2 mb-4">
-                    <motion.img
-                      src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/2f56189cf_Gemini_Generated_Image_yyfn0byyfn0byyfn-removebg-preview.png"
-                      alt="Foxy Mascot"
-                      animate={{ rotate: [0, 10, -10, 0] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="w-14 h-14 sm:w-16 sm:h-16 object-contain"
-                    />
+                    <div className="relative">
+                      <motion.div 
+                        className="absolute inset-0 bg-[#c8ff00] rounded-full blur-xl opacity-60"
+                        animate={{ scale: [1, 1.2, 1], opacity: [0.6, 0.8, 0.6] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
+                      <motion.img
+                        src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/2f56189cf_Gemini_Generated_Image_yyfn0byyfn0byyfn-removebg-preview.png"
+                        alt="Foxy Mascot"
+                        animate={{ rotate: [0, 10, -10, 0] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="w-14 h-14 sm:w-16 sm:h-16 object-contain relative z-10"
+                        style={{ filter: 'drop-shadow(0 0 20px rgba(200, 255, 0, 0.8))' }}
+                      />
+                    </div>
                     <h2 className="text-3xl font-black text-white">
                       Foxy's <span className="text-[#c8ff00]">Deep Dive Audit</span>
                     </h2>
@@ -517,13 +529,21 @@ export default function QuizGeeniusV2() {
                       
                       <div className="relative bg-gradient-to-r from-[#c8ff00] via-[#00ff88] to-[#c8ff00] p-1 rounded-2xl">
                         <div className="bg-gray-900 rounded-xl p-8 sm:p-12 text-center">
-                          <motion.img
-                            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/2f56189cf_Gemini_Generated_Image_yyfn0byyfn0byyfn-removebg-preview.png"
-                            alt="Foxy Mascot"
-                            animate={{ y: [0, -10, 0] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                            className="w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-6 object-contain"
-                          />
+                          <div className="relative w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-6">
+                            <motion.div 
+                              className="absolute inset-0 bg-[#c8ff00] rounded-full blur-2xl opacity-70"
+                              animate={{ scale: [1, 1.3, 1], opacity: [0.7, 0.9, 0.7] }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                            />
+                            <motion.img
+                              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/2f56189cf_Gemini_Generated_Image_yyfn0byyfn0byyfn-removebg-preview.png"
+                              alt="Foxy Mascot"
+                              animate={{ y: [0, -10, 0] }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                              className="w-full h-full object-contain relative z-10"
+                              style={{ filter: 'drop-shadow(0 0 25px rgba(200, 255, 0, 0.9))' }}
+                            />
+                          </div>
                           
                           <h2 className="text-3xl sm:text-4xl font-black text-white mb-4">
                             Foxy's Ready to <span className="text-[#c8ff00]">Fix Everything</span>
