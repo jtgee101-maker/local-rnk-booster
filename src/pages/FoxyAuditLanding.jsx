@@ -419,8 +419,7 @@ export default function FoxyAuditLanding() {
             </p>
             <Button
               onClick={() => window.location.href = createPageUrl('QuizGeeniusV2')}
-              variant="outline"
-              className="border-3 border-[#c8ff00] text-[#c8ff00] hover:bg-[#c8ff00] hover:text-gray-900 font-black text-xl px-10 py-6 rounded-xl shadow-xl shadow-[#c8ff00]/20 transform hover:scale-105 transition-all"
+              className="bg-[#c8ff00] hover:bg-[#b8ef00] text-gray-900 font-black text-xl px-10 py-6 rounded-xl shadow-xl shadow-[#c8ff00]/20 transform hover:scale-105 transition-all"
             >
               <Target className="w-6 h-6 mr-2" />
               See If We Serve Your Industry
