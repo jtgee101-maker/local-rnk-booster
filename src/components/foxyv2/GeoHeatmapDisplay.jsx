@@ -13,16 +13,28 @@ const mapContainerStyle = {
 };
 
 export default function GeoHeatmapDisplay({ heatmapData }) {
-  const [selectedNode, setSelectedNode] = useState(null);
-  const [mapExpanded, setMapExpanded] = useState(false);
-  
-  const { isLoaded, loadError } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY
-  });
+   const [selectedNode, setSelectedNode] = useState(null);
+   const [mapExpanded, setMapExpanded] = useState(false);
+
+   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+   const { isLoaded, loadError } = useJsApiLoader({
+     id: 'google-map-script',
+     googleMapsApiKey: apiKey,
+     libraries: ['places']
+   });
 
   console.log('🗺️ GeoHeatmapDisplay received data:', heatmapData);
-  
+
+  if (!apiKey) {
+    console.error('❌ GOOGLE_MAPS_API_KEY environment variable not set');
+    return (
+      <div className="bg-red-500/20 border-2 border-red-500/40 rounded-xl p-6">
+        <h4 className="text-white font-bold mb-2">Map Configuration Error</h4>
+        <p className="text-red-300 text-sm">Google Maps API key not configured. Please add VITE_GOOGLE_MAPS_API_KEY to environment.</p>
+      </div>
+    );
+  }
+
   if (!heatmapData) {
     console.warn('⚠️ No heatmap data provided to component');
     return null;
@@ -86,7 +98,8 @@ export default function GeoHeatmapDisplay({ heatmapData }) {
            {/* Handle Map Load Error */}
            {loadError && (
              <div className="bg-red-500/20 border-2 border-red-500/40 rounded-xl p-5">
-               <p className="text-red-300">Map unavailable. Showing data overview instead.</p>
+               <AlertTriangle className="w-6 h-6 text-red-400 mb-2" />
+               <p className="text-red-300 text-sm"><strong>Map Error:</strong> {loadError.message || 'Unable to load map. Showing data only.'}</p>
              </div>
            )}
 
