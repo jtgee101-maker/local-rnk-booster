@@ -6,7 +6,13 @@ import { MapPin, AlertTriangle } from 'lucide-react';
 import FoxyMascot from './FoxyMascot';
 
 export default function GeoHeatmapDisplay({ heatmapData }) {
-  if (!heatmapData) return null;
+  // Debug logging
+  console.log('🗺️ GeoHeatmapDisplay received data:', heatmapData);
+  
+  if (!heatmapData) {
+    console.warn('⚠️ No heatmap data provided to component');
+    return null;
+  }
 
   const { 
     gridSize = 0, 

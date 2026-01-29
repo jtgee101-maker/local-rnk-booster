@@ -149,6 +149,14 @@ export default function QuizGeeniusV2() {
 
       // Step 3: Geo Heatmap with Proximity Analysis
       try {
+        console.log('🗺️ Calling geoHeatmap with:', {
+          placeId: lead.place_id,
+          businessName: lead.business_name,
+          location: lead.location,
+          keyword: lead.business_category,
+          radiusMiles: 5
+        });
+
         const heatmapResponse = await base44.functions.invoke('geeniusv2/geoHeatmap', {
           placeId: lead.place_id,
           businessName: lead.business_name,
@@ -157,15 +165,19 @@ export default function QuizGeeniusV2() {
           radiusMiles: 5
         });
 
-        if (heatmapResponse.data?.success) {
+        console.log('🗺️ Heatmap response:', heatmapResponse);
+
+        if (heatmapResponse.data?.success && heatmapResponse.data?.data) {
+          console.log('✅ Heatmap data received:', heatmapResponse.data.data);
           setAuditData(prev => ({ ...prev, heatmap: heatmapResponse.data.data }));
           await new Promise(resolve => setTimeout(resolve, 1500));
           setAuditStage('ai');
         } else {
-          throw new Error('Heatmap analysis failed');
+          console.error('❌ Heatmap response invalid:', heatmapResponse);
+          throw new Error(heatmapResponse.data?.message || 'Heatmap analysis failed');
         }
       } catch (error) {
-        console.error('Heatmap error:', error);
+        console.error('❌ Heatmap error:', error);
         setSectionErrors(prev => ({ ...prev, heatmap: error.message }));
         setAuditStage('ai'); // Continue
       }
