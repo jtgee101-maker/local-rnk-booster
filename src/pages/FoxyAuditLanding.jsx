@@ -15,6 +15,9 @@ import FoxyMascotImage from '@/components/shared/FoxyMascotImage';
 import SocialProofNotification from '@/components/shared/SocialProofNotification';
 import ScrollTracker from '@/components/shared/ScrollTracker';
 import TrustBadges from '@/components/shared/TrustBadges';
+import ScarcityTimer from '@/components/shared/ScarcityTimer';
+import GuaranteeSection from '@/components/shared/GuaranteeSection';
+import TrustLogos from '@/components/shared/TrustLogos';
 
 export default function FoxyAuditLanding() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
@@ -180,6 +183,9 @@ export default function FoxyAuditLanding() {
         />
       </div>
 
+      {/* Scarcity Banner */}
+      <ScarcityTimer variant="banner" minutesLeft={45} />
+
       {/* Sticky Top Bar */}
       <motion.div 
         style={{ opacity: headerOpacity }}
@@ -242,14 +248,27 @@ export default function FoxyAuditLanding() {
 
             {/* CTA */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
-              <Button
-                onClick={() => window.location.href = createPageUrl('QuizGeeniusV2')}
-                className="bg-[#c8ff00] hover:bg-[#b8ef00] text-gray-900 font-black text-base sm:text-lg md:text-xl px-6 sm:px-8 py-6 sm:py-7 rounded-xl shadow-2xl shadow-[#c8ff00]/20 transform hover:scale-105 transition-all min-h-[56px] w-full sm:w-auto"
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <Zap className="w-5 h-5 mr-2" />
-                Get My Free Foxy Audit Now
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
+                <Button
+                  onClick={() => window.location.href = createPageUrl('QuizGeeniusV2')}
+                  className="relative bg-[#c8ff00] hover:bg-[#b8ef00] text-gray-900 font-black text-base sm:text-lg md:text-xl px-6 sm:px-8 py-6 sm:py-7 rounded-xl shadow-2xl shadow-[#c8ff00]/20 transition-all min-h-[56px] w-full sm:w-auto overflow-hidden group"
+                >
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                    initial={{ x: '-100%' }}
+                    animate={{ x: '200%' }}
+                    transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+                  />
+                  <span className="relative flex items-center">
+                    <Zap className="w-5 h-5 mr-2" />
+                    Get My Free Foxy Audit Now
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </span>
+                </Button>
+              </motion.div>
             </div>
 
             {/* Trust Indicators */}
@@ -444,14 +463,16 @@ export default function FoxyAuditLanding() {
             <p className="text-gray-300 text-lg mb-6">
               <span className="text-[#c8ff00] font-bold">Plus 100+ more industries</span> including electricians, lawyers, restaurants, retail, and more
             </p>
-            <Button
-              onClick={() => window.location.href = createPageUrl('QuizGeeniusV2')}
-              className="bg-[#c8ff00] hover:bg-[#b8ef00] text-gray-900 font-black text-base sm:text-lg md:text-xl px-8 sm:px-10 py-5 sm:py-6 rounded-xl shadow-xl shadow-[#c8ff00]/20 transform hover:scale-105 transition-all min-h-[56px] w-full sm:w-auto"
-            >
-              <Target className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
-              See If We Serve Your Industry
-              <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 ml-2" />
-            </Button>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                onClick={() => window.location.href = createPageUrl('QuizGeeniusV2')}
+                className="bg-[#c8ff00] hover:bg-[#b8ef00] text-gray-900 font-black text-base sm:text-lg md:text-xl px-8 sm:px-10 py-5 sm:py-6 rounded-xl shadow-xl shadow-[#c8ff00]/20 transition-all min-h-[56px] w-full sm:w-auto"
+              >
+                <Target className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
+                See If We Serve Your Industry
+                <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 ml-2" />
+              </Button>
+            </motion.div>
           </motion.div>
         </div>
       </section>
@@ -498,13 +519,15 @@ export default function FoxyAuditLanding() {
 
           {/* CTA */}
           <div className="text-center">
-            <Button
-              onClick={() => window.location.href = createPageUrl('QuizGeeniusV2')}
-              className="bg-[#c8ff00] hover:bg-[#b8ef00] text-gray-900 font-black text-base sm:text-lg md:text-xl px-8 sm:px-10 py-6 sm:py-7 rounded-xl shadow-2xl shadow-[#c8ff00]/20 transform hover:scale-105 transition-all min-h-[56px] w-full sm:w-auto"
-            >
-              Start My Free Foxy Audit
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                onClick={() => window.location.href = createPageUrl('QuizGeeniusV2')}
+                className="bg-[#c8ff00] hover:bg-[#b8ef00] text-gray-900 font-black text-base sm:text-lg md:text-xl px-8 sm:px-10 py-6 sm:py-7 rounded-xl shadow-2xl shadow-[#c8ff00]/20 transition-all min-h-[56px] w-full sm:w-auto"
+              >
+                Start My Free Foxy Audit
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </motion.div>
             <p className="text-gray-400 text-sm mt-4">
               ⚡ Takes only 60 seconds • No credit card needed
             </p>
@@ -600,6 +623,13 @@ export default function FoxyAuditLanding() {
         </div>
       </section>
 
+      {/* Guarantee Section */}
+      <section className="py-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <GuaranteeSection variant="full" />
+        </div>
+      </section>
+
       {/* Objection Crusher */}
       <section className="py-20 px-4">
         <div className="max-w-5xl mx-auto">
@@ -680,14 +710,27 @@ export default function FoxyAuditLanding() {
                 Let Foxy show you <span className="text-[#c8ff00] font-bold">exactly</span> where you're losing them.
               </p>
 
-              <Button
-                onClick={() => window.location.href = createPageUrl('QuizGeeniusV2')}
-                className="bg-[#c8ff00] hover:bg-[#b8ef00] text-gray-900 font-black text-lg sm:text-xl md:text-2xl px-8 sm:px-12 py-6 sm:py-8 rounded-xl shadow-2xl shadow-[#c8ff00]/30 transform hover:scale-105 transition-all min-h-[56px] w-full sm:w-auto"
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <Zap className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
-                Get My Free Foxy Audit Now
-                <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 ml-2" />
-              </Button>
+                <Button
+                  onClick={() => window.location.href = createPageUrl('QuizGeeniusV2')}
+                  className="relative bg-[#c8ff00] hover:bg-[#b8ef00] text-gray-900 font-black text-lg sm:text-xl md:text-2xl px-8 sm:px-12 py-6 sm:py-8 rounded-xl shadow-2xl shadow-[#c8ff00]/30 transition-all min-h-[56px] w-full sm:w-auto overflow-hidden"
+                >
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                    initial={{ x: '-100%' }}
+                    animate={{ x: '200%' }}
+                    transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+                  />
+                  <span className="relative flex items-center">
+                    <Zap className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
+                    Get My Free Foxy Audit Now
+                    <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 ml-2" />
+                  </span>
+                </Button>
+              </motion.div>
 
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-gray-400">
                 <div className="flex items-center gap-2">

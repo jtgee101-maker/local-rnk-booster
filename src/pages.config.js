@@ -74,6 +74,7 @@ import Error404 from './pages/Error404';
 import Error500 from './pages/Error500';
 import Features from './pages/Features';
 import FinalLaunchChecklist from './pages/FinalLaunchChecklist';
+import FoxyAuditLanding from './pages/FoxyAuditLanding';
 import GettingStarted from './pages/GettingStarted';
 import GuideQuizGeenius from './pages/GuideQuizGeenius';
 import HVACLanding from './pages/HVACLanding';
@@ -87,6 +88,7 @@ import PowerWashingLanding from './pages/PowerWashingLanding';
 import PreDeploymentAudit from './pages/PreDeploymentAudit';
 import Pricing from './pages/Pricing';
 import Privacy from './pages/Privacy';
+import ProductionAuditV2 from './pages/ProductionAuditV2';
 import ProductionChecklist from './pages/ProductionChecklist';
 import ProductionFinalChecklist from './pages/ProductionFinalChecklist';
 import ProductionLaunchChecklist from './pages/ProductionLaunchChecklist';
@@ -113,8 +115,6 @@ import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import UserJourneyTest from './pages/UserJourneyTest';
 import V2Start from './pages/V2Start';
-import FoxyAuditLanding from './pages/FoxyAuditLanding';
-import ProductionAuditV2 from './pages/ProductionAuditV2';
 import __Layout from './Layout.jsx';
 
 
@@ -146,6 +146,7 @@ export const PAGES = {
     "Error500": Error500,
     "Features": Features,
     "FinalLaunchChecklist": FinalLaunchChecklist,
+    "FoxyAuditLanding": FoxyAuditLanding,
     "GettingStarted": GettingStarted,
     "GuideQuizGeenius": GuideQuizGeenius,
     "HVACLanding": HVACLanding,
@@ -159,6 +160,7 @@ export const PAGES = {
     "PreDeploymentAudit": PreDeploymentAudit,
     "Pricing": Pricing,
     "Privacy": Privacy,
+    "ProductionAuditV2": ProductionAuditV2,
     "ProductionChecklist": ProductionChecklist,
     "ProductionFinalChecklist": ProductionFinalChecklist,
     "ProductionLaunchChecklist": ProductionLaunchChecklist,
@@ -185,8 +187,6 @@ export const PAGES = {
     "Upsell1": Upsell1,
     "UserJourneyTest": UserJourneyTest,
     "V2Start": V2Start,
-    "FoxyAuditLanding": FoxyAuditLanding,
-    "ProductionAuditV2": ProductionAuditV2,
 }
 
 export const pagesConfig = {
