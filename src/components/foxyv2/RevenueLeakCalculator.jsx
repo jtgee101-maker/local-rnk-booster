@@ -8,17 +8,21 @@ import FoxyMascot from './FoxyMascot';
 export default function RevenueLeakCalculator({ revenueData }) {
   if (!revenueData) return null;
 
-  const monthlyOpportunity = revenueData.monthlyOpportunity || 0;
-  const annualOpportunity = revenueData.annualOpportunity || 0;
-  const currentRank = revenueData.currentRank || 10;
-  const targetRank = revenueData.targetRank || 1;
-  const currentCTR = revenueData.currentCTR || '0';
-  const targetCTR = revenueData.targetCTR || '0';
-  const rankBreakdown = revenueData.rankBreakdown || [];
+  const {
+    monthlyOpportunity = 0,
+    annualOpportunity = 0,
+    currentRank = 9,
+    targetRank = 1,
+    currentCTR = '0',
+    targetCTR = '0',
+    rankBreakdown = [],
+    lossBreakdown,
+    foxyInsight,
+    monthlySearchVolume = 0
+  } = revenueData;
 
-  const monthlyLoss = revenueData.monthlyOpportunity || 0;
-  const annualLoss = revenueData.annualOpportunity || 0;
-  const currentRank = revenueData.currentRank || 9;
+  const monthlyLoss = monthlyOpportunity;
+  const annualLoss = annualOpportunity;
 
   return (
     <motion.div
@@ -54,7 +58,7 @@ export default function RevenueLeakCalculator({ revenueData }) {
               </div>
               <p className="text-gray-200 font-medium text-base">Lost per Month</p>
               <p className="text-gray-400 text-sm mt-2">
-                Based on {revenueData.monthlySearchVolume?.toLocaleString()} monthly searches
+                Based on {monthlySearchVolume.toLocaleString()} monthly searches
               </p>
             </motion.div>
 
@@ -86,7 +90,7 @@ export default function RevenueLeakCalculator({ revenueData }) {
                 <div className="text-gray-300 text-xs font-medium mb-2">Where You Are</div>
                 <div className="text-5xl font-black text-red-400 mb-2">#{currentRank}</div>
                 <div className="text-gray-400 text-sm font-medium">
-                  {revenueData.currentCTR}% CTR
+                  {currentCTR}% CTR
                 </div>
                 <div className="text-red-400 text-xs mt-2">🚫 Invisible to customers</div>
               </div>
@@ -103,7 +107,7 @@ export default function RevenueLeakCalculator({ revenueData }) {
                 <div className="text-gray-300 text-xs font-medium mb-2">Where You Should Be</div>
                 <div className="text-5xl font-black text-green-400 mb-2">#1</div>
                 <div className="text-gray-400 text-sm font-medium">
-                  {revenueData.targetCTR}% CTR
+                  {targetCTR}% CTR
                 </div>
                 <div className="text-green-400 text-xs mt-2">✅ Maximum visibility</div>
               </div>
@@ -111,12 +115,12 @@ export default function RevenueLeakCalculator({ revenueData }) {
           </div>
 
           {/* Rank Improvement Breakdown */}
-          {revenueData.rankBreakdown && revenueData.rankBreakdown.length > 0 && (
+          {rankBreakdown && rankBreakdown.length > 0 && (
             <div className="space-y-3">
               <h4 className="text-white font-bold text-lg flex items-center gap-2">
                 📈 Revenue Growth Potential
               </h4>
-              {revenueData.rankBreakdown.slice(0, 5).map((rank, idx) => (
+              {rankBreakdown.slice(0, 5).map((rank, idx) => (
                 <motion.div
                   key={rank.rank}
                   initial={{ opacity: 0, x: -20 }}
@@ -149,7 +153,7 @@ export default function RevenueLeakCalculator({ revenueData }) {
           )}
 
           {/* Loss Breakdown (NEW) */}
-          {revenueData.lossBreakdown && (
+          {lossBreakdown && (
             <div className="bg-gradient-to-br from-gray-900 to-gray-800 border-2 border-gray-700/50 rounded-xl p-6 space-y-4">
               <h4 className="text-white font-bold text-lg flex items-center gap-2">
                 📊 Where Your Revenue is Bleeding
@@ -162,7 +166,7 @@ export default function RevenueLeakCalculator({ revenueData }) {
                       <div className="text-gray-400 text-xs">Not appearing in top 3 map pack results</div>
                     </div>
                     <div className="text-red-400 font-black text-2xl">
-                      ${revenueData.lossBreakdown.rankingLoss.toLocaleString()}
+                      ${lossBreakdown.rankingLoss.toLocaleString()}
                     </div>
                   </div>
                 </div>
@@ -173,13 +177,13 @@ export default function RevenueLeakCalculator({ revenueData }) {
                       <div className="text-gray-400 text-xs">Missing from ChatGPT, Gemini recommendations</div>
                     </div>
                     <div className="text-orange-400 font-black text-2xl">
-                      ${revenueData.lossBreakdown.aiVisibilityLoss.toLocaleString()}
+                      ${lossBreakdown.aiVisibilityLoss.toLocaleString()}
                     </div>
                   </div>
                 </div>
                 <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3">
                   <div className="text-xs text-gray-300 leading-relaxed">
-                    ⚠️ <span className="text-[#c8ff00] font-bold">{revenueData.lossBreakdown.aiOverviewRate}</span> of searches 
+                    ⚠️ <span className="text-[#c8ff00] font-bold">{lossBreakdown.aiOverviewRate}</span> of searches 
                     now show AI Overviews that capture clicks <span className="text-red-400 font-bold">before</span> organic results ever appear
                   </div>
                 </div>
@@ -199,7 +203,7 @@ export default function RevenueLeakCalculator({ revenueData }) {
               <div>
                 <h4 className="text-white font-bold mb-1">🦊 Foxy's Unified Economic Loss Model</h4>
                 <p className="text-gray-300 text-sm leading-relaxed mb-2">
-                  {revenueData.foxyInsight || `Every hour you stay at rank #${currentRank}, you're losing approximately $${Math.round(monthlyLoss / 30 / 24)} to competitors.`}
+                  {foxyInsight || `Every hour you stay at rank #${currentRank}, you're losing approximately $${Math.round(monthlyLoss / 30 / 24)} to competitors.`}
                 </p>
                 <div className="bg-gray-900/50 rounded-lg p-3 mt-3">
                   <div className="text-gray-400 text-xs mb-1">Hourly Revenue Leak:</div>

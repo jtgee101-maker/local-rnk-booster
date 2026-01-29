@@ -8,15 +8,15 @@ import FoxyMascot from './FoxyMascot';
 export default function AIVisibilityReport({ aiData }) {
   if (!aiData) return null;
 
-  const overallScore = aiData.overallScore || 0;
-  const platforms = aiData.platforms || {};
-  const summary = aiData.summary || { foundIn: 0, totalPlatforms: 6, averageRank: 'N/A', trustScore: 0 };
-  const recommendations = aiData.recommendations || [];
+  const { 
+    overallScore = 0, 
+    platforms = {}, 
+    summary = { foundIn: 0, totalPlatforms: 6, averageRank: 'N/A', trustScore: 0 },
+    recommendations = []
+  } = aiData;
 
   // Convert platforms object to array
   const platformsArray = Object.values(platforms).filter(p => p && p.platform);
-
-  const { overallScore, platforms, summary, recommendations } = aiData;
 
   const platformIcons = {
     Gemini: '💎',
