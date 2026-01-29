@@ -10,7 +10,6 @@ import {
   Shield, TrendingDown, PhoneCall, MessageSquare
 } from 'lucide-react';
 import SEOHead from '@/components/shared/SEOHead';
-import ExitIntentCapture from '@/components/shared/ExitIntentCapture';
 import FoxyMascotImage from '@/components/shared/FoxyMascotImage';
 import SocialProofNotification from '@/components/shared/SocialProofNotification';
 import ScrollTracker from '@/components/shared/ScrollTracker';
@@ -191,11 +190,6 @@ export default function FoxyAuditLanding() {
         description="Discover why 73% of local customers can't find your business. Get a free AI-powered audit revealing your exact geographic blind spots and revenue opportunities in 60 seconds."
       />
       <RemarketingPixels />
-      <ExitIntentCapture 
-        onCapture={(email) => {
-          window.location.href = createPageUrl('QuizGeeniusV2');
-        }}
-      />
       <ScrollTracker pageName="FoxyAuditLanding" enabled={true} />
       <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f] text-white overflow-hidden">
       {/* Floating Background Elements */}
