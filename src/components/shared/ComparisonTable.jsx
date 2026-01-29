@@ -57,7 +57,7 @@ export default function ComparisonTable() {
           Why Choose Foxy
         </Badge>
         <h2 className="text-3xl sm:text-4xl font-black text-white mb-4">
-          Foxy vs. <span className="text-gray-500">DIY</span> vs. <span className="text-gray-500">Traditional Agencies</span>
+          Foxy vs. <span className="text-red-400">DIY</span> vs. <span className="text-orange-400">Traditional Agencies</span>
         </h2>
         <p className="text-gray-400 text-lg max-w-3xl mx-auto">
           See why local businesses are choosing AI-powered automation over expensive agencies and time-consuming DIY
