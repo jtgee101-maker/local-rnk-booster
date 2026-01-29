@@ -9,6 +9,9 @@ import {
   AlertTriangle, Star, Users, Eye, Target, Zap, ArrowRight,
   Shield, TrendingDown, PhoneCall, MessageSquare
 } from 'lucide-react';
+import SEOHead from '@/components/shared/SEOHead';
+import ExitIntentCapture from '@/components/shared/ExitIntentCapture';
+import FoxyMascotImage from '@/components/shared/FoxyMascotImage';
 
 export default function FoxyAuditLanding() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
@@ -134,7 +137,17 @@ export default function FoxyAuditLanding() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f] text-white overflow-hidden">
+    <>
+      <SEOHead 
+        title="Free Local SEO Audit - Find Your Revenue Leaks | LocalRank.ai"
+        description="Discover why 73% of local customers can't find your business. Get a free AI-powered audit revealing your exact geographic blind spots and revenue opportunities in 60 seconds."
+      />
+      <ExitIntentCapture 
+        onCapture={(email) => {
+          window.location.href = createPageUrl('QuizGeeniusV2');
+        }}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f] text-white overflow-hidden">
       {/* Floating Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <motion.div
@@ -206,13 +219,13 @@ export default function FoxyAuditLanding() {
             </motion.div>
 
             {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl md:text-7xl font-black mb-6 leading-tight">
-              Discover Why <span className="text-[#c8ff00]">73%</span> of Your<br />
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black mb-6 leading-tight">
+              Discover Why <span className="text-[#c8ff00]">73%</span> of Your<br className="hidden sm:block" />
               Local Customers <span className="text-red-400">Can't Find You</span>
             </h1>
 
             {/* Subheadline */}
-            <p className="text-xl sm:text-2xl text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-xl md:text-2xl text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed px-4">
               Free AI-Powered Audit Reveals Your Exact Geographic "Blind Spots" 
               and Shows You <span className="text-[#c8ff00] font-bold">How Much Revenue You're Bleeding</span> to Competitors Every Month
             </p>
@@ -221,7 +234,7 @@ export default function FoxyAuditLanding() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
               <Button
                 onClick={() => window.location.href = createPageUrl('QuizGeeniusV2')}
-                className="bg-[#c8ff00] hover:bg-[#b8ef00] text-gray-900 font-black text-lg px-8 py-7 rounded-xl shadow-2xl shadow-[#c8ff00]/20 transform hover:scale-105 transition-all"
+                className="bg-[#c8ff00] hover:bg-[#b8ef00] text-gray-900 font-black text-base sm:text-lg md:text-xl px-6 sm:px-8 py-6 sm:py-7 rounded-xl shadow-2xl shadow-[#c8ff00]/20 transform hover:scale-105 transition-all min-h-[56px] w-full sm:w-auto"
               >
                 <Zap className="w-5 h-5 mr-2" />
                 Get My Free Foxy Audit Now
@@ -335,7 +348,7 @@ export default function FoxyAuditLanding() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-12">
             {[
               {
                 name: "Contractors",
@@ -395,8 +408,9 @@ export default function FoxyAuditLanding() {
                     />
                     <img
                       src={industry.img}
-                      alt={industry.name}
-                      className="w-32 h-32 mx-auto object-contain relative z-10 group-hover:scale-110 transition-transform duration-300"
+                      alt={`${industry.name} Local SEO optimization`}
+                      loading="lazy"
+                      className="w-24 h-24 sm:w-32 sm:h-32 mx-auto object-contain relative z-10 group-hover:scale-110 transition-transform duration-300"
                       style={{ filter: 'drop-shadow(0 0 15px rgba(200, 255, 0, 0.5))' }}
                     />
                   </div>
@@ -419,11 +433,11 @@ export default function FoxyAuditLanding() {
             </p>
             <Button
               onClick={() => window.location.href = createPageUrl('QuizGeeniusV2')}
-              className="bg-[#c8ff00] hover:bg-[#b8ef00] text-gray-900 font-black text-xl px-10 py-6 rounded-xl shadow-xl shadow-[#c8ff00]/20 transform hover:scale-105 transition-all"
+              className="bg-[#c8ff00] hover:bg-[#b8ef00] text-gray-900 font-black text-base sm:text-lg md:text-xl px-8 sm:px-10 py-5 sm:py-6 rounded-xl shadow-xl shadow-[#c8ff00]/20 transform hover:scale-105 transition-all min-h-[56px] w-full sm:w-auto"
             >
-              <Target className="w-6 h-6 mr-2" />
+              <Target className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
               See If We Serve Your Industry
-              <ArrowRight className="w-6 h-6 ml-2" />
+              <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 ml-2" />
             </Button>
           </motion.div>
         </div>
@@ -473,7 +487,7 @@ export default function FoxyAuditLanding() {
           <div className="text-center">
             <Button
               onClick={() => window.location.href = createPageUrl('QuizGeeniusV2')}
-              className="bg-[#c8ff00] hover:bg-[#b8ef00] text-gray-900 font-black text-lg px-10 py-7 rounded-xl shadow-2xl shadow-[#c8ff00]/20 transform hover:scale-105 transition-all"
+              className="bg-[#c8ff00] hover:bg-[#b8ef00] text-gray-900 font-black text-base sm:text-lg md:text-xl px-8 sm:px-10 py-6 sm:py-7 rounded-xl shadow-2xl shadow-[#c8ff00]/20 transform hover:scale-105 transition-all min-h-[56px] w-full sm:w-auto"
             >
               Start My Free Foxy Audit
               <ArrowRight className="w-5 h-5 ml-2" />
@@ -651,11 +665,11 @@ export default function FoxyAuditLanding() {
 
               <Button
                 onClick={() => window.location.href = createPageUrl('QuizGeeniusV2')}
-                className="bg-[#c8ff00] hover:bg-[#b8ef00] text-gray-900 font-black text-xl px-12 py-8 rounded-xl shadow-2xl shadow-[#c8ff00]/30 transform hover:scale-105 transition-all"
+                className="bg-[#c8ff00] hover:bg-[#b8ef00] text-gray-900 font-black text-lg sm:text-xl md:text-2xl px-8 sm:px-12 py-6 sm:py-8 rounded-xl shadow-2xl shadow-[#c8ff00]/30 transform hover:scale-105 transition-all min-h-[56px] w-full sm:w-auto"
               >
-                <Zap className="w-6 h-6 mr-2" />
+                <Zap className="w-5 h-5 sm:w-6 sm:h-6 mr-2" />
                 Get My Free Foxy Audit Now
-                <ArrowRight className="w-6 h-6 ml-2" />
+                <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 ml-2" />
               </Button>
 
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-gray-400">
@@ -703,5 +717,6 @@ export default function FoxyAuditLanding() {
         </div>
       </section>
     </div>
+    </>
   );
 }

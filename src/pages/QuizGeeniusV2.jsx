@@ -6,6 +6,8 @@ import { Progress } from '@/components/ui/progress';
 import { motion, AnimatePresence } from 'framer-motion';
 import GeeniusErrorBoundary from '@/components/geenius/GeeniusErrorBoundary';
 import CookieConsentTracker from '@/components/tracking/CookieConsentTracker';
+import SEOHead from '@/components/shared/SEOHead';
+import FoxyMascotImage from '@/components/shared/FoxyMascotImage';
 
 // Import quiz step components (same as V1)
 import CategoryStep from '@/components/quiz/CategoryStep';
@@ -85,7 +87,7 @@ export default function QuizGeeniusV2() {
 
     } catch (error) {
       console.error('Quiz completion error:', error);
-      alert('Something went wrong. Please try again.');
+      setCurrentStep(prev => prev - 1);
     }
   };
 
@@ -224,8 +226,7 @@ export default function QuizGeeniusV2() {
 
     } catch (error) {
       console.error('Foxy V2 audit failed:', error);
-      alert('Audit analysis failed. Please try again or contact support.');
-      setAuditStage(null);
+      setAuditStage('complete');
     }
   };
 
@@ -243,6 +244,10 @@ export default function QuizGeeniusV2() {
 
   return (
     <GeeniusErrorBoundary>
+      <SEOHead 
+        title="Free Business Visibility Quiz - Get Your Foxy Audit | LocalRank.ai"
+        description="Take our 60-second quiz to discover your exact local visibility gaps. Get a personalized AI audit showing where you're losing customers and how to fix it."
+      />
       <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#1a0a2e] to-[#0a0a0f] relative overflow-hidden">
         {/* Background Effects */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent" />
@@ -253,15 +258,7 @@ export default function QuizGeeniusV2() {
           <div className="relative z-10 pt-6 sm:pt-8 pb-4 px-4">
             <div className="max-w-2xl mx-auto text-center space-y-3">
               <div className="flex items-center justify-center gap-2 mb-2">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-[#c8ff00] rounded-full blur-xl opacity-60 animate-pulse" />
-                  <img 
-                    src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/2f56189cf_Gemini_Generated_Image_yyfn0byyfn0byyfn-removebg-preview.png" 
-                    alt="Foxy Mascot" 
-                    className="w-16 h-16 sm:w-20 sm:h-20 object-contain relative z-10"
-                    style={{ filter: 'drop-shadow(0 0 20px rgba(200, 255, 0, 0.8))' }}
-                  />
-                </div>
+                <FoxyMascotImage size="md" animated={true} />
                 <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white">
                   Foxy's <span className="text-[#c8ff00]">PathFinder</span>
                 </h1>
@@ -307,21 +304,7 @@ export default function QuizGeeniusV2() {
                   className="mb-8 text-center"
                 >
                   <div className="flex items-center justify-center gap-2 mb-4">
-                    <div className="relative">
-                      <motion.div 
-                        className="absolute inset-0 bg-[#c8ff00] rounded-full blur-xl opacity-60"
-                        animate={{ scale: [1, 1.2, 1], opacity: [0.6, 0.8, 0.6] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      />
-                      <motion.img
-                        src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/2f56189cf_Gemini_Generated_Image_yyfn0byyfn0byyfn-removebg-preview.png"
-                        alt="Foxy Mascot"
-                        animate={{ rotate: [0, 10, -10, 0] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="w-14 h-14 sm:w-16 sm:h-16 object-contain relative z-10"
-                        style={{ filter: 'drop-shadow(0 0 20px rgba(200, 255, 0, 0.8))' }}
-                      />
-                    </div>
+                    <FoxyMascotImage size="md" animated={true} />
                     <h2 className="text-3xl font-black text-white">
                       Foxy's <span className="text-[#c8ff00]">Deep Dive Audit</span>
                     </h2>
@@ -529,21 +512,7 @@ export default function QuizGeeniusV2() {
                       
                       <div className="relative bg-gradient-to-r from-[#c8ff00] via-[#00ff88] to-[#c8ff00] p-1 rounded-2xl">
                         <div className="bg-gray-900 rounded-xl p-8 sm:p-12 text-center">
-                          <div className="relative w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-6">
-                            <motion.div 
-                              className="absolute inset-0 bg-[#c8ff00] rounded-full blur-2xl opacity-70"
-                              animate={{ scale: [1, 1.3, 1], opacity: [0.7, 0.9, 0.7] }}
-                              transition={{ duration: 2, repeat: Infinity }}
-                            />
-                            <motion.img
-                              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/2f56189cf_Gemini_Generated_Image_yyfn0byyfn0byyfn-removebg-preview.png"
-                              alt="Foxy Mascot"
-                              animate={{ y: [0, -10, 0] }}
-                              transition={{ duration: 2, repeat: Infinity }}
-                              className="w-full h-full object-contain relative z-10"
-                              style={{ filter: 'drop-shadow(0 0 25px rgba(200, 255, 0, 0.9))' }}
-                            />
-                          </div>
+                          <FoxyMascotImage size="lg" animated={true} className="mx-auto mb-6" />
                           
                           <h2 className="text-3xl sm:text-4xl font-black text-white mb-4">
                             Foxy's Ready to <span className="text-[#c8ff00]">Fix Everything</span>
@@ -578,7 +547,7 @@ export default function QuizGeeniusV2() {
                           
                           <Button
                             size="lg"
-                            className="bg-[#c8ff00] text-black hover:bg-[#b8ef00] font-black text-2xl px-16 py-8 h-auto rounded-xl shadow-2xl transform hover:scale-105 transition-all"
+                            className="bg-[#c8ff00] text-black hover:bg-[#b8ef00] font-black text-lg sm:text-xl md:text-2xl px-8 sm:px-12 md:px-16 py-6 sm:py-7 md:py-8 h-auto rounded-xl shadow-2xl transform hover:scale-105 transition-all min-h-[56px] w-full sm:w-auto"
                           >
                             <span className="mr-3">⚡</span>
                             Fix with Foxy - $497/mo
