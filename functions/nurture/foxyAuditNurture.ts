@@ -64,6 +64,23 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Nurture sequence error:', error);
-    return Response.json({ error: error.message }, { status: 500 });
+    
+    // Log error for debugging
+    try {
+      await base44.asServiceRole.entities.ErrorLog?.create?.({
+        error_type: 'nurture_sequence_failure',
+        severity: 'high',
+        message: `Nurture sequence failed: ${error.message}`,
+        stack_trace: error.stack,
+        metadata: { lead_id: leadId }
+      }).catch(() => {});
+    } catch (logError) {
+      console.error('Failed to log error:', logError);
+    }
+
+    return Response.json({ 
+      error: error.message,
+      timestamp: new Date().toISOString()
+    }, { status: 500 });
   }
 });
