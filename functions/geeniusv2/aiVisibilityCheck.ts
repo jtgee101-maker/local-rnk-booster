@@ -69,56 +69,62 @@ Deno.serve(async (req) => {
 
 async function checkAIVisibility(platform, businessName, location, keyword, industry, base44) {
   try {
-    // Use Base44's InvokeLLM for real-time AI search simulation
-    const prompt = `You are testing whether a ${industry} business called "${businessName}" in ${location} is visible in AI search results for the keyword "${keyword}".
+    const prompt = `Analyze if a ${industry} business called "${businessName}" located in ${location} would be visible in ${platform} search results when someone searches for "${keyword}".
 
-Analyze and respond with JSON:
-{
-  "found": boolean (would this business appear in top results),
-  "rank": number or null (position 1-5 if found, null if not),
-  "mentioned": boolean (is the business name mentioned),
-  "contextProvided": boolean (does AI provide rich context about services),
-  "dataAccuracy": "high" or "medium" or "low",
-  "reasoning": string (brief explanation)
-}`;
+Based on typical ${platform} knowledge cutoff and indexing patterns, provide realistic analysis:
+- Would this specific business be found in top search results?
+- What ranking position (1-10) if found?
+- Is the business name mentioned or just the service category?
+- Would ${platform} provide rich context about their services/specialties?
+- How accurate would the data be (current business info)?
+
+Respond as JSON:`;
 
     const response = await base44.integrations.Core.InvokeLLM({
       prompt,
+      add_context_from_internet: true,
       response_json_schema: {
         type: "object",
         properties: {
-          found: { type: "boolean" },
-          rank: { type: ["integer", "null"] },
-          mentioned: { type: "boolean" },
-          contextProvided: { type: "boolean" },
+          found: { type: "boolean", description: "Would appear in top results" },
+          rank: { type: ["integer", "null"], description: "Position 1-10 or null" },
+          mentioned: { type: "boolean", description: "Business name explicitly mentioned" },
+          contextProvided: { type: "boolean", description: "Rich service context available" },
           dataAccuracy: { type: "string", enum: ["high", "medium", "low"] },
-          reasoning: { type: "string" }
+          reasoning: { type: "string", description: "Why this visibility level" }
         },
         required: ["found", "rank", "mentioned", "contextProvided", "dataAccuracy"]
       }
     });
 
-    const data = response.data || response;
+    // Extract data from response
+    const data = response && typeof response === 'object' ? response : 
+                 (response && response.data ? response.data : {});
     
-    return {
+    const result = {
       platform,
-      found: data.found || false,
-      rank: data.rank || null,
-      mentioned: data.mentioned || false,
-      contextProvided: data.contextProvided || false,
-      dataAccuracy: data.dataAccuracy || 'low',
+      found: Boolean(data.found),
+      rank: data.rank ? parseInt(data.rank) : null,
+      mentioned: Boolean(data.mentioned),
+      contextProvided: Boolean(data.contextProvided),
+      dataAccuracy: ['high', 'medium', 'low'].includes(data.dataAccuracy) ? data.dataAccuracy : 'medium',
       reasoning: data.reasoning || '',
-      score: calculatePlatformScore({
-        found: data.found,
-        rank: data.rank,
-        mentioned: data.mentioned,
-        contextProvided: data.contextProvided,
-        dataAccuracy: data.dataAccuracy
-      })
+      score: 0
     };
 
+    result.score = calculatePlatformScore({
+      found: result.found,
+      rank: result.rank,
+      mentioned: result.mentioned,
+      contextProvided: result.contextProvided,
+      dataAccuracy: result.dataAccuracy
+    });
+
+    console.log(`✓ ${platform} analysis complete:`, result);
+    return result;
+
   } catch (error) {
-    console.error(`${platform} visibility check failed:`, error);
+    console.error(`✗ ${platform} analysis failed:`, error.message);
     return {
       platform,
       found: false,
@@ -126,8 +132,9 @@ Analyze and respond with JSON:
       mentioned: false,
       contextProvided: false,
       dataAccuracy: 'low',
-      error: error.message,
-      score: 0
+      reasoning: `Unable to analyze: ${error.message}`,
+      score: 0,
+      error: error.message
     };
   }
 }
@@ -135,33 +142,55 @@ Analyze and respond with JSON:
 function calculatePlatformScore(result) {
   let score = 0;
   
+  // Base: Found in platform (40 pts)
   if (result.found) score += 40;
-  if (result.rank && result.rank <= 3) score += 30;
-  else if (result.rank && result.rank <= 5) score += 20;
-  if (result.contextProvided) score += 15;
-  if (result.dataAccuracy === 'high') score += 15;
   
-  return Math.min(score, 100);
+  // Ranking position (0-35 pts)
+  if (result.rank) {
+    if (result.rank <= 2) score += 35;
+    else if (result.rank <= 4) score += 28;
+    else if (result.rank <= 6) score += 20;
+    else if (result.rank <= 10) score += 12;
+  }
+  
+  // Context richness (20 pts)
+  if (result.contextProvided) score += 20;
+  
+  // Mentioned explicitly (5 pts)
+  if (result.mentioned) score += 5;
+  
+  // Data accuracy bonus (0-15 pts)
+  if (result.dataAccuracy === 'high') score += 15;
+  else if (result.dataAccuracy === 'medium') score += 8;
+  
+  return Math.min(Math.max(score, 0), 100);
 }
 
 function calculateAIVisibilityScore(aiResults) {
-  const totalScore = aiResults.reduce((sum, result) => sum + result.score, 0);
-  return Math.round(totalScore / aiResults.length);
+  if (!aiResults || aiResults.length === 0) return 0;
+  const validResults = aiResults.filter(r => typeof r.score === 'number');
+  if (validResults.length === 0) return 0;
+  const totalScore = validResults.reduce((sum, result) => sum + result.score, 0);
+  return Math.round(totalScore / validResults.length);
 }
 
 function calculateAverageAIRank(aiResults) {
-  const rankedResults = aiResults.filter(r => r.rank !== null);
+  const rankedResults = aiResults.filter(r => r.rank !== null && typeof r.rank === 'number');
   if (rankedResults.length === 0) return null;
   
   const sum = rankedResults.reduce((acc, r) => acc + r.rank, 0);
-  return (sum / rankedResults.length).toFixed(1);
+  const avg = sum / rankedResults.length;
+  return parseFloat(avg.toFixed(1));
 }
 
 function calculateTrustScore(aiResults) {
+  if (!aiResults || aiResults.length === 0) return 0;
   const highAccuracy = aiResults.filter(r => r.dataAccuracy === 'high').length;
   const withContext = aiResults.filter(r => r.contextProvided).length;
+  const foundResults = aiResults.filter(r => r.found).length;
   
-  return Math.round(((highAccuracy + withContext) / (aiResults.length * 2)) * 100);
+  const score = ((highAccuracy * 2 + withContext + foundResults) / (aiResults.length * 3)) * 100;
+  return Math.round(Math.min(Math.max(score, 0), 100));
 }
 
 function generateAEORecommendations(aiResults, businessName) {
