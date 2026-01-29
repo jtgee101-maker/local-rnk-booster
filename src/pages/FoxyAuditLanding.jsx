@@ -509,17 +509,21 @@ export default function FoxyAuditLanding() {
         <div className="max-w-5xl mx-auto">
           <Card className="bg-gradient-to-br from-[#c8ff00]/10 via-gray-900 to-purple-500/10 border-4 border-[#c8ff00]/30 p-12">
             <div className="text-center">
-              <motion.div
-                animate={{ scale: [1, 1.05, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <img
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/2f56189cf_Gemini_Generated_Image_yyfn0byyfn0byyfn-removebg-preview.png"
-                  alt="Foxy"
-                  className="w-32 h-32 mx-auto mb-6 object-contain"
+              <div className="relative inline-block">
+                <motion.div 
+                  className="absolute inset-0 bg-[#c8ff00] rounded-full blur-3xl opacity-50"
+                  animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0.7, 0.5] }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                />
+                <motion.img
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696d57cd4797fbebf0798aa4/a834b4d7d_image_d204ca79-7fa0-4451-958c-8c77d8c6c16f-removebg-preview.png"
+                  alt="Foxy Celebrating"
+                  className="w-48 h-48 mx-auto mb-6 object-contain relative z-10"
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                   style={{ filter: 'drop-shadow(0 0 30px rgba(200, 255, 0, 0.9))' }}
                 />
-              </motion.div>
+              </div>
               
               <h2 className="text-4xl sm:text-5xl font-black mb-6 bg-gradient-to-r from-[#c8ff00] via-[#d4ff33] to-[#c8ff00] bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(200,255,0,0.5)]">
                 Ready to Stop <span className="text-red-400 font-extrabold drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]">Bleeding Revenue?</span>
