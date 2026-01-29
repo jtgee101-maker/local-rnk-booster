@@ -208,6 +208,7 @@ export default function QuizGeeniusV2() {
 
       // Step 4: AI Visibility
       try {
+        console.log('🤖 Starting AI visibility check...');
         const aiResponse = await Promise.race([
           base44.functions.invoke('geeniusv2/aiVisibilityCheck', {
             businessName: lead.business_name,
@@ -218,28 +219,36 @@ export default function QuizGeeniusV2() {
           auditTimeout
         ]);
 
-        if (aiResponse?.data?.success && aiResponse.data.data) {
-          setAuditData(prev => ({ ...prev, ai: aiResponse.data.data }));
-          await new Promise(resolve => setTimeout(resolve, 800));
-          setAuditStage('complete');
-          
-          // Track completion
-          base44.analytics.track({
-            eventName: 'foxy_audit_complete',
-            properties: {
-              health_score: auditData.health?.overallScore || 0,
-              monthly_opportunity: auditData.revenue?.monthlyOpportunity || 0,
-              visibility_score: auditData.heatmap?.visibilityScore || 0,
-              ai_score: aiResponse.data.data.overallScore || 0,
-              sections_with_errors: Object.keys(sectionErrors).length
-            }
-          }).catch(() => {});
+        console.log('🤖 AI response received:', aiResponse);
+
+        if (aiResponse?.data) {
+          const aiData = aiResponse.data.data || aiResponse.data;
+          if (aiData && (aiData.platforms || aiData.overallScore !== undefined)) {
+            setAuditData(prev => ({ ...prev, ai: aiData }));
+            await new Promise(resolve => setTimeout(resolve, 800));
+            setAuditStage('complete');
+
+            // Track completion
+            base44.analytics.track({
+              eventName: 'foxy_audit_complete',
+              properties: {
+                health_score: auditData.health?.overallScore || 0,
+                monthly_opportunity: auditData.revenue?.monthlyOpportunity || 0,
+                visibility_score: auditData.heatmap?.visibilityScore || 0,
+                ai_score: aiData.overallScore || 0,
+                ai_platforms_found: aiData.summary?.foundIn || 0,
+                sections_with_errors: Object.keys(sectionErrors).length
+              }
+            }).catch(() => {});
+          } else {
+            throw new Error('AI: Invalid response structure');
+          }
         } else {
-          throw new Error('AI: No valid response');
+          throw new Error('AI: No response from server');
         }
       } catch (error) {
-        console.error('AI visibility error:', error);
-        setSectionErrors(prev => ({ ...prev, ai: error.message }));
+        console.error('❌ AI visibility error:', error);
+        setSectionErrors(prev => ({ ...prev, ai: error.message || 'Unable to complete AI analysis' }));
         setAuditStage('complete');
       }
 
