@@ -33,6 +33,7 @@ export default function QuizGeeniusV2() {
   const [sessionId] = useState(`geeniusv2_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
   const [auditStage, setAuditStage] = useState(null); // null, 'health', 'revenue', 'heatmap', 'ai', 'complete'
   const [expandedSection, setExpandedSection] = useState(null);
+  const [sectionErrors, setSectionErrors] = useState({});
   const [auditData, setAuditData] = useState({
     health: null,
     revenue: null,
@@ -92,82 +93,115 @@ export default function QuizGeeniusV2() {
     try {
       // Step 1: Advanced Health Score with Places API
       setAuditStage('health');
-      const healthResponse = await base44.functions.invoke('geeniusv2/advancedHealthScore', {
-        placeId: lead.place_id,
-        gmbData: {
-          displayName: lead.business_name,
-          formattedAddress: lead.address,
-          internationalPhoneNumber: lead.phone,
-          rating: lead.gmb_rating,
-          userRatingCount: lead.gmb_reviews_count,
-          photos: lead.gmb_photos_count ? Array(lead.gmb_photos_count).fill({}) : [],
-          types: lead.gmb_types || [],
-          businessStatus: 'OPERATIONAL',
-          currentOpeningHours: { openNow: lead.gmb_has_hours },
-          reviews: lead.gmb_reviews || [],
-          location: lead.location
-        }
-      });
+      try {
+        const healthResponse = await base44.functions.invoke('geeniusv2/advancedHealthScore', {
+          placeId: lead.place_id,
+          gmbData: {
+            displayName: lead.business_name,
+            formattedAddress: lead.address,
+            internationalPhoneNumber: lead.phone,
+            rating: lead.gmb_rating,
+            userRatingCount: lead.gmb_reviews_count,
+            photos: lead.gmb_photos_count ? Array(lead.gmb_photos_count).fill({}) : [],
+            types: lead.gmb_types || [],
+            businessStatus: 'OPERATIONAL',
+            currentOpeningHours: { openNow: lead.gmb_has_hours },
+            reviews: lead.gmb_reviews || [],
+            location: lead.location
+          }
+        });
 
-      if (healthResponse.data?.success) {
-        setAuditData(prev => ({ ...prev, health: healthResponse.data.data }));
-        await new Promise(resolve => setTimeout(resolve, 1500)); // Dramatic pause
-        setAuditStage('revenue');
+        if (healthResponse.data?.success) {
+          setAuditData(prev => ({ ...prev, health: healthResponse.data.data }));
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          setAuditStage('revenue');
+        } else {
+          throw new Error('Health score analysis failed');
+        }
+      } catch (error) {
+        console.error('Health score error:', error);
+        setSectionErrors(prev => ({ ...prev, health: error.message }));
+        setAuditStage('revenue'); // Continue anyway
       }
 
       // Step 2: Revenue Opportunity with Unified Loss Model
-      const keyword = `${lead.business_category} ${lead.address?.split(',').pop()?.trim() || ''}`;
-      const revenueResponse = await base44.functions.invoke('geeniusv2/revenueOpportunity', {
-        keyword: keyword.trim(),
-        location: lead.address,
-        currentRank: healthResponse.data?.data?.overallScore < 70 ? 9 : 5,
-        avgOrderValue: 350
-      });
+      try {
+        const keyword = `${lead.business_category} ${lead.address?.split(',').pop()?.trim() || ''}`;
+        const revenueResponse = await base44.functions.invoke('geeniusv2/revenueOpportunity', {
+          keyword: keyword.trim(),
+          location: lead.address,
+          currentRank: auditData.health?.overallScore < 70 ? 9 : 5,
+          avgOrderValue: 350
+        });
 
-      if (revenueResponse.data?.success) {
-        setAuditData(prev => ({ ...prev, revenue: revenueResponse.data.data }));
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setAuditStage('heatmap');
+        if (revenueResponse.data?.success) {
+          setAuditData(prev => ({ ...prev, revenue: revenueResponse.data.data }));
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          setAuditStage('heatmap');
+        } else {
+          throw new Error('Revenue analysis failed');
+        }
+      } catch (error) {
+        console.error('Revenue error:', error);
+        setSectionErrors(prev => ({ ...prev, revenue: error.message }));
+        setAuditStage('heatmap'); // Continue
       }
 
       // Step 3: Geo Heatmap with Proximity Analysis
-      const heatmapResponse = await base44.functions.invoke('geeniusv2/geoHeatmap', {
-        placeId: lead.place_id,
-        businessName: lead.business_name,
-        location: lead.location,
-        keyword: lead.business_category,
-        radiusMiles: 5
-      });
+      try {
+        const heatmapResponse = await base44.functions.invoke('geeniusv2/geoHeatmap', {
+          placeId: lead.place_id,
+          businessName: lead.business_name,
+          location: lead.location,
+          keyword: lead.business_category,
+          radiusMiles: 5
+        });
 
-      if (heatmapResponse.data?.success) {
-        setAuditData(prev => ({ ...prev, heatmap: heatmapResponse.data.data }));
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setAuditStage('ai');
+        if (heatmapResponse.data?.success) {
+          setAuditData(prev => ({ ...prev, heatmap: heatmapResponse.data.data }));
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          setAuditStage('ai');
+        } else {
+          throw new Error('Heatmap analysis failed');
+        }
+      } catch (error) {
+        console.error('Heatmap error:', error);
+        setSectionErrors(prev => ({ ...prev, heatmap: error.message }));
+        setAuditStage('ai'); // Continue
       }
 
       // Step 4: AI Visibility & AEO Check
-      const aiResponse = await base44.functions.invoke('geeniusv2/aiVisibilityCheck', {
-        businessName: lead.business_name,
-        location: lead.address,
-        keyword: lead.business_category,
-        industry: lead.business_category
-      });
-
-      if (aiResponse.data?.success) {
-        setAuditData(prev => ({ ...prev, ai: aiResponse.data.data }));
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setAuditStage('complete');
-        
-        // Track completion event
-        base44.analytics.track({
-          eventName: 'foxy_audit_complete',
-          properties: {
-            health_score: healthResponse.data.data.overallScore,
-            monthly_opportunity: revenueResponse.data.data.monthlyOpportunity,
-            visibility_score: heatmapResponse.data.data.visibilityScore,
-            ai_score: aiResponse.data.data.overallScore
-          }
+      try {
+        const aiResponse = await base44.functions.invoke('geeniusv2/aiVisibilityCheck', {
+          businessName: lead.business_name,
+          location: lead.address,
+          keyword: lead.business_category,
+          industry: lead.business_category
         });
+
+        if (aiResponse.data?.success) {
+          setAuditData(prev => ({ ...prev, ai: aiResponse.data.data }));
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          setAuditStage('complete');
+          
+          // Track completion event
+          base44.analytics.track({
+            eventName: 'foxy_audit_complete',
+            properties: {
+              health_score: auditData.health?.overallScore || 0,
+              monthly_opportunity: auditData.revenue?.monthlyOpportunity || 0,
+              visibility_score: auditData.heatmap?.visibilityScore || 0,
+              ai_score: aiResponse.data.data.overallScore,
+              sections_with_errors: Object.keys(sectionErrors).length
+            }
+          });
+        } else {
+          throw new Error('AI visibility check failed');
+        }
+      } catch (error) {
+        console.error('AI visibility error:', error);
+        setSectionErrors(prev => ({ ...prev, ai: error.message }));
+        setAuditStage('complete'); // Complete anyway with available data
       }
 
     } catch (error) {
@@ -335,6 +369,12 @@ export default function QuizGeeniusV2() {
                         defaultExpanded={expandedSection === 'health'}
                         gradient="from-blue-900/20 via-gray-900 to-gray-900"
                         accentColor="blue-400"
+                        hasError={!!sectionErrors.health}
+                        isEmpty={!auditData.health}
+                        onRetry={() => {
+                          setSectionErrors(prev => ({ ...prev, health: null }));
+                          // Trigger re-fetch if needed
+                        }}
                       >
                         <FoxyHealthScore
                           scoreData={auditData.health}
@@ -349,6 +389,8 @@ export default function QuizGeeniusV2() {
                         defaultExpanded={expandedSection === 'revenue'}
                         gradient="from-red-900/20 via-gray-900 to-gray-900"
                         accentColor="red-400"
+                        hasError={!!sectionErrors.revenue}
+                        isEmpty={!auditData.revenue}
                       >
                         <RevenueLeakCalculator revenueData={auditData.revenue} />
                       </ExpandableAuditSection>
@@ -360,6 +402,8 @@ export default function QuizGeeniusV2() {
                         defaultExpanded={expandedSection === 'heatmap'}
                         gradient="from-purple-900/20 via-gray-900 to-gray-900"
                         accentColor="purple-400"
+                        hasError={!!sectionErrors.heatmap}
+                        isEmpty={!auditData.heatmap}
                       >
                         <GeoHeatmapDisplay heatmapData={auditData.heatmap} />
                       </ExpandableAuditSection>
@@ -371,6 +415,8 @@ export default function QuizGeeniusV2() {
                         defaultExpanded={expandedSection === 'ai'}
                         gradient="from-cyan-900/20 via-gray-900 to-gray-900"
                         accentColor="cyan-400"
+                        hasError={!!sectionErrors.ai}
+                        isEmpty={!auditData.ai}
                       >
                         <AIVisibilityReport aiData={auditData.ai} />
                       </ExpandableAuditSection>
