@@ -8,6 +8,7 @@ import GeeniusErrorBoundary from '@/components/geenius/GeeniusErrorBoundary';
 import CookieConsentTracker from '@/components/tracking/CookieConsentTracker';
 import SEOHead from '@/components/shared/SEOHead';
 import FoxyMascotImage from '@/components/shared/FoxyMascotImage';
+import ScrollTracker from '@/components/shared/ScrollTracker';
 
 // Import quiz step components (same as V1)
 import CategoryStep from '@/components/quiz/CategoryStep';
@@ -96,11 +97,7 @@ export default function QuizGeeniusV2() {
       // Step 1: Advanced Health Score with Places API
       setAuditStage('health');
       try {
-        console.log('🏥 Starting health check with lead data:', {
-          place_id: lead.place_id,
-          business_name: lead.business_name,
-          location: lead.location
-        });
+
 
         const healthResponse = await base44.functions.invoke('geeniusv2/advancedHealthScore', {
           placeId: lead.place_id,
@@ -157,14 +154,6 @@ export default function QuizGeeniusV2() {
 
       // Step 3: Geo Heatmap with Proximity Analysis
       try {
-        console.log('🗺️ Calling geoHeatmap with:', {
-          placeId: lead.place_id,
-          businessName: lead.business_name,
-          location: lead.location,
-          keyword: lead.business_category,
-          radiusMiles: 5
-        });
-
         const heatmapResponse = await base44.functions.invoke('geeniusv2/geoHeatmap', {
           placeId: lead.place_id,
           businessName: lead.business_name,
@@ -173,19 +162,14 @@ export default function QuizGeeniusV2() {
           radiusMiles: 5
         });
 
-        console.log('🗺️ Heatmap response:', heatmapResponse);
-
         if (heatmapResponse.data?.success && heatmapResponse.data?.data) {
-          console.log('✅ Heatmap data received:', heatmapResponse.data.data);
           setAuditData(prev => ({ ...prev, heatmap: heatmapResponse.data.data }));
           await new Promise(resolve => setTimeout(resolve, 1500));
           setAuditStage('ai');
         } else {
-          console.error('❌ Heatmap response invalid:', heatmapResponse);
           throw new Error(heatmapResponse.data?.message || 'Heatmap analysis failed');
         }
       } catch (error) {
-        console.error('❌ Heatmap error:', error);
         setSectionErrors(prev => ({ ...prev, heatmap: error.message }));
         setAuditStage('ai'); // Continue
       }
@@ -248,6 +232,7 @@ export default function QuizGeeniusV2() {
         title="Free Business Visibility Quiz - Get Your Foxy Audit | LocalRank.ai"
         description="Take our 60-second quiz to discover your exact local visibility gaps. Get a personalized AI audit showing where you're losing customers and how to fix it."
       />
+      <ScrollTracker pageName="QuizGeeniusV2" enabled={true} />
       <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#1a0a2e] to-[#0a0a0f] relative overflow-hidden">
         {/* Background Effects */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent" />

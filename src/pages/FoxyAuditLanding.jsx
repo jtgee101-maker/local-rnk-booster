@@ -12,6 +12,8 @@ import {
 import SEOHead from '@/components/shared/SEOHead';
 import ExitIntentCapture from '@/components/shared/ExitIntentCapture';
 import FoxyMascotImage from '@/components/shared/FoxyMascotImage';
+import SocialProofNotification from '@/components/shared/SocialProofNotification';
+import ScrollTracker from '@/components/shared/ScrollTracker';
 
 export default function FoxyAuditLanding() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
@@ -21,17 +23,23 @@ export default function FoxyAuditLanding() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setViewersCount(prev => Math.floor(Math.random() * 30) + 110);
-    }, 5000);
+      setViewersCount(prev => {
+        const change = Math.floor(Math.random() * 5) - 2;
+        return Math.max(110, Math.min(140, prev + change));
+      });
+    }, 12000);
     return () => clearInterval(interval);
   }, []);
 
+  const [isPaused, setIsPaused] = useState(false);
+
   useEffect(() => {
+    if (isPaused) return;
     const interval = setInterval(() => {
       setActiveTestimonial(prev => (prev + 1) % testimonials.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isPaused]);
 
   const painPoints = [
     {
@@ -147,6 +155,8 @@ export default function FoxyAuditLanding() {
           window.location.href = createPageUrl('QuizGeeniusV2');
         }}
       />
+      <SocialProofNotification enabled={true} />
+      <ScrollTracker pageName="FoxyAuditLanding" enabled={true} />
       <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f] text-white overflow-hidden">
       {/* Floating Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -185,7 +195,7 @@ export default function FoxyAuditLanding() {
           <div className="flex items-center gap-4">
             <div className="hidden sm:flex items-center gap-2 text-sm">
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-              <span className="text-gray-300">{viewersCount} viewing now</span>
+              <span className="text-gray-300">{viewersCount} active users</span>
             </div>
             <Button 
               onClick={() => window.location.href = createPageUrl('QuizGeeniusV2')}
@@ -534,7 +544,11 @@ export default function FoxyAuditLanding() {
           </div>
 
           {/* Testimonial Carousel */}
-          <div className="relative max-w-4xl mx-auto">
+          <div 
+            className="relative max-w-4xl mx-auto"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
             <Card className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border-2 border-gray-700 p-8">
               {testimonials.map((testimonial, idx) => (
                 <motion.div
