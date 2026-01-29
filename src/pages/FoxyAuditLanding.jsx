@@ -14,6 +14,7 @@ import ExitIntentCapture from '@/components/shared/ExitIntentCapture';
 import FoxyMascotImage from '@/components/shared/FoxyMascotImage';
 import SocialProofNotification from '@/components/shared/SocialProofNotification';
 import ScrollTracker from '@/components/shared/ScrollTracker';
+import TrustBadges from '@/components/shared/TrustBadges';
 
 export default function FoxyAuditLanding() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);

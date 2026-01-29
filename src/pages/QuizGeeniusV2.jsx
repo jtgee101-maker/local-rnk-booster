@@ -9,6 +9,7 @@ import CookieConsentTracker from '@/components/tracking/CookieConsentTracker';
 import SEOHead from '@/components/shared/SEOHead';
 import FoxyMascotImage from '@/components/shared/FoxyMascotImage';
 import ScrollTracker from '@/components/shared/ScrollTracker';
+import SkeletonCard from '@/components/shared/SkeletonCard';
 
 // Import quiz step components (same as V1)
 import CategoryStep from '@/components/quiz/CategoryStep';
