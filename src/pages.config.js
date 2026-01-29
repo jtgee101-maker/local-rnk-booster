@@ -114,6 +114,7 @@ import Upsell1 from './pages/Upsell1';
 import UserJourneyTest from './pages/UserJourneyTest';
 import V2Start from './pages/V2Start';
 import FoxyAuditLanding from './pages/FoxyAuditLanding';
+import ProductionAuditV2 from './pages/ProductionAuditV2';
 import __Layout from './Layout.jsx';
 
 
@@ -185,6 +186,7 @@ export const PAGES = {
     "UserJourneyTest": UserJourneyTest,
     "V2Start": V2Start,
     "FoxyAuditLanding": FoxyAuditLanding,
+    "ProductionAuditV2": ProductionAuditV2,
 }
 
 export const pagesConfig = {
