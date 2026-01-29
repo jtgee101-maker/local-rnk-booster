@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Foxy from LocalRank.ai <foxy@updates.base44.com>',
+        from: 'onboarding@resend.dev',
         to: email,
         subject: `🦊 Test - Your Foxy Audit Results & Next Steps`,
         html: `
