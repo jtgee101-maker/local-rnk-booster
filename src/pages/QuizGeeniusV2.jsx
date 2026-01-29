@@ -15,7 +15,7 @@ import TimelineStep from '@/components/quiz/TimelineStep';
 import BusinessSearchStep from '@/components/quiz/BusinessSearchStep';
 import ContactInfoStep from '@/components/quiz/ContactInfoStep';
 import ProcessingStepEnhanced from '@/components/quiz/ProcessingStepEnhanced';
-import { Loader2 } from 'lucide-react';
+import { Loader2, TrendingUp, TrendingDown, MapPin, Sparkles, Users, Calculator, Target } from 'lucide-react';
 
 // Import Foxy V2 components
 import FoxyHealthScore from '@/components/foxyv2/FoxyHealthScore';
@@ -25,11 +25,14 @@ import AIVisibilityReport from '@/components/foxyv2/AIVisibilityReport';
 import CompetitorComparison from '@/components/foxyv2/CompetitorComparison';
 import ActionRoadmap from '@/components/foxyv2/ActionRoadmap';
 import InteractiveROICalculator from '@/components/foxyv2/InteractiveROICalculator';
+import AuditSummaryCards from '@/components/foxyv2/AuditSummaryCards';
+import ExpandableAuditSection from '@/components/foxyv2/ExpandableAuditSection';
 
 export default function QuizGeeniusV2() {
   const [currentStep, setCurrentStep] = useState(0);
   const [sessionId] = useState(`geeniusv2_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
   const [auditStage, setAuditStage] = useState(null); // null, 'health', 'revenue', 'heatmap', 'ai', 'complete'
+  const [expandedSection, setExpandedSection] = useState(null);
   const [auditData, setAuditData] = useState({
     health: null,
     revenue: null,
@@ -293,59 +296,143 @@ export default function QuizGeeniusV2() {
 
                 {/* Audit Results */}
                 <div className="space-y-8">
-                  {auditData.health && (
-                    <FoxyHealthScore
-                      scoreData={auditData.health}
-                      onRevealComplete={() => {}}
-                    />
+                  {/* Summary Cards - Always visible once audit starts */}
+                  {auditStage && auditData.health && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                    >
+                      <div className="text-center mb-6">
+                        <h3 className="text-white text-2xl font-black mb-2">
+                          🦊 Foxy's Quick Findings
+                        </h3>
+                        <p className="text-gray-400 text-sm">
+                          Click any card to see the full analysis
+                        </p>
+                      </div>
+                      <AuditSummaryCards 
+                        auditData={auditData}
+                        onExpand={(sectionId) => {
+                          setExpandedSection(sectionId);
+                          setTimeout(() => {
+                            document.getElementById(`section-${sectionId}`)?.scrollIntoView({ 
+                              behavior: 'smooth', 
+                              block: 'center' 
+                            });
+                          }, 100);
+                        }}
+                      />
+                    </motion.div>
                   )}
 
-                  {auditStage !== 'health' && auditData.revenue && (
-                    <RevenueLeakCalculator revenueData={auditData.revenue} />
-                  )}
-
-                  {(auditStage === 'heatmap' || auditStage === 'ai' || auditStage === 'complete') && auditData.heatmap && (
-                    <GeoHeatmapDisplay heatmapData={auditData.heatmap} />
-                  )}
-
-                  {(auditStage === 'ai' || auditStage === 'complete') && auditData.ai && (
-                    <AIVisibilityReport aiData={auditData.ai} />
-                  )}
-
-                  {/* Competitive Intelligence */}
+                  {/* Expandable Deep Dives */}
                   {auditStage === 'complete' && (
                     <>
-                      <CompetitorComparison
-                        competitorData={{
-                          yourBusiness: {
-                            rating: auditData.health?.scoreBreakdown?.reviewVelocity?.value || 4.5,
-                            reviewCount: auditData.health?.scoreBreakdown?.reviewVelocity?.value * 20 || 50,
-                            photoCount: auditData.health?.scoreBreakdown?.visualFreshness?.value || 15,
-                            postFrequency: 2,
-                            responseRate: 75,
-                            marketRank: Math.ceil(auditData.heatmap?.averageRank || 7),
-                            advantages: [
-                              'Higher average rating than competitors',
-                              'Faster response time to customer inquiries',
-                            ],
-                            gaps: [
-                              'Fewer reviews than top 3 competitors',
-                              'Less frequent GMB posts',
-                              'Missing AI optimization signals',
-                            ],
-                          },
-                          competitors: [
-                            { name: 'Competitor A', rating: 4.8, reviewCount: 120, photoCount: 30, postFrequency: 4, responseRate: 90 },
-                            { name: 'Competitor B', rating: 4.6, reviewCount: 85, photoCount: 22, postFrequency: 3, responseRate: 80 },
-                            { name: 'Competitor C', rating: 4.4, reviewCount: 65, photoCount: 18, postFrequency: 2, responseRate: 70 },
-                          ],
-                        }}
-                        businessName={formData?.business_name}
-                      />
+                      <ExpandableAuditSection
+                        id="health"
+                        title="GMB Health Score Analysis"
+                        icon={TrendingUp}
+                        defaultExpanded={expandedSection === 'health'}
+                        gradient="from-blue-900/20 via-gray-900 to-gray-900"
+                        accentColor="blue-400"
+                      >
+                        <FoxyHealthScore
+                          scoreData={auditData.health}
+                          onRevealComplete={() => {}}
+                        />
+                      </ExpandableAuditSection>
 
-                      <InteractiveROICalculator revenueData={auditData.revenue} />
+                      <ExpandableAuditSection
+                        id="revenue"
+                        title="Revenue Leak Calculator"
+                        icon={TrendingDown}
+                        defaultExpanded={expandedSection === 'revenue'}
+                        gradient="from-red-900/20 via-gray-900 to-gray-900"
+                        accentColor="red-400"
+                      >
+                        <RevenueLeakCalculator revenueData={auditData.revenue} />
+                      </ExpandableAuditSection>
 
-                      <ActionRoadmap auditData={auditData} />
+                      <ExpandableAuditSection
+                        id="heatmap"
+                        title="Geographic Visibility Map"
+                        icon={MapPin}
+                        defaultExpanded={expandedSection === 'heatmap'}
+                        gradient="from-purple-900/20 via-gray-900 to-gray-900"
+                        accentColor="purple-400"
+                      >
+                        <GeoHeatmapDisplay heatmapData={auditData.heatmap} />
+                      </ExpandableAuditSection>
+
+                      <ExpandableAuditSection
+                        id="ai"
+                        title="AI Search Presence Report"
+                        icon={Sparkles}
+                        defaultExpanded={expandedSection === 'ai'}
+                        gradient="from-cyan-900/20 via-gray-900 to-gray-900"
+                        accentColor="cyan-400"
+                      >
+                        <AIVisibilityReport aiData={auditData.ai} />
+                      </ExpandableAuditSection>
+
+                      <ExpandableAuditSection
+                        id="competitor"
+                        title="Competitive Battle Card"
+                        icon={Users}
+                        defaultExpanded={expandedSection === 'competitor'}
+                        gradient="from-indigo-900/20 via-gray-900 to-gray-900"
+                        accentColor="indigo-400"
+                      >
+                        <CompetitorComparison
+                          competitorData={{
+                            yourBusiness: {
+                              rating: auditData.health?.scoreBreakdown?.reviewVelocity?.value || 4.5,
+                              reviewCount: auditData.health?.scoreBreakdown?.reviewVelocity?.value * 20 || 50,
+                              photoCount: auditData.health?.scoreBreakdown?.visualFreshness?.value || 15,
+                              postFrequency: 2,
+                              responseRate: 75,
+                              marketRank: Math.ceil(auditData.heatmap?.averageRank || 7),
+                              advantages: [
+                                'Higher average rating than competitors',
+                                'Faster response time to customer inquiries',
+                              ],
+                              gaps: [
+                                'Fewer reviews than top 3 competitors',
+                                'Less frequent GMB posts',
+                                'Missing AI optimization signals',
+                              ],
+                            },
+                            competitors: [
+                              { name: 'Competitor A', rating: 4.8, reviewCount: 120, photoCount: 30, postFrequency: 4, responseRate: 90 },
+                              { name: 'Competitor B', rating: 4.6, reviewCount: 85, photoCount: 22, postFrequency: 3, responseRate: 80 },
+                              { name: 'Competitor C', rating: 4.4, reviewCount: 65, photoCount: 18, postFrequency: 2, responseRate: 70 },
+                            ],
+                          }}
+                          businessName={formData?.business_name}
+                        />
+                      </ExpandableAuditSection>
+
+                      <ExpandableAuditSection
+                        id="roi"
+                        title="Interactive ROI Calculator"
+                        icon={Calculator}
+                        defaultExpanded={expandedSection === 'roi'}
+                        gradient="from-green-900/20 via-gray-900 to-gray-900"
+                        accentColor="green-400"
+                      >
+                        <InteractiveROICalculator revenueData={auditData.revenue} />
+                      </ExpandableAuditSection>
+
+                      <ExpandableAuditSection
+                        id="roadmap"
+                        title="90-Day Action Roadmap"
+                        icon={Target}
+                        defaultExpanded={false}
+                        gradient="from-yellow-900/20 via-gray-900 to-gray-900"
+                        accentColor="[#c8ff00]"
+                      >
+                        <ActionRoadmap auditData={auditData} />
+                      </ExpandableAuditSection>
                     </>
                   )}
 
