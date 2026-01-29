@@ -49,7 +49,7 @@ export default function AuditSummaryCards({ auditData, onExpand }) {
       value: auditData.ai?.overallScore || 0,
       suffix: '/100',
       status: (auditData.ai?.overallScore || 0) >= 70 ? 'healthy' : 'warning',
-      insight: `Found on ${auditData.ai?.platforms?.filter(p => p.found).length || 0}/${auditData.ai?.platforms?.length || 6} platforms`,
+      insight: `Found on ${Array.isArray(auditData.ai?.platforms) ? auditData.ai.platforms.filter(p => p.found).length : 0}/${Array.isArray(auditData.ai?.platforms) ? auditData.ai.platforms.length : 6} platforms`,
       gradient: 'from-cyan-500/20 to-cyan-500/5',
       borderColor: 'border-cyan-500/40',
       textColor: 'text-cyan-400',
