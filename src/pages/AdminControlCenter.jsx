@@ -10,7 +10,7 @@ import {
   BarChart3, Users, DollarSign, TrendingUp, AlertCircle, Mail, Bug, Repeat,
   Settings, Eye, Shield, RefreshCw, Download, Lock, Target, Brain, Zap,
   Activity, TrendingDown, CheckCircle2, XCircle, Clock, ArrowUpRight,
-  Loader2, ChevronDown, ChevronUp, ExternalLink, Sparkles
+  Loader2, ChevronDown, ChevronUp, ExternalLink, Sparkles, FileText
 } from 'lucide-react';
 
 // Lazy load components
@@ -52,6 +52,10 @@ const EmailHeatmapAnalytics = lazy(() => import('@/components/admin/EmailHeatmap
 const AIRecommendationEngine = lazy(() => import('@/components/admin/AIRecommendationEngine'));
 const RevenueForecastModel = lazy(() => import('@/components/admin/RevenueForecastModel'));
 const PredictiveLeadScoringV2 = lazy(() => import('@/components/admin/PredictiveLeadScoringV2'));
+const SystemStatusDashboard = lazy(() => import('@/components/admin/SystemStatusDashboard'));
+const AdvancedErrorAnalytics = lazy(() => import('@/components/admin/AdvancedErrorAnalytics'));
+const PerformanceMetricsDashboard = lazy(() => import('@/components/admin/PerformanceMetricsDashboard'));
+const AutomatedReportGenerator = lazy(() => import('@/components/admin/AutomatedReportGenerator'));
 
 // Modern loading component with skeleton
 const TabLoader = () => (
@@ -966,7 +970,11 @@ export default function AdminControlCenter() {
     { value: 'nurture', icon: Activity, label: 'Nurture', color: 'teal' },
     { value: 'scoring', icon: Target, label: 'Scoring', color: 'lime' },
     { value: 'health', icon: Activity, label: 'Health', color: 'emerald' },
+    { value: 'system-status', icon: CheckCircle2, label: 'Status', color: 'green' },
     { value: 'errors', icon: Bug, label: 'Errors', color: 'rose' },
+    { value: 'error-analytics', icon: AlertCircle, label: 'Error Analytics', color: 'orange' },
+    { value: 'performance', icon: Zap, label: 'Performance', color: 'cyan' },
+    { value: 'reports', icon: FileText, label: 'Reports', color: 'blue' },
     { value: 'users', icon: Lock, label: 'Users', color: 'violet' },
     { value: 'settings', icon: Settings, label: 'Settings', color: 'slate' },
   ];
@@ -1201,9 +1209,33 @@ export default function AdminControlCenter() {
                 </Suspense>
               </TabsContent>
 
+              <TabsContent value="system-status" className="mt-0">
+                <Suspense fallback={<TabLoader />}>
+                  <SystemStatusDashboard />
+                </Suspense>
+              </TabsContent>
+
               <TabsContent value="errors" className="mt-0">
                 <Suspense fallback={<TabLoader />}>
                   <ErrorTrackingDashboard />
+                </Suspense>
+              </TabsContent>
+
+              <TabsContent value="error-analytics" className="mt-0">
+                <Suspense fallback={<TabLoader />}>
+                  <AdvancedErrorAnalytics />
+                </Suspense>
+              </TabsContent>
+
+              <TabsContent value="performance" className="mt-0">
+                <Suspense fallback={<TabLoader />}>
+                  <PerformanceMetricsDashboard />
+                </Suspense>
+              </TabsContent>
+
+              <TabsContent value="reports" className="mt-0">
+                <Suspense fallback={<TabLoader />}>
+                  <AutomatedReportGenerator />
                 </Suspense>
               </TabsContent>
 
