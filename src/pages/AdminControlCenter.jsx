@@ -48,6 +48,10 @@ const CustomerJourneyMap = lazy(() => import('@/components/admin/CustomerJourney
 const RealTimeActivityFeed = lazy(() => import('@/components/admin/RealTimeActivityFeed'));
 const FunnelDropoffAnalysis = lazy(() => import('@/components/admin/FunnelDropoffAnalysis'));
 const CampaignPerformanceDashboard = lazy(() => import('@/components/admin/CampaignPerformanceDashboard'));
+const EmailHeatmapAnalytics = lazy(() => import('@/components/admin/EmailHeatmapAnalytics'));
+const AIRecommendationEngine = lazy(() => import('@/components/admin/AIRecommendationEngine'));
+const RevenueForecastModel = lazy(() => import('@/components/admin/RevenueForecastModel'));
+const PredictiveLeadScoringV2 = lazy(() => import('@/components/admin/PredictiveLeadScoringV2'));
 
 // Modern loading component with skeleton
 const TabLoader = () => (
@@ -963,6 +967,9 @@ export default function AdminControlCenter() {
     { value: 'cohorts', icon: Users, label: 'Cohorts', color: 'indigo' },
     { value: 'attribution', icon: BarChart3, label: 'Revenue', color: 'amber' },
     { value: 'predictive', icon: Brain, label: 'AI Insights', color: 'pink' },
+    { value: 'forecast', icon: TrendingUp, label: 'Forecast', color: 'green' },
+    { value: 'email-heat', icon: Mail, label: 'Email Heat', color: 'red' },
+    { value: 'scoring-v2', icon: Target, label: 'Scoring V2', color: 'purple' },
     { value: 'behavior', icon: Activity, label: 'Behavior', color: 'cyan' },
     { value: 'segments', icon: Target, label: 'Segments', color: 'yellow' },
     { value: 'abtests', icon: Eye, label: 'A/B Tests', color: 'cyan' },
@@ -1088,7 +1095,25 @@ export default function AdminControlCenter() {
 
               <TabsContent value="predictive" className="mt-0">
                 <Suspense fallback={<TabLoader />}>
-                  <PredictiveAnalytics />
+                  <AIRecommendationEngine />
+                </Suspense>
+              </TabsContent>
+
+              <TabsContent value="forecast" className="mt-0">
+                <Suspense fallback={<TabLoader />}>
+                  <RevenueForecastModel />
+                </Suspense>
+              </TabsContent>
+
+              <TabsContent value="email-heat" className="mt-0">
+                <Suspense fallback={<TabLoader />}>
+                  <EmailHeatmapAnalytics />
+                </Suspense>
+              </TabsContent>
+
+              <TabsContent value="scoring-v2" className="mt-0">
+                <Suspense fallback={<TabLoader />}>
+                  <PredictiveLeadScoringV2 />
                 </Suspense>
               </TabsContent>
 
