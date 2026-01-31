@@ -68,6 +68,7 @@ const PerformanceMonitor = lazy(() => import('@/components/admin/PerformanceMoni
 const ProductionReadinessChecklist = lazy(() => import('@/components/admin/ProductionReadinessChecklist'));
 const RealTimeSystemTest = lazy(() => import('@/components/admin/RealTimeSystemTest'));
 const ControlActionsVerifier = lazy(() => import('@/components/admin/ControlActionsVerifier'));
+const EndToEndFlowTest = lazy(() => import('@/components/admin/EndToEndFlowTest'));
 
 // Modern loading component with skeleton
 const TabLoader = () => (
@@ -1281,6 +1282,9 @@ export default function AdminControlCenter() {
                     <RealTimeSystemTest />
                     <ControlActionsVerifier />
                   </div>
+                </Suspense>
+                <Suspense fallback={<TabLoader />}>
+                  <EndToEndFlowTest />
                 </Suspense>
               </TabsContent>
             </motion.div>
