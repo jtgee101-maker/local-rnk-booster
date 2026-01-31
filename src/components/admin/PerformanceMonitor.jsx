@@ -19,7 +19,7 @@ export default function PerformanceMonitor() {
     const pageLoadTime = perfData.loadEventEnd - perfData.navigationStart;
     
     // Measure memory (if available)
-    const memory = (performance as any).memory;
+    const memory = performance.memory;
     const memoryUsage = memory ? Math.round((memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100) : 0;
 
     // Measure render time
@@ -30,7 +30,7 @@ export default function PerformanceMonitor() {
       apiResponseTime: 0, // Will be measured on API calls
       memoryUsage,
       renderTime: Math.round(renderTime),
-      networkSpeed: navigator.connection ? (navigator as any).connection.effectiveType : 'unknown'
+      networkSpeed: navigator.connection ? navigator.connection.effectiveType : 'unknown'
     });
 
     // Monitor API response times
@@ -101,7 +101,7 @@ export default function PerformanceMonitor() {
     }
   ];
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status) => {
     switch (status) {
       case 'good': return 'text-green-400 border-green-500/30 bg-green-500/10';
       case 'fair': return 'text-yellow-400 border-yellow-500/30 bg-yellow-500/10';
