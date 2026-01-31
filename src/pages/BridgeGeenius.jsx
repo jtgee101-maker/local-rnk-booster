@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
   Sparkles, Crown, Wrench, GraduationCap, ArrowRight, CheckCircle,
-  Shield, Zap, TrendingUp, Users, Award, ExternalLink, Loader2
+  Shield, Zap, TrendingUp, Users, Award, ExternalLink, Loader2, ChevronDown
 } from 'lucide-react';
 import { toast } from 'sonner';
 import GeeniusFAQ from '@/components/geenius/GeeniusFAQ';
@@ -15,6 +15,7 @@ export default function BridgeGeenius() {
   const [loading, setLoading] = useState(true);
   const [sessionId, setSessionId] = useState(null);
   const [viewStartTime] = useState(Date.now());
+  const [expandedAlt, setExpandedAlt] = useState(null);
   const [pathwaySettings, setPathwaySettings] = useState({
     pathway1_url: 'https://example.com/govtech-grant',
     pathway2_url: 'https://example.com/done-for-you',
@@ -24,7 +25,6 @@ export default function BridgeGeenius() {
   useEffect(() => {
     const init = async () => {
       try {
-        // Get lead from URL
         const params = new URLSearchParams(window.location.search);
         const leadId = params.get('lead_id');
         
@@ -33,14 +33,12 @@ export default function BridgeGeenius() {
           if (leads.length > 0) {
             setLead(leads[0]);
 
-            // Get session from behavior tracking
             const behaviors = await base44.entities.UserBehavior.filter({ 
               email: leads[0].email 
             });
             const userSessionId = behaviors.length > 0 ? behaviors[0].session_id : `bridge_${Date.now()}`;
             setSessionId(userSessionId);
 
-            // Track bridge page view
             await base44.entities.ConversionEvent.create({
               funnel_version: 'geenius',
               event_name: 'bridge_viewed',
@@ -63,7 +61,6 @@ export default function BridgeGeenius() {
               }
             });
 
-            // Update user behavior
             if (behaviors.length > 0) {
               await base44.entities.UserBehavior.update(behaviors[0].id, {
                 pages_viewed: [...(behaviors[0].pages_viewed || []), 'BridgeGeenius'],
@@ -80,7 +77,6 @@ export default function BridgeGeenius() {
           }
         }
 
-        // Fetch pathway settings
         const settings = await base44.entities.AppSettings.filter({ 
           setting_key: 'geenius_pathways' 
         });
@@ -101,7 +97,6 @@ export default function BridgeGeenius() {
     const timeOnBridge = Math.round((Date.now() - viewStartTime) / 1000);
     
     try {
-      // Track conversion event
       await base44.entities.ConversionEvent.create({
         funnel_version: 'geenius',
         event_name: `pathway_${pathway}_clicked`,
@@ -118,7 +113,6 @@ export default function BridgeGeenius() {
         }
       });
 
-      // Track analytics
       await base44.analytics.track({
         eventName: 'geenius_pathway_selected',
         properties: {
@@ -128,7 +122,6 @@ export default function BridgeGeenius() {
         }
       });
 
-      // Update user behavior
       try {
         const behaviors = await base44.entities.UserBehavior.filter({ 
           email: lead?.email 
@@ -179,7 +172,7 @@ export default function BridgeGeenius() {
       </div>
 
       <div className="relative z-10 px-4 py-8 sm:py-12 md:py-16 lg:py-20">
-        <div className="max-w-6xl mx-auto space-y-8 sm:space-y-10 md:space-y-12">
+        <div className="max-w-7xl mx-auto space-y-12 sm:space-y-14 md:space-y-16">
           {/* Header */}
           <div className="text-center space-y-4 sm:space-y-6">
             <div className="flex items-center justify-center gap-2 sm:gap-3">
@@ -201,253 +194,218 @@ export default function BridgeGeenius() {
               </div>
             )}
 
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-4">
-              Based on your audit results, we've identified <span className="text-purple-400 font-bold">three exclusive pathways</span> to transform your business growth
+            <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed px-4">
+              We've identified the best path forward for your business growth—complete transparency with the infrastructure to scale
             </p>
           </div>
 
-          {/* Pathways Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-            {/* Pathway 1: Gov Tech Grant */}
-            <Card className="relative bg-gradient-to-br from-purple-900/40 via-purple-800/30 to-purple-900/40 border-purple-500/50 hover:border-purple-400/80 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20 hover:-translate-y-2 overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/20 rounded-full blur-3xl -z-10" />
+          {/* Hero Gov Tech Grant */}
+          <div className="relative">
+            {/* Glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-purple-600/20 rounded-3xl blur-2xl -z-10" />
+            
+            <Card className="relative overflow-hidden border-2 border-purple-500/80 bg-gradient-to-br from-purple-900/60 via-purple-800/40 to-purple-900/60 shadow-2xl shadow-purple-500/30">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-transparent opacity-50" />
+              <div className="absolute -top-32 -right-32 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
               
-              <CardHeader className="relative space-y-4 pb-6">
-                <div className="flex items-start justify-between">
-                  <div className="p-3 bg-purple-500/20 rounded-xl border border-purple-400/30 group-hover:scale-110 transition-transform">
-                    <Crown className="w-8 h-8 text-purple-400" />
+              <CardHeader className="relative space-y-6 pb-8 md:pb-10">
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-purple-500/30 rounded-2xl border border-purple-400/50">
+                        <Crown className="w-8 h-8 text-purple-300" />
+                      </div>
+                      <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-sm px-4 py-1.5 shadow-lg">
+                        RECOMMENDED
+                      </Badge>
+                    </div>
                   </div>
-                  <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold px-3 py-1 animate-pulse">
-                    EXCLUSIVE
+                  <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold text-sm px-4 py-1.5">
+                    ✓ ZERO INVESTMENT
                   </Badge>
                 </div>
                 
                 <div>
-                  <CardTitle className="text-2xl md:text-3xl text-white mb-2">
+                  <CardTitle className="text-3xl md:text-4xl lg:text-5xl text-white mb-3 leading-tight">
                     GeeNius Gov Tech Grant
                   </CardTitle>
-                  <CardDescription className="text-purple-200/80 text-base leading-relaxed">
-                    Discover if your payment processor qualifies you for infrastructure upgrades
+                  <CardDescription className="text-purple-100/90 text-lg md:text-xl leading-relaxed">
+                    Your payment processor may qualify you for free infrastructure upgrades and rankings through government incentives
                   </CardDescription>
                 </div>
               </CardHeader>
 
-              <CardContent className="relative space-y-6">
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
-                    <p className="text-gray-300 text-sm">
-                      <span className="font-semibold text-white">Free Infrastructure Upgrade</span> - Control your own lead sourcing through Google ranking
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
-                    <p className="text-gray-300 text-sm">
-                      <span className="font-semibold text-white">Fire Service Providers</span> - Eliminate Thumbtack and other expensive platforms
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
-                    <p className="text-gray-300 text-sm">
-                      <span className="font-semibold text-white">GeeNiusPays Rebate Path</span> - Get your rankings done as part of the grant
-                    </p>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t border-purple-500/30">
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-400">Eligibility Check</span>
-                      <span className="text-purple-400 font-semibold">Required</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-400">Processing Time</span>
-                      <span className="text-purple-400 font-semibold">2-3 Business Days</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-400">Investment</span>
-                      <span className="text-purple-400 font-bold text-lg">$0</span>
+              <CardContent className="relative space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-3 p-4 bg-purple-500/10 rounded-xl border border-purple-400/30">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="w-6 h-6 text-green-400 mt-0.5 flex-shrink-0" />
+                      <p className="text-gray-200">
+                        <span className="font-bold text-white block mb-1">Free Infrastructure Upgrade</span>
+                        <span className="text-sm">Control your own lead sourcing and rankings through Google</span>
+                      </p>
                     </div>
                   </div>
 
-                  <Button
-                    onClick={() => trackPathwayClick('govtech_grant', pathwaySettings.pathway1_url)}
-                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-6 text-lg group/btn"
-                  >
-                    Check My Eligibility
-                    <ArrowRight className="w-5 h-5 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Pathway 2: Done For You */}
-            <Card className="relative bg-gradient-to-br from-blue-900/40 via-blue-800/30 to-blue-900/40 border-blue-500/50 hover:border-blue-400/80 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/20 hover:-translate-y-2 overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl -z-10" />
-              
-              <CardHeader className="relative space-y-4 pb-6">
-                <div className="flex items-start justify-between">
-                  <div className="p-3 bg-blue-500/20 rounded-xl border border-blue-400/30 group-hover:scale-110 transition-transform">
-                    <Wrench className="w-8 h-8 text-blue-400" />
-                  </div>
-                  <Badge className="bg-green-500/80 text-white font-bold px-3 py-1">
-                    VERIFIED
-                  </Badge>
-                </div>
-                
-                <div>
-                  <CardTitle className="text-2xl md:text-3xl text-white mb-2">
-                    Done For You Service
-                  </CardTitle>
-                  <CardDescription className="text-blue-200/80 text-base leading-relaxed">
-                    Set yourself up for success without thinking about it
-                  </CardDescription>
-                </div>
-              </CardHeader>
-
-              <CardContent className="relative space-y-6">
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <Shield className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
-                    <p className="text-gray-300 text-sm">
-                      <span className="font-semibold text-white">Verified Provider</span> - Hand-picked, proven track record
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <Zap className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
-                    <p className="text-gray-300 text-sm">
-                      <span className="font-semibold text-white">Hands-Off Solution</span> - They handle everything from A to Z
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <TrendingUp className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
-                    <p className="text-gray-300 text-sm">
-                      <span className="font-semibold text-white">Proven Results</span> - Based on your specific health score issues
-                    </p>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t border-blue-500/30">
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-400">Setup Time</span>
-                      <span className="text-blue-400 font-semibold">Immediate</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-400">Management</span>
-                      <span className="text-blue-400 font-semibold">Fully Managed</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-400">Best For</span>
-                      <span className="text-blue-400 font-semibold">Busy Owners</span>
+                  <div className="space-y-3 p-4 bg-purple-500/10 rounded-xl border border-purple-400/30">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="w-6 h-6 text-green-400 mt-0.5 flex-shrink-0" />
+                      <p className="text-gray-200">
+                        <span className="font-bold text-white block mb-1">Fire Expensive Platforms</span>
+                        <span className="text-sm">Eliminate Thumbtack, Google Guaranteed, and other costly intermediaries</span>
+                      </p>
                     </div>
                   </div>
 
-                  <Button
-                    onClick={() => trackPathwayClick('done_for_you', pathwaySettings.pathway2_url)}
-                    className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold py-6 text-lg group/btn"
-                  >
-                    Get Verified Provider
-                    <ExternalLink className="w-5 h-5 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Pathway 3: DIY Software */}
-            <Card className="relative bg-gradient-to-br from-green-900/40 via-emerald-800/30 to-green-900/40 border-green-500/50 hover:border-green-400/80 transition-all duration-300 hover:shadow-2xl hover:shadow-green-500/20 hover:-translate-y-2 overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-green-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/20 rounded-full blur-3xl -z-10" />
-              
-              <CardHeader className="relative space-y-4 pb-6">
-                <div className="flex items-start justify-between">
-                  <div className="p-3 bg-green-500/20 rounded-xl border border-green-400/30 group-hover:scale-110 transition-transform">
-                    <GraduationCap className="w-8 h-8 text-green-400" />
-                  </div>
-                  <Badge className="bg-orange-500/80 text-white font-bold px-3 py-1">
-                    LIMITED
-                  </Badge>
-                </div>
-                
-                <div>
-                  <CardTitle className="text-2xl md:text-3xl text-white mb-2">
-                    DIY Software License
-                  </CardTitle>
-                  <CardDescription className="text-green-200/80 text-base leading-relaxed">
-                    Take control with full access to training and support
-                  </CardDescription>
-                </div>
-              </CardHeader>
-
-              <CardContent className="relative space-y-6">
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <Users className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
-                    <p className="text-gray-300 text-sm">
-                      <span className="font-semibold text-white">Full Training Library</span> - Step-by-step guides and video tutorials
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <Zap className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
-                    <p className="text-gray-300 text-sm">
-                      <span className="font-semibold text-white">Support Hotline</span> - Digital team assistance (email support)
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <GraduationCap className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
-                    <p className="text-gray-300 text-sm">
-                      <span className="font-semibold text-white">DIY Control</span> - Implement at your own pace
-                    </p>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t border-green-500/30">
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-400">Access Level</span>
-                      <span className="text-green-400 font-semibold">Full Platform</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-400">Support</span>
-                      <span className="text-green-400 font-semibold">Email Only</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-400">Monthly Fee</span>
-                      <span className="text-green-400 font-bold text-2xl">$199</span>
+                  <div className="space-y-3 p-4 bg-purple-500/10 rounded-xl border border-purple-400/30">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle className="w-6 h-6 text-green-400 mt-0.5 flex-shrink-0" />
+                      <p className="text-gray-200">
+                        <span className="font-bold text-white block mb-1">Rankings as Part of the Grant</span>
+                        <span className="text-sm">Get your Google rankings optimized as part of your eligibility benefits</span>
+                      </p>
                     </div>
                   </div>
+                </div>
 
-                  <Button
-                    onClick={() => trackPathwayClick('diy_software', pathwaySettings.pathway3_checkout_url)}
-                    className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold py-6 text-lg group/btn"
-                  >
-                    Start DIY License
-                    <ArrowRight className="w-5 h-5 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                  </Button>
-                  <p className="text-center text-xs text-gray-400 mt-2">
-                    First come, first serve basis
-                  </p>
+                <div className="grid grid-cols-3 gap-4 p-6 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl border border-purple-400/20">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-purple-300">$0</div>
+                    <div className="text-xs text-gray-400 mt-1">Investment</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-purple-300">2-3 Days</div>
+                    <div className="text-xs text-gray-400 mt-1">Eligibility Check</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-purple-300">∞ ROI</div>
+                    <div className="text-xs text-gray-400 mt-1">Potential Return</div>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={() => trackPathwayClick('govtech_grant', pathwaySettings.pathway1_url)}
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-7 text-lg shadow-lg hover:shadow-xl transition-all duration-300 group/btn"
+                >
+                  Check My Eligibility Now
+                  <ArrowRight className="w-5 h-5 ml-3 group-hover/btn:translate-x-1 transition-transform" />
+                </Button>
+
+                <div className="text-center text-sm text-purple-200/70 pt-4 border-t border-purple-500/30">
+                  <p>✓ No credit card required • 100% Transparent Process • Real qualification results in 2-3 business days</p>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Trust Bar */}
-          <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 border border-gray-700/50 rounded-2xl p-6 backdrop-blur-sm">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-              <div className="space-y-2">
-                <div className="text-3xl font-bold text-white">3</div>
-                <div className="text-sm text-gray-400">Exclusive Pathways</div>
+          {/* Alternative Pathways */}
+          <div className="space-y-4">
+            <div className="text-center">
+              <p className="text-gray-400 text-sm font-medium">Not a fit? Explore other options</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Done For You */}
+              <div className="group">
+                <button
+                  onClick={() => setExpandedAlt(expandedAlt === 'dfy' ? null : 'dfy')}
+                  className="w-full text-left"
+                >
+                  <Card className="relative bg-gradient-to-br from-blue-900/30 via-blue-800/20 to-blue-900/30 border-blue-500/40 hover:border-blue-400/60 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-blue-500/10">
+                    <CardHeader className="relative space-y-3 pb-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-blue-500/20 rounded-xl">
+                            <Wrench className="w-6 h-6 text-blue-400" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-lg text-white">Done For You Service</CardTitle>
+                            <p className="text-xs text-blue-200/60 mt-1">Complete hands-off solution</p>
+                          </div>
+                        </div>
+                        <ChevronDown className={`w-5 h-5 text-blue-400 transition-transform duration-300 ${expandedAlt === 'dfy' ? 'rotate-180' : ''}`} />
+                      </div>
+                    </CardHeader>
+
+                    {expandedAlt === 'dfy' && (
+                      <CardContent className="relative space-y-4 pt-0 pb-6">
+                        <div className="space-y-2 text-sm">
+                          <div className="flex gap-2 text-blue-200">
+                            <Shield className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                            <span><strong>Verified Provider</strong> - Hand-picked, proven track record</span>
+                          </div>
+                          <div className="flex gap-2 text-blue-200">
+                            <Zap className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                            <span><strong>Hands-Off</strong> - They handle everything from A to Z</span>
+                          </div>
+                          <div className="flex gap-2 text-blue-200">
+                            <TrendingUp className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                            <span><strong>Proven Results</strong> - Based on your specific issues</span>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={() => trackPathwayClick('done_for_you', pathwaySettings.pathway2_url)}
+                          className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-5 mt-4 text-sm"
+                        >
+                          Get Verified Provider
+                          <ExternalLink className="w-4 h-4 ml-2" />
+                        </Button>
+                      </CardContent>
+                    )}
+                  </Card>
+                </button>
               </div>
-              <div className="space-y-2">
-                <div className="text-3xl font-bold text-white">100%</div>
-                <div className="text-sm text-gray-400">Tailored Solutions</div>
-              </div>
-              <div className="space-y-2">
-                <div className="text-3xl font-bold text-white">24/7</div>
-                <div className="text-sm text-gray-400">Digital Support</div>
+
+              {/* DIY Software */}
+              <div className="group">
+                <button
+                  onClick={() => setExpandedAlt(expandedAlt === 'diy' ? null : 'diy')}
+                  className="w-full text-left"
+                >
+                  <Card className="relative bg-gradient-to-br from-green-900/30 via-emerald-800/20 to-green-900/30 border-green-500/40 hover:border-green-400/60 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-green-500/10">
+                    <CardHeader className="relative space-y-3 pb-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-green-500/20 rounded-xl">
+                            <GraduationCap className="w-6 h-6 text-green-400" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-lg text-white">DIY Software License</CardTitle>
+                            <p className="text-xs text-green-200/60 mt-1">Full control & training included</p>
+                          </div>
+                        </div>
+                        <ChevronDown className={`w-5 h-5 text-green-400 transition-transform duration-300 ${expandedAlt === 'diy' ? 'rotate-180' : ''}`} />
+                      </div>
+                    </CardHeader>
+
+                    {expandedAlt === 'diy' && (
+                      <CardContent className="relative space-y-4 pt-0 pb-6">
+                        <div className="space-y-2 text-sm">
+                          <div className="flex gap-2 text-green-200">
+                            <Users className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                            <span><strong>Full Training</strong> - Step-by-step guides & video tutorials</span>
+                          </div>
+                          <div className="flex gap-2 text-green-200">
+                            <Zap className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                            <span><strong>Support Access</strong> - Email support from the digital team</span>
+                          </div>
+                          <div className="flex gap-2 text-green-200">
+                            <GraduationCap className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                            <span><strong>Your Pace</strong> - Implement when you're ready</span>
+                          </div>
+                        </div>
+                        <div className="text-sm font-semibold text-green-300 mt-3">$199/month</div>
+                        <Button
+                          onClick={() => trackPathwayClick('diy_software', pathwaySettings.pathway3_checkout_url)}
+                          className="w-full bg-green-600 hover:bg-green-500 text-white font-semibold py-5 mt-4 text-sm"
+                        >
+                          Start DIY License
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </CardContent>
+                    )}
+                  </Card>
+                </button>
               </div>
             </div>
           </div>
@@ -456,8 +414,8 @@ export default function BridgeGeenius() {
           <GeeniusFAQ />
 
           {/* Footer Note */}
-          <div className="text-center text-gray-500 text-sm">
-            <p>All pathways are designed based on your unique business needs and GMB health score</p>
+          <div className="text-center text-gray-500 text-sm pt-8 border-t border-gray-700/50">
+            <p>We're committed to 100% transparency. Each pathway is built for your specific business needs based on your GMB health score</p>
           </div>
         </div>
       </div>
