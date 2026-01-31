@@ -59,6 +59,7 @@ const AutomatedReportGenerator = lazy(() => import('@/components/admin/Automated
 const NotificationCenter = lazy(() => import('@/components/admin/NotificationCenter'));
 const QuickActionsPanel = lazy(() => import('@/components/admin/QuickActionsPanel'));
 const AdminActivityLog = lazy(() => import('@/components/admin/AdminActivityLog'));
+const IntegrationHealthMonitor = lazy(() => import('@/components/admin/IntegrationHealthMonitor'));
 
 // Modern loading component with skeleton
 const TabLoader = () => (
@@ -1087,6 +1088,9 @@ export default function AdminControlCenter() {
               <TabsContent value="overview" className="space-y-6 mt-0">
                 <Suspense fallback={<TabLoader />}>
                   <QuickActionsPanel />
+                </Suspense>
+                <Suspense fallback={<TabLoader />}>
+                  <IntegrationHealthMonitor />
                 </Suspense>
                 <Suspense fallback={<TabLoader />}>
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
