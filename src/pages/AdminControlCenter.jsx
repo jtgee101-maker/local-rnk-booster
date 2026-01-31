@@ -28,7 +28,7 @@ const ErrorMonitoring = lazy(() => import('@/components/admin/ErrorMonitoring'))
 const LeadNurture = lazy(() => import('@/components/admin/LeadNurture'));
 const AdminABTests = lazy(() => import('@/components/admin/AdminABTests'));
 const TestModeIndicator = lazy(() => import('@/components/admin/TestModeIndicator'));
-const V3Analytics = lazy(() => import('@/components/admin/V3Analytics'));
+const DynamicFunnelAnalytics = lazy(() => import('@/components/admin/DynamicFunnelAnalytics'));
 const AffiliateAnalytics = lazy(() => import('@/components/admin/AffiliateAnalytics'));
 const HealthCheckHistory = lazy(() => import('@/components/admin/HealthCheckHistory'));
 const LeadScoringDashboard = lazy(() => import('@/components/admin/LeadScoringDashboard'));
@@ -1186,29 +1186,16 @@ export default function AdminControlCenter() {
           </AnimatePresence>
         </Tabs>
 
-        {/* V3 Analytics Section */}
+        {/* Dynamic Funnel Analytics Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
           <Card className="border-gray-700 bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-500/10 rounded-lg">
-                    <BarChart3 className="w-5 h-5 text-green-400" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-white">QuizV3 Affiliate Analytics</CardTitle>
-                    <CardDescription>Real-time performance metrics for affiliate funnel</CardDescription>
-                  </div>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <Suspense fallback={<TabLoader />}>
-                <V3Analytics />
+                <DynamicFunnelAnalytics />
               </Suspense>
             </CardContent>
           </Card>
