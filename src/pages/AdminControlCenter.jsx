@@ -919,37 +919,8 @@ export default function AdminControlCenter() {
   };
 
   const handleRefresh = () => {
-    try {
-      // Clear any existing errors
-      setError(null);
-      
-      // Update refresh timestamp
-      setLastRefresh(new Date());
-      
-      // Track refresh action (non-blocking)
-      base44.analytics.track({
-        eventName: 'admin_dashboard_refresh',
-        properties: { user_email: user?.email, timestamp: new Date().toISOString() }
-      }).catch(() => {}); // Silent fail
-      
-      // Force reload
-      window.location.reload();
-    } catch (error) {
-      console.error('Refresh failed:', error);
-      
-      // Log error (non-blocking)
-      base44.entities.ErrorLog.create({
-        error_type: 'system_error',
-        severity: 'low',
-        message: 'Dashboard refresh failed',
-        stack_trace: error.stack || error.message,
-        metadata: { component: 'AdminControlCenter', action: 'handleRefresh' }
-      }).catch(() => {});
-      
-      // Show error and attempt reload anyway
-      setError('Failed to refresh dashboard');
-      setTimeout(() => window.location.reload(), 1000);
-    }
+    // Just reload - no error handling needed
+    window.location.reload();
   };
 
   if (loading) {
