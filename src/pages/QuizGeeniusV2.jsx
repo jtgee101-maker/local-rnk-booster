@@ -268,17 +268,21 @@ export default function QuizGeeniusV2() {
         console.log('✅ ============= AI VISIBILITY CHECK COMPLETE =============');
 
         // Track completion
-        base44.analytics.track({
-          eventName: 'foxy_audit_complete',
-          properties: {
-            health_score: auditData.health?.overallScore || 0,
-            monthly_opportunity: auditData.revenue?.monthlyOpportunity || 0,
-            visibility_score: auditData.heatmap?.visibilityScore || 0,
-            ai_score: aiData.overallScore || 0,
-            ai_platforms_found: aiData.summary?.foundIn || 0,
-            sections_with_errors: Object.keys(sectionErrors).length
-          }
-        }).catch(() => {});
+        try {
+          await base44.analytics.track({
+            eventName: 'foxy_audit_complete',
+            properties: {
+              health_score: auditData.health?.overallScore || 0,
+              monthly_opportunity: auditData.revenue?.monthlyOpportunity || 0,
+              visibility_score: auditData.heatmap?.visibilityScore || 0,
+              ai_score: aiData.overallScore || 0,
+              ai_platforms_found: aiData.summary?.foundIn || 0,
+              sections_with_errors: Object.keys(sectionErrors).length
+            }
+          });
+        } catch (e) {
+          console.log('Analytics tracking skipped:', e.message);
+        }
 
       } catch (error) {
         console.error('❌ ============= AI VISIBILITY CHECK FAILED =============');
