@@ -206,9 +206,10 @@ export default function QuizGeeniusV2() {
         setAuditStage('ai');
       }
 
-      // Step 4: AI Visibility
+      // Step 4: AI Visibility - NO TIMEOUT, LET IT COMPLETE
+      setAuditStage('ai');
       try {
-        console.log('🤖 Starting AI visibility check...');
+        console.log('🤖 ============= AI VISIBILITY CHECK START =============');
         console.log('🤖 Lead data:', { 
           business_name: lead.business_name, 
           address: lead.address, 
@@ -222,45 +223,69 @@ export default function QuizGeeniusV2() {
           industry: lead.business_category
         });
 
-        console.log('🤖 AI raw response:', JSON.stringify(aiResponse).substring(0, 500));
+        console.log('🤖 FULL AI RESPONSE:', JSON.stringify(aiResponse, null, 2));
+        console.log('🤖 Response type:', typeof aiResponse);
+        console.log('🤖 Response.data:', aiResponse?.data);
+        console.log('🤖 Response.data.success:', aiResponse?.data?.success);
+        console.log('🤖 Response.data.data:', aiResponse?.data?.data);
 
-        if (aiResponse?.data?.success && aiResponse.data.data) {
-          const aiData = aiResponse.data.data;
-          console.log('✅ AI data validated:', { 
-            score: aiData.overallScore, 
-            platforms: Object.keys(aiData.platforms || {}).length 
-          });
-
-          setAuditData(prev => ({ ...prev, ai: aiData }));
-          setSectionErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors.ai;
-            return newErrors;
-          });
-          await new Promise(resolve => setTimeout(resolve, 800));
-          setAuditStage('complete');
-
-          // Track completion
-          base44.analytics.track({
-            eventName: 'foxy_audit_complete',
-            properties: {
-              health_score: auditData.health?.overallScore || 0,
-              monthly_opportunity: auditData.revenue?.monthlyOpportunity || 0,
-              visibility_score: auditData.heatmap?.visibilityScore || 0,
-              ai_score: aiData.overallScore || 0,
-              ai_platforms_found: aiData.summary?.foundIn || 0,
-              sections_with_errors: Object.keys(sectionErrors).length
-            }
-          }).catch(() => {});
-        } else {
-          const errorMsg = aiResponse?.data?.error || 'Invalid response structure';
-          console.error('❌ AI response invalid:', errorMsg);
-          throw new Error(errorMsg);
+        // Handle response - function returns { data: { success, data } }
+        if (!aiResponse || !aiResponse.data) {
+          throw new Error('No response from AI visibility function');
         }
+
+        const responseBody = aiResponse.data;
+
+        if (!responseBody.success) {
+          throw new Error(responseBody.error || 'AI visibility check failed');
+        }
+
+        const aiData = responseBody.data;
+
+        if (!aiData || !aiData.platforms) {
+          throw new Error('Invalid AI data structure - missing platforms');
+        }
+
+        console.log('✅ AI DATA VALID:', { 
+          score: aiData.overallScore, 
+          platformCount: Object.keys(aiData.platforms).length,
+          platforms: Object.keys(aiData.platforms)
+        });
+
+        // Clear any previous errors
+        setSectionErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors.ai;
+          return newErrors;
+        });
+
+        // Set the data
+        setAuditData(prev => ({ ...prev, ai: aiData }));
+
+        await new Promise(resolve => setTimeout(resolve, 800));
+        setAuditStage('complete');
+
+        console.log('✅ ============= AI VISIBILITY CHECK COMPLETE =============');
+
+        // Track completion
+        base44.analytics.track({
+          eventName: 'foxy_audit_complete',
+          properties: {
+            health_score: auditData.health?.overallScore || 0,
+            monthly_opportunity: auditData.revenue?.monthlyOpportunity || 0,
+            visibility_score: auditData.heatmap?.visibilityScore || 0,
+            ai_score: aiData.overallScore || 0,
+            ai_platforms_found: aiData.summary?.foundIn || 0,
+            sections_with_errors: Object.keys(sectionErrors).length
+          }
+        }).catch(() => {});
+
       } catch (error) {
-        console.error('❌ AI visibility error:', error);
+        console.error('❌ ============= AI VISIBILITY CHECK FAILED =============');
+        console.error('❌ Error:', error);
+        console.error('❌ Error message:', error.message);
         console.error('❌ Error stack:', error.stack);
-        setSectionErrors(prev => ({ ...prev, ai: error.message || 'Unable to complete AI analysis' }));
+        setSectionErrors(prev => ({ ...prev, ai: error.message || 'AI analysis failed' }));
         setAuditStage('complete');
       }
 
@@ -475,6 +500,29 @@ export default function QuizGeeniusV2() {
                         accentColor="cyan-400"
                         hasError={!!sectionErrors.ai}
                         isEmpty={!auditData.ai}
+                        onRetry={() => {
+                          console.log('🔄 Retrying AI visibility check...');
+                          setSectionErrors(prev => {
+                            const newErrors = { ...prev };
+                            delete newErrors.ai;
+                            return newErrors;
+                          });
+                          // Trigger re-run
+                          runFoxyV2Audit({ 
+                            place_id: formData.place_id,
+                            business_name: formData.business_name,
+                            address: formData.address,
+                            phone: formData.phone,
+                            business_category: formData.business_category,
+                            gmb_rating: formData.gmb_rating,
+                            gmb_reviews_count: formData.gmb_reviews_count,
+                            gmb_photos_count: formData.gmb_photos_count,
+                            gmb_types: formData.gmb_types,
+                            gmb_has_hours: formData.gmb_has_hours,
+                            gmb_reviews: formData.gmb_reviews,
+                            location: formData.location
+                          });
+                        }}
                       >
                         <AIVisibilityReport aiData={auditData.ai} />
                       </ExpandableAuditSection>

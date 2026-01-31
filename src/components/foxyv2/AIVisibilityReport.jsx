@@ -6,12 +6,18 @@ import { Brain, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import FoxyMascot from './FoxyMascot';
 
 export default function AIVisibilityReport({ aiData }) {
+  console.log('🦊 AIVisibilityReport called with aiData:', aiData);
+  
   if (!aiData) {
     console.error('❌ AIVisibilityReport: No aiData provided');
-    return null;
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-400">No AI visibility data available</p>
+      </div>
+    );
   }
 
-  console.log('🦊 AIVisibilityReport rendering with:', JSON.stringify(aiData).substring(0, 300));
+  console.log('🦊 AIVisibilityReport rendering with:', JSON.stringify(aiData).substring(0, 500));
 
   const { 
     overallScore = 0, 
