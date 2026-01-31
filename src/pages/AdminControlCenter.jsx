@@ -1005,6 +1005,9 @@ export default function AdminControlCenter() {
                 <Clock className="w-3 h-3" />
                 Last refresh: {lastRefresh.toLocaleTimeString()}
               </div>
+              <Suspense fallback={<div className="w-10 h-10" />}>
+                <NotificationCenter />
+              </Suspense>
               <Button 
                 onClick={handleRefresh}
                 variant="outline"
@@ -1083,11 +1086,17 @@ export default function AdminControlCenter() {
             >
               <TabsContent value="overview" className="space-y-6 mt-0">
                 <Suspense fallback={<TabLoader />}>
+                  <QuickActionsPanel />
+                </Suspense>
+                <Suspense fallback={<TabLoader />}>
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <AdminLeadsSection />
                     <AdminOrdersSection />
                     <AdminSecurityAudit />
                   </div>
+                </Suspense>
+                <Suspense fallback={<TabLoader />}>
+                  <AdminActivityLog />
                 </Suspense>
               </TabsContent>
 
