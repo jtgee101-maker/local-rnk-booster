@@ -161,5 +161,6 @@ export default function AdminOrdersSection({ expanded = false }) {
         </div>
       </CardContent>
     </Card>
+    </>
   );
 }
