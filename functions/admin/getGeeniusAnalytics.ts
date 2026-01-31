@@ -40,28 +40,36 @@ Deno.serve(async (req) => {
 
     // Calculate metrics
     const quizStarts = currentEvents.filter(e => e.event_name === 'quiz_started').length;
+    const quizCompleted = currentEvents.filter(e => e.event_name === 'quiz_completed').length;
     const resultsViewed = currentEvents.filter(e => e.event_name === 'results_viewed').length;
-    const pathway1Clicks = currentEvents.filter(e => e.event_name === 'pathway1_clicked').length;
-    const pathway2Clicks = currentEvents.filter(e => e.event_name === 'pathway2_clicked').length;
-    const pathway3Clicks = currentEvents.filter(e => e.event_name === 'pathway3_clicked').length;
+    const bridgeViewed = currentEvents.filter(e => e.event_name === 'bridge_viewed').length;
+    const pathway1Clicks = currentEvents.filter(e => e.event_name === 'pathway_govtech_grant_clicked').length;
+    const pathway2Clicks = currentEvents.filter(e => e.event_name === 'pathway_done_for_you_clicked').length;
+    const pathway3Clicks = currentEvents.filter(e => e.event_name === 'pathway_diy_software_clicked').length;
     const pathwaySelections = pathway1Clicks + pathway2Clicks + pathway3Clicks;
-    const emailCaptures = currentEvents.filter(e => e.event_name === 'email_captured').length;
+    const emailCaptures = quizCompleted; // Email captured during quiz completion
 
     // Calculate conversion rates
     const quizToResults = quizStarts > 0 ? ((resultsViewed / quizStarts) * 100).toFixed(1) : '0.0';
     const resultsToPathway = resultsViewed > 0 ? ((pathwaySelections / resultsViewed) * 100).toFixed(1) : '0.0';
-    const pathwayToConversion = pathwaySelections > 0 ? ((pathway3Clicks / pathwaySelections) * 100).toFixed(1) : '0.0';
+    const pathwayToConversion = pathwaySelections > 0 ? ((pathwaySelections / pathwaySelections) * 100).toFixed(1) : '0.0';
     const overallConversion = quizStarts > 0 ? ((pathwaySelections / quizStarts) * 100).toFixed(1) : '0.0';
-    const emailCaptureRate = resultsViewed > 0 ? ((emailCaptures / resultsViewed) * 100).toFixed(1) : '0.0';
+    const emailCaptureRate = quizStarts > 0 ? ((emailCaptures / quizStarts) * 100).toFixed(1) : '0.0';
 
     // Calculate trends
     const prevQuizStarts = previousEvents.filter(e => e.event_name === 'quiz_started').length;
+    const prevResultsViewed = previousEvents.filter(e => e.event_name === 'results_viewed').length;
     const prevPathwaySelections = previousEvents.filter(e => 
-      ['pathway1_clicked', 'pathway2_clicked', 'pathway3_clicked'].includes(e.event_name)
+      ['pathway_govtech_grant_clicked', 'pathway_done_for_you_clicked', 'pathway_diy_software_clicked'].includes(e.event_name)
     ).length;
+    const prevLeads = await base44.asServiceRole.entities.Lead.filter({
+      created_date: { $gte: previousStartDate, $lt: startDate }
+    });
 
-    const startsTrend = prevQuizStarts > 0 ? (((quizStarts - prevQuizStarts) / prevQuizStarts) * 100) : 0;
-    const pathwayTrend = prevPathwaySelections > 0 ? (((pathwaySelections - prevPathwaySelections) / prevPathwaySelections) * 100) : 0;
+    const startsTrend = prevQuizStarts > 0 ? (((quizStarts - prevQuizStarts) / prevQuizStarts) * 100) : (quizStarts > 0 ? 100 : 0);
+    const resultsTrend = prevResultsViewed > 0 ? (((resultsViewed - prevResultsViewed) / prevResultsViewed) * 100) : (resultsViewed > 0 ? 100 : 0);
+    const pathwayTrend = prevPathwaySelections > 0 ? (((pathwaySelections - prevPathwaySelections) / prevPathwaySelections) * 100) : (pathwaySelections > 0 ? 100 : 0);
+    const leadsTrend = prevLeads.length > 0 ? (((leads.length - prevLeads.length) / prevLeads.length) * 100) : (leads.length > 0 ? 100 : 0);
 
     // Session metrics
     const uniqueSessions = new Set(currentEvents.map(e => e.session_id)).size;
@@ -91,19 +99,21 @@ Deno.serve(async (req) => {
       good: leads.filter(l => l.health_score > 75).length
     };
 
-    // Exit points
-    const exitEvents = currentEvents.filter(e => e.event_name.includes('exit') || e.event_name.includes('abandon'));
-    const exitPointsMap = {};
-    exitEvents.forEach(e => {
-      const step = e.properties?.step || 'unknown';
-      exitPointsMap[step] = (exitPointsMap[step] || 0) + 1;
-    });
+    // Exit points - calculate dropout between stages
+    const exitPointsMap = {
+      'quiz_started_no_complete': quizStarts - quizCompleted,
+      'results_no_bridge': resultsViewed - bridgeViewed,
+      'bridge_no_pathway': bridgeViewed - pathwaySelections
+    };
 
-    const exitPoints = Object.entries(exitPointsMap).map(([step, count]) => ({
-      step,
-      count,
-      percentage: ((count / exitEvents.length) * 100).toFixed(1)
-    }));
+    const totalDropoffs = Object.values(exitPointsMap).reduce((sum, val) => sum + val, 0);
+    const exitPoints = Object.entries(exitPointsMap)
+      .filter(([step, count]) => count > 0)
+      .map(([step, count]) => ({
+        step,
+        count,
+        percentage: totalDropoffs > 0 ? ((count / totalDropoffs) * 100).toFixed(1) : '0.0'
+      }));
 
     // Pain points
     const painPointsMap = {};
@@ -164,10 +174,10 @@ Deno.serve(async (req) => {
       },
       trends: {
         starts: startsTrend,
-        results: 0,
+        results: resultsTrend,
         pathways: pathwayTrend,
         conversions: pathwayTrend,
-        leads: 0
+        leads: leadsTrend
       },
       sessions: {
         uniqueSessions: uniqueSessions,
