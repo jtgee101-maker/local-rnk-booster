@@ -66,6 +66,8 @@ const MobileOptimizedHeader = lazy(() => import('@/components/admin/MobileOptimi
 const SystemTestingDashboard = lazy(() => import('@/components/admin/SystemTestingDashboard'));
 const PerformanceMonitor = lazy(() => import('@/components/admin/PerformanceMonitor'));
 const ProductionReadinessChecklist = lazy(() => import('@/components/admin/ProductionReadinessChecklist'));
+const RealTimeSystemTest = lazy(() => import('@/components/admin/RealTimeSystemTest'));
+const ControlActionsVerifier = lazy(() => import('@/components/admin/ControlActionsVerifier'));
 
 // Modern loading component with skeleton
 const TabLoader = () => (
@@ -1272,6 +1274,12 @@ export default function AdminControlCenter() {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <SystemTestingDashboard />
                     <PerformanceMonitor />
+                  </div>
+                </Suspense>
+                <Suspense fallback={<TabLoader />}>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <RealTimeSystemTest />
+                    <ControlActionsVerifier />
                   </div>
                 </Suspense>
               </TabsContent>
