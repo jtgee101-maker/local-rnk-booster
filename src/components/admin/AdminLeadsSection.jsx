@@ -397,5 +397,6 @@ export default function AdminLeadsSection({ expanded = false }) {
         )}
       </CardContent>
     </Card>
+    </>
   );
 }
