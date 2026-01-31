@@ -19,6 +19,8 @@ const AdminLeadsSection = lazy(() => import('@/components/admin/AdminLeadsSectio
 const AdminOrdersSection = lazy(() => import('@/components/admin/AdminOrdersSection'));
 const AdminAutomations = lazy(() => import('@/components/admin/AdminAutomations'));
 const AdminSettings = lazy(() => import('@/components/admin/AdminSettings'));
+const EmailRetryManager = lazy(() => import('@/components/admin/EmailRetryManager'));
+const SecurityStatusCard = lazy(() => import('@/components/admin/SecurityStatusCard'));
 const AdminSecurityAudit = lazy(() => import('@/components/admin/AdminSecurityAudit'));
 const UserManagement = lazy(() => import('@/components/admin/UserManagement'));
 const EmailAnalyticsDashboard = lazy(() => import('@/components/admin/EmailAnalyticsDashboard'));
@@ -953,6 +955,7 @@ export default function AdminControlCenter() {
     { value: 'abtests', icon: Eye, label: 'A/B Tests', color: 'cyan' },
     { value: 'automations', icon: Repeat, label: 'Automations', color: 'orange' },
     { value: 'emails', icon: Mail, label: 'Emails', color: 'red' },
+    { value: 'security', icon: Shield, label: 'Security', color: 'red' },
     { value: 'nurture', icon: Activity, label: 'Nurture', color: 'teal' },
     { value: 'scoring', icon: Target, label: 'Scoring', color: 'lime' },
     { value: 'health', icon: Activity, label: 'Health', color: 'emerald' },
@@ -1128,6 +1131,13 @@ export default function AdminControlCenter() {
               <TabsContent value="emails" className="mt-0">
                 <Suspense fallback={<TabLoader />}>
                   <EmailAnalyticsDashboard />
+                </Suspense>
+              </TabsContent>
+
+              <TabsContent value="security" className="space-y-6 mt-0">
+                <Suspense fallback={<TabLoader />}>
+                  <SecurityStatusCard />
+                  <EmailRetryManager />
                 </Suspense>
               </TabsContent>
 
