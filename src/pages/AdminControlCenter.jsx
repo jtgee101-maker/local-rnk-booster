@@ -40,6 +40,10 @@ const SystemHealthMonitor = lazy(() => import('@/components/admin/SystemHealthMo
 const ErrorTrackingDashboard = lazy(() => import('@/components/admin/ErrorTrackingDashboard'));
 const BehavioralCommandCenter = lazy(() => import('@/components/admin/BehavioralCommandCenter'));
 const CampaignManager = lazy(() => import('@/components/admin/CampaignManager'));
+const AdvancedSegmentation = lazy(() => import('@/components/admin/AdvancedSegmentation'));
+const RevenueAttributionPanel = lazy(() => import('@/components/admin/RevenueAttributionPanel'));
+const CohortAnalysis = lazy(() => import('@/components/admin/CohortAnalysis'));
+const ABTestManager = lazy(() => import('@/components/admin/ABTestManager'));
 
 // Modern loading component with skeleton
 const TabLoader = () => (
@@ -949,6 +953,8 @@ export default function AdminControlCenter() {
     { value: 'leads', icon: Users, label: 'Leads', color: 'indigo' },
     { value: 'orders', icon: DollarSign, label: 'Orders', color: 'green' },
     { value: 'analytics', icon: TrendingUp, label: 'Analytics', color: 'purple' },
+    { value: 'cohorts', icon: Users, label: 'Cohorts', color: 'indigo' },
+    { value: 'attribution', icon: BarChart3, label: 'Revenue', color: 'amber' },
     { value: 'predictive', icon: Brain, label: 'AI Insights', color: 'pink' },
     { value: 'behavior', icon: Activity, label: 'Behavior', color: 'cyan' },
     { value: 'segments', icon: Target, label: 'Segments', color: 'yellow' },
@@ -961,7 +967,6 @@ export default function AdminControlCenter() {
     { value: 'health', icon: Activity, label: 'Health', color: 'emerald' },
     { value: 'errors', icon: Bug, label: 'Errors', color: 'rose' },
     { value: 'users', icon: Lock, label: 'Users', color: 'violet' },
-    { value: 'attribution', icon: BarChart3, label: 'Revenue', color: 'amber' },
     { value: 'settings', icon: Settings, label: 'Settings', color: 'slate' },
   ];
 
@@ -1082,7 +1087,13 @@ export default function AdminControlCenter() {
 
               <TabsContent value="segments" className="mt-0">
                 <Suspense fallback={<TabLoader />}>
-                  <SegmentManager />
+                  <AdvancedSegmentation />
+                </Suspense>
+              </TabsContent>
+
+              <TabsContent value="cohorts" className="mt-0">
+                <Suspense fallback={<TabLoader />}>
+                  <CohortAnalysis />
                 </Suspense>
               </TabsContent>
 
@@ -1118,7 +1129,7 @@ export default function AdminControlCenter() {
 
               <TabsContent value="abtests" className="mt-0">
                 <Suspense fallback={<TabLoader />}>
-                  <AdminABTests />
+                  <ABTestManager />
                 </Suspense>
               </TabsContent>
 
@@ -1173,7 +1184,7 @@ export default function AdminControlCenter() {
 
               <TabsContent value="attribution" className="mt-0">
                 <Suspense fallback={<TabLoader />}>
-                  <RevenueAttribution />
+                  <RevenueAttributionPanel />
                 </Suspense>
               </TabsContent>
 
