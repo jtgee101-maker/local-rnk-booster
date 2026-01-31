@@ -138,66 +138,120 @@ function FunnelModeSwitcher() {
   };
 
   const switchMode = async (mode) => {
+    if (!['v2', 'v3', 'geenius'].includes(mode)) {
+      alert('Invalid funnel mode');
+      return;
+    }
+    
     setIsSwitching(true);
     try {
       const existing = await base44.entities.AppSettings.filter({ setting_key: 'funnel_mode' });
       
       if (existing.length > 0) {
         await base44.entities.AppSettings.update(existing[0].id, {
-          setting_value: { mode, updated_at: new Date().toISOString() }
+          setting_value: { mode, updated_at: new Date().toISOString(), updated_by: 'admin' }
         });
       } else {
         await base44.entities.AppSettings.create({
           setting_key: 'funnel_mode',
-          setting_value: { mode, updated_at: new Date().toISOString() },
+          setting_value: { mode, updated_at: new Date().toISOString(), updated_by: 'admin' },
           category: 'general',
-          description: 'Active funnel mode: v2 (Stripe) or v3 (Affiliate)'
+          description: 'Active funnel mode: v2 (Stripe), v3 (Affiliate), or geenius (3-Pathway)'
         });
       }
       
       setCurrentMode(mode);
-      base44.analytics.track({ eventName: 'funnel_mode_switched', properties: { mode } });
+      
+      // Track mode switch
+      await base44.analytics.track({ 
+        eventName: 'funnel_mode_switched', 
+        properties: { mode, previous_mode: currentMode, timestamp: new Date().toISOString() }
+      }).catch(() => {});
+      
+      // Success feedback
+      alert(`✓ Successfully switched to ${mode === 'v2' ? 'Quiz V2 (Stripe)' : mode === 'v3' ? 'Quiz V3 (Affiliate)' : 'QuizGeenius (3-Pathway)'}`);
+      
     } catch (error) {
       console.error('Error switching mode:', error);
-      alert('Failed to switch mode');
+      alert('Failed to switch funnel mode. Please try again.');
+      
+      // Log error
+      await base44.entities.ErrorLog.create({
+        error_type: 'system_error',
+        severity: 'high',
+        message: `Failed to switch funnel mode to ${mode}`,
+        stack_trace: error.stack || error.message,
+        metadata: { component: 'FunnelModeSwitcher', action: 'switchMode', target_mode: mode }
+      }).catch(() => {});
+      
     } finally {
       setIsSwitching(false);
     }
   };
 
   const updateAffiliateLink = async () => {
+    // Validate URL
+    if (!affiliateLink || affiliateLink.trim() === '') {
+      alert('Affiliate link cannot be empty');
+      return;
+    }
+    
+    try {
+      new URL(affiliateLink);
+    } catch (e) {
+      alert('Please enter a valid URL (must start with http:// or https://)');
+      return;
+    }
+    
     try {
       const existing = await base44.entities.AppSettings.filter({ setting_key: 'affiliate_link' });
       
       if (existing.length > 0) {
         await base44.entities.AppSettings.update(existing[0].id, {
-          setting_value: { url: affiliateLink, updated_at: new Date().toISOString() }
+          setting_value: { url: affiliateLink.trim(), updated_at: new Date().toISOString() }
         });
       } else {
         await base44.entities.AppSettings.create({
           setting_key: 'affiliate_link',
-          setting_value: { url: affiliateLink, updated_at: new Date().toISOString() },
+          setting_value: { url: affiliateLink.trim(), updated_at: new Date().toISOString() },
           category: 'general',
           description: 'Affiliate redirect URL for V3 funnel'
         });
       }
       
       setIsEditingLink(false);
-      base44.analytics.track({ eventName: 'affiliate_link_updated' });
+      await base44.analytics.track({ eventName: 'affiliate_link_updated', properties: { url: affiliateLink.trim() } }).catch(() => {});
+      alert('✓ Affiliate link updated successfully');
+      
     } catch (error) {
       console.error('Error updating affiliate link:', error);
-      alert('Failed to update link');
+      alert('Failed to update affiliate link. Please try again.');
+      
+      await base44.entities.ErrorLog.create({
+        error_type: 'system_error',
+        severity: 'medium',
+        message: 'Failed to update affiliate link',
+        stack_trace: error.stack || error.message,
+        metadata: { component: 'FunnelModeSwitcher', action: 'updateAffiliateLink' }
+      }).catch(() => {});
     }
   };
 
   const updateBridgeTimer = async () => {
-    try {
-      const seconds = parseInt(bridgeTimer);
-      if (seconds < 1 || seconds > 10) {
-        alert('Timer must be between 1-10 seconds');
-        return;
-      }
+    const seconds = parseInt(bridgeTimer);
+    
+    // Validate input
+    if (isNaN(seconds)) {
+      alert('Please enter a valid number');
+      return;
+    }
+    
+    if (seconds < 1 || seconds > 10) {
+      alert('Timer must be between 1-10 seconds');
+      return;
+    }
 
+    try {
       const existing = await base44.entities.AppSettings.filter({ setting_key: 'bridge_timer' });
       
       if (existing.length > 0) {
@@ -214,10 +268,20 @@ function FunnelModeSwitcher() {
       }
       
       setIsEditingTimer(false);
-      base44.analytics.track({ eventName: 'bridge_timer_updated', properties: { seconds } });
+      await base44.analytics.track({ eventName: 'bridge_timer_updated', properties: { seconds } }).catch(() => {});
+      alert(`✓ Bridge timer set to ${seconds} second${seconds !== 1 ? 's' : ''}`);
+      
     } catch (error) {
       console.error('Error updating timer:', error);
-      alert('Failed to update timer');
+      alert('Failed to update bridge timer. Please try again.');
+      
+      await base44.entities.ErrorLog.create({
+        error_type: 'system_error',
+        severity: 'medium',
+        message: 'Failed to update bridge timer',
+        stack_trace: error.stack || error.message,
+        metadata: { component: 'FunnelModeSwitcher', action: 'updateBridgeTimer', seconds }
+      }).catch(() => {});
     }
   };
 
@@ -230,27 +294,66 @@ function FunnelModeSwitcher() {
   }
 
   const updateGeeniusPathways = async () => {
+    // Validate all URLs
+    const urlFields = [
+      { key: 'pathway1_url', label: 'Pathway #1 (Gov Tech Grant)' },
+      { key: 'pathway2_url', label: 'Pathway #2 (Done For You)' },
+      { key: 'pathway3_checkout_url', label: 'Pathway #3 (DIY Checkout)' }
+    ];
+    
+    for (const field of urlFields) {
+      const url = geeniusPathways[field.key];
+      if (!url || url.trim() === '') {
+        alert(`${field.label} URL cannot be empty`);
+        return;
+      }
+      
+      try {
+        new URL(url);
+      } catch (e) {
+        alert(`${field.label}: Please enter a valid URL (must start with http:// or https://)`);
+        return;
+      }
+    }
+    
     try {
+      const sanitizedPathways = {
+        pathway1_url: geeniusPathways.pathway1_url.trim(),
+        pathway2_url: geeniusPathways.pathway2_url.trim(),
+        pathway3_checkout_url: geeniusPathways.pathway3_checkout_url.trim()
+      };
+      
       const existing = await base44.entities.AppSettings.filter({ setting_key: 'geenius_pathways' });
       
       if (existing.length > 0) {
         await base44.entities.AppSettings.update(existing[0].id, {
-          setting_value: geeniusPathways
+          setting_value: { ...sanitizedPathways, updated_at: new Date().toISOString() }
         });
       } else {
         await base44.entities.AppSettings.create({
           setting_key: 'geenius_pathways',
-          setting_value: geeniusPathways,
+          setting_value: { ...sanitizedPathways, updated_at: new Date().toISOString() },
           category: 'general',
           description: 'GeeNius pathway URLs configuration'
         });
       }
       
+      setGeeniusPathways(sanitizedPathways);
       setIsEditingGeenius(false);
-      base44.analytics.track({ eventName: 'geenius_pathways_updated' });
+      await base44.analytics.track({ eventName: 'geenius_pathways_updated' }).catch(() => {});
+      alert('✓ GeeNius pathways updated successfully');
+      
     } catch (error) {
       console.error('Error updating geenius pathways:', error);
-      alert('Failed to update pathways');
+      alert('Failed to update GeeNius pathways. Please try again.');
+      
+      await base44.entities.ErrorLog.create({
+        error_type: 'system_error',
+        severity: 'medium',
+        message: 'Failed to update GeeNius pathways',
+        stack_trace: error.stack || error.message,
+        metadata: { component: 'FunnelModeSwitcher', action: 'updateGeeniusPathways' }
+      }).catch(() => {});
     }
   };
 
@@ -735,6 +838,7 @@ export default function AdminControlCenter() {
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState(new Date());
   const [activeTab, setActiveTab] = useState('overview');
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     checkAuth();
@@ -742,6 +846,8 @@ export default function AdminControlCenter() {
 
   const checkAuth = async () => {
     try {
+      setError(null);
+      
       // Check for admin key in URL
       const urlParams = new URLSearchParams(window.location.search);
       const providedKey = urlParams.get('key');
@@ -749,42 +855,87 @@ export default function AdminControlCenter() {
       if (providedKey) {
         try {
           const response = await base44.functions.invoke('admin/validateAdminKey', { key: providedKey });
-          if (response.data.valid) {
+          if (response.data?.valid) {
             setUser({ email: 'admin@key-access', role: 'admin', full_name: 'Admin (Key Access)' });
             setLoading(false);
             return;
           }
         } catch (keyError) {
-          console.error('Invalid admin key');
+          console.error('Admin key validation failed:', keyError);
+          setError('Invalid admin access key');
         }
       }
       
       // Fallback to normal user auth
       const currentUser = await base44.auth.me();
       
-      if (currentUser?.role !== 'admin') {
-        window.location.href = '/';
+      if (!currentUser) {
+        setError('Authentication required');
+        setTimeout(() => window.location.href = '/', 2000);
+        return;
+      }
+      
+      if (currentUser.role !== 'admin') {
+        setError('Admin access required');
+        setTimeout(() => window.location.href = '/', 2000);
         return;
       }
       
       setUser(currentUser);
       setLoading(false);
     } catch (error) {
-      window.location.href = '/';
+      console.error('Auth check failed:', error);
+      setError('Failed to verify admin access');
+      
+      // Log error to ErrorLog entity
+      try {
+        await base44.entities.ErrorLog.create({
+          error_type: 'system_error',
+          severity: 'medium',
+          message: 'Admin auth check failed',
+          stack_trace: error.stack || error.message,
+          metadata: { component: 'AdminControlCenter', action: 'checkAuth' }
+        });
+      } catch (logErr) {
+        console.error('Failed to log error:', logErr);
+      }
+      
+      setTimeout(() => window.location.href = '/', 2000);
     }
   };
 
-  const handleRefresh = () => {
-    setLastRefresh(new Date());
-    window.location.reload();
+  const handleRefresh = async () => {
+    try {
+      setLastRefresh(new Date());
+      
+      // Track refresh action
+      await base44.analytics.track({
+        eventName: 'admin_dashboard_refresh',
+        properties: { user_email: user?.email, timestamp: new Date().toISOString() }
+      }).catch(() => {}); // Silent fail for analytics
+      
+      window.location.reload();
+    } catch (error) {
+      console.error('Refresh failed:', error);
+      setError('Failed to refresh dashboard');
+      setTimeout(() => setError(null), 3000);
+    }
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f] flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 text-[#c8ff00] animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">Loading Admin Control Center...</p>
+        <div className="text-center space-y-4">
+          <Loader2 className="w-8 h-8 text-[#c8ff00] animate-spin mx-auto" />
+          <p className="text-gray-400">
+            {error || 'Loading Admin Control Center...'}
+          </p>
+          {error && (
+            <div className="flex items-center justify-center gap-2 text-red-400 text-sm">
+              <AlertCircle className="w-4 h-4" />
+              <span>Redirecting...</span>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -850,10 +1001,29 @@ export default function AdminControlCenter() {
 
       {/* Main Content */}
       <div className="max-w-[1800px] mx-auto p-6 space-y-6">
-        {/* Test Mode Indicator */}
+        {/* Test Mode Indicator & Error Display */}
         <Suspense fallback={null}>
           <TestModeIndicator isTestMode={true} />
         </Suspense>
+        
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-center gap-3"
+          >
+            <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+            <p className="text-red-200 text-sm">{error}</p>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setError(null)}
+              className="ml-auto text-red-400 hover:text-red-300"
+            >
+              Dismiss
+            </Button>
+          </motion.div>
+        )}
         
         {/* Quick Stats */}
         <motion.div

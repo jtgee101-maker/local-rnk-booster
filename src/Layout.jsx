@@ -45,7 +45,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Data Cleanup', path: createPageUrl('DataCleanup') },
     { name: 'Stripe Setup', path: createPageUrl('StripeSetupGuide') },
     { name: 'Final Launch', path: createPageUrl('FinalLaunchChecklist') },
-    { name: 'Admin Dashboard', path: createPageUrl('Admin') }
+    { name: 'Admin Dashboard', path: createPageUrl('AdminControlCenter') }
   ];
 
   const industryPages = [
