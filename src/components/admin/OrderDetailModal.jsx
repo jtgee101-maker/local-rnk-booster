@@ -21,13 +21,29 @@ export default function OrderDetailModal({ order, open, onClose, onUpdate }) {
 
     setLoading(true);
     try {
-      await base44.functions.invoke('admin/processRefund', { orderId: order.id });
-      toast.success('Refund processed successfully');
-      onUpdate();
-      onClose();
+      const response = await base44.functions.invoke('admin/processRefund', { orderId: order.id });
+      
+      if (response?.data?.success || response?.success) {
+        toast.success('Refund processed successfully');
+        if (onUpdate) onUpdate();
+        if (onClose) onClose();
+      } else {
+        throw new Error(response?.data?.error || 'Refund failed');
+      }
     } catch (error) {
       console.error('Refund failed:', error);
-      toast.error('Refund failed: ' + (error.message || 'Unknown error'));
+      const errorMessage = error.response?.data?.error || error.message || 'Unknown error';
+      toast.error('Refund failed: ' + errorMessage);
+      
+      try {
+        await base44.entities.ErrorLog.create({
+          error_type: 'payment_failure',
+          severity: 'high',
+          message: 'Failed to process refund',
+          stack_trace: error.stack || error.message,
+          metadata: { order_id: order.id, amount: order.total_amount }
+        });
+      } catch {}
     } finally {
       setLoading(false);
     }

@@ -80,14 +80,20 @@ export default function AdminAutomations() {
   const handleToggle = async (automation) => {
     setActionLoading(automation.id);
     try {
-      await base44.functions.invoke('admin/toggleAutomation', { 
+      const response = await base44.functions.invoke('admin/toggleAutomation', { 
         automation_id: automation.id 
       });
-      toast.success(`Automation ${automation.is_active ? 'paused' : 'resumed'}`);
-      loadAutomations();
+      
+      if (response?.data?.success || response?.success) {
+        toast.success(`Automation ${automation.is_active ? 'paused' : 'resumed'}`);
+        await loadAutomations();
+      } else {
+        throw new Error(response?.data?.error || 'Failed to toggle automation');
+      }
     } catch (error) {
       console.error('Toggle failed:', error);
-      toast.error('Failed to toggle automation');
+      const errorMessage = error.response?.data?.error || error.message || 'Unknown error';
+      toast.error('Failed to toggle: ' + errorMessage);
     } finally {
       setActionLoading(null);
     }
@@ -98,14 +104,20 @@ export default function AdminAutomations() {
     
     setActionLoading(automation.id);
     try {
-      await base44.functions.invoke('admin/deleteAutomation', { 
+      const response = await base44.functions.invoke('admin/deleteAutomation', { 
         automation_id: automation.id 
       });
-      toast.success('Automation deleted');
-      loadAutomations();
+      
+      if (response?.data?.success || response?.success) {
+        toast.success('Automation deleted');
+        await loadAutomations();
+      } else {
+        throw new Error(response?.data?.error || 'Failed to delete automation');
+      }
     } catch (error) {
       console.error('Delete failed:', error);
-      toast.error('Failed to delete automation');
+      const errorMessage = error.response?.data?.error || error.message || 'Unknown error';
+      toast.error('Failed to delete: ' + errorMessage);
     } finally {
       setActionLoading(null);
     }

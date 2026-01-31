@@ -97,32 +97,42 @@ export default function AutomationEditor({ automation, open, onClose, onSave }) 
 
     setLoading(true);
     try {
+      let response;
       if (automation?.id) {
         // Update existing
-        await base44.functions.invoke('admin/updateAutomation', {
+        response = await base44.functions.invoke('admin/updateAutomation', {
           automation_id: automation.id,
           ...formData
         });
         toast.success('Automation updated successfully');
       } else {
         // Create new
-        await base44.functions.invoke('admin/createAutomation', formData);
+        response = await base44.functions.invoke('admin/createAutomation', formData);
         toast.success('Automation created successfully');
       }
       
-      onSave();
-      onClose();
+      if (response?.data?.success || response?.success) {
+        onSave();
+        onClose();
+      } else {
+        throw new Error(response?.data?.error || 'Unknown error occurred');
+      }
     } catch (error) {
       console.error('Failed to save automation:', error);
-      toast.error('Failed to save automation: ' + (error.message || 'Unknown error'));
+      const errorMessage = error.response?.data?.error || error.message || 'Unknown error';
+      toast.error('Failed to save automation: ' + errorMessage);
       
-      await base44.entities.ErrorLog.create({
-        error_type: 'system_error',
-        severity: 'high',
-        message: 'Failed to save automation',
-        stack_trace: error.stack || error.message,
-        metadata: { component: 'AutomationEditor', formData }
-      }).catch(() => {});
+      try {
+        await base44.entities.ErrorLog.create({
+          error_type: 'system_error',
+          severity: 'high',
+          message: 'Failed to save automation',
+          stack_trace: error.stack || error.message,
+          metadata: { component: 'AutomationEditor', formData }
+        });
+      } catch (logError) {
+        console.error('Failed to log error:', logError);
+      }
     } finally {
       setLoading(false);
     }

@@ -29,10 +29,21 @@ export default function LeadDetailModal({ lead, open, onClose, onUpdate }) {
     try {
       await base44.entities.Lead.update(lead.id, { status: newStatus });
       toast.success(`Lead status updated to ${newStatus}`);
-      onUpdate();
+      if (onUpdate) onUpdate();
     } catch (error) {
       console.error('Failed to update status:', error);
-      toast.error('Failed to update status');
+      const errorMessage = error.message || 'Unknown error';
+      toast.error('Failed to update status: ' + errorMessage);
+      
+      try {
+        await base44.entities.ErrorLog.create({
+          error_type: 'system_error',
+          severity: 'medium',
+          message: 'Failed to update lead status',
+          stack_trace: error.stack || error.message,
+          metadata: { lead_id: lead.id, new_status: newStatus }
+        });
+      } catch {}
     } finally {
       setLoading(false);
     }
@@ -43,10 +54,21 @@ export default function LeadDetailModal({ lead, open, onClose, onUpdate }) {
     try {
       await base44.entities.Lead.update(lead.id, { admin_notes: notes });
       toast.success('Notes saved');
-      onUpdate();
+      if (onUpdate) onUpdate();
     } catch (error) {
       console.error('Failed to save notes:', error);
-      toast.error('Failed to save notes');
+      const errorMessage = error.message || 'Unknown error';
+      toast.error('Failed to save notes: ' + errorMessage);
+      
+      try {
+        await base44.entities.ErrorLog.create({
+          error_type: 'system_error',
+          severity: 'low',
+          message: 'Failed to save lead notes',
+          stack_trace: error.stack || error.message,
+          metadata: { lead_id: lead.id }
+        });
+      } catch {}
     } finally {
       setLoading(false);
     }
