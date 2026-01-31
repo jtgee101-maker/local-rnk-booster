@@ -6,10 +6,11 @@ import { Mail, Phone, CheckCircle2, Award, Shield } from 'lucide-react';
 import { emailSchema, phoneSchema, validateInput } from '@/components/utils/validation';
 
 export default function ContactInfoStep({ onNext, onBack, initialData }) {
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [consent, setConsent] = useState(false);
+  const [email, setEmail] = useState(initialData?.email || '');
+  const [phone, setPhone] = useState(initialData?.phone || '');
+  const [consent, setConsent] = useState(initialData?.consent || false);
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateForm = () => {
     const newErrors = {};
@@ -40,28 +41,47 @@ export default function ContactInfoStep({ onNext, onBack, initialData }) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (isSubmitting) return;
     
     if (!validateForm()) {
       return;
     }
     
     if (!onNext || typeof onNext !== 'function') {
-      console.error('ContactInfoStep: onNext prop is missing or not a function');
+      console.error('ContactInfoStep: onNext is not a function');
+      setErrors({ general: 'Something went wrong. Please refresh and try again.' });
       return;
     }
     
+    setIsSubmitting(true);
+    
     try {
-      // Save contact info to sessionStorage merged with existing lead data
+      // Save to sessionStorage
       const stored = sessionStorage.getItem('quizLead');
       const existingLead = stored ? JSON.parse(stored) : {};
-      const updatedLead = { ...existingLead, email, phone, consent };
+      const updatedLead = { 
+        ...existingLead, 
+        email: email.trim().toLowerCase(), 
+        phone: phone.trim(), 
+        consent 
+      };
       sessionStorage.setItem('quizLead', JSON.stringify(updatedLead));
       
-      onNext({ email, phone, consent });
+      // Short delay for visual feedback
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      onNext({ 
+        email: email.trim().toLowerCase(), 
+        phone: phone.trim(), 
+        consent 
+      });
     } catch (error) {
       console.error('ContactInfoStep submit error:', error);
+      setErrors({ general: 'Unable to proceed. Please try again.' });
+      setIsSubmitting(false);
     }
   };
 
@@ -168,11 +188,18 @@ export default function ContactInfoStep({ onNext, onBack, initialData }) {
           {errors.consent && <p className="text-red-400 text-sm mt-2">{errors.consent}</p>}
         </div>
 
+        {errors.general && (
+          <div className="bg-red-500/10 border border-red-500 rounded-xl p-4 mb-4">
+            <p className="text-red-400 text-sm">{errors.general}</p>
+          </div>
+        )}
+
         <Button
           type="submit"
-          className="w-full bg-[#c8ff00] hover:bg-[#d4ff33] active:bg-[#b8e600] text-black font-semibold py-6 text-lg rounded-xl transition-all duration-300 hover:shadow-[0_0_40px_rgba(200,255,0,0.3)] min-h-[56px] touch-manipulation"
+          disabled={isSubmitting}
+          className="w-full bg-[#c8ff00] hover:bg-[#d4ff33] active:bg-[#b8e600] text-black font-semibold py-6 text-lg rounded-xl transition-all duration-300 hover:shadow-[0_0_40px_rgba(200,255,0,0.3)] min-h-[56px] touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Get My Free Audit Report
+          {isSubmitting ? 'Processing...' : 'Get My Free Audit Report'}
         </Button>
 
         <p className="text-xs text-gray-600">

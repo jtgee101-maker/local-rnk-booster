@@ -51,27 +51,32 @@ export default function ProcessingStepEnhanced({ onComplete, formData = {} }) {
   const [showEngagementModal, setShowEngagementModal] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [hasAnswered, setHasAnswered] = useState(false);
+  const [hasCompleted, setHasCompleted] = useState(false);
 
   const totalDuration = scanSteps.reduce((sum, step) => sum + step.duration, 0);
 
-  // P0-2 FIX: Safety timeout to prevent stuck spinner
+  // CRITICAL: Safety timeout to prevent stuck processing
   useEffect(() => {
     if (!onComplete || typeof onComplete !== 'function') {
       console.error('ProcessingStepEnhanced: onComplete is not a function');
       return;
     }
 
+    // Absolute max timeout
     const safetyTimeout = setTimeout(() => {
-      console.warn('ProcessingStep safety timeout triggered');
-      try {
-        onComplete(formData);
-      } catch (error) {
-        console.error('ProcessingStep safety timeout error:', error);
+      if (!hasCompleted) {
+        console.warn('ProcessingStep: Safety timeout triggered at 18s');
+        setHasCompleted(true);
+        try {
+          onComplete(formData);
+        } catch (error) {
+          console.error('ProcessingStep safety timeout error:', error);
+        }
       }
-    }, 20000); // 20 second max
+    }, 18000); // 18 seconds absolute max
 
     return () => clearTimeout(safetyTimeout);
-  }, [onComplete, formData]);
+  }, [onComplete, formData, hasCompleted]);
 
   useEffect(() => {
     // Show first engagement modal after 4 seconds
@@ -113,11 +118,13 @@ export default function ProcessingStepEnhanced({ onComplete, formData = {} }) {
           clearInterval(progressInterval);
           setProgress(100);
           setTimeout(() => {
-            if (onComplete && typeof onComplete === 'function') {
+            if (!hasCompleted && onComplete && typeof onComplete === 'function') {
+              setHasCompleted(true);
               try {
                 onComplete(formData);
               } catch (error) {
                 console.error('ProcessingStep onComplete error:', error);
+                alert('Unable to complete audit. Please refresh and try again.');
               }
             }
           }, 500);

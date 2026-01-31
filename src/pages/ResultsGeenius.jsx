@@ -71,21 +71,30 @@ export default function ResultsGeenius() {
           });
         }
 
-        await base44.analytics.track({
+        const trackResult = base44.analytics.track({
           eventName: 'geenius_results_viewed',
           properties: {
             lead_id: leadId,
             health_score: leads[0].health_score
           }
         });
+        
+        if (trackResult && typeof trackResult.catch === 'function') {
+          trackResult.catch(() => {});
+        }
 
       } catch (error) {
-        console.error('Init error:', error);
-        window.location.href = createPageUrl('QuizGeenius');
+        console.error('ResultsGeenius init error:', error);
+        
+        // Delay redirect to show error state briefly
+        setTimeout(() => {
+          window.location.href = createPageUrl('QuizGeenius');
+        }, 1500);
       } finally {
         setLoading(false);
       }
     };
+    
     init();
   }, []);
 
