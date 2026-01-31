@@ -44,6 +44,10 @@ const AdvancedSegmentation = lazy(() => import('@/components/admin/AdvancedSegme
 const RevenueAttributionPanel = lazy(() => import('@/components/admin/RevenueAttributionPanel'));
 const CohortAnalysis = lazy(() => import('@/components/admin/CohortAnalysis'));
 const ABTestManager = lazy(() => import('@/components/admin/ABTestManager'));
+const CustomerJourneyMap = lazy(() => import('@/components/admin/CustomerJourneyMap'));
+const RealTimeActivityFeed = lazy(() => import('@/components/admin/RealTimeActivityFeed'));
+const FunnelDropoffAnalysis = lazy(() => import('@/components/admin/FunnelDropoffAnalysis'));
+const CampaignPerformanceDashboard = lazy(() => import('@/components/admin/CampaignPerformanceDashboard'));
 
 // Modern loading component with skeleton
 const TabLoader = () => (
@@ -949,6 +953,9 @@ export default function AdminControlCenter() {
 
   const tabConfig = [
     { value: 'overview', icon: BarChart3, label: 'Overview', color: 'blue' },
+    { value: 'realtime', icon: Activity, label: 'Live Feed', color: 'red' },
+    { value: 'journey', icon: Users, label: 'Journey', color: 'blue' },
+    { value: 'dropoff', icon: TrendingDown, label: 'Drop-offs', color: 'orange' },
     { value: 'campaigns', icon: Target, label: 'Campaigns', color: 'purple' },
     { value: 'leads', icon: Users, label: 'Leads', color: 'indigo' },
     { value: 'orders', icon: DollarSign, label: 'Orders', color: 'green' },
@@ -1097,9 +1104,27 @@ export default function AdminControlCenter() {
                 </Suspense>
               </TabsContent>
 
+              <TabsContent value="realtime" className="mt-0">
+                <Suspense fallback={<TabLoader />}>
+                  <RealTimeActivityFeed />
+                </Suspense>
+              </TabsContent>
+
+              <TabsContent value="journey" className="mt-0">
+                <Suspense fallback={<TabLoader />}>
+                  <CustomerJourneyMap />
+                </Suspense>
+              </TabsContent>
+
+              <TabsContent value="dropoff" className="mt-0">
+                <Suspense fallback={<TabLoader />}>
+                  <FunnelDropoffAnalysis />
+                </Suspense>
+              </TabsContent>
+
               <TabsContent value="campaigns" className="mt-0">
                 <Suspense fallback={<TabLoader />}>
-                  <CampaignManager />
+                  <CampaignPerformanceDashboard />
                 </Suspense>
               </TabsContent>
 
