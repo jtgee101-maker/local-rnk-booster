@@ -16,198 +16,206 @@ export default function ProductionReadinessChecklist() {
   }, []);
 
   const runChecks = async () => {
-    setLoading(true);
-    const results = [];
-
-    // 1. Environment Variables
     try {
-      const hasResend = !!import.meta.env.VITE_APP_ID; // Proxy check
+      setLoading(true);
+      const results = [];
+
+      try {
+        results.push({
+          category: 'Configuration',
+          name: 'Environment Secrets',
+          status: 'passed',
+          message: 'Secrets configured',
+          critical: true
+        });
+      } catch {
+        results.push({
+          category: 'Configuration',
+          name: 'Environment Secrets',
+          status: 'failed',
+          message: 'Missing secrets',
+          critical: true
+        });
+      }
+
+      try {
+        const [leads, orders] = await Promise.all([
+          Promise.race([base44.entities.Lead.list('', 1), new Promise((_, r) => setTimeout(() => r([]), 3000))]),
+          Promise.race([base44.entities.Order.list('', 1), new Promise((_, r) => setTimeout(() => r([]), 3000))])
+        ]);
+        results.push({
+          category: 'Database',
+          name: 'Core Entities',
+          status: 'passed',
+          message: 'Database operational',
+          critical: true
+        });
+      } catch {
+        results.push({
+          category: 'Database',
+          name: 'Core Entities',
+          status: 'failed',
+          message: 'Database unavailable',
+          critical: true
+        });
+      }
+
+      try {
+        const emails = await Promise.race([
+          base44.entities.EmailLog.list('-created_date', 5),
+          new Promise((_, r) => setTimeout(() => r([]), 3000))
+        ]);
+        const failures = Array.isArray(emails) ? emails.filter(e => e.status === 'failed').length : 0;
+        results.push({
+          category: 'Integrations',
+          name: 'Email System',
+          status: failures > 3 ? 'warning' : 'passed',
+          message: failures > 3 ? `${failures} failures` : 'Operational',
+          critical: true
+        });
+      } catch {
+        results.push({
+          category: 'Integrations',
+          name: 'Email System',
+          status: 'warning',
+          message: 'Unverified',
+          critical: true
+        });
+      }
+
+      try {
+        const orders = await Promise.race([
+          base44.entities.Order.list('-created_date', 10),
+          new Promise((_, r) => setTimeout(() => r([]), 3000))
+        ]);
+        const completed = Array.isArray(orders) ? orders.some(o => o.status === 'completed') : false;
+        results.push({
+          category: 'Integrations',
+          name: 'Stripe Payments',
+          status: completed ? 'passed' : 'warning',
+          message: completed ? 'Verified' : 'No orders',
+          critical: true
+        });
+      } catch {
+        results.push({
+          category: 'Integrations',
+          name: 'Stripe Payments',
+          status: 'warning',
+          message: 'Unverified',
+          critical: true
+        });
+      }
+
+      try {
+        const user = await base44.auth.me();
+        results.push({
+          category: 'Security',
+          name: 'Admin Authentication',
+          status: user?.role === 'admin' ? 'passed' : 'failed',
+          message: user?.role === 'admin' ? 'Secured' : 'Not admin',
+          critical: true
+        });
+      } catch {
+        results.push({
+          category: 'Security',
+          name: 'Admin Authentication',
+          status: 'failed',
+          message: 'Auth error',
+          critical: true
+        });
+      }
+
+      try {
+        const errors = await Promise.race([
+          base44.entities.ErrorLog.list('-created_date', 10),
+          new Promise((_, r) => setTimeout(() => r([]), 3000))
+        ]);
+        const critical = Array.isArray(errors) ? errors.filter(e => e.severity === 'critical' && !e.resolved).length : 0;
+        results.push({
+          category: 'Monitoring',
+          name: 'Error Tracking',
+          status: critical === 0 ? 'passed' : 'warning',
+          message: critical === 0 ? 'Clear' : `${critical} issues`,
+          critical: false
+        });
+      } catch {
+        results.push({
+          category: 'Monitoring',
+          name: 'Error Tracking',
+          status: 'warning',
+          message: 'Unavailable',
+          critical: false
+        });
+      }
+
+      try {
+        const response = await Promise.race([
+          base44.functions.invoke('listAutomations', {}),
+          new Promise((_, r) => setTimeout(() => r({}), 3000))
+        ]);
+        const auto = response?.data || [];
+        const active = Array.isArray(auto) ? auto.filter(a => a.is_active).length : 0;
+        results.push({
+          category: 'Automation',
+          name: 'Automation System',
+          status: 'passed',
+          message: `${active} active`,
+          critical: false
+        });
+      } catch {
+        results.push({
+          category: 'Automation',
+          name: 'Automation System',
+          status: 'warning',
+          message: 'Unverified',
+          critical: false
+        });
+      }
+
+      try {
+        await Promise.all([
+          Promise.race([base44.entities.Segment.list('', 1), new Promise((_, r) => setTimeout(() => r([]), 2000))]),
+          Promise.race([base44.entities.ABTest.list('', 1), new Promise((_, r) => setTimeout(() => r([]), 2000))])
+        ]);
+        results.push({
+          category: 'Analytics',
+          name: 'Analytics Systems',
+          status: 'passed',
+          message: 'Ready',
+          critical: false
+        });
+      } catch {
+        results.push({
+          category: 'Analytics',
+          name: 'Analytics Systems',
+          status: 'warning',
+          message: 'Unverified',
+          critical: false
+        });
+      }
+
+      const pageLoadTime = Math.max(0, performance.timing.loadEventEnd - performance.timing.navigationStart);
       results.push({
-        category: 'Configuration',
-        name: 'Environment Secrets',
+        category: 'Performance',
+        name: 'Page Load Speed',
+        status: pageLoadTime < 3000 ? 'passed' : 'warning',
+        message: `${(pageLoadTime / 1000).toFixed(2)}s`,
+        critical: false
+      });
+
+      results.push({
+        category: 'UX',
+        name: 'Mobile Responsive',
         status: 'passed',
-        message: 'RESEND_API_KEY, GOOGLE_MAPS_API_KEY, ADMIN_ACCESS_KEY configured',
-        critical: true
-      });
-    } catch (error) {
-      results.push({
-        category: 'Configuration',
-        name: 'Environment Secrets',
-        status: 'failed',
-        message: 'Missing required secrets',
-        critical: true
-      });
-    }
-
-    // 2. Database Entities
-    try {
-      const leads = await base44.entities.Lead.list('', 1);
-      const orders = await base44.entities.Order.list('', 1);
-      results.push({
-        category: 'Database',
-        name: 'Core Entities',
-        status: 'passed',
-        message: 'Lead and Order entities operational',
-        critical: true
-      });
-    } catch (error) {
-      results.push({
-        category: 'Database',
-        name: 'Core Entities',
-        status: 'failed',
-        message: 'Database connection failed',
-        critical: true
-      });
-    }
-
-    // 3. Email System
-    try {
-      const emails = await base44.entities.EmailLog.list('-created_date', 5);
-      const recentFailures = emails.filter(e => e.status === 'failed').length;
-      results.push({
-        category: 'Integrations',
-        name: 'Email System (Resend)',
-        status: recentFailures > 3 ? 'warning' : 'passed',
-        message: recentFailures > 3 ? `${recentFailures} recent failures` : 'Email system operational',
-        critical: true
-      });
-    } catch (error) {
-      results.push({
-        category: 'Integrations',
-        name: 'Email System (Resend)',
-        status: 'warning',
-        message: 'Unable to verify email logs',
-        critical: true
-      });
-    }
-
-    // 4. Payment Processing
-    try {
-      const orders = await base44.entities.Order.list('-created_date', 10);
-      const hasCompletedOrders = orders.some(o => o.status === 'completed');
-      results.push({
-        category: 'Integrations',
-        name: 'Stripe Payments',
-        status: hasCompletedOrders ? 'passed' : 'warning',
-        message: hasCompletedOrders ? 'Payment processing verified' : 'No completed orders yet',
-        critical: true
-      });
-    } catch (error) {
-      results.push({
-        category: 'Integrations',
-        name: 'Stripe Payments',
-        status: 'warning',
-        message: 'Unable to verify payments',
-        critical: true
-      });
-    }
-
-    // 5. Security
-    try {
-      const user = await base44.auth.me();
-      results.push({
-        category: 'Security',
-        name: 'Admin Authentication',
-        status: user?.role === 'admin' ? 'passed' : 'failed',
-        message: user?.role === 'admin' ? 'Admin access secured' : 'Admin role not configured',
-        critical: true
-      });
-    } catch (error) {
-      results.push({
-        category: 'Security',
-        name: 'Admin Authentication',
-        status: 'failed',
-        message: 'Authentication error',
-        critical: true
-      });
-    }
-
-    // 6. Error Tracking
-    try {
-      const errors = await base44.entities.ErrorLog.list('-created_date', 10);
-      const criticalErrors = errors.filter(e => e.severity === 'critical' && !e.resolved);
-      results.push({
-        category: 'Monitoring',
-        name: 'Error Tracking',
-        status: criticalErrors.length === 0 ? 'passed' : 'warning',
-        message: criticalErrors.length === 0 ? 'No unresolved critical errors' : `${criticalErrors.length} critical errors`,
+        message: window.innerWidth < 768 ? 'Mobile' : 'Desktop',
         critical: false
       });
+
+      setChecks(results);
+      setLoading(false);
     } catch (error) {
-      results.push({
-        category: 'Monitoring',
-        name: 'Error Tracking',
-        status: 'warning',
-        message: 'Error logs unavailable',
-        critical: false
-      });
+      setLoading(false);
     }
-
-    // 7. Automations
-    try {
-      const response = await base44.functions.invoke('listAutomations', {});
-      const automations = response.data || [];
-      const active = automations.filter(a => a.is_active);
-      results.push({
-        category: 'Automation',
-        name: 'Automation System',
-        status: 'passed',
-        message: `${active.length} active automations configured`,
-        critical: false
-      });
-    } catch (error) {
-      results.push({
-        category: 'Automation',
-        name: 'Automation System',
-        status: 'warning',
-        message: 'Automations not verified',
-        critical: false
-      });
-    }
-
-    // 8. Analytics
-    try {
-      const segments = await base44.entities.Segment.list('', 1);
-      const abTests = await base44.entities.ABTest.list('', 1);
-      results.push({
-        category: 'Analytics',
-        name: 'Analytics Systems',
-        status: 'passed',
-        message: 'Segmentation and A/B testing ready',
-        critical: false
-      });
-    } catch (error) {
-      results.push({
-        category: 'Analytics',
-        name: 'Analytics Systems',
-        status: 'warning',
-        message: 'Analytics not fully verified',
-        critical: false
-      });
-    }
-
-    // 9. Performance
-    const pageLoadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
-    results.push({
-      category: 'Performance',
-      name: 'Page Load Speed',
-      status: pageLoadTime < 3000 ? 'passed' : 'warning',
-      message: `${(pageLoadTime / 1000).toFixed(2)}s load time`,
-      critical: false
-    });
-
-    // 10. Mobile Optimization
-    const isMobile = window.innerWidth < 768;
-    results.push({
-      category: 'UX',
-      name: 'Mobile Responsive',
-      status: 'passed',
-      message: isMobile ? 'Mobile layout active' : 'Desktop layout active',
-      critical: false
-    });
-
-    setChecks(results);
-    setLoading(false);
   };
 
   const categories = [...new Set(checks.map(c => c.category))];

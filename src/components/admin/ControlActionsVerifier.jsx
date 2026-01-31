@@ -13,141 +13,117 @@ export default function ControlActionsVerifier() {
   const [testEmail, setTestEmail] = useState('test@example.com');
 
   const runControlTests = async () => {
-    setTesting(true);
-    setResults([]);
-    const testResults = [];
+    try {
+      setTesting(true);
+      setResults([]);
+      const testResults = [];
 
-    // Test 1: User Invitation
-    testResults.push(await testUserInvitation());
-    setResults([...testResults]);
+      testResults.push(await testUserInvitation());
+      setResults([...testResults]);
 
-    // Test 2: Data Export
-    testResults.push(await testDataExport());
-    setResults([...testResults]);
+      testResults.push(await testDataExport());
+      setResults([...testResults]);
 
-    // Test 3: Settings Persistence
-    testResults.push(await testSettingsPersistence());
-    setResults([...testResults]);
+      testResults.push(await testSettingsPersistence());
+      setResults([...testResults]);
 
-    // Test 4: Automation Trigger
-    testResults.push(await testAutomationTrigger());
-    setResults([...testResults]);
+      testResults.push(await testAutomationTrigger());
+      setResults([...testResults]);
 
-    // Test 5: Lead Scoring
-    testResults.push(await testLeadScoring());
-    setResults([...testResults]);
+      testResults.push(await testLeadScoring());
+      setResults([...testResults]);
 
-    setTesting(false);
-    const passed = testResults.filter(r => r.passed).length;
-    toast.success(`${passed}/${testResults.length} control tests passed`);
+      setTesting(false);
+      const passed = testResults.filter(r => r.passed).length;
+      const failed = testResults.filter(r => !r.passed).length;
+      
+      if (failed === 0) {
+        toast.success(`All ${passed} tests passed ✅`);
+      } else {
+        toast.warning(`${passed}/${testResults.length} passed`);
+      }
+    } catch (error) {
+      setTesting(false);
+      toast.error('Control test suite error');
+    }
   };
 
   const testUserInvitation = async () => {
     try {
-      // Verify invite function exists and is callable
       const canInvite = typeof base44.users?.inviteUser === 'function';
-      
       return {
         name: 'User Invitation System',
         passed: canInvite,
-        message: canInvite ? 'Invite functionality available' : 'Invite function missing',
-        action: 'Invite users via QuickActions'
+        message: canInvite ? 'Available' : 'Missing'
       };
-    } catch (error) {
-      return {
-        name: 'User Invitation System',
-        passed: false,
-        message: 'Invite system error',
-        error: error.message
-      };
+    } catch {
+      return { name: 'User Invitation System', passed: false, message: 'Error' };
     }
   };
 
   const testDataExport = async () => {
     try {
-      // Test small data export
-      const leads = await base44.entities.Lead.list('', 5);
-      const canExport = leads.length >= 0;
-      
+      const leads = await Promise.race([
+        base44.entities.Lead.list('', 5),
+        new Promise((_, r) => setTimeout(() => r([]), 2000))
+      ]);
       return {
         name: 'Data Export Function',
-        passed: canExport,
-        message: `Export ready (${leads.length} sample records)`,
-        action: 'Export via DataBackupTools'
+        passed: Array.isArray(leads),
+        message: `${Array.isArray(leads) ? leads.length : 0} records ready`
       };
-    } catch (error) {
-      return {
-        name: 'Data Export Function',
-        passed: false,
-        message: 'Export system error',
-        error: error.message
-      };
+    } catch {
+      return { name: 'Data Export Function', passed: false, message: 'Error' };
     }
   };
 
   const testSettingsPersistence = async () => {
     try {
-      // Test settings read/write
-      const testKey = 'system_test_' + Date.now();
-      const settings = await base44.entities.AppSettings.filter({ setting_key: testKey });
-      
+      await Promise.race([
+        base44.entities.AppSettings.filter({ setting_key: 'test_' + Date.now() }),
+        new Promise((_, r) => setTimeout(() => r([]), 2000))
+      ]);
       return {
         name: 'Settings Persistence',
         passed: true,
-        message: 'Settings system operational',
-        action: 'Configure via Settings tab'
+        message: 'Operational'
       };
-    } catch (error) {
-      return {
-        name: 'Settings Persistence',
-        passed: false,
-        message: 'Settings error',
-        error: error.message
-      };
+    } catch {
+      return { name: 'Settings Persistence', passed: false, message: 'Error' };
     }
   };
 
   const testAutomationTrigger = async () => {
     try {
-      // Verify automation system accessibility
-      const response = await base44.functions.invoke('listAutomations', {});
-      const automations = response.data || [];
-      
+      const response = await Promise.race([
+        base44.functions.invoke('listAutomations', {}),
+        new Promise((_, r) => setTimeout(() => r({}), 2000))
+      ]);
+      const autos = response?.data || [];
       return {
         name: 'Automation System',
-        passed: true,
-        message: `${automations.length} automations configured`,
-        action: 'Manage via Automations tab'
+        passed: Array.isArray(autos),
+        message: `${Array.isArray(autos) ? autos.length : 0} configured`
       };
-    } catch (error) {
-      return {
-        name: 'Automation System',
-        passed: false,
-        message: 'Automation error',
-        error: error.message
-      };
+    } catch {
+      return { name: 'Automation System', passed: false, message: 'Error' };
     }
   };
 
   const testLeadScoring = async () => {
     try {
-      // Test lead scoring function
-      const leads = await base44.entities.Lead.list('', 5);
-      const scoredLeads = leads.filter(l => l.lead_score !== undefined && l.lead_score !== null);
-      
+      const leads = await Promise.race([
+        base44.entities.Lead.list('', 5),
+        new Promise((_, r) => setTimeout(() => r([]), 2000))
+      ]);
+      const scored = Array.isArray(leads) ? leads.filter(l => l.lead_score !== undefined).length : 0;
       return {
         name: 'Lead Scoring Engine',
-        passed: true,
-        message: `${scoredLeads.length}/${leads.length} leads scored`,
-        action: 'Score via Lead Scoring tab'
+        passed: Array.isArray(leads),
+        message: `${scored}/${Array.isArray(leads) ? leads.length : 0} scored`
       };
-    } catch (error) {
-      return {
-        name: 'Lead Scoring Engine',
-        passed: false,
-        message: 'Scoring error',
-        error: error.message
-      };
+    } catch {
+      return { name: 'Lead Scoring Engine', passed: false, message: 'Error' };
     }
   };
 
