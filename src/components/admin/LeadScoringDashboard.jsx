@@ -23,13 +23,17 @@ export default function LeadScoringDashboard() {
     queryKey: ['leads-with-scores'],
     queryFn: async () => {
       const allLeads = await base44.entities.Lead.list('-created_date', 100);
-      return allLeads;
+      return allLeads.map(lead => ({
+        ...lead,
+        lead_score: lead.lead_score || null,
+        lead_grade: lead.lead_grade || null
+      }));
     }
   });
 
   const scoreMutation = useMutation({
     mutationFn: async (leadId) => {
-      const result = await base44.functions.invoke('calculateLeadScore', { lead_id: leadId });
+      const result = await base44.functions.invoke('scoring/calculateLeadScore', { lead_id: leadId });
       return result.data;
     },
     onSuccess: () => {
@@ -43,57 +47,32 @@ export default function LeadScoringDashboard() {
 
   const scoreAllMutation = useMutation({
     mutationFn: async () => {
-      const results = [];
-      for (const lead of leads.slice(0, 20)) {
-        try {
-          const result = await base44.functions.invoke('calculateLeadScore', { 
-            lead_id: lead.id 
-          });
-          results.push(result.data);
-        } catch (error) {
-          console.error(`Failed to score ${lead.id}:`, error);
-        }
-      }
-      return results;
+      const unscoredLeadIds = leads.filter(l => !l.lead_score).map(l => l.id);
+      const result = await base44.functions.invoke('scoring/bulkScoreLeads', { 
+        lead_ids: unscoredLeadIds.slice(0, 50)
+      });
+      return result.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['leads-with-scores'] });
-      toast.success('All leads scored successfully!');
+      toast.success(`Scored ${data.processed} leads successfully!`);
+    },
+    onError: (error) => {
+      toast.error(`Bulk scoring failed: ${error.message}`);
     }
   });
 
-  const getScoreData = async (lead) => {
-    try {
-      const events = await base44.entities.ConversionEvent.filter({
-        lead_id: lead.id,
-        event_name: 'lead_scored'
-      });
-      
-      if (events.length > 0) {
-        return events[0].properties;
+  const scoresCache = React.useMemo(() => {
+    const cache = {};
+    leads.forEach(lead => {
+      if (lead.lead_score !== null && lead.lead_score !== undefined) {
+        cache[lead.id] = {
+          score: lead.lead_score,
+          grade: lead.lead_grade || 'N/A'
+        };
       }
-    } catch (error) {
-      console.error('Error fetching score:', error);
-    }
-    return null;
-  };
-
-  const [scoresCache, setScoresCache] = useState({});
-
-  React.useEffect(() => {
-    const loadScores = async () => {
-      const cache = {};
-      for (const lead of leads.slice(0, 20)) {
-        const scoreData = await getScoreData(lead);
-        if (scoreData) {
-          cache[lead.id] = scoreData;
-        }
-      }
-      setScoresCache(cache);
-    };
-    if (leads.length > 0) {
-      loadScores();
-    }
+    });
+    return cache;
   }, [leads]);
 
   const filteredLeads = leads.filter(lead => {

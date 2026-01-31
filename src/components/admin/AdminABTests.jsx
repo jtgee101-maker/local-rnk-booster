@@ -12,37 +12,30 @@ export default function AdminABTests() {
     queryKey: ['admin-abtests'],
     queryFn: () => base44.entities.ABTest.list('-created_date', 50),
     staleTime: 30000,
-    gcTime: 300000,
   });
 
-  const { data: events = [] } = useQuery({
-    queryKey: ['admin-abtests-events'],
-    queryFn: () => base44.entities.ABTestEvent.list('-created_date', 10000),
-    staleTime: 30000,
-    gcTime: 300000,
-  });
-
-  const [stats, setStats] = useState({});
+  const [testResults, setTestResults] = useState({});
 
   useEffect(() => {
-    const statsMap = {};
-    tests.forEach(test => {
-      const testEvents = events.filter(e => e.test_id === test.id);
-      const variantStats = {};
-      
-      test.variants?.forEach(variant => {
-        const variantEvents = testEvents.filter(e => e.variant_id === variant.id);
-        const views = variantEvents.filter(e => e.event_type === 'view').length;
-        const conversions = variantEvents.filter(e => e.event_type === 'conversion').length;
-        const conversionRate = views > 0 ? ((conversions / views) * 100).toFixed(2) : 0;
-
-        variantStats[variant.id] = { views, conversions, conversionRate };
-      });
-
-      statsMap[test.id] = variantStats;
-    });
-    setStats(statsMap);
-  }, [tests, events]);
+    const fetchResults = async () => {
+      const results = {};
+      for (const test of tests) {
+        try {
+          const response = await base44.functions.invoke('abtest/getTestResults', { test_id: test.id });
+          if (response?.data?.success) {
+            results[test.id] = response.data;
+          }
+        } catch (error) {
+          console.error(`Failed to get results for test ${test.id}:`, error);
+        }
+      }
+      setTestResults(results);
+    };
+    
+    if (tests.length > 0) {
+      fetchResults();
+    }
+  }, [tests]);
 
   if (isLoading) {
     return <div className="text-gray-400">Loading A/B tests...</div>;
@@ -93,10 +86,16 @@ export default function AdminABTests() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {test.variants?.map(variant => {
-                    const data = stats[test.id]?.[variant.id] || { views: 0, conversions: 0, conversionRate: 0 };
+                    const results = testResults[test.id];
+                    const data = results?.variant_stats?.[variant.id] || { views: 0, conversions: 0, conversion_rate: 0 };
+                    const isWinner = results?.winner?.variant_id === variant.id;
+                    
                     return (
-                      <div key={variant.id} className="p-4 bg-gray-900/50 rounded-lg border border-gray-700">
-                        <h4 className="font-medium text-white mb-3">{variant.name}</h4>
+                      <div key={variant.id} className={`p-4 bg-gray-900/50 rounded-lg border ${isWinner ? 'border-[#c8ff00]' : 'border-gray-700'}`}>
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-medium text-white">{variant.name}</h4>
+                          {isWinner && <Badge className="bg-[#c8ff00] text-black">Winner</Badge>}
+                        </div>
                         <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
                             <span className="text-gray-400 flex items-center gap-1">
@@ -114,7 +113,7 @@ export default function AdminABTests() {
                             <span className="text-gray-400 flex items-center gap-1">
                               <TrendingUp className="w-3 h-3" /> Conv. Rate
                             </span>
-                            <span className="text-[#c8ff00] font-bold">{data.conversionRate}%</span>
+                            <span className="text-[#c8ff00] font-bold">{data.conversion_rate}%</span>
                           </div>
                         </div>
                       </div>
