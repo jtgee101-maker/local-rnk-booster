@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Download, Eye } from 'lucide-react';
 import { toast } from 'sonner';
-import OrderDetailModal from './OrderDetailModal';
+import EnhancedOrderDetailModal from './EnhancedOrderDetailModal';
 
 export default function AdminOrdersSection({ expanded = false }) {
   const queryClient = useQueryClient();
@@ -69,7 +69,7 @@ export default function AdminOrdersSection({ expanded = false }) {
 
   return (
     <>
-      <OrderDetailModal
+      <EnhancedOrderDetailModal
         order={selectedOrder}
         open={modalOpen}
         onClose={handleModalClose}
