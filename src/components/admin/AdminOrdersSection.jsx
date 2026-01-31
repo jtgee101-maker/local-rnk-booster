@@ -5,11 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import { Download, Eye } from 'lucide-react';
 import { toast } from 'sonner';
+import OrderDetailModal from './OrderDetailModal';
 
 export default function AdminOrdersSection({ expanded = false }) {
   const queryClient = useQueryClient();
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ['admin-orders-section', expanded],
     queryFn: () => base44.entities.Order.list('-created_date', expanded ? 200 : 50),
@@ -50,8 +53,30 @@ export default function AdminOrdersSection({ expanded = false }) {
     a.remove();
   };
 
+  const handleOrderClick = (order) => {
+    setSelectedOrder(order);
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setSelectedOrder(null);
+  };
+
+  const handleModalUpdate = () => {
+    queryClient.invalidateQueries({ queryKey: ['admin-orders-section'] });
+  };
+
   return (
-    <Card className="bg-gray-800/50 border-gray-700 col-span-2">
+    <>
+      <OrderDetailModal
+        order={selectedOrder}
+        open={modalOpen}
+        onClose={handleModalClose}
+        onUpdate={handleModalUpdate}
+      />
+
+      <Card className="bg-gray-800/50 border-gray-700 col-span-2">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-white">Orders {expanded && `(${orders.length})`}</CardTitle>
         <Button onClick={handleExport} variant="outline" size="sm" className="gap-2">
@@ -77,7 +102,11 @@ export default function AdminOrdersSection({ expanded = false }) {
                   <TableCell colSpan={expanded ? 5 : 4} className="text-center text-gray-500">Loading...</TableCell>
                 </TableRow>
               ) : orders.slice(0, expanded ? 50 : 10).map((order) => (
-                <TableRow key={order.id} className="border-gray-700">
+                <TableRow 
+                  key={order.id} 
+                  className="border-gray-700 hover:bg-gray-800/50 cursor-pointer transition-colors"
+                  onClick={() => handleOrderClick(order)}
+                >
                   <TableCell className="text-gray-400 text-sm">{order.email}</TableCell>
                   <TableCell className="text-green-400 font-bold">${order.total_amount?.toFixed(2)}</TableCell>
                   <TableCell>
@@ -94,20 +123,35 @@ export default function AdminOrdersSection({ expanded = false }) {
                   </TableCell>
                   {expanded && (
                     <TableCell>
-                      {order.status === 'completed' && (
+                      <div className="flex gap-2">
                         <Button
                           size="sm"
-                          variant="destructive"
-                          onClick={() => {
-                            if (confirm('Refund this order?')) {
-                              refundMutation.mutate(order.id);
-                            }
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOrderClick(order);
                           }}
-                          disabled={refundMutation.isPending}
+                          className="gap-1"
                         >
-                          Refund
+                          <Eye className="w-4 h-4" />
+                          View
                         </Button>
-                      )}
+                        {order.status === 'completed' && (
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (confirm('Refund this order?')) {
+                                refundMutation.mutate(order.id);
+                              }
+                            }}
+                            disabled={refundMutation.isPending}
+                          >
+                            Refund
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   )}
                 </TableRow>

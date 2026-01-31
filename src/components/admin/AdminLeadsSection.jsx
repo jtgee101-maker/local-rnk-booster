@@ -13,6 +13,7 @@ import {
   Building2, Calendar, Eye, RefreshCw, AlertCircle,
   CheckCircle2, Clock, XCircle, Loader2
 } from 'lucide-react';
+import LeadDetailModal from './LeadDetailModal';
 
 export default function AdminLeadsSection({ expanded = false }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -20,6 +21,7 @@ export default function AdminLeadsSection({ expanded = false }) {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [scoreFilter, setScoreFilter] = useState('all');
   const [selectedLead, setSelectedLead] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
   
   const { data: leads = [], isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['admin-leads-section', expanded],
@@ -109,8 +111,30 @@ export default function AdminLeadsSection({ expanded = false }) {
     return 'bg-red-500/20 text-red-400 border-red-500/30';
   };
 
+  const handleLeadClick = (lead) => {
+    setSelectedLead(lead);
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setSelectedLead(null);
+  };
+
+  const handleModalUpdate = () => {
+    refetch();
+  };
+
   return (
-    <Card className={`border-gray-700 bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm ${expanded ? 'col-span-full' : 'col-span-2'}`}>
+    <>
+      <LeadDetailModal
+        lead={selectedLead}
+        open={modalOpen}
+        onClose={handleModalClose}
+        onUpdate={handleModalUpdate}
+      />
+
+      <Card className={`border-gray-700 bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm ${expanded ? 'col-span-full' : 'col-span-2'}`}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -317,7 +341,7 @@ export default function AdminLeadsSection({ expanded = false }) {
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ delay: index * 0.02 }}
                         className="border-gray-700 hover:bg-gray-800/50 transition-colors cursor-pointer"
-                        onClick={() => setSelectedLead(lead)}
+                        onClick={() => handleLeadClick(lead)}
                       >
                         <TableCell className="text-white font-medium">
                           {lead.business_name || <span className="text-gray-500 italic">No name</span>}

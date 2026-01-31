@@ -2,19 +2,32 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Zap, Play, Pause, RefreshCw } from 'lucide-react';
+import { Zap, Play, Pause, RefreshCw, Plus, Edit, Trash2, Loader2 } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
+import { toast } from 'sonner';
+import AutomationEditor from './AutomationEditor';
 
 export default function AdminAutomations() {
   const [automations, setAutomations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [selectedAutomation, setSelectedAutomation] = useState(null);
+  const [actionLoading, setActionLoading] = useState(null);
 
   useEffect(() => {
     loadAutomations();
   }, []);
 
   const loadAutomations = async () => {
+    setLoading(true);
     try {
-      // This would normally fetch from an API
+      const response = await base44.functions.invoke('admin/listAutomations', {});
+      setAutomations(response.data?.automations || []);
+    } catch (error) {
+      console.error('Failed to load automations:', error);
+      toast.error('Failed to load automations');
+      
+      // Fallback to mock data if backend not ready
       const mockAutomations = [
         {
           id: 1,
@@ -59,19 +72,91 @@ export default function AdminAutomations() {
       ];
 
       setAutomations(mockAutomations);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error loading automations:', error);
+    } finally {
       setLoading(false);
     }
   };
 
+  const handleToggle = async (automation) => {
+    setActionLoading(automation.id);
+    try {
+      await base44.functions.invoke('admin/toggleAutomation', { 
+        automation_id: automation.id 
+      });
+      toast.success(`Automation ${automation.is_active ? 'paused' : 'resumed'}`);
+      loadAutomations();
+    } catch (error) {
+      console.error('Toggle failed:', error);
+      toast.error('Failed to toggle automation');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleDelete = async (automation) => {
+    if (!confirm(`Delete automation "${automation.name}"?`)) return;
+    
+    setActionLoading(automation.id);
+    try {
+      await base44.functions.invoke('admin/deleteAutomation', { 
+        automation_id: automation.id 
+      });
+      toast.success('Automation deleted');
+      loadAutomations();
+    } catch (error) {
+      console.error('Delete failed:', error);
+      toast.error('Failed to delete automation');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleEdit = (automation) => {
+    setSelectedAutomation(automation);
+    setEditorOpen(true);
+  };
+
+  const handleCreate = () => {
+    setSelectedAutomation(null);
+    setEditorOpen(true);
+  };
+
+  const handleEditorClose = () => {
+    setEditorOpen(false);
+    setSelectedAutomation(null);
+  };
+
+  const handleEditorSave = () => {
+    loadAutomations();
+  };
+
   if (loading) {
-    return <div className="text-gray-400">Loading automations...</div>;
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-6 h-6 text-[#c8ff00] animate-spin" />
+      </div>
+    );
   }
 
   return (
     <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold text-white">Active Automations</h3>
+        <Button 
+          onClick={handleCreate}
+          className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black gap-2"
+        >
+          <Plus className="w-4 h-4" />
+          Create Automation
+        </Button>
+      </div>
+
+      <AutomationEditor
+        automation={selectedAutomation}
+        open={editorOpen}
+        onClose={handleEditorClose}
+        onSave={handleEditorSave}
+      />
       {automations.map((automation) => (
         <Card key={automation.id} className="bg-gray-800/50 border-gray-700">
           <CardContent className="p-6">
@@ -92,11 +177,39 @@ export default function AdminAutomations() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button variant="ghost" size="sm">
-                  {automation.status === 'active' ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => handleEdit(automation)}
+                  disabled={actionLoading === automation.id}
+                  title="Edit"
+                >
+                  <Edit className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="sm">
-                  <RefreshCw className="w-4 h-4" />
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => handleToggle(automation)}
+                  disabled={actionLoading === automation.id}
+                  title={automation.status === 'active' ? 'Pause' : 'Resume'}
+                >
+                  {actionLoading === automation.id ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : automation.status === 'active' ? (
+                    <Pause className="w-4 h-4" />
+                  ) : (
+                    <Play className="w-4 h-4" />
+                  )}
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => handleDelete(automation)}
+                  disabled={actionLoading === automation.id}
+                  title="Delete"
+                  className="text-red-400 hover:text-red-300"
+                >
+                  <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
             </div>
