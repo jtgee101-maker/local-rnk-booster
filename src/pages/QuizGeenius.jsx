@@ -189,52 +189,27 @@ export default function QuizGeenius() {
   }, []);
 
   const trackStep = (stepName, stepNumber) => {
-    try {
-      base44.entities.ConversionEvent.create({
-        funnel_version: 'geenius',
-        event_name: `quiz_step_${stepName}`,
-        session_id: sessionId,
-        step_number: stepNumber,
-        properties: { step_name: stepName }
-      }).catch(() => {});
-    } catch (err) {
-      console.error('Step tracking failed:', err);
-    }
+    // Fire and forget - never block UI
+    base44.entities.ConversionEvent.create({
+      funnel_version: 'geenius',
+      event_name: `quiz_step_${stepName}`,
+      session_id: sessionId,
+      step_number: stepNumber,
+      properties: { step_name: stepName }
+    }).catch(() => {});
   };
 
   const handleNext = async (data) => {
-    const timeOnStep = Date.now() - stepStartTime;
-    
+    // Update form data immediately
     setFormData(prev => ({ ...prev, ...data }));
     
+    // Background tracking (don't block UI)
     const stepNames = ['category', 'pain_point', 'goals', 'timeline', 'business_search', 'contact_info'];
     if (currentStep < stepNames.length) {
       trackStep(stepNames[currentStep], currentStep + 1);
-      
-      // Fire and forget behavior tracking
-      base44.entities.UserBehavior.filter({ session_id: sessionId }).then(behaviors => {
-        if (behaviors.length > 0) {
-          const behavior = behaviors[0];
-          base44.entities.UserBehavior.update(behavior.id, {
-            interactions: [
-              ...(behavior.interactions || []),
-              {
-                type: `step_${stepNames[currentStep]}_completed`,
-                timestamp: Date.now(),
-                step: currentStep + 1,
-                time_spent: timeOnStep,
-                data: data
-              }
-            ],
-            quiz_completion: Math.round(((currentStep + 1) / totalSteps) * 100),
-            scroll_depth: scrollDepth,
-            click_count: clickCount,
-            time_on_page: Math.round((Date.now() - startTime) / 1000)
-          }).catch(() => {});
-        }
-      }).catch(() => {});
     }
     
+    // Move to next step immediately
     setStepStartTime(Date.now());
     setCurrentStep(prev => prev + 1);
   };
@@ -248,24 +223,11 @@ export default function QuizGeenius() {
       const completeData = { ...formData, ...finalData };
       const totalTime = Math.round((Date.now() - startTime) / 1000);
       
-      // Track completion
-      await base44.entities.ConversionEvent.create({
-        funnel_version: 'geenius',
-        event_name: 'quiz_completed',
-        session_id: sessionId,
-        properties: {
-          business_name: completeData.business_name,
-          completion_time_seconds: totalTime,
-          ...utmParams,
-          ...campaignData
-        }
-      });
-
-      // Calculate health score using robust formula
+      // Calculate health score FIRST (synchronous, fast)
       const healthScore = calculateRobustHealthScore(completeData);
       const criticalIssues = generateRobustCriticalIssues(completeData);
 
-      // Create lead with calculated health score
+      // Create lead FIRST - this is critical path
       const lead = await base44.entities.Lead.create({
         ...completeData,
         health_score: healthScore,
@@ -275,73 +237,49 @@ export default function QuizGeenius() {
         quiz_submission_count: 1
       });
 
-      // Update or create comprehensive user behavior record
-      try {
-        const behaviors = await base44.entities.UserBehavior.filter({ session_id: sessionId });
-        
-        if (behaviors.length > 0) {
-          await base44.entities.UserBehavior.update(behaviors[0].id, {
-            email: lead.email,
-            consent_given: true,
-            engagement_score: 100,
-            scroll_depth: scrollDepth,
-            click_count: clickCount,
-            time_on_page: totalTime,
-            quiz_completion: 100,
-            interactions: [
-              ...(behaviors[0].interactions || []),
-              {
-                type: 'quiz_completed',
-                timestamp: Date.now(),
-                lead_id: lead.id,
-                business_name: lead.business_name,
-                health_score: lead.health_score
-              }
-            ],
-            quiz_progress: {
-              total_steps: totalSteps,
-              completed_steps: totalSteps,
-              completion_time: totalTime,
-              email_captured: lead.email,
-              phone_captured: lead.phone
-            }
-          });
-        } else {
-          await base44.entities.UserBehavior.create({
-            session_id: sessionId,
-            email: lead.email,
-            consent_given: true,
-            engagement_score: 100,
-            scroll_depth: scrollDepth,
-            click_count: clickCount,
-            time_on_page: totalTime,
-            quiz_completion: 100,
-            pages_viewed: ['QuizGeenius'],
-            interactions: [
-              { type: 'quiz_started', timestamp: startTime },
-              { type: 'quiz_completed', timestamp: Date.now(), lead_id: lead.id }
-            ],
-            first_visit: new Date(startTime).toISOString(),
-            total_visits: 1,
-            device_info: {
-              user_agent: navigator.userAgent,
-              platform: navigator.platform
-            },
-            traffic_source: utmParams,
-            quiz_progress: {
-              total_steps: totalSteps,
-              completed_steps: totalSteps,
-              completion_time: totalTime
-            }
-          });
+      // Track completion (fire and forget - don't block)
+      base44.entities.ConversionEvent.create({
+        funnel_version: 'geenius',
+        event_name: 'quiz_completed',
+        session_id: sessionId,
+        lead_id: lead.id,
+        properties: {
+          business_name: completeData.business_name,
+          completion_time_seconds: totalTime,
+          health_score: healthScore,
+          ...utmParams,
+          ...campaignData
         }
-      } catch (behaviorError) {
-        console.error('Behavior tracking failed:', behaviorError);
-      }
+      }).catch(err => console.error('Conversion tracking failed:', err));
 
-      // Send emails in parallel - MUST await before redirect
-      await Promise.all([
-        // Send welcome email to lead
+      // Background tracking (fire and forget - don't block redirect)
+      base44.entities.UserBehavior.filter({ session_id: sessionId })
+        .then(behaviors => {
+          if (behaviors.length > 0) {
+            return base44.entities.UserBehavior.update(behaviors[0].id, {
+              email: lead.email,
+              consent_given: true,
+              engagement_score: 100,
+              scroll_depth: scrollDepth,
+              click_count: clickCount,
+              time_on_page: totalTime,
+              quiz_completion: 100,
+              interactions: [
+                ...(behaviors[0].interactions || []),
+                { type: 'quiz_completed', timestamp: Date.now(), lead_id: lead.id }
+              ],
+              quiz_progress: {
+                total_steps: totalSteps,
+                completed_steps: totalSteps,
+                completion_time: totalTime
+              }
+            });
+          }
+        })
+        .catch(err => console.error('Behavior tracking failed:', err));
+
+      // Send emails in background (don't await - fire and forget)
+      Promise.all([
         base44.functions.invoke('sendGeeniusEmail', {
           leadData: lead,
           sessionId: sessionId,
@@ -352,92 +290,79 @@ export default function QuizGeenius() {
             scroll_depth: scrollDepth,
             click_count: clickCount
           }
-        }).catch(err => {
-          console.error('Lead email failed:', err);
-          base44.entities.ErrorLog.create({
-            error_type: 'email_failure',
-            severity: 'high',
-            message: `Lead welcome email failed: ${err.message}`,
-            metadata: { lead_id: lead.id, email: lead.email }
-          }).catch(() => {});
-        }),
+        }).catch(err => console.error('Lead email failed:', err)),
         
-        // Notify admin of new lead
         base44.functions.invoke('notifyAdminNewLead', {
           leadData: lead
-        }).catch(err => {
-          console.error('Admin notification failed:', err);
-          base44.entities.ErrorLog.create({
-            error_type: 'email_failure',
-            severity: 'medium',
-            message: `Admin notification failed: ${err.message}`,
-            metadata: { lead_id: lead.id }
-          }).catch(() => {});
-        })
-      ]).catch(() => {
-        // Continue even if emails fail
-        console.warn('Some emails failed but continuing');
-      });
+        }).catch(err => console.error('Admin notification failed:', err))
+      ]).catch(() => console.warn('Some emails failed'));
 
-      // Track lead creation with full context
-      await base44.analytics.track({
-        eventName: 'geenius_lead_created',
-        properties: {
-          lead_id: lead.id,
-          business_name: lead.business_name,
-          health_score: lead.health_score,
-          email: lead.email,
-          phone: lead.phone,
-          completion_time: totalTime,
-          engagement_score: 100,
-          ...utmParams,
-          ...campaignData
-        }
-      });
-
-      // Trigger location content generation in background (fire and forget)
+      // Background analytics (fire and forget)
       try {
-        if (lead.place_id && lead.location) {
-          base44.functions.invoke('localRankingGrid', {
-            placeId: lead.place_id,
-            businessName: lead.business_name,
-            location: lead.location
-          }).then(async (gridResponse) => {
-            if (gridResponse.data?.success && gridResponse.data?.weakZones?.length > 0) {
-              // Generate location-specific content for weak zones
-              await base44.functions.invoke('generateLocationContent', {
-                lead_id: lead.id,
-                weak_zones: gridResponse.data.weakZones,
-                business_location: lead.location,
-                content_types: ['gmb_post', 'landing_page']
-              }).catch(err => console.error('Content generation failed:', err));
-            }
-          }).catch(err => console.error('Ranking grid failed:', err));
+        const trackResult = base44.analytics.track({
+          eventName: 'geenius_lead_created',
+          properties: {
+            lead_id: lead.id,
+            business_name: lead.business_name,
+            health_score: healthScore,
+            completion_time: totalTime,
+            ...utmParams
+          }
+        });
+        if (trackResult && typeof trackResult.catch === 'function') {
+          trackResult.catch(() => {});
         }
       } catch (err) {
-        console.error('Background tasks failed:', err);
+        console.error('Analytics tracking failed:', err);
       }
 
-      // Redirect to results page
+      // Background location content (fire and forget)
+      if (lead.place_id && lead.location) {
+        base44.functions.invoke('localRankingGrid', {
+          placeId: lead.place_id,
+          businessName: lead.business_name,
+          location: lead.location
+        })
+        .then(gridResponse => {
+          if (gridResponse.data?.success && gridResponse.data?.weakZones?.length > 0) {
+            return base44.functions.invoke('generateLocationContent', {
+              lead_id: lead.id,
+              weak_zones: gridResponse.data.weakZones,
+              business_location: lead.location,
+              content_types: ['gmb_post', 'landing_page']
+            });
+          }
+        })
+        .catch(err => console.error('Background tasks failed:', err));
+      }
+
+      // CRITICAL: Redirect immediately after lead creation
       window.location.href = createPageUrl('ResultsGeenius') + `?lead_id=${lead.id}`;
       
     } catch (error) {
       console.error('Quiz completion error:', error);
       
-      // Log error
+      // Log error (fire and forget)
       base44.entities.ErrorLog.create({
         error_type: 'system_error',
-        severity: 'high',
-        message: error.message,
+        severity: 'critical',
+        message: error.message || 'Quiz completion failed',
         stack_trace: error.stack,
         metadata: {
           component: 'QuizGeenius',
           session_id: sessionId,
-          step: 'completion'
+          step: 'completion',
+          formData: formData
         }
-      }).catch(console.error);
+      }).catch(() => {});
       
-      alert('Something went wrong. Please try again.');
+      // Show user-friendly error
+      alert('Unable to complete your audit. Please refresh and try again, or contact support if the issue persists.');
+      
+      // Redirect back to start
+      setTimeout(() => {
+        window.location.href = createPageUrl('QuizGeenius');
+      }, 2000);
     }
   };
 
