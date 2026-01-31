@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Mail, Clock, CheckCircle, Pause, TrendingUp } from 'lucide-react';
+import { Mail, Clock, CheckCircle, Pause, TrendingUp, Plus } from 'lucide-react';
+import NurtureSequenceBuilder from './NurtureSequenceBuilder';
 
 export default function LeadNurture() {
+  const [showBuilder, setShowBuilder] = useState(false);
   const { data: nurtures = [] } = useQuery({
     queryKey: ['lead-nurtures'],
     queryFn: () => base44.entities.LeadNurture.list('-created_date', 200),
@@ -70,7 +73,16 @@ export default function LeadNurture() {
       {/* Nurture Table */}
       <Card className="bg-gray-800 border-gray-700">
         <CardHeader>
-          <CardTitle className="text-white">Lead Nurture Campaigns</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-white">Lead Nurture Campaigns</CardTitle>
+            <Button 
+              onClick={() => setShowBuilder(true)}
+              className="bg-[#c8ff00] hover:bg-[#d4ff33] text-black"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Create Sequence
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
@@ -128,6 +140,15 @@ export default function LeadNurture() {
           </Table>
         </CardContent>
       </Card>
+
+      <NurtureSequenceBuilder
+        open={showBuilder}
+        onClose={() => setShowBuilder(false)}
+        onSave={() => {
+          setShowBuilder(false);
+          // In production, this would trigger a refetch
+        }}
+      />
     </div>
   );
 }
