@@ -141,43 +141,52 @@ export default function SystemTestingDashboard() {
   ];
 
   const runTests = async () => {
-    setTesting(true);
-    setResults([]);
-    setProgress(0);
+    try {
+      setTesting(true);
+      setResults([]);
+      setProgress(0);
 
-    const testResults = [];
-    
-    for (let i = 0; i < tests.length; i++) {
-      const test = tests[i];
-      try {
-        const result = await test.test();
-        testResults.push({
-          ...test,
-          ...result,
-          status: result.success ? 'passed' : 'failed'
-        });
-      } catch (error) {
-        testResults.push({
-          ...test,
-          success: false,
-          status: 'failed',
-          message: 'Test failed',
-          error: error.message
-        });
+      const testResults = [];
+      
+      for (let i = 0; i < tests.length; i++) {
+        const test = tests[i];
+        try {
+          const result = await Promise.race([
+            test.test(),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Test timeout')), 5000))
+          ]);
+          
+          testResults.push({
+            ...test,
+            ...result,
+            status: result.success ? 'passed' : 'failed'
+          });
+        } catch (error) {
+          testResults.push({
+            ...test,
+            success: false,
+            status: 'failed',
+            message: 'Test failed',
+            error: error?.message || 'Unknown error'
+          });
+        }
+        setProgress(((i + 1) / tests.length) * 100);
+        setResults([...testResults]);
       }
-      setProgress(((i + 1) / tests.length) * 100);
-      setResults([...testResults]);
-    }
 
-    setTesting(false);
-    
-    const passed = testResults.filter(r => r.status === 'passed').length;
-    const failed = testResults.filter(r => r.status === 'failed').length;
-    
-    if (failed === 0) {
-      toast.success(`All ${passed} tests passed! System is ready.`);
-    } else {
-      toast.error(`${failed} tests failed. Review issues before production.`);
+      setTesting(false);
+      
+      const passed = testResults.filter(r => r.status === 'passed').length;
+      const failed = testResults.filter(r => r.status === 'failed').length;
+      
+      if (failed === 0) {
+        toast.success(`All ${passed} tests passed! System is ready.`);
+      } else {
+        toast.error(`${failed} test(s) failed. Review before production.`);
+      }
+    } catch (error) {
+      setTesting(false);
+      toast.error('Test suite failed');
     }
   };
 

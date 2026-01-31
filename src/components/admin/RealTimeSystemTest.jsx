@@ -155,20 +155,21 @@ export default function RealTimeSystemTest() {
     
     const interval = setInterval(async () => {
       try {
-        const leads = await base44.entities.Lead.list('', 1);
-        const orders = await base44.entities.Order.list('', 1);
+        const [leads, orders] = await Promise.all([
+          Promise.race([base44.entities.Lead.list('', 1), new Promise((_, r) => setTimeout(() => r([]), 3000))]),
+          Promise.race([base44.entities.Order.list('', 1), new Promise((_, r) => setTimeout(() => r([]), 3000))])
+        ]);
         
-        setLiveData({
-          leads: leads.length,
-          orders: orders.length,
+        setLiveData(prev => ({
+          leads: Array.isArray(leads) ? leads.length : prev.leads,
+          orders: Array.isArray(orders) ? orders.length : prev.orders,
           lastUpdate: new Date()
-        });
+        }));
       } catch (error) {
-        console.error('Live monitoring error:', error);
+        // Silent fail on monitoring error
       }
-    }, 5000); // Every 5 seconds
+    }, 5000);
 
-    // Store interval ID for cleanup
     window.liveMonitorInterval = interval;
   };
 
@@ -184,6 +185,7 @@ export default function RealTimeSystemTest() {
     return () => {
       if (window.liveMonitorInterval) {
         clearInterval(window.liveMonitorInterval);
+        window.liveMonitorInterval = null;
       }
     };
   }, []);

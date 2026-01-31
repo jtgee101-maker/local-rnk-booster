@@ -12,47 +12,48 @@ export default function SecurityComplianceTest() {
   const [currentTest, setCurrentTest] = useState('');
 
   const runSecurityTests = async () => {
-    setTesting(true);
-    setResults([]);
-    const securityResults = [];
+    try {
+      setTesting(true);
+      setResults([]);
+      const securityResults = [];
 
-    // Test 1: Authentication & Authorization
-    setCurrentTest('Authentication');
-    securityResults.push(await testAuthentication());
-    setResults([...securityResults]);
+      setCurrentTest('Authentication');
+      securityResults.push(await testAuthentication());
+      setResults([...securityResults]);
 
-    // Test 2: Data Security
-    setCurrentTest('Data Security');
-    securityResults.push(await testDataSecurity());
-    setResults([...securityResults]);
+      setCurrentTest('Data Security');
+      securityResults.push(await testDataSecurity());
+      setResults([...securityResults]);
 
-    // Test 3: Rate Limiting
-    setCurrentTest('Rate Limiting');
-    securityResults.push(await testRateLimiting());
-    setResults([...securityResults]);
+      setCurrentTest('Rate Limiting');
+      securityResults.push(await testRateLimiting());
+      setResults([...securityResults]);
 
-    // Test 4: GDPR Compliance
-    setCurrentTest('GDPR Compliance');
-    securityResults.push(await testGDPRCompliance());
-    setResults([...securityResults]);
+      setCurrentTest('GDPR Compliance');
+      securityResults.push(await testGDPRCompliance());
+      setResults([...securityResults]);
 
-    // Test 5: Error Handling
-    setCurrentTest('Error Handling');
-    securityResults.push(await testErrorHandling());
-    setResults([...securityResults]);
+      setCurrentTest('Error Handling');
+      securityResults.push(await testErrorHandling());
+      setResults([...securityResults]);
 
-    setTesting(false);
-    setCurrentTest('');
-    
-    const passed = securityResults.filter(r => r.passed).length;
-    const critical = securityResults.filter(r => !r.passed && r.severity === 'critical').length;
-    
-    if (critical > 0) {
-      toast.error(`${critical} critical security issue(s) found!`);
-    } else if (passed === securityResults.length) {
-      toast.success(`All ${passed} security tests passed! 🔒`);
-    } else {
-      toast.warning('Some security tests need attention');
+      setTesting(false);
+      setCurrentTest('');
+      
+      const passed = securityResults.filter(r => r.passed).length;
+      const critical = securityResults.filter(r => !r.passed && r.severity === 'critical').length;
+      
+      if (critical > 0) {
+        toast.error(`${critical} critical issue(s) - fix before production`);
+      } else if (passed === securityResults.length) {
+        toast.success(`All ${passed} tests passed! ✅`);
+      } else {
+        toast.warning('Some tests need attention');
+      }
+    } catch (error) {
+      setTesting(false);
+      setCurrentTest('');
+      toast.error('Security test suite error');
     }
   };
 

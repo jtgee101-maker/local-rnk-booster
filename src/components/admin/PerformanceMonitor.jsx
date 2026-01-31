@@ -14,38 +14,43 @@ export default function PerformanceMonitor() {
   });
 
   useEffect(() => {
-    // Measure page load time
-    const perfData = performance.timing;
-    const pageLoadTime = perfData.loadEventEnd - perfData.navigationStart;
-    
-    // Measure memory (if available)
-    const memory = performance.memory;
-    const memoryUsage = memory ? Math.round((memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100) : 0;
+    const updateMetrics = () => {
+      try {
+        const perfData = performance.timing;
+        const pageLoadTime = Math.max(0, perfData.loadEventEnd - perfData.navigationStart);
+        
+        const memory = performance.memory;
+        const memoryUsage = memory ? Math.round(Math.max(0, Math.min(100, (memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100))) : 0;
 
-    // Measure render time
-    const renderTime = performance.now();
+        const renderTime = performance.now();
 
-    setMetrics({
-      pageLoadTime: Math.round(pageLoadTime),
-      apiResponseTime: 0, // Will be measured on API calls
-      memoryUsage,
-      renderTime: Math.round(renderTime),
-      networkSpeed: navigator.connection ? navigator.connection.effectiveType : 'unknown'
-    });
+        setMetrics({
+          pageLoadTime: Math.round(pageLoadTime),
+          apiResponseTime: 0,
+          memoryUsage,
+          renderTime: Math.round(Math.max(0, renderTime)),
+          networkSpeed: navigator.connection ? navigator.connection.effectiveType : 'unknown'
+        });
 
-    // Monitor API response times
-    const observer = new PerformanceObserver((list) => {
-      const entries = list.getEntries();
-      const apiCalls = entries.filter(e => e.initiatorType === 'fetch' || e.initiatorType === 'xmlhttprequest');
-      if (apiCalls.length > 0) {
-        const avgResponseTime = apiCalls.reduce((sum, e) => sum + e.duration, 0) / apiCalls.length;
-        setMetrics(prev => ({ ...prev, apiResponseTime: Math.round(avgResponseTime) }));
+        const observer = new PerformanceObserver((list) => {
+          const entries = list.getEntries();
+          const apiCalls = entries.filter(e => e.initiatorType === 'fetch' || e.initiatorType === 'xmlhttprequest');
+          if (apiCalls.length > 0) {
+            const avgResponseTime = apiCalls.reduce((sum, e) => sum + (e.duration || 0), 0) / apiCalls.length;
+            setMetrics(prev => ({ ...prev, apiResponseTime: Math.round(Math.max(0, avgResponseTime)) }));
+          }
+        });
+
+        if ('observe' in observer) {
+          observer.observe({ entryTypes: ['resource'] });
+          return () => observer.disconnect();
+        }
+      } catch (error) {
+        console.error('Performance monitoring error:', error);
       }
-    });
+    };
 
-    observer.observe({ entryTypes: ['resource'] });
-
-    return () => observer.disconnect();
+    updateMetrics();
   }, []);
 
   const getPerformanceScore = () => {

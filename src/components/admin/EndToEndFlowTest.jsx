@@ -12,45 +12,46 @@ export default function EndToEndFlowTest() {
   const [results, setResults] = useState([]);
 
   const runAllFlows = async () => {
-    setTesting(true);
-    setResults([]);
-    const flowResults = [];
+    try {
+      setTesting(true);
+      setResults([]);
+      const flowResults = [];
 
-    // Test 1: Quiz to Lead Flow
-    setCurrentTest('Quiz Flow');
-    flowResults.push(await testQuizFlow());
-    setResults([...flowResults]);
+      setCurrentTest('Quiz Flow');
+      flowResults.push(await testQuizFlow());
+      setResults([...flowResults]);
 
-    // Test 2: Checkout Flow
-    setCurrentTest('Checkout Flow');
-    flowResults.push(await testCheckoutFlow());
-    setResults([...flowResults]);
+      setCurrentTest('Checkout Flow');
+      flowResults.push(await testCheckoutFlow());
+      setResults([...flowResults]);
 
-    // Test 3: Email Delivery Chain
-    setCurrentTest('Email Chain');
-    flowResults.push(await testEmailChain());
-    setResults([...flowResults]);
+      setCurrentTest('Email Chain');
+      flowResults.push(await testEmailChain());
+      setResults([...flowResults]);
 
-    // Test 4: Funnel Versions
-    setCurrentTest('Funnel Versions');
-    flowResults.push(await testFunnelVersions());
-    setResults([...flowResults]);
+      setCurrentTest('Funnel Versions');
+      flowResults.push(await testFunnelVersions());
+      setResults([...flowResults]);
 
-    // Test 5: Data Integrity
-    setCurrentTest('Data Integrity');
-    flowResults.push(await testDataIntegrity());
-    setResults([...flowResults]);
+      setCurrentTest('Data Integrity');
+      flowResults.push(await testDataIntegrity());
+      setResults([...flowResults]);
 
-    setTesting(false);
-    setCurrentTest('');
-    
-    const passed = flowResults.filter(r => r.passed).length;
-    const failed = flowResults.filter(r => !r.passed).length;
-    
-    if (failed === 0) {
-      toast.success(`All ${passed} flow tests passed! 🎉`);
-    } else {
-      toast.error(`${failed} flow test(s) failed`);
+      setTesting(false);
+      setCurrentTest('');
+      
+      const passed = flowResults.filter(r => r.passed).length;
+      const failed = flowResults.filter(r => !r.passed).length;
+      
+      if (failed === 0) {
+        toast.success(`All ${passed} flows verified ✅`);
+      } else {
+        toast.error(`${failed} flow(s) need review`);
+      }
+    } catch (error) {
+      setTesting(false);
+      setCurrentTest('');
+      toast.error('Flow test suite error');
     }
   };
 
