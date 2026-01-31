@@ -987,6 +987,7 @@ export default function AdminControlCenter() {
     { value: 'reports', icon: FileText, label: 'Reports', color: 'blue' },
     { value: 'users', icon: Lock, label: 'Users', color: 'violet' },
     { value: 'settings', icon: Settings, label: 'Settings', color: 'slate' },
+    { value: 'testing', icon: CheckCircle2, label: 'Testing & QA', color: 'green' },
   ];
 
   return (
@@ -1260,6 +1261,18 @@ export default function AdminControlCenter() {
               <TabsContent value="settings" className="mt-0">
                 <Suspense fallback={<TabLoader />}>
                   <AdminSettings />
+                </Suspense>
+              </TabsContent>
+
+              <TabsContent value="testing" className="space-y-6 mt-0">
+                <Suspense fallback={<TabLoader />}>
+                  <ProductionReadinessChecklist />
+                </Suspense>
+                <Suspense fallback={<TabLoader />}>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <SystemTestingDashboard />
+                    <PerformanceMonitor />
+                  </div>
                 </Suspense>
               </TabsContent>
             </motion.div>
