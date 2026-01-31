@@ -63,6 +63,9 @@ const IntegrationHealthMonitor = lazy(() => import('@/components/admin/Integrati
 const DataBackupTools = lazy(() => import('@/components/admin/DataBackupTools'));
 const KeyboardShortcuts = lazy(() => import('@/components/admin/KeyboardShortcuts'));
 const MobileOptimizedHeader = lazy(() => import('@/components/admin/MobileOptimizedHeader'));
+const SystemTestingDashboard = lazy(() => import('@/components/admin/SystemTestingDashboard'));
+const PerformanceMonitor = lazy(() => import('@/components/admin/PerformanceMonitor'));
+const ProductionReadinessChecklist = lazy(() => import('@/components/admin/ProductionReadinessChecklist'));
 
 // Modern loading component with skeleton
 const TabLoader = () => (
