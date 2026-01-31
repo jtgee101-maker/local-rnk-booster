@@ -56,6 +56,9 @@ const SystemStatusDashboard = lazy(() => import('@/components/admin/SystemStatus
 const AdvancedErrorAnalytics = lazy(() => import('@/components/admin/AdvancedErrorAnalytics'));
 const PerformanceMetricsDashboard = lazy(() => import('@/components/admin/PerformanceMetricsDashboard'));
 const AutomatedReportGenerator = lazy(() => import('@/components/admin/AutomatedReportGenerator'));
+const NotificationCenter = lazy(() => import('@/components/admin/NotificationCenter'));
+const QuickActionsPanel = lazy(() => import('@/components/admin/QuickActionsPanel'));
+const AdminActivityLog = lazy(() => import('@/components/admin/AdminActivityLog'));
 
 // Modern loading component with skeleton
 const TabLoader = () => (
