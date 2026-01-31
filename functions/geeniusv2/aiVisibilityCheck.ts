@@ -12,18 +12,23 @@ Deno.serve(async (req) => {
     const { businessName, location, keyword, industry } = await req.json();
 
     if (!businessName || !location || !keyword) {
+      console.error('❌ Missing parameters:', { businessName, location, keyword, industry });
       return Response.json({
         success: false,
         error: 'Missing required parameters: businessName, location, keyword'
       }, { status: 400 });
     }
 
-    // Real AI-powered visibility check using Base44's InvokeLLM
+    console.log('🚀 Starting AI visibility analysis for:', { businessName, location, keyword, industry });
+
+    // Real AI-powered visibility check using Base44's InvokeLLM with internet context
     const aiResults = await Promise.all([
       checkAIVisibility('Gemini', businessName, location, keyword, industry, base44),
       checkAIVisibility('ChatGPT', businessName, location, keyword, industry, base44),
       checkAIVisibility('Perplexity', businessName, location, keyword, industry, base44)
     ]);
+
+    console.log('✅ AI results collected:', aiResults.map(r => ({ platform: r.platform, score: r.score, found: r.found })));
 
     // Calculate overall AI visibility score
     const visibilityScore = calculateAIVisibilityScore(aiResults);
@@ -69,16 +74,30 @@ Deno.serve(async (req) => {
 
 async function checkAIVisibility(platform, businessName, location, keyword, industry, base44) {
   try {
-    const prompt = `Analyze if a ${industry} business called "${businessName}" located in ${location} would be visible in ${platform} search results when someone searches for "${keyword}".
+    console.log(`🔍 Analyzing ${platform} visibility for ${businessName}...`);
+    
+    // Simplified, focused prompt for better LLM performance
+    const prompt = `You are an AI search visibility expert analyzing if "${businessName}" (a ${keyword} business in ${location}) would appear in ${platform} AI search results.
 
-Based on typical ${platform} knowledge cutoff and indexing patterns, provide realistic analysis:
-- Would this specific business be found in top search results?
-- What ranking position (1-10) if found?
-- Is the business name mentioned or just the service category?
-- Would ${platform} provide rich context about their services/specialties?
-- How accurate would the data be (current business info)?
+Search query: "best ${keyword} in ${location}"
 
-Respond as JSON:`;
+Analyze:
+1. Would this business appear in top 10 results? (true/false)
+2. If yes, what rank position (1-10)? If no, null
+3. Would the business name be explicitly mentioned? (true/false)
+4. Would AI provide rich service details beyond just listing? (true/false)  
+5. Data accuracy level: "high" (verified recent info), "medium" (some info), or "low" (outdated/missing)
+6. Brief reasoning (1 sentence)
+
+Return ONLY valid JSON matching this exact structure:
+{
+  "found": boolean,
+  "rank": number or null,
+  "mentioned": boolean,
+  "contextProvided": boolean,
+  "dataAccuracy": "high" or "medium" or "low",
+  "reasoning": "string"
+}`;
 
     const response = await base44.integrations.Core.InvokeLLM({
       prompt,
@@ -86,45 +105,49 @@ Respond as JSON:`;
       response_json_schema: {
         type: "object",
         properties: {
-          found: { type: "boolean", description: "Would appear in top results" },
-          rank: { type: ["integer", "null"], description: "Position 1-10 or null" },
-          mentioned: { type: "boolean", description: "Business name explicitly mentioned" },
-          contextProvided: { type: "boolean", description: "Rich service context available" },
+          found: { type: "boolean" },
+          rank: { type: ["integer", "null"] },
+          mentioned: { type: "boolean" },
+          contextProvided: { type: "boolean" },
           dataAccuracy: { type: "string", enum: ["high", "medium", "low"] },
-          reasoning: { type: "string", description: "Why this visibility level" }
+          reasoning: { type: "string" }
         },
-        required: ["found", "rank", "mentioned", "contextProvided", "dataAccuracy"]
+        required: ["found", "mentioned", "contextProvided", "dataAccuracy"]
       }
     });
 
-    // Extract data from response
-    const data = response && typeof response === 'object' ? response : 
-                 (response && response.data ? response.data : {});
+    console.log(`📊 ${platform} raw response:`, JSON.stringify(response).substring(0, 200));
+
+    // Handle various response formats from InvokeLLM
+    let data = response;
+    if (response && typeof response === 'object') {
+      if (response.data) data = response.data;
+      if (response.output) data = response.output;
+    }
     
+    // Ensure we have valid data
+    if (!data || typeof data !== 'object') {
+      throw new Error('Invalid response format from LLM');
+    }
+
     const result = {
       platform,
       found: Boolean(data.found),
-      rank: data.rank ? parseInt(data.rank) : null,
+      rank: data.rank && typeof data.rank === 'number' ? Math.max(1, Math.min(10, data.rank)) : null,
       mentioned: Boolean(data.mentioned),
       contextProvided: Boolean(data.contextProvided),
       dataAccuracy: ['high', 'medium', 'low'].includes(data.dataAccuracy) ? data.dataAccuracy : 'medium',
-      reasoning: data.reasoning || '',
+      reasoning: (data.reasoning || '').substring(0, 200),
       score: 0
     };
 
-    result.score = calculatePlatformScore({
-      found: result.found,
-      rank: result.rank,
-      mentioned: result.mentioned,
-      contextProvided: result.contextProvided,
-      dataAccuracy: result.dataAccuracy
-    });
+    result.score = calculatePlatformScore(result);
 
-    console.log(`✓ ${platform} analysis complete:`, result);
+    console.log(`✅ ${platform} complete: Score ${result.score}/100, Found: ${result.found}, Rank: ${result.rank}`);
     return result;
 
   } catch (error) {
-    console.error(`✗ ${platform} analysis failed:`, error.message);
+    console.error(`❌ ${platform} failed:`, error.message);
     return {
       platform,
       found: false,
@@ -132,7 +155,7 @@ Respond as JSON:`;
       mentioned: false,
       contextProvided: false,
       dataAccuracy: 'low',
-      reasoning: `Unable to analyze: ${error.message}`,
+      reasoning: `Analysis unavailable: ${error.message}`,
       score: 0,
       error: error.message
     };

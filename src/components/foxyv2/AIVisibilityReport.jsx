@@ -6,20 +6,29 @@ import { Brain, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import FoxyMascot from './FoxyMascot';
 
 export default function AIVisibilityReport({ aiData }) {
-  if (!aiData) return null;
+  if (!aiData) {
+    console.error('❌ AIVisibilityReport: No aiData provided');
+    return null;
+  }
+
+  console.log('🦊 AIVisibilityReport rendering with:', JSON.stringify(aiData).substring(0, 300));
 
   const { 
     overallScore = 0, 
     platforms = {}, 
-    summary = { foundIn: 0, totalPlatforms: 6, averageRank: 'N/A', trustScore: 0 },
+    summary = { foundIn: 0, totalPlatforms: 3, averageRank: null, trustScore: 0 },
     recommendations = [],
     entityDensity,
     answerReadiness,
     expertCitations
   } = aiData;
 
-  // Convert platforms object to array
+  // Convert platforms object to array and ensure valid data
   const platformsArray = Object.values(platforms).filter(p => p && p.platform);
+  
+  if (platformsArray.length === 0) {
+    console.warn('⚠️ No platform data found in aiData');
+  }
 
   const platformIcons = {
     Gemini: '💎',
@@ -57,17 +66,17 @@ export default function AIVisibilityReport({ aiData }) {
           {/* Summary Stats */}
           <div className="grid grid-cols-3 gap-4">
             <div className="bg-gradient-to-br from-[#c8ff00]/20 to-green-500/10 border border-[#c8ff00]/30 rounded-xl p-4 text-center">
-              <div className="text-4xl font-black text-[#c8ff00]">{summary.foundIn}/{summary.totalPlatforms}</div>
+              <div className="text-4xl font-black text-[#c8ff00]">{summary.foundIn || 0}/{summary.totalPlatforms || 3}</div>
               <p className="text-gray-200 text-sm font-medium mt-2">AI Platforms</p>
             </div>
             <div className="bg-gradient-to-br from-blue-500/20 to-blue-500/10 border border-blue-500/30 rounded-xl p-4 text-center">
               <div className="text-4xl font-black text-blue-400">
-                {summary.averageRank ? `#${summary.averageRank}` : 'N/A'}
+                {summary.averageRank && summary.averageRank !== 'N/A' ? `#${summary.averageRank}` : 'N/A'}
               </div>
               <p className="text-gray-200 text-sm font-medium mt-2">Avg AI Rank</p>
             </div>
             <div className="bg-gradient-to-br from-purple-500/20 to-purple-500/10 border border-purple-500/30 rounded-xl p-4 text-center">
-              <div className="text-4xl font-black text-purple-400">{summary.trustScore}%</div>
+              <div className="text-4xl font-black text-purple-400">{summary.trustScore || 0}%</div>
               <p className="text-gray-200 text-sm font-medium mt-2">Trust Score</p>
             </div>
           </div>
@@ -78,7 +87,12 @@ export default function AIVisibilityReport({ aiData }) {
               <Brain className="w-6 h-6 text-blue-400" />
               AI Platform Breakdown
             </h4>
-            {Object.values(platforms).map((platform, idx) => (
+            {platformsArray.length === 0 ? (
+              <div className="bg-red-500/20 border border-red-500/40 rounded-xl p-5 text-center">
+                <p className="text-red-300">No platform data available</p>
+              </div>
+            ) : null}
+            {platformsArray.map((platform, idx) => (
               <motion.div
                 key={platform.platform}
                 initial={{ opacity: 0, x: -20 }}
