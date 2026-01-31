@@ -60,6 +60,9 @@ const NotificationCenter = lazy(() => import('@/components/admin/NotificationCen
 const QuickActionsPanel = lazy(() => import('@/components/admin/QuickActionsPanel'));
 const AdminActivityLog = lazy(() => import('@/components/admin/AdminActivityLog'));
 const IntegrationHealthMonitor = lazy(() => import('@/components/admin/IntegrationHealthMonitor'));
+const DataBackupTools = lazy(() => import('@/components/admin/DataBackupTools'));
+const KeyboardShortcuts = lazy(() => import('@/components/admin/KeyboardShortcuts'));
+const MobileOptimizedHeader = lazy(() => import('@/components/admin/MobileOptimizedHeader'));
 
 // Modern loading component with skeleton
 const TabLoader = () => (
@@ -985,46 +988,21 @@ export default function AdminControlCenter() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f]">
-      {/* Enhanced Fixed Header */}
-      <div className="sticky top-0 z-50 border-b border-gray-800/50 backdrop-blur-xl bg-[#0a0a0f]/90">
-        <div className="max-w-[1800px] mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-[#c8ff00]/10 rounded-lg">
-                  <Shield className="w-6 h-6 text-[#c8ff00]" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold text-white">Super Admin Control Center</h1>
-                  <p className="text-xs text-gray-400">Full system monitoring & control</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                <Clock className="w-3 h-3" />
-                Last refresh: {lastRefresh.toLocaleTimeString()}
-              </div>
-              <Suspense fallback={<div className="w-10 h-10" />}>
-                <NotificationCenter />
-              </Suspense>
-              <Button 
-                onClick={handleRefresh}
-                variant="outline"
-                size="sm"
-                className="gap-2 border-gray-700 hover:border-[#c8ff00] hover:text-[#c8ff00]"
-              >
-                <RefreshCw className="w-4 h-4" />
-                Refresh
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Keyboard Shortcuts */}
+      <Suspense fallback={null}>
+        <KeyboardShortcuts onNavigate={setActiveTab} />
+      </Suspense>
+
+      {/* Mobile Optimized Header */}
+      <Suspense fallback={null}>
+        <MobileOptimizedHeader 
+          lastRefresh={lastRefresh}
+          onRefresh={handleRefresh}
+        />
+      </Suspense>
 
       {/* Main Content */}
-      <div className="max-w-[1800px] mx-auto p-6 space-y-6">
+      <div className="max-w-[1800px] mx-auto p-4 lg:p-6 space-y-4 lg:space-y-6">
         {/* Test Mode Indicator & Error Display */}
         <Suspense fallback={null}>
           <TestModeIndicator isTestMode={true} />
@@ -1060,17 +1038,17 @@ export default function AdminControlCenter() {
         </motion.div>
 
         {/* Enhanced Tabs with Better UI */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <div className="overflow-x-auto">
-            <TabsList className="inline-flex h-auto p-1 bg-gray-800/50 border border-gray-700 rounded-xl gap-1">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 lg:space-y-6">
+          <div className="overflow-x-auto -mx-4 px-4 lg:mx-0 lg:px-0">
+            <TabsList className="inline-flex h-auto p-1 bg-gray-800/50 border border-gray-700 rounded-xl gap-1 flex-nowrap">
               {tabConfig.map((tab) => (
                 <TabsTrigger 
                   key={tab.value}
                   value={tab.value}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-[#c8ff00] data-[state=active]:text-black text-gray-400 hover:text-white transition-all"
+                  className="flex items-center gap-2 px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg data-[state=active]:bg-[#c8ff00] data-[state=active]:text-black text-gray-400 hover:text-white transition-all whitespace-nowrap"
                 >
-                  <tab.icon className="w-4 h-4" />
-                  <span className="text-sm font-medium">{tab.label}</span>
+                  <tab.icon className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
+                  <span className="text-xs lg:text-sm font-medium">{tab.label}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
@@ -1087,7 +1065,10 @@ export default function AdminControlCenter() {
             >
               <TabsContent value="overview" className="space-y-6 mt-0">
                 <Suspense fallback={<TabLoader />}>
-                  <QuickActionsPanel />
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <QuickActionsPanel />
+                    <DataBackupTools />
+                  </div>
                 </Suspense>
                 <Suspense fallback={<TabLoader />}>
                   <IntegrationHealthMonitor />
