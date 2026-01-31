@@ -20,12 +20,14 @@ import TrustLogos from '@/components/shared/TrustLogos';
 import FAQAccordion from '@/components/shared/FAQAccordion';
 import ComparisonTable from '@/components/shared/ComparisonTable';
 import VideoTestimonial from '@/components/shared/VideoTestimonial';
+import ExitIntentModal from '@/components/shared/ExitIntentModal';
 import RemarketingPixels, { initializePixels, trackConversion } from '@/components/tracking/RemarketingPixels';
 import { CONVERSION_EVENTS } from '@/components/tracking/ConversionTracker';
 
 export default function FoxyAuditLanding() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [viewersCount, setViewersCount] = useState(127);
+  const [showExitIntent, setShowExitIntent] = useState(false);
   const { scrollY } = useScroll();
   const headerOpacity = useTransform(scrollY, [0, 200], [1, 0.8]);
 
@@ -58,10 +60,11 @@ export default function FoxyAuditLanding() {
     return () => clearInterval(interval);
   }, [isPaused]);
 
-  // Track scroll depth for remarketing
+  // Track scroll depth for remarketing + Exit intent
   useEffect(() => {
     let scroll50Tracked = false;
     let scroll75Tracked = false;
+    let exitIntentShown = false;
 
     const handleScroll = () => {
       const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
@@ -76,8 +79,21 @@ export default function FoxyAuditLanding() {
       }
     };
 
+    const handleMouseLeave = (e) => {
+      if (e.clientY <= 0 && !exitIntentShown && !sessionStorage.getItem('exitIntentSeen')) {
+        setShowExitIntent(true);
+        exitIntentShown = true;
+        sessionStorage.setItem('exitIntentSeen', 'true');
+        trackConversion('exit_intent_triggered');
+      }
+    };
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    document.addEventListener('mouseleave', handleMouseLeave);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+    };
   }, []);
 
   const painPoints = [
@@ -191,6 +207,18 @@ export default function FoxyAuditLanding() {
       />
       <RemarketingPixels />
       <ScrollTracker pageName="FoxyAuditLanding" enabled={true} />
+      <ExitIntentModal
+        isOpen={showExitIntent}
+        onClose={() => setShowExitIntent(false)}
+        onContinue={() => {
+          setShowExitIntent(false);
+          window.location.href = createPageUrl('QuizGeeniusV2');
+        }}
+        headline="⚠️ Wait! You're About to Miss Out"
+        subheadline="73% of local customers can't find businesses like yours. Don't let this happen to you."
+        ctaText="Get My Free Audit Now"
+        discount={null}
+      />
       <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f] text-white overflow-hidden">
       {/* Floating Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -265,44 +293,59 @@ export default function FoxyAuditLanding() {
               </span>
             </motion.div>
 
-            {/* Main Headline */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black mb-6 leading-tight">
-              Discover Why <span className="text-[#c8ff00]">73%</span> of Your<br className="hidden sm:block" />
-              Local Customers <span className="text-red-400">Can't Find You</span>
+            {/* Main Headline - OPTIMIZED */}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 leading-[1.1] tracking-tight">
+              <span className="text-red-400">Stop Losing</span> $2,847/Month<br className="hidden sm:block" />
+              to <span className="text-[#c8ff00]">Competitors Who Outrank You</span>
             </h1>
 
-            {/* Subheadline */}
-            <p className="text-base sm:text-xl md:text-2xl text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed px-4">
-              Free AI-Powered Audit Reveals Your Exact Geographic "Blind Spots" 
-              and Shows You <span className="text-[#c8ff00] font-bold">How Much Revenue You're Bleeding</span> to Competitors Every Month
+            {/* Subheadline - OPTIMIZED */}
+            <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed px-4 font-medium">
+              Get Your Free <span className="text-[#c8ff00] font-bold">AI Visibility Report</span> in 60 Seconds
+              <br className="hidden sm:block" />
+              See Exactly Where You're Invisible on Google Maps
             </p>
 
-            {/* CTA */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+            {/* CTA - OPTIMIZED with video option */}
+            <div className="flex flex-col items-center justify-center gap-4 mb-8">
               <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="w-full max-w-md"
               >
                 <Button
                   onClick={() => {
                     trackConversion(CONVERSION_EVENTS.CTA_CLICK, { location: 'hero' });
                     window.location.href = createPageUrl('QuizGeeniusV2');
                   }}
-                  className="relative bg-[#c8ff00] hover:bg-[#b8ef00] text-gray-900 font-black text-base sm:text-lg md:text-xl px-6 sm:px-8 py-6 sm:py-7 rounded-xl shadow-2xl shadow-[#c8ff00]/20 transition-all min-h-[56px] w-full sm:w-auto overflow-hidden group"
+                  className="relative bg-gradient-to-r from-[#c8ff00] via-[#d4ff33] to-[#c8ff00] hover:from-[#d4ff33] hover:via-[#c8ff00] hover:to-[#d4ff33] text-gray-900 font-black text-xl sm:text-2xl md:text-3xl px-8 sm:px-12 py-7 sm:py-9 rounded-2xl shadow-[0_0_60px_rgba(200,255,0,0.5)] transition-all min-h-[64px] w-full overflow-hidden group animate-pulse hover:animate-none"
                 >
                   <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
                     initial={{ x: '-100%' }}
                     animate={{ x: '200%' }}
-                    transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+                    transition={{ duration: 2, repeat: Infinity, repeatDelay: 0.5 }}
                   />
-                  <span className="relative flex items-center">
-                    <Zap className="w-5 h-5 mr-2" />
-                    Get My Free Foxy Audit Now
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                  <span className="relative flex items-center justify-center gap-3">
+                    <Zap className="w-6 h-6 sm:w-7 sm:h-7" />
+                    Show Me My Revenue Leaks
+                    <ArrowRight className="w-6 h-6 sm:w-7 sm:h-7" />
                   </span>
                 </Button>
               </motion.div>
+              
+              <button
+                onClick={() => {
+                  trackConversion(CONVERSION_EVENTS.VIDEO_PLAY, { location: 'hero' });
+                  document.getElementById('demo-video')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="flex items-center gap-2 text-[#c8ff00] hover:text-[#d4ff33] font-semibold text-base transition-colors"
+              >
+                <div className="w-10 h-10 rounded-full bg-[#c8ff00]/20 flex items-center justify-center">
+                  <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-[#c8ff00] border-b-[6px] border-b-transparent ml-1" />
+                </div>
+                Watch 60-Second Demo
+              </button>
             </div>
 
             {/* Trust Indicators */}
@@ -321,8 +364,25 @@ export default function FoxyAuditLanding() {
               </div>
             </div>
 
-            {/* Inline Social Proof */}
-            <SocialProofNotification enabled={true} inline={true} />
+            {/* Live Activity Feed */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="mb-6"
+            >
+              <SocialProofNotification enabled={true} inline={true} />
+              <div className="mt-4 flex items-center justify-center gap-6 text-sm text-gray-400">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                  <span>{viewersCount} viewing now</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-[#c8ff00]" />
+                  <span>143 audits today</span>
+                </div>
+              </div>
+            </motion.div>
 
             {/* Foxy Mascot Hero */}
             <motion.div
@@ -566,6 +626,45 @@ export default function FoxyAuditLanding() {
               ⚡ Takes only 60 seconds • No credit card needed
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* Video Demo Section */}
+      <section id="demo-video" className="py-20 px-4 bg-gradient-to-b from-transparent via-gray-900/50 to-transparent">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <Badge className="bg-[#c8ff00]/20 border-[#c8ff00]/50 text-[#c8ff00] px-4 py-2 mb-4">
+              See It In Action
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl font-black text-white mb-4">
+              Watch Foxy Find Your <span className="text-[#c8ff00]">Hidden Revenue Leaks</span>
+            </h2>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              60-second walkthrough of how the AI audit reveals your exact blind spots
+            </p>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="relative rounded-2xl overflow-hidden shadow-2xl"
+          >
+            <div className="aspect-video bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
+              <div className="text-center">
+                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-[#c8ff00]/20 flex items-center justify-center">
+                  <div className="w-0 h-0 border-t-[20px] border-t-transparent border-l-[30px] border-l-[#c8ff00] border-b-[20px] border-b-transparent ml-2" />
+                </div>
+                <p className="text-gray-400">Demo video placeholder</p>
+                <p className="text-xs text-gray-600 mt-2">Coming soon: Live walkthrough</p>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
