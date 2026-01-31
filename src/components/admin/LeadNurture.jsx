@@ -146,7 +146,6 @@ export default function LeadNurture() {
         onClose={() => setShowBuilder(false)}
         onSave={() => {
           setShowBuilder(false);
-          // In production, this would trigger a refetch
         }}
       />
     </div>

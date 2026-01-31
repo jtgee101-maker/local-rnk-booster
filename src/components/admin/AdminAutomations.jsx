@@ -2,15 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Zap, Play, Pause, RefreshCw, Plus, Edit, Trash2, Loader2 } from 'lucide-react';
+import { Zap, Play, Pause, RefreshCw, Plus, Edit, Trash2, Loader2, History } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import AutomationEditor from './AutomationEditor';
+import AutomationHistory from './AutomationHistory';
 
 export default function AdminAutomations() {
   const [automations, setAutomations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editorOpen, setEditorOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [selectedAutomation, setSelectedAutomation] = useState(null);
   const [actionLoading, setActionLoading] = useState(null);
 
@@ -142,6 +144,11 @@ export default function AdminAutomations() {
     loadAutomations();
   };
 
+  const handleViewHistory = (automation) => {
+    setSelectedAutomation(automation);
+    setHistoryOpen(true);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -169,6 +176,12 @@ export default function AdminAutomations() {
         onClose={handleEditorClose}
         onSave={handleEditorSave}
       />
+      
+      <AutomationHistory
+        automation={selectedAutomation}
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+      />
       {automations.map((automation) => (
         <Card key={automation.id} className="bg-gray-800/50 border-gray-700">
           <CardContent className="p-6">
@@ -189,6 +202,14 @@ export default function AdminAutomations() {
                 </div>
               </div>
               <div className="flex gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => handleViewHistory(automation)}
+                  title="View History"
+                >
+                  <History className="w-4 h-4" />
+                </Button>
                 <Button 
                   variant="ghost" 
                   size="sm"

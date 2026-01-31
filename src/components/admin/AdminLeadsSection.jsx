@@ -13,7 +13,7 @@ import {
   Building2, Calendar, Eye, RefreshCw, AlertCircle,
   CheckCircle2, Clock, XCircle, Loader2
 } from 'lucide-react';
-import LeadDetailModal from './LeadDetailModal';
+import EnhancedLeadDetailModal from './EnhancedLeadDetailModal';
 
 export default function AdminLeadsSection({ expanded = false }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -127,7 +127,7 @@ export default function AdminLeadsSection({ expanded = false }) {
 
   return (
     <>
-      <LeadDetailModal
+      <EnhancedLeadDetailModal
         lead={selectedLead}
         open={modalOpen}
         onClose={handleModalClose}
