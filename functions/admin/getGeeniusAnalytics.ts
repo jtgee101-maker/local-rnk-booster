@@ -23,20 +23,25 @@ Deno.serve(async (req) => {
     const startDate = new Date(Date.now() - timeMs).toISOString();
     const previousStartDate = new Date(Date.now() - timeMs * 2).toISOString();
 
-    // Fetch Geenius events
-    const [currentEvents, previousEvents, leads] = await Promise.all([
-      base44.asServiceRole.entities.ConversionEvent.filter({
-        funnel_version: 'geenius',
-        created_date: { $gte: startDate }
-      }),
-      base44.asServiceRole.entities.ConversionEvent.filter({
-        funnel_version: 'geenius',
-        created_date: { $gte: previousStartDate, $lt: startDate }
-      }),
-      base44.asServiceRole.entities.Lead.filter({
-        created_date: { $gte: startDate }
-      })
+    // Fetch Geenius events - use list() then filter client-side for better compatibility
+    const [allEvents, leads] = await Promise.all([
+      base44.asServiceRole.entities.ConversionEvent.list('-created_date', 10000),
+      base44.asServiceRole.entities.Lead.list('-created_date', 1000)
     ]);
+
+    // Filter events client-side
+    const currentEvents = allEvents.filter(e => 
+      e.funnel_version === 'geenius' && 
+      new Date(e.created_date) >= new Date(startDate)
+    );
+    
+    const previousEvents = allEvents.filter(e => 
+      e.funnel_version === 'geenius' && 
+      new Date(e.created_date) >= new Date(previousStartDate) &&
+      new Date(e.created_date) < new Date(startDate)
+    );
+    
+    const currentLeads = leads.filter(l => new Date(l.created_date) >= new Date(startDate));
 
     // Calculate metrics
     const quizStarts = currentEvents.filter(e => e.event_name === 'quiz_started').length;
@@ -62,14 +67,15 @@ Deno.serve(async (req) => {
     const prevPathwaySelections = previousEvents.filter(e => 
       ['pathway_govtech_grant_clicked', 'pathway_done_for_you_clicked', 'pathway_diy_software_clicked'].includes(e.event_name)
     ).length;
-    const prevLeads = await base44.asServiceRole.entities.Lead.filter({
-      created_date: { $gte: previousStartDate, $lt: startDate }
-    });
+    const prevLeads = leads.filter(l => 
+      new Date(l.created_date) >= new Date(previousStartDate) &&
+      new Date(l.created_date) < new Date(startDate)
+    );
 
     const startsTrend = prevQuizStarts > 0 ? (((quizStarts - prevQuizStarts) / prevQuizStarts) * 100) : (quizStarts > 0 ? 100 : 0);
     const resultsTrend = prevResultsViewed > 0 ? (((resultsViewed - prevResultsViewed) / prevResultsViewed) * 100) : (resultsViewed > 0 ? 100 : 0);
     const pathwayTrend = prevPathwaySelections > 0 ? (((pathwaySelections - prevPathwaySelections) / prevPathwaySelections) * 100) : (pathwaySelections > 0 ? 100 : 0);
-    const leadsTrend = prevLeads.length > 0 ? (((leads.length - prevLeads.length) / prevLeads.length) * 100) : (leads.length > 0 ? 100 : 0);
+    const leadsTrend = prevLeads.length > 0 ? (((currentLeads.length - prevLeads.length) / prevLeads.length) * 100) : (currentLeads.length > 0 ? 100 : 0);
 
     // Session metrics
     const uniqueSessions = new Set(currentEvents.map(e => e.session_id)).size;
@@ -93,10 +99,10 @@ Deno.serve(async (req) => {
 
     // Health score distribution
     const healthScoreDistribution = {
-      critical: leads.filter(l => l.health_score >= 0 && l.health_score <= 25).length,
-      poor: leads.filter(l => l.health_score > 25 && l.health_score <= 50).length,
-      fair: leads.filter(l => l.health_score > 50 && l.health_score <= 75).length,
-      good: leads.filter(l => l.health_score > 75).length
+      critical: currentLeads.filter(l => l.health_score >= 0 && l.health_score <= 25).length,
+      poor: currentLeads.filter(l => l.health_score > 25 && l.health_score <= 50).length,
+      fair: currentLeads.filter(l => l.health_score > 50 && l.health_score <= 75).length,
+      good: currentLeads.filter(l => l.health_score > 75).length
     };
 
     // Exit points - calculate dropout between stages
@@ -117,7 +123,7 @@ Deno.serve(async (req) => {
 
     // Pain points
     const painPointsMap = {};
-    leads.forEach(lead => {
+    currentLeads.forEach(lead => {
       if (lead.pain_point) {
         painPointsMap[lead.pain_point] = (painPointsMap[lead.pain_point] || 0) + 1;
       }
@@ -127,12 +133,12 @@ Deno.serve(async (req) => {
       painPoint,
       label: painPoint.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
       count,
-      percentage: ((count / leads.length) * 100).toFixed(1)
+      percentage: currentLeads.length > 0 ? ((count / currentLeads.length) * 100).toFixed(1) : '0.0'
     }));
 
     // Categories
     const categoriesMap = {};
-    leads.forEach(lead => {
+    currentLeads.forEach(lead => {
       if (lead.business_category) {
         categoriesMap[lead.business_category] = (categoriesMap[lead.business_category] || 0) + 1;
       }
@@ -142,12 +148,12 @@ Deno.serve(async (req) => {
       category,
       label: category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
       count,
-      percentage: ((count / leads.length) * 100).toFixed(1)
+      percentage: currentLeads.length > 0 ? ((count / currentLeads.length) * 100).toFixed(1) : '0.0'
     }));
 
     // Avg health score
-    const avgHealthScore = leads.length > 0
-      ? Math.round(leads.reduce((sum, l) => sum + (l.health_score || 0), 0) / leads.length)
+    const avgHealthScore = currentLeads.length > 0
+      ? Math.round(currentLeads.reduce((sum, l) => sum + (l.health_score || 0), 0) / currentLeads.length)
       : 0;
 
     return Response.json({
@@ -161,7 +167,7 @@ Deno.serve(async (req) => {
         pathway3Clicks: pathway3Clicks,
         totalConversions: pathwaySelections,
         totalEmailCaptures: emailCaptures,
-        totalLeads: leads.length,
+        totalLeads: currentLeads.length,
         avgHealthScore: avgHealthScore,
         avgSessionTime: `${minutes}m ${seconds}s`
       },
