@@ -3,6 +3,9 @@
  * Provides caching, background sync, and push notifications
  */
 
+// Workbox manifest injection point
+self.__WB_MANIFEST;
+
 const CACHE_VERSION = 'v2';
 const STATIC_CACHE = `localrnk-static-${CACHE_VERSION}`;
 const API_CACHE = `localrnk-api-${CACHE_VERSION}`;
