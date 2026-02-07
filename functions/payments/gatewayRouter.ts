@@ -15,18 +15,69 @@ import {
 import { FunctionError } from '../utils/errorHandler.ts';
 
 // Default gateway configurations
+// PRIORITY ORDER: GeeniusPay → NMI → Payra → CryptoProcessing → Others
 const DEFAULT_GATEWAYS: GatewayConfig[] = [
+  // PRIMARY: GeeniusPay (Card processing priority #1)
+  {
+    id: 'geeniuspay',
+    name: 'GeeniusPay',
+    enabled: true, // ENABLED for demo
+    testMode: true, // DEMO MODE - no real charges
+    supportedCountries: ['US', 'CA', 'GB', 'EU'],
+    supportedCurrencies: ['USD', 'EUR', 'GBP'],
+    supportedMethods: ['card', 'crypto'],
+    processingFee: { percentage: 2.5, fixed: 0.25 },
+    healthStatus: 'healthy'
+  },
+  // SECONDARY: NMI (Card processing priority #2)
+  {
+    id: 'nmi',
+    name: 'NMI',
+    enabled: true, // ENABLED for demo
+    testMode: true, // DEMO MODE - no real charges
+    supportedCountries: ['US', 'CA', 'GB', 'AU'],
+    supportedCurrencies: ['USD', 'CAD', 'GBP', 'AUD'],
+    supportedMethods: ['card', 'bank_transfer'],
+    processingFee: { percentage: 2.2, fixed: 0.20 },
+    healthStatus: 'healthy'
+  },
+  // TERTIARY: Payra (Card processing priority #3)
+  {
+    id: 'payra',
+    name: 'Payra',
+    enabled: true, // ENABLED for demo
+    testMode: true, // DEMO MODE - no real charges
+    supportedCountries: ['US', 'CA', 'GB', 'AU', 'EU'],
+    supportedCurrencies: ['USD', 'EUR', 'GBP'],
+    supportedMethods: ['card', 'bank_transfer'],
+    processingFee: { percentage: 2.4, fixed: 0.25 },
+    healthStatus: 'healthy'
+  },
+  // CRYPTO: CryptoProcessing (All crypto payments)
+  {
+    id: 'cryptoprocessing',
+    name: 'CryptoProcessing',
+    enabled: true, // ENABLED for demo
+    testMode: true, // DEMO MODE - no real transactions
+    supportedCountries: ['GLOBAL'],
+    supportedCurrencies: ['USD', 'EUR', 'BTC', 'ETH', 'USDT', 'USDC', 'LTC', 'BCH'],
+    supportedMethods: ['crypto'],
+    processingFee: { percentage: 1.0, fixed: 0 },
+    healthStatus: 'healthy'
+  },
+  // FALLBACK: Stripe (If others fail)
   {
     id: 'stripe',
     name: 'Stripe',
-    enabled: true,
-    testMode: false,
+    enabled: false, // DISABLED - needs KYC
+    testMode: true,
     supportedCountries: ['US', 'CA', 'GB', 'AU', 'DE', 'FR', 'IT', 'ES', 'NL', 'BE', 'AT', 'CH', 'IE', 'LU'],
     supportedCurrencies: ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'CHF'],
     supportedMethods: ['card', 'apple_pay', 'google_pay', 'sepa', 'ideal', 'giropay'],
     processingFee: { percentage: 2.9, fixed: 0.30 },
     healthStatus: 'unknown'
   },
+  // OTHERS: Available for later activation
   {
     id: 'whop',
     name: 'Whop',
@@ -39,39 +90,6 @@ const DEFAULT_GATEWAYS: GatewayConfig[] = [
     healthStatus: 'unknown'
   },
   {
-    id: 'geeniuspay',
-    name: 'GeeniusPay',
-    enabled: false,
-    testMode: true,
-    supportedCountries: ['US', 'CA', 'GB', 'EU'],
-    supportedCurrencies: ['USD', 'EUR', 'GBP'],
-    supportedMethods: ['card', 'crypto'],
-    processingFee: { percentage: 2.5, fixed: 0.25 },
-    healthStatus: 'unknown'
-  },
-  {
-    id: 'nmi',
-    name: 'NMI',
-    enabled: false,
-    testMode: true,
-    supportedCountries: ['US', 'CA', 'GB', 'AU'],
-    supportedCurrencies: ['USD', 'CAD', 'GBP', 'AUD'],
-    supportedMethods: ['card', 'bank_transfer'],
-    processingFee: { percentage: 2.2, fixed: 0.20 },
-    healthStatus: 'unknown'
-  },
-  {
-    id: 'payra',
-    name: 'Payra',
-    enabled: false,
-    testMode: true,
-    supportedCountries: ['US', 'CA', 'GB', 'AU', 'EU'],
-    supportedCurrencies: ['USD', 'EUR', 'GBP'],
-    supportedMethods: ['card', 'bank_transfer'],
-    processingFee: { percentage: 2.4, fixed: 0.25 },
-    healthStatus: 'unknown'
-  },
-  {
     id: 'authorize',
     name: 'Authorize.net',
     enabled: false,
@@ -80,17 +98,6 @@ const DEFAULT_GATEWAYS: GatewayConfig[] = [
     supportedCurrencies: ['USD', 'CAD'],
     supportedMethods: ['card', 'bank_transfer', 'paypal'],
     processingFee: { percentage: 2.9, fixed: 0.30 },
-    healthStatus: 'unknown'
-  },
-  {
-    id: 'crypto',
-    name: 'CryptoProcessing',
-    enabled: false,
-    testMode: true,
-    supportedCountries: ['GLOBAL'],
-    supportedCurrencies: ['USD', 'EUR', 'BTC', 'ETH', 'USDT', 'USDC'],
-    supportedMethods: ['crypto'],
-    processingFee: { percentage: 1.0, fixed: 0 },
     healthStatus: 'unknown'
   },
   {
@@ -107,39 +114,62 @@ const DEFAULT_GATEWAYS: GatewayConfig[] = [
 ];
 
 // Default routing rules
+// PRIORITY: GeeniusPay → NMI → Payra → CryptoProcessing
 const DEFAULT_ROUTING_RULES: RoutingRule[] = [
   {
     id: 'crypto_preference',
-    name: 'Crypto Payment Preference',
+    name: 'Crypto Payment → CryptoProcessing',
     priority: 100,
     conditions: [
       { type: 'payment_method', operator: 'equals', value: 'crypto' }
     ],
-    targetGateway: 'crypto',
-    fallbackGateway: 'whop',
+    targetGateway: 'cryptoprocessing',
+    fallbackGateway: 'geeniuspay', // Fallback to GeeniusPay (supports crypto)
+    enabled: true
+  },
+  {
+    id: 'card_priority_geeniuspay',
+    name: 'Card Payment → GeeniusPay (Priority #1)',
+    priority: 95,
+    conditions: [
+      { type: 'payment_method', operator: 'equals', value: 'card' }
+    ],
+    targetGateway: 'geeniuspay',
+    fallbackGateway: 'nmi',
+    enabled: true
+  },
+  {
+    id: 'card_fallback_nmi',
+    name: 'Card Payment → NMI (Priority #2)',
+    priority: 94,
+    conditions: [
+      { type: 'payment_method', operator: 'equals', value: 'card' }
+    ],
+    targetGateway: 'nmi',
+    fallbackGateway: 'payra',
+    enabled: true
+  },
+  {
+    id: 'card_fallback_payra',
+    name: 'Card Payment → Payra (Priority #3)',
+    priority: 93,
+    conditions: [
+      { type: 'payment_method', operator: 'equals', value: 'card' }
+    ],
+    targetGateway: 'payra',
+    fallbackGateway: 'stripe',
     enabled: true
   },
   {
     id: 'paypal_preference',
     name: 'PayPal Payment Preference',
-    priority: 95,
+    priority: 50,
     conditions: [
       { type: 'payment_method', operator: 'equals', value: 'paypal' }
     ],
     targetGateway: 'paypal',
-    fallbackGateway: 'stripe',
-    enabled: true
-  },
-  {
-    id: 'high_amount_stripe',
-    name: 'High Amount → Stripe',
-    priority: 90,
-    conditions: [
-      { type: 'amount', operator: 'greater_than', value: 500 }
-    ],
-    targetGateway: 'stripe',
-    fallbackGateway: 'authorize',
-    enabled: true
+    fallbackGateway: 'geeniuspay',
+    enabled: false // Disabled until PayPal configured
   },
   {
     id: 'eu_geeniuspay',
@@ -149,7 +179,7 @@ const DEFAULT_ROUTING_RULES: RoutingRule[] = [
       { type: 'country', operator: 'in', value: ['DE', 'FR', 'IT', 'ES', 'NL', 'BE', 'AT', 'CH'] }
     ],
     targetGateway: 'geeniuspay',
-    fallbackGateway: 'stripe',
+    fallbackGateway: 'payra',
     enabled: true
   },
   {
