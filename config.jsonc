@@ -1,4 +1,7 @@
 {
   "name": "LocalRNK-GodMode",
-  "appId": "696d57cd4797fbebf0798aa4"
+  "appId": "696d57cd4797fbebf0798aa4",
+  "site": {
+    "outputDirectory": "dist"
+  }
 }
