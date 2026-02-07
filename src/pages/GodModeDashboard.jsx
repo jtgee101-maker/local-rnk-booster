@@ -283,7 +283,7 @@ export default function GodModeDashboard() {
                 <Shield className="w-5 h-5 text-black" />
               </div>
               <div>
-                <h1 className="text-xl font-bold">God Mode</h1>
+                <h1 className="text-xl font-bold">God Mode v2</h1>
                 <p className="text-xs text-gray-500">Platform Administration</p>
               </div>
             </div>
