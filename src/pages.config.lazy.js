@@ -46,6 +46,7 @@ const Features = lazy(() => import('./pages/Features'));
 const FinalLaunchChecklist = lazy(() => import('./pages/FinalLaunchChecklist'));
 const FoxyAuditLanding = lazy(() => import('./pages/FoxyAuditLanding'));
 const GettingStarted = lazy(() => import('./pages/GettingStarted'));
+const GodModeDashboard = lazy(() => import('./pages/GodModeDashboard'));
 const GuideQuizGeenius = lazy(() => import('./pages/GuideQuizGeenius'));
 const HVACLanding = lazy(() => import('./pages/HVACLanding'));
 const HandymanLanding = lazy(() => import('./pages/HandymanLanding'));
@@ -121,6 +122,7 @@ export const PAGES = {
     "FinalLaunchChecklist": FinalLaunchChecklist,
     "FoxyAuditLanding": FoxyAuditLanding,
     "GettingStarted": GettingStarted,
+    "GodModeDashboard": GodModeDashboard,
     "GuideQuizGeenius": GuideQuizGeenius,
     "HVACLanding": HVACLanding,
     "HandymanLanding": HandymanLanding,
