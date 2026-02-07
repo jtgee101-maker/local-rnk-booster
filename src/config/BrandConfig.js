@@ -2,12 +2,13 @@
 // This file centralizes all design tokens to eliminate hardcoded values
 
 export const colors = {
-  // Brand Colors (replacing #c8ff00)
+  // Brand Colors - Tech Noir Standard (Neon Cyan)
   brand: {
-    DEFAULT: '#c8ff00',
-    light: '#d4ff33',
-    dark: '#a6cc00',
-    foreground: '#0a0a0f',
+    DEFAULT: '#00F2FF',      // Neon Cyan (Sovereign Standard)
+    light: '#33F5FF',        // Light cyan
+    dark: '#00C2CC',         // Dark cyan
+    foreground: '#0A0B10',   // OLED Black
+    glow: 'rgba(0, 242, 255, 0.3)', // Glow effect
   },
   
   // Semantic Status Colors
@@ -44,12 +45,14 @@ export const colors = {
     },
   },
   
-  // Dark Mode Backgrounds (standardized)
+  // Tech Noir Backgrounds - OLED Optimized
   background: {
-    primary: '#0a0a0f',    // Main page background
-    secondary: '#0f0f1a',  // Cards, sections
-    tertiary: '#1a1a2e',   // Elevated elements
-    hover: '#252538',      // Hover states
+    primary: '#0A0B10',         // OLED Black (main page)
+    secondary: '#0F1115',       // Surface cards
+    tertiary: '#14161C',        // Elevated elements
+    hover: '#1A1D24',           // Hover states
+    glass: 'rgba(255, 255, 255, 0.05)', // Glassmorphism surface
+    glassHover: 'rgba(255, 255, 255, 0.08)',
   },
   
   // Text Colors
@@ -60,11 +63,12 @@ export const colors = {
     disabled: '#52525b',
   },
   
-  // Border Colors
+  // Border Colors - Tech Noir
   border: {
-    DEFAULT: '#27272a',
-    hover: '#3f3f46',
-    focus: '#c8ff00',
+    DEFAULT: 'rgba(255, 255, 255, 0.1)',    // Subtle white
+    hover: 'rgba(255, 255, 255, 0.15)',     // Hover state
+    focus: '#00F2FF',                        // Neon cyan focus
+    glass: '1px solid rgba(255, 255, 255, 0.1)', // Glassmorphism border
   },
 };
 
@@ -125,21 +129,24 @@ export const radius = {
   full: '9999px',
 };
 
-// Shadows (elevation system)
+// Shadows - Tech Noir Elevation System
 export const shadows = {
   sm: '0 1px 2px 0 rgba(0, 0, 0, 0.3)',
   DEFAULT: '0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.4)',
   md: '0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4)',
   lg: '0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4)',
   xl: '0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4)',
-  glow: '0 0 20px rgba(200, 255, 0, 0.3)',
+  glow: '0 0 20px rgba(0, 242, 255, 0.3)',           // Neon cyan glow
+  glowStrong: '0 0 30px rgba(0, 242, 255, 0.5)',    // Strong glow
+  glass: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',        // Glassmorphism shadow
 };
 
-// Transitions
+// Transitions - Tech Noir Standard (300ms cubic-bezier)
 export const transitions = {
-  fast: '150ms ease-in-out',
-  DEFAULT: '200ms ease-in-out',
-  slow: '300ms ease-in-out',
+  fast: '150ms cubic-bezier(0.4, 0, 0.2, 1)',
+  DEFAULT: '200ms cubic-bezier(0.4, 0, 0.2, 1)',
+  slow: '300ms cubic-bezier(0.4, 0, 0.2, 1)',  // Sovereign standard
+  glow: '300ms ease-in-out',
 };
 
 // Z-Index Scale
@@ -204,6 +211,27 @@ export const breakpoints = {
   '2xl': '1536px',
 };
 
+// Glassmorphism Utilities (Tech Noir Standard)
+export const glassmorphism = {
+  surface: {
+    background: 'rgba(255, 255, 255, 0.05)',
+    backdropFilter: 'blur(12px)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    borderRadius: '12px',
+  },
+  elevated: {
+    background: 'rgba(255, 255, 255, 0.08)',
+    backdropFilter: 'blur(16px)',
+    border: '1px solid rgba(255, 255, 255, 0.15)',
+    borderRadius: '16px',
+    boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+  },
+  glow: {
+    boxShadow: '0 0 20px rgba(0, 242, 255, 0.3)',
+    border: '1px solid rgba(0, 242, 255, 0.5)',
+  },
+};
+
 // Export default for easy importing
 export default {
   colors,
@@ -216,4 +244,5 @@ export default {
   chartColors,
   adminNavigation,
   breakpoints,
+  glassmorphism,
 };
