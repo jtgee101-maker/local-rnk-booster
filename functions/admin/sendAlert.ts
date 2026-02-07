@@ -1,4 +1,5 @@
 import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
 
 // Alert channels
 export enum AlertChannel {
@@ -572,7 +573,7 @@ export async function getAlertHistory(
 }
 
 // Main handler for Netlify function
-Deno.serve(async (req) => {
+Deno.serve(withDenoErrorHandler(async (req) => {
   try {
     const body = await req.json();
     const result = await sendAlert(body, req);

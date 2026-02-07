@@ -1,7 +1,9 @@
 /**
  * Delete a user (soft delete)
  */
-export default async function deleteUser(request) {
+
+import { withErrorHandler, FunctionError, successResponse } from './utils/errorHandler';
+async function deleteUserHandler(request) {
   try {
     // Verify admin access
     const currentUser = request.user;
@@ -172,3 +174,5 @@ async function logAdminAction({ adminId, action, targetId, targetType, details }
     console.error('Failed to log admin action:', error);
   }
 }
+
+export default withErrorHandler(deleteUserHandler);

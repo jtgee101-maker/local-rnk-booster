@@ -1,7 +1,9 @@
 /**
  * Update tenant status (activate, suspend, cancel)
  */
-export default async function updateTenantStatus(request) {
+
+import { withErrorHandler, FunctionError, successResponse } from './utils/errorHandler';
+async function updateTenantStatusHandler(request) {
   try {
     // Verify admin access
     const currentUser = request.user;
@@ -195,3 +197,5 @@ async function logAdminAction({ adminId, action, targetId, targetType, details }
     console.error('Failed to log admin action:', error);
   }
 }
+
+export default withErrorHandler(updateTenantStatusHandler);

@@ -1,10 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
 
 /**
  * Complete Deployment Readiness Check
  * Aggregates all validation reports and determines go/no-go status
  */
-Deno.serve(async (req) => {
+Deno.serve(withDenoErrorHandler(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();

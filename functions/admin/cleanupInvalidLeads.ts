@@ -1,10 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
 
 /**
  * ADMIN ONLY: Clean up leads with invalid data
  * Deletes leads without email or with invalid email format
  */
-Deno.serve(async (req) => {
+Deno.serve(withDenoErrorHandler(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     

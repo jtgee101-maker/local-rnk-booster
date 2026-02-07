@@ -1,5 +1,5 @@
 /**
- * Error Handler Utility for Netlify Functions
+ * Error Handler Utility for Base44 Functions
  * Standardizes error responses across all functions
  */
 
@@ -22,64 +22,95 @@ export const errorCodes = {
   SERVICE_UNAVAILABLE: { code: 'SERVICE_UNAVAILABLE', status: 503 },
 };
 
+/**
+ * Handle errors and return standardized response
+ * For Base44 functions (return objects)
+ */
 export function handleError(error) {
   console.error('Function error:', error);
 
   if (error instanceof FunctionError) {
     return {
-      statusCode: error.statusCode,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        error: error.code,
-        message: error.message,
-        timestamp: new Date().toISOString(),
-      }),
+      success: false,
+      error: error.message,
+      code: error.code,
+      timestamp: new Date().toISOString(),
     };
   }
 
   // Generic error response
   return {
-    statusCode: 500,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      error: 'INTERNAL_ERROR',
-      message: process.env.NODE_ENV === 'development' 
-        ? error.message 
-        : 'An unexpected error occurred',
-      timestamp: new Date().toISOString(),
-    }),
+    success: false,
+    error: process.env.NODE_ENV === 'development' 
+      ? error.message 
+      : 'An unexpected error occurred',
+    code: 'INTERNAL_ERROR',
+    timestamp: new Date().toISOString(),
   };
 }
 
-export function successResponse(data, statusCode = 200) {
+/**
+ * Create success response
+ * For Base44 functions (return objects)
+ */
+export function successResponse(data, meta = {}) {
   return {
-    statusCode,
-    headers: { 
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache',
-    },
-    body: JSON.stringify({
-      success: true,
-      data,
-      timestamp: new Date().toISOString(),
-    }),
+    success: true,
+    data,
+    ...meta,
+    timestamp: new Date().toISOString(),
   };
 }
 
-// Wrapper for handler functions
+/**
+ * Wrapper for Base44 handler functions
+ * Usage: export default withErrorHandler(handlerName);
+ */
 export function withErrorHandler(handler) {
-  return async (event, context) => {
+  return async (request, context) => {
     try {
-      return await handler(event, context);
+      return await handler(request, context);
     } catch (error) {
       return handleError(error);
     }
   };
 }
 
-// Validation helper
-export function validateRequired(body, fields) {
-  const missing = fields.filter(field => !body[field]);
+/**
+ * Wrapper for Deno.serve handlers
+ * Usage: Deno.serve(withDenoErrorHandler(async (req) => { ... }));
+ */
+export function withDenoErrorHandler(handler) {
+  return async (req) => {
+    try {
+      return await handler(req);
+    } catch (error) {
+      console.error('Deno serve error:', error);
+
+      const statusCode = error instanceof FunctionError ? error.statusCode : 500;
+      const code = error instanceof FunctionError ? error.code : 'INTERNAL_ERROR';
+      const message = error instanceof FunctionError 
+        ? error.message 
+        : (process.env.NODE_ENV === 'development' ? error.message : 'Internal server error');
+
+      return Response.json({
+        error: code,
+        message,
+        timestamp: new Date().toISOString(),
+      }, { status: statusCode });
+    }
+  };
+}
+
+/**
+ * Validation helper - throws FunctionError if fields missing
+ */
+export function validateRequired(data, fields) {
+  const missing = fields.filter(field => {
+    const value = data?.[field];
+    return value === undefined || value === null || value === '';
+  });
+  
   if (missing.length > 0) {
     throw new FunctionError(
       `Missing required fields: ${missing.join(', ')}`,
@@ -89,7 +120,41 @@ export function validateRequired(body, fields) {
   }
 }
 
-// Rate limit check helper
+/**
+ * Validate request body exists
+ */
+export function validateBody(request) {
+  if (!request?.data && !request?.body) {
+    throw new FunctionError('Request body is required', 400, 'BAD_REQUEST');
+  }
+  return request.data || request.body;
+}
+
+/**
+ * Validate admin access
+ */
+export function requireAdmin(request, allowedRoles = ['admin', 'super-admin']) {
+  const user = request?.user;
+  if (!user || !allowedRoles.includes(user.role)) {
+    throw new FunctionError('Admin access required', 403, 'FORBIDDEN');
+  }
+  return user;
+}
+
+/**
+ * Validate super admin access
+ */
+export function requireSuperAdmin(request) {
+  const user = request?.user;
+  if (!user || user.role !== 'super-admin') {
+    throw new FunctionError('Super admin access required', 403, 'FORBIDDEN');
+  }
+  return user;
+}
+
+/**
+ * Rate limit check helper
+ */
 export function checkRateLimit(ip, requests, windowMs = 60000, maxRequests = 100) {
   const now = Date.now();
   const windowStart = now - windowMs;
@@ -105,4 +170,33 @@ export function checkRateLimit(ip, requests, windowMs = 60000, maxRequests = 100
   }
   
   return recentRequests;
+}
+
+/**
+ * Async wrapper for logging errors without throwing
+ */
+export async function logErrorAsync(base44, errorType, message, metadata = {}) {
+  try {
+    if (base44?.asServiceRole?.entities?.ErrorLog) {
+      await base44.asServiceRole.entities.ErrorLog.create({
+        error_type: errorType,
+        severity: metadata.severity || 'medium',
+        message,
+        metadata: {
+          ...metadata,
+          timestamp: new Date().toISOString(),
+        },
+        resolved: false
+      });
+    } else if (base44?.functions?.invoke) {
+      await base44.functions.invoke('logError', {
+        error_type: errorType,
+        severity: metadata.severity || 'medium',
+        message,
+        metadata
+      });
+    }
+  } catch (e) {
+    console.error('Failed to log error:', e);
+  }
 }

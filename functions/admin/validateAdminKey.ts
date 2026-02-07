@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
 
 // Constant-time string comparison to prevent timing attacks
 function secureCompare(a, b) {
@@ -21,7 +22,7 @@ function secureCompare(a, b) {
   return result === 0;
 }
 
-Deno.serve(async (req) => {
+Deno.serve(withDenoErrorHandler(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const { key } = await req.json();

@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
 import Stripe from 'npm:stripe@17.5.0';
 
 const logError = async (base44, errorType, message, metadata) => {
@@ -14,7 +15,7 @@ const logError = async (base44, errorType, message, metadata) => {
   }
 };
 
-Deno.serve(async (req) => {
+Deno.serve(withDenoErrorHandler(async (req) => {
   const base44 = createClientFromRequest(req);
   const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') || Deno.env.get('STRIPE_TEST_KEY');
   const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');

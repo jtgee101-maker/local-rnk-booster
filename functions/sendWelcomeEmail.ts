@@ -1,4 +1,5 @@
-Deno.serve(async (req) => {
+import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
+Deno.serve(withDenoErrorHandler(async (req) => {
   try {
     const { leadData } = await req.json();
 

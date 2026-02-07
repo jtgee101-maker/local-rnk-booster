@@ -1,7 +1,9 @@
 /**
  * Create a new user
  */
-export default async function createUser(request) {
+
+import { withErrorHandler, FunctionError, successResponse } from './utils/errorHandler';
+async function createUserHandler(request) {
   try {
     // Verify admin access
     const currentUser = request.user;
@@ -168,3 +170,5 @@ async function logAdminAction({ adminId, action, targetId, targetType, details }
     console.error('Failed to log admin action:', error);
   }
 }
+
+export default withErrorHandler(createUserHandler);

@@ -1,4 +1,5 @@
 import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
 
 // Health check status
 export enum HealthStatus {
@@ -420,7 +421,7 @@ async function storeHealthCheck(
 }
 
 // Main handler
-Deno.serve(async (req) => {
+Deno.serve(withDenoErrorHandler(async (req) => {
   try {
     const url = new URL(req.url);
     const path = url.pathname;

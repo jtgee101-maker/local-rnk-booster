@@ -1,7 +1,9 @@
 /**
  * List users with pagination, filtering, and sorting support
  */
-export default async function listUsers(request) {
+
+import { withErrorHandler, FunctionError, successResponse } from './utils/errorHandler';
+async function listUsersHandler(request) {
   try {
     // Verify admin access
     const currentUser = request.user;
@@ -95,3 +97,5 @@ export default async function listUsers(request) {
     };
   }
 }
+
+export default withErrorHandler(listUsersHandler);

@@ -1,10 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
 
 /**
  * Automated Health Check Function
  * Runs comprehensive system checks and logs results
  */
-Deno.serve(async (req) => {
+Deno.serve(withDenoErrorHandler(async (req) => {
   const startTime = Date.now();
   
   try {

@@ -1,7 +1,9 @@
 /**
  * List tenants with pagination, filtering, and sorting
  */
-export default async function listTenants(request) {
+
+import { withErrorHandler, FunctionError, successResponse } from './utils/errorHandler';
+async function listTenantsHandler(request) {
   try {
     // Verify admin access
     const currentUser = request.user;
@@ -143,3 +145,5 @@ export default async function listTenants(request) {
     };
   }
 }
+
+export default withErrorHandler(listTenantsHandler);
