@@ -4,10 +4,11 @@ import { queryClientInstance } from '@/lib/query-client'
 import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config.lazy'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import { initGhostTracker } from '@/lib/utmGhostTracker';
 
 // Loading fallback component
 const PageLoader = () => (
@@ -75,6 +76,10 @@ const AuthenticatedApp = () => {
 
 
 function App() {
+  // Initialize UTM Ghost Tracker on app load
+  useEffect(() => {
+    initGhostTracker();
+  }, []);
 
   return (
     <AuthProvider>

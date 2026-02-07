@@ -1,248 +1,295 @@
-// BrandConfig.js - Single Source of Truth for LocalRnk Design System
-// This file centralizes all design tokens to eliminate hardcoded values
+/**
+ * BrandConfig.js
+ * 
+ * Tech Noir Design System for God Mode Dashboard
+ * Glassmorphism cards, neon cyan accents, OLED black backgrounds
+ */
 
-export const colors = {
-  // Brand Colors - Tech Noir Standard (Neon Cyan)
-  brand: {
-    DEFAULT: '#00F2FF',      // Neon Cyan (Sovereign Standard)
-    light: '#33F5FF',        // Light cyan
-    dark: '#00C2CC',         // Dark cyan
-    foreground: '#0A0B10',   // OLED Black
-    glow: 'rgba(0, 242, 255, 0.3)', // Glow effect
+export const TechNoirTheme = {
+  // Color Palette
+  colors: {
+    // Primary - Neon Cyan
+    primary: '#00F2FF',
+    primaryDark: '#00C4CC',
+    primaryLight: '#33F5FF',
+    primaryGlow: 'rgba(0, 242, 255, 0.5)',
+    
+    // Secondary - Acid Green
+    secondary: '#c8ff00',
+    secondaryDark: '#A3CC00',
+    secondaryLight: '#D4FF33',
+    secondaryGlow: 'rgba(200, 255, 0, 0.5)',
+    
+    // Background - OLED Black
+    background: '#000000',
+    surface: '#0a0a0a',
+    surfaceElevated: '#141414',
+    surfaceGlass: 'rgba(10, 10, 10, 0.8)',
+    
+    // Text
+    text: '#ffffff',
+    textSecondary: 'rgba(255, 255, 255, 0.7)',
+    textMuted: 'rgba(255, 255, 255, 0.5)',
+    
+    // Border
+    border: 'rgba(255, 255, 255, 0.1)',
+    borderHover: 'rgba(0, 242, 255, 0.3)',
+    
+    // Status
+    success: '#10b981',
+    warning: '#f59e0b',
+    error: '#ef4444',
+    info: '#3b82f6',
+    
+    // Gradient
+    gradientPrimary: 'linear-gradient(135deg, #00F2FF 0%, #c8ff00 100%)',
+    gradientSurface: 'linear-gradient(180deg, rgba(0, 242, 255, 0.05) 0%, transparent 100%)',
+    gradientGlow: 'radial-gradient(circle at top right, rgba(0, 242, 255, 0.15), transparent 70%)'
   },
   
-  // Semantic Status Colors
-  status: {
-    success: {
-      DEFAULT: '#22c55e',
-      light: '#4ade80',
-      dark: '#16a34a',
-      foreground: '#ffffff',
+  // Typography
+  typography: {
+    fontFamily: {
+      sans: 'Inter, system-ui, -apple-system, sans-serif',
+      mono: 'JetBrains Mono, Fira Code, monospace',
+      display: 'Inter, system-ui, sans-serif'
     },
-    warning: {
-      DEFAULT: '#f59e0b',
-      light: '#fbbf24',
-      dark: '#d97706',
-      foreground: '#0a0a0f',
+    sizes: {
+      xs: '0.75rem',
+      sm: '0.875rem',
+      base: '1rem',
+      lg: '1.125rem',
+      xl: '1.25rem',
+      '2xl': '1.5rem',
+      '3xl': '1.875rem',
+      '4xl': '2.25rem',
+      '5xl': '3rem'
     },
-    error: {
-      DEFAULT: '#ef4444',
-      light: '#f87171',
-      dark: '#dc2626',
-      foreground: '#ffffff',
-    },
-    info: {
-      DEFAULT: '#3b82f6',
-      light: '#60a5fa',
-      dark: '#2563eb',
-      foreground: '#ffffff',
-    },
-    neutral: {
-      DEFAULT: '#6b7280',
-      light: '#9ca3af',
-      dark: '#4b5563',
-      foreground: '#ffffff',
-    },
+    weights: {
+      normal: 400,
+      medium: 500,
+      semibold: 600,
+      bold: 700
+    }
   },
   
-  // Tech Noir Backgrounds - OLED Optimized
-  background: {
-    primary: '#0A0B10',         // OLED Black (main page)
-    secondary: '#0F1115',       // Surface cards
-    tertiary: '#14161C',        // Elevated elements
-    hover: '#1A1D24',           // Hover states
-    glass: 'rgba(255, 255, 255, 0.05)', // Glassmorphism surface
-    glassHover: 'rgba(255, 255, 255, 0.08)',
+  // Spacing
+  spacing: {
+    xs: '0.25rem',
+    sm: '0.5rem',
+    md: '1rem',
+    lg: '1.5rem',
+    xl: '2rem',
+    '2xl': '3rem',
+    '3xl': '4rem'
   },
   
-  // Text Colors
-  text: {
-    primary: '#ffffff',
-    secondary: '#a1a1aa',
-    muted: '#71717a',
-    disabled: '#52525b',
+  // Border Radius
+  borderRadius: {
+    sm: '0.375rem',
+    md: '0.5rem',
+    lg: '0.75rem',
+    xl: '1rem',
+    '2xl': '1.5rem',
+    full: '9999px'
   },
   
-  // Border Colors - Tech Noir
-  border: {
-    DEFAULT: 'rgba(255, 255, 255, 0.1)',    // Subtle white
-    hover: 'rgba(255, 255, 255, 0.15)',     // Hover state
-    focus: '#00F2FF',                        // Neon cyan focus
-    glass: '1px solid rgba(255, 255, 255, 0.1)', // Glassmorphism border
+  // Shadows
+  shadows: {
+    sm: '0 1px 2px 0 rgba(0, 0, 0, 0.3)',
+    md: '0 4px 6px -1px rgba(0, 0, 0, 0.4)',
+    lg: '0 10px 15px -3px rgba(0, 0, 0, 0.5)',
+    xl: '0 20px 25px -5px rgba(0, 0, 0, 0.6)',
+    glow: '0 0 20px rgba(0, 242, 255, 0.3)',
+    glowSecondary: '0 0 20px rgba(200, 255, 0, 0.3)',
+    inner: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.3)'
   },
+  
+  // Blur
+  blur: {
+    sm: '4px',
+    md: '8px',
+    lg: '12px',
+    xl: '16px',
+    '2xl': '24px'
+  },
+  
+  // Transitions
+  transitions: {
+    fast: '150ms ease',
+    normal: '250ms ease',
+    slow: '350ms ease',
+    spring: '500ms cubic-bezier(0.34, 1.56, 0.64, 1)'
+  },
+  
+  // Z-index scale
+  zIndex: {
+    hide: -1,
+    base: 0,
+    docked: 10,
+    dropdown: 1000,
+    sticky: 1100,
+    banner: 1200,
+    overlay: 1300,
+    modal: 1400,
+    popover: 1500,
+    skipLink: 1600,
+    toast: 1700,
+    tooltip: 1800
+  }
 };
 
-// Spacing Scale (consistent 4px grid)
-export const spacing = {
-  0: '0px',
-  1: '4px',
-  2: '8px',
-  3: '12px',
-  4: '16px',
-  5: '20px',
-  6: '24px',
-  8: '32px',
-  10: '40px',
-  12: '48px',
-  16: '64px',
+// Glassmorphism card styles
+export const glassCardStyles = {
+  background: 'rgba(10, 10, 10, 0.8)',
+  backdropFilter: 'blur(12px)',
+  WebkitBackdropFilter: 'blur(12px)',
+  border: '1px solid rgba(255, 255, 255, 0.1)',
+  borderRadius: '1rem',
+  boxShadow: '0 4px 24px rgba(0, 242, 255, 0.05)'
 };
 
-// Typography Scale
-export const typography = {
-  fontFamily: {
-    sans: ['Inter', 'system-ui', 'sans-serif'],
-    mono: ['JetBrains Mono', 'monospace'],
+// Neon button styles
+export const neonButtonStyles = {
+  primary: {
+    background: '#00F2FF',
+    color: '#000000',
+    boxShadow: '0 0 20px rgba(0, 242, 255, 0.4)',
+    border: 'none',
+    borderRadius: '0.5rem',
+    fontWeight: 600,
+    transition: 'all 250ms ease'
   },
-  sizes: {
-    xs: '12px',    // Captions, badges
-    sm: '14px',    // Body small
-    base: '16px',  // Body default
-    lg: '18px',    // Lead text
-    xl: '20px',    // H6
-    '2xl': '24px', // H5
-    '3xl': '30px', // H4
-    '4xl': '36px', // H3
-    '5xl': '48px', // H2
-    '6xl': '60px', // H1
-  },
-  weights: {
-    normal: 400,
-    medium: 500,
-    semibold: 600,
-    bold: 700,
-  },
-  lineHeights: {
-    tight: '1.25',
-    normal: '1.5',
-    relaxed: '1.75',
-  },
-};
-
-// Border Radius
-export const radius = {
-  none: '0px',
-  sm: '4px',
-  DEFAULT: '6px',
-  md: '8px',
-  lg: '12px',
-  xl: '16px',
-  full: '9999px',
-};
-
-// Shadows - Tech Noir Elevation System
-export const shadows = {
-  sm: '0 1px 2px 0 rgba(0, 0, 0, 0.3)',
-  DEFAULT: '0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.4)',
-  md: '0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4)',
-  lg: '0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4)',
-  xl: '0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4)',
-  glow: '0 0 20px rgba(0, 242, 255, 0.3)',           // Neon cyan glow
-  glowStrong: '0 0 30px rgba(0, 242, 255, 0.5)',    // Strong glow
-  glass: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',        // Glassmorphism shadow
-};
-
-// Transitions - Tech Noir Standard (300ms cubic-bezier)
-export const transitions = {
-  fast: '150ms cubic-bezier(0.4, 0, 0.2, 1)',
-  DEFAULT: '200ms cubic-bezier(0.4, 0, 0.2, 1)',
-  slow: '300ms cubic-bezier(0.4, 0, 0.2, 1)',  // Sovereign standard
-  glow: '300ms ease-in-out',
-};
-
-// Z-Index Scale
-export const zIndex = {
-  base: 0,
-  dropdown: 100,
-  sticky: 200,
-  fixed: 300,
-  modalBackdrop: 400,
-  modal: 500,
-  popover: 600,
-  tooltip: 700,
-  toast: 800,
-};
-
-// Chart Colors (color-blind safe)
-export const chartColors = [
-  '#3b82f6', // Blue
-  '#22c55e', // Green
-  '#f59e0b', // Yellow/Orange
-  '#ef4444', // Red
-  '#8b5cf6', // Purple
-  '#06b6d4', // Cyan
-  '#f97316', // Orange
-  '#ec4899', // Pink
-];
-
-// Admin Navigation Sections (for restructuring 31 tabs)
-export const adminNavigation = {
-  overview: {
-    label: 'Overview',
-    items: ['Dashboard', 'Metrics', 'Activity Feed'],
-  },
-  users: {
-    label: 'Users & Access',
-    items: ['User Management', 'Tenants', 'Roles & Permissions'],
-  },
-  analytics: {
-    label: 'Analytics',
-    items: ['Advanced Analytics', 'Reports', 'Funnels', 'A/B Tests'],
-  },
-  marketing: {
-    label: 'Marketing',
-    items: ['Campaigns', 'Email', 'Affiliates', 'Segments'],
-  },
-  system: {
-    label: 'System',
-    items: ['Health Monitor', 'Security', 'Settings', 'Backups'],
-  },
-  development: {
-    label: 'Development',
-    items: ['Testing', 'Error Tracking', 'Logs', 'API'],
-  },
-};
-
-// Breakpoints (Tailwind compatible)
-export const breakpoints = {
-  sm: '640px',
-  md: '768px',
-  lg: '1024px',
-  xl: '1280px',
-  '2xl': '1536px',
-};
-
-// Glassmorphism Utilities (Tech Noir Standard)
-export const glassmorphism = {
-  surface: {
-    background: 'rgba(255, 255, 255, 0.05)',
-    backdropFilter: 'blur(12px)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    borderRadius: '12px',
-  },
-  elevated: {
-    background: 'rgba(255, 255, 255, 0.08)',
-    backdropFilter: 'blur(16px)',
-    border: '1px solid rgba(255, 255, 255, 0.15)',
-    borderRadius: '16px',
-    boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
-  },
-  glow: {
-    boxShadow: '0 0 20px rgba(0, 242, 255, 0.3)',
+  secondary: {
+    background: 'transparent',
+    color: '#00F2FF',
     border: '1px solid rgba(0, 242, 255, 0.5)',
+    borderRadius: '0.5rem',
+    fontWeight: 500,
+    transition: 'all 250ms ease'
   },
+  ghost: {
+    background: 'transparent',
+    color: 'rgba(255, 255, 255, 0.7)',
+    border: 'none',
+    borderRadius: '0.5rem',
+    fontWeight: 500,
+    transition: 'all 250ms ease'
+  }
 };
 
-// Export default for easy importing
-export default {
-  colors,
-  spacing,
-  typography,
-  radius,
-  shadows,
-  transitions,
-  zIndex,
-  chartColors,
-  adminNavigation,
-  breakpoints,
-  glassmorphism,
+// Animation keyframes
+export const animations = {
+  fadeIn: `@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }`,
+  
+  slideUp: `@keyframes slideUp {
+    from { 
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }`,
+  
+  pulse: `@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }`,
+  
+  glow: `@keyframes glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(0, 242, 255, 0.3); }
+    50% { box-shadow: 0 0 40px rgba(0, 242, 255, 0.6); }
+  }`,
+  
+  spin: `@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }`
 };
+
+// Utility classes
+export const utilityClasses = {
+  glass: `
+    bg-[#0a0a0a]/80 
+    backdrop-blur-xl 
+    border 
+    border-white/10 
+    rounded-2xl
+  `,
+  
+  neonText: `
+    text-[#00F2FF] 
+    drop-shadow-[0_0_10px_rgba(0,242,255,0.5)]
+  `,
+  
+  neonBorder: `
+    border-[#00F2FF]/50 
+    shadow-[0_0_20px_rgba(0,242,255,0.1)]
+  `,
+  
+  hoverGlow: `
+    transition-all 
+    duration-300 
+    hover:border-[#00F2FF]/30 
+    hover:shadow-[0_0_30px_rgba(0,242,255,0.1)]
+  `,
+  
+  gradientText: `
+    bg-gradient-to-r 
+    from-[#00F2FF] 
+    to-[#c8ff00] 
+    bg-clip-text 
+    text-transparent
+  `
+};
+
+// Status colors mapping
+export const statusColors = {
+  active: {
+    bg: 'bg-emerald-500/20',
+    text: 'text-emerald-400',
+    border: 'border-emerald-500/30',
+    glow: 'shadow-emerald-500/20'
+  },
+  pending: {
+    bg: 'bg-amber-500/20',
+    text: 'text-amber-400',
+    border: 'border-amber-500/30',
+    glow: 'shadow-amber-500/20'
+  },
+  suspended: {
+    bg: 'bg-red-500/20',
+    text: 'text-red-400',
+    border: 'border-red-500/30',
+    glow: 'shadow-red-500/20'
+  },
+  cancelled: {
+    bg: 'bg-gray-500/20',
+    text: 'text-gray-400',
+    border: 'border-gray-500/30',
+    glow: 'shadow-gray-500/20'
+  },
+  healthy: {
+    bg: 'bg-emerald-500/20',
+    text: 'text-emerald-400',
+    border: 'border-emerald-500/30'
+  },
+  degraded: {
+    bg: 'bg-amber-500/20',
+    text: 'text-amber-400',
+    border: 'border-amber-500/30'
+  },
+  unhealthy: {
+    bg: 'bg-red-500/20',
+    text: 'text-red-400',
+    border: 'border-red-500/30'
+  }
+};
+
+// Export default theme configuration
+export default TechNoirTheme;
