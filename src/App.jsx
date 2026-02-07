@@ -8,7 +8,7 @@ import { Suspense, useEffect } from 'react';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-import { initGhostTracker } from '@/lib/utmGhostTracker';
+import { initGhostTracker } from '@/lib/utmGhostTracker.jsx';
 
 // Loading fallback component
 const PageLoader = () => (
