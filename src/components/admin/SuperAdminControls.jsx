@@ -1,14 +1,14 @@
 // Super Admin Controls Component
 // Only visible to admin users
 import React, { useState } from 'react';
-import { useTheme } from './ThemeProvider';
+import { useTheme } from '@/components/ThemeProvider';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-export function SuperAdminControls() {
+export default function SuperAdminControls() {
   const { config, setConfig } = useTheme();
   const [isSaving, setIsSaving] = useState(false);
 
