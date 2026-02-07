@@ -112,7 +112,7 @@ const HealthIndicator = ({ status }) => {
 };
 
 // Tenant card component
-const TenantCard = ({ tenant }) => {
+const TenantCard = ({ tenant, onManage }) => {
   return (
     <motion.div
       layout
@@ -169,7 +169,12 @@ const TenantCard = ({ tenant }) => {
         
         <div className="flex items-center justify-between pt-4 border-t border-gray-800/50">
           <HealthIndicator status={tenant.health_status} />
-          <Button variant="ghost" size="sm" className="text-[#00F2FF] hover:text-[#00F2FF] hover:bg-[#00F2FF]/10">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="text-[#00F2FF] hover:text-[#00F2FF] hover:bg-[#00F2FF]/10"
+            onClick={() => onManage(tenant)}
+          >
             Manage
           </Button>
         </div>
@@ -232,6 +237,12 @@ export default function GodModeDashboard() {
   const [tenants, setTenants] = useState(MOCK_TENANTS);
   const [loading, setLoading] = useState(true);
   const [useRealData, setUseRealData] = useState(false);
+
+  const handleManageTenant = (tenant) => {
+    setSelectedTenantId(tenant.id);
+    // Navigate to tenant management page or open modal
+    alert(`Managing tenant: ${tenant.name}\nID: ${tenant.id}\n\nTenant management interface coming soon!`);
+  };
 
   // Try to fetch real data from Base44
   useEffect(() => {
@@ -388,7 +399,7 @@ export default function GodModeDashboard() {
             {/* Tenant Grid */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredTenants.map((tenant) => (
-                <TenantCard key={tenant.id} tenant={tenant} />
+                <TenantCard key={tenant.id} tenant={tenant} onManage={handleManageTenant} />
               ))}
             </div>
             

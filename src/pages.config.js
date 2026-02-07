@@ -119,6 +119,7 @@ import Upsell1 from './pages/Upsell1';
 import UserJourneyTest from './pages/UserJourneyTest';
 import V2Start from './pages/V2Start';
 import GodModeDashboard from './pages/GodModeDashboard';
+import godmodedashboardTest from './pages/GodModeDashboard.test';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminTenants from './pages/AdminTenants';
 import AdminUsers from './pages/AdminUsers';
@@ -203,6 +204,7 @@ export const PAGES = {
     "UserJourneyTest": UserJourneyTest,
     "V2Start": V2Start,
     "GodModeDashboard": GodModeDashboard,
+    "GodModeDashboard.test": godmodedashboardTest,
     "AdminDashboard": AdminDashboard,
     "AdminTenants": AdminTenants,
     "AdminUsers": AdminUsers,
