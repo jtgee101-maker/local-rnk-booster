@@ -480,7 +480,7 @@ class SquareProcessor extends PaymentProcessor {
  * Creates the appropriate processor based on configuration
  */
 export class PaymentProcessorFactory {
-  static create(config) {
+  static async create(config) {
     switch (config.type.toLowerCase()) {
       case 'stripe':
         return new StripeProcessor(config);
@@ -488,6 +488,22 @@ export class PaymentProcessorFactory {
         return new PayPalProcessor(config);
       case 'square':
         return new SquareProcessor(config);
+      case 'geeniuspay':
+        const { GeeNiusPayProcessor } = await import('./payment-processors/geeniuspay.js');
+        return new GeeNiusPayProcessor(config);
+      case 'whop':
+        const { WhopProcessor } = await import('./payment-processors/whop.js');
+        return new WhopProcessor(config);
+      case 'cryptoprocessing':
+      case 'crypto':
+        const { CryptoProcessingAdapter } = await import('./payment-processors/crypto.js');
+        return new CryptoProcessingAdapter(config);
+      case 'nmi':
+      case 'authorizenet':
+      case 'payra':
+      case 'custom-embed':
+        // These require additional implementation
+        throw new Error(`${config.type} processor is being configured. Contact support for setup.`);
       default:
         throw new Error(`Unsupported payment processor: ${config.type}`);
     }
@@ -504,7 +520,8 @@ export class PaymentProcessorFactory {
         description: 'Credit cards, digital wallets, and more',
         logo: '/assets/processors/stripe.svg',
         features: ['Credit Cards', 'Apple Pay', 'Google Pay', 'Bank Transfers'],
-        setup: 'Easy - Get started in minutes'
+        setup: 'Easy - Get started in minutes',
+        category: 'Traditional'
       },
       {
         id: 'paypal',
@@ -512,7 +529,8 @@ export class PaymentProcessorFactory {
         description: 'PayPal and credit cards',
         logo: '/assets/processors/paypal.svg',
         features: ['PayPal', 'Credit Cards', 'Pay Later'],
-        setup: 'Easy - Connect your PayPal account'
+        setup: 'Easy - Connect your PayPal account',
+        category: 'Traditional'
       },
       {
         id: 'square',
@@ -520,7 +538,76 @@ export class PaymentProcessorFactory {
         description: 'Accept payments online and in-person',
         logo: '/assets/processors/square.svg',
         features: ['Credit Cards', 'Apple Pay', 'Google Pay', 'Cash App Pay'],
-        setup: 'Moderate - Requires Square account'
+        setup: 'Moderate - Requires Square account',
+        category: 'Traditional'
+      },
+      {
+        id: 'geeniuspay',
+        name: 'GeeNiusPay',
+        description: 'Custom payment solution for local businesses',
+        logo: '/assets/processors/geeniuspay.svg',
+        features: ['Credit Cards', 'ACH', 'Local Payments', 'Recurring Billing'],
+        setup: 'Easy - Custom integration for GMB Rank Booster',
+        category: 'Custom',
+        recommended: true
+      },
+      {
+        id: 'whop',
+        name: 'Whop.com',
+        description: 'Checkout links for digital products',
+        logo: '/assets/processors/whop.svg',
+        features: ['Checkout Links', 'Digital Products', 'Subscriptions', 'Discord Integration'],
+        setup: 'Easy - Generate checkout links',
+        category: 'Digital Products',
+        url: 'https://whop.com'
+      },
+      {
+        id: 'payra',
+        name: 'Payra.com',
+        description: 'Payment processor for SaaS businesses',
+        logo: '/assets/processors/payra.svg',
+        features: ['Credit Cards', 'Subscriptions', 'Invoicing', 'Analytics'],
+        setup: 'Moderate - SaaS-focused features',
+        category: 'SaaS',
+        url: 'https://payra.com'
+      },
+      {
+        id: 'nmi',
+        name: 'NMI (Network Merchants)',
+        description: 'Gateway for credit card processing',
+        logo: '/assets/processors/nmi.svg',
+        features: ['Credit Cards', 'ACH', 'Recurring Billing', 'Tokenization'],
+        setup: 'Advanced - Merchant account required',
+        category: 'Gateway'
+      },
+      {
+        id: 'authorizenet',
+        name: 'Authorize.Net',
+        description: 'Trusted payment gateway since 1996',
+        logo: '/assets/processors/authorizenet.svg',
+        features: ['Credit Cards', 'eChecks', 'Recurring Billing', 'Fraud Detection'],
+        setup: 'Moderate - Merchant account required',
+        category: 'Gateway'
+      },
+      {
+        id: 'cryptoprocessing',
+        name: 'Crypto Processing',
+        description: 'Accept cryptocurrency payments',
+        logo: '/assets/processors/cryptoprocessing.svg',
+        features: ['Bitcoin', 'Ethereum', 'USDT', '150+ Cryptocurrencies'],
+        setup: 'Easy - Partner integration',
+        category: 'Cryptocurrency',
+        url: 'https://cryptoprocessing.com',
+        partner: true
+      },
+      {
+        id: 'custom-embed',
+        name: 'Custom Embed API',
+        description: 'Integrate any third-party payment processor',
+        logo: '/assets/processors/custom.svg',
+        features: ['Custom API Integration', 'Webhook Support', 'Flexible Configuration'],
+        setup: 'Advanced - Developer integration required',
+        category: 'Custom Integration'
       }
     ];
   }
