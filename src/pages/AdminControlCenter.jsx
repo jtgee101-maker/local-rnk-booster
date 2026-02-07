@@ -1,5 +1,6 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { base44 } from '@/api/base44Client';
+import { colors } from '@/config/BrandConfig';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -92,7 +93,7 @@ function MetricCard({ icon: Icon, label, value, change, trend, color = "blue", i
       whileHover={{ y: -4 }}
       className="relative overflow-hidden rounded-xl border border-gray-700 bg-gradient-to-br from-gray-800/50 to-gray-900/50 p-6 backdrop-blur-sm"
     >
-      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#c8ff00]/10 to-transparent rounded-full blur-3xl" />
+      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[var(--brand-color)]/10 to-transparent rounded-full blur-3xl" style={{'--brand-color': colors.brand.DEFAULT}} />
       
       <div className="relative z-10">
         <div className="flex items-start justify-between">
@@ -320,7 +321,7 @@ function FunnelModeSwitcher() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <Loader2 className="w-6 h-6 text-[#c8ff00] animate-spin" />
+        <Loader2 className="w-6 h-6 animate-spin" style={{color: colors.brand.DEFAULT}} />
       </div>
     );
   }
@@ -406,7 +407,7 @@ function FunnelModeSwitcher() {
         >
           {currentMode === 'v2' && (
             <div className="absolute top-4 right-4">
-              <Badge className="bg-[#c8ff00] text-black font-bold">ACTIVE</Badge>
+              <Badge className="font-bold" style={{backgroundColor: colors.brand.DEFAULT, color: colors.brand.foreground}}>ACTIVE</Badge>
             </div>
           )}
           
@@ -538,7 +539,7 @@ function FunnelModeSwitcher() {
         animate={{ opacity: 1 }}
         className={`p-4 rounded-xl border ${
           currentMode === 'v2' 
-            ? 'border-[#c8ff00]/30 bg-[#c8ff00]/5' 
+            ? 'border-[#c8ff00]/30 bg-[#c8ff00]/5'
             : currentMode === 'v3'
             ? 'border-green-500/30 bg-green-500/5'
             : 'border-purple-500/30 bg-purple-500/5'
@@ -593,7 +594,7 @@ function FunnelModeSwitcher() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 bg-gray-800/30 rounded-xl border border-gray-700">
                 <p className="text-xs text-gray-400 mb-2">V2 Entry Point</p>
-                <code className="text-sm text-[#c8ff00] font-mono">/Quiz</code>
+                <code className="text-sm font-mono" style={{color: colors.brand.DEFAULT}}>/Quiz</code>
               </div>
               <div className="p-4 bg-gray-800/30 rounded-xl border border-gray-700">
                 <p className="text-xs text-gray-400 mb-2">V3 Entry Point</p>
@@ -945,7 +946,7 @@ export default function AdminControlCenter() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f] flex items-center justify-center">
         <div className="text-center space-y-4">
-          <Loader2 className="w-8 h-8 text-[#c8ff00] animate-spin mx-auto" />
+          <Loader2 className="w-8 h-8 animate-spin mx-auto" style={{color: colors.brand.DEFAULT}} />
           <p className="text-gray-400">
             {error || 'Loading Admin Control Center...'}
           </p>
@@ -1053,7 +1054,7 @@ export default function AdminControlCenter() {
                 <TabsTrigger 
                   key={tab.value}
                   value={tab.value}
-                  className="flex items-center gap-2 px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg data-[state=active]:bg-[#c8ff00] data-[state=active]:text-black text-gray-400 hover:text-white transition-all whitespace-nowrap"
+                  className="flex items-center gap-2 px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg data-[state=active]:bg-[var(--brand-color)] data-[state=active]:text-black text-gray-400 hover:text-white transition-all whitespace-nowrap" style={{'--brand-color': colors.brand.DEFAULT}}
                 >
                   <tab.icon className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
                   <span className="text-xs lg:text-sm font-medium">{tab.label}</span>
@@ -1319,8 +1320,8 @@ export default function AdminControlCenter() {
           <Card className="border-gray-700 bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm">
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-[#c8ff00]/10 rounded-lg">
-                  <Settings className="w-5 h-5 text-[#c8ff00]" />
+                <div className="p-2 rounded-lg" style={{backgroundColor: `${colors.brand.DEFAULT}1a`}}>
+                  <Settings className="w-5 h-5" style={{color: colors.brand.DEFAULT}} />
                 </div>
                 <div>
                   <CardTitle className="text-white">Funnel Mode Control</CardTitle>
