@@ -6,7 +6,7 @@ import {
   hasUTMParams, 
   clearUTMParams,
   trackConversion as trackConv
-} from '@/lib/utmGhostTracker.jsx';
+} from '@/lib/ghostTracker.jsx';
 
 /**
  * useUTMTracker - React Hook for UTM Ghost Tracking
