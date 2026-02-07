@@ -1,7 +1,8 @@
 import { quizSubmissionTemplate } from './utils/emailTemplates.js';
+import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
 import { enhancedAuditTemplate } from './utils/enhancedEmailTemplates.js';
 
-Deno.serve(async (req) => {
+Deno.serve(withDenoErrorHandler(async (req) => {
   try {
     const { leadData, analysis } = await req.json();
 

@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
 
 function sanitizeInput(input) {
   if (typeof input !== 'string') return '';
@@ -6,7 +7,7 @@ function sanitizeInput(input) {
   return input.trim().slice(0, 200).replace(/[<>{}[\]\\]/g, '');
 }
 
-Deno.serve(async (req) => {
+Deno.serve(withDenoErrorHandler(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json();

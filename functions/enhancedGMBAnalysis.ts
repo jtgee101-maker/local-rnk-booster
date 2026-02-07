@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
 import { logError } from './utils/errorLogging.js';
 
 /**
@@ -7,7 +8,7 @@ import { logError } from './utils/errorLogging.js';
  * More robust scoring and comprehensive email insights
  */
 
-Deno.serve(async (req) => {
+Deno.serve(withDenoErrorHandler(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const payload = await req.json();

@@ -1,8 +1,9 @@
 import { Resend } from 'npm:resend@3.0.0';
+import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
-Deno.serve(async (req) => {
+Deno.serve(withDenoErrorHandler(async (req) => {
   try {
     console.log('=== RESEND API TEST ===');
     console.log('API Key exists:', !!Deno.env.get('RESEND_API_KEY'));

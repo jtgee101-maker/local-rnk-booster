@@ -4,6 +4,7 @@
  */
 
 import dns from 'dns';
+import { withErrorHandler, FunctionError, successResponse } from '../utils/errorHandler';
 import { promisify } from 'util';
 
 const resolveCname = promisify(dns.resolveCname);
@@ -229,7 +230,7 @@ export async function checkPropagation(domain: string): Promise<{
 }
 
 // Base44 function export
-export default async function handler(req: any) {
+async function handlerHandler(req: any) {
   const { domain } = req.query;
 
   if (!domain) {
@@ -268,3 +269,5 @@ export default async function handler(req: any) {
     };
   }
 }
+
+export default withErrorHandler(handlerHandler);

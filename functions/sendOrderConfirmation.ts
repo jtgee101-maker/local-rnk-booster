@@ -3,7 +3,7 @@ import { orderConfirmationTemplate } from './utils/emailTemplates.js';
 import { logError, handleFunctionError } from './utils/errorLogging.js';
 import { sendEmailWithRetry } from './utils/emailRetry.js';
 
-Deno.serve(async (req) => {
+Deno.serve(withDenoErrorHandler(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const { email, businessName, orderAmount, productName } = await req.json();

@@ -1,11 +1,12 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
 
 /**
  * Comprehensive funnel testing function
  * Tests all critical paths: Quiz → Upsell1 → Upsell → ThankYou
  * Logs any errors/issues to ErrorLog entity for admin review
  */
-Deno.serve(async (req) => {
+Deno.serve(withDenoErrorHandler(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();

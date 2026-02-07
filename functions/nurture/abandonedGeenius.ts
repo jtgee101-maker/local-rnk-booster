@@ -1,10 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
 
 /**
  * Abandoned GeeNiusPath Follow-up
  * Targets leads who viewed results but haven't converted to any pathway
  */
-Deno.serve(async (req) => {
+Deno.serve(withDenoErrorHandler(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const { daysSince = 7 } = await req.json();
