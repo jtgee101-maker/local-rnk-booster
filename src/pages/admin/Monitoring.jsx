@@ -22,88 +22,91 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/components/ui/use-toast';
 
-// Types
-interface HealthCheck {
-  name: string;
-  status: 'healthy' | 'degraded' | 'unhealthy';
-  responseTime: number;
-  lastChecked: string;
-  message?: string;
-}
+// Types (JSDoc for type checking in JavaScript)
+/**
+ * @typedef {Object} HealthCheck
+ * @property {string} name
+ * @property {'healthy' | 'degraded' | 'unhealthy'} status
+ * @property {number} responseTime
+ * @property {string} lastChecked
+ * @property {string} [message]
+ */
 
-interface HealthReport {
-  status: 'healthy' | 'degraded' | 'unhealthy';
-  timestamp: string;
-  version: string;
-  environment: string;
-  checks: HealthCheck[];
-  summary: {
-    total: number;
-    healthy: number;
-    degraded: number;
-    unhealthy: number;
-  };
-}
+/**
+ * @typedef {Object} HealthReport
+ * @property {'healthy' | 'degraded' | 'unhealthy'} status
+ * @property {string} timestamp
+ * @property {string} version
+ * @property {string} environment
+ * @property {HealthCheck[]} checks
+ * @property {Object} summary
+ * @property {number} summary.total
+ * @property {number} summary.healthy
+ * @property {number} summary.degraded
+ * @property {number} summary.unhealthy
+ */
 
-interface ErrorLog {
-  _id: string;
-  error_type: string;
-  category: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  message: string;
-  stack_trace?: string;
-  created_at: string;
-  context?: {
-    url?: string;
-    method?: string;
-    userId?: string;
-    ip?: string;
-  };
-}
+/**
+ * @typedef {Object} ErrorLog
+ * @property {string} _id
+ * @property {string} error_type
+ * @property {string} category
+ * @property {'low' | 'medium' | 'high' | 'critical'} severity
+ * @property {string} message
+ * @property {string} [stack_trace]
+ * @property {string} created_at
+ * @property {Object} [context]
+ * @property {string} [context.url]
+ * @property {string} [context.method]
+ * @property {string} [context.userId]
+ * @property {string} [context.ip]
+ */
 
-interface Alert {
-  _id: string;
-  type: string;
-  severity: 'info' | 'warning' | 'error' | 'critical';
-  title: string;
-  message: string;
-  status: 'pending' | 'sent' | 'failed' | 'acknowledged' | 'resolved';
-  created_at: string;
-  sent_at?: string;
-}
+/**
+ * @typedef {Object} Alert
+ * @property {string} _id
+ * @property {string} type
+ * @property {'info' | 'warning' | 'error' | 'critical'} severity
+ * @property {string} title
+ * @property {string} message
+ * @property {'pending' | 'sent' | 'failed' | 'acknowledged' | 'resolved'} status
+ * @property {string} created_at
+ * @property {string} [sent_at]
+ */
 
-interface RequestMetric {
-  timestamp: string;
-  count: number;
-  avgResponseTime: number;
-  errorCount: number;
-}
+/**
+ * @typedef {Object} RequestMetric
+ * @property {string} timestamp
+ * @property {number} count
+ * @property {number} avgResponseTime
+ * @property {number} errorCount
+ */
 
 // API functions
-const fetchHealthStatus = async (): Promise<HealthReport> => {
+const fetchHealthStatus = async () => {
   const response = await fetch('/.netlify/functions/health');
   if (!response.ok) throw new Error('Failed to fetch health status');
   return response.json();
 };
 
-const fetchErrorLogs = async (limit = 50): Promise<ErrorLog[]> => {
+const fetchErrorLogs = async (limit = 50) => {
   const response = await fetch(`/.netlify/functions/admin/logError?limit=${limit}`);
   if (!response.ok) throw new Error('Failed to fetch error logs');
   const data = await response.json();
   return data.errors || [];
 };
 
-const fetchAlerts = async (limit = 20): Promise<Alert[]> => {
+const fetchAlerts = async (limit = 20) => {
   const response = await fetch(`/.netlify/functions/admin/sendAlert?limit=${limit}`);
   if (!response.ok) throw new Error('Failed to fetch alerts');
   const data = await response.json();
   return data.alerts || [];
 };
 
-const fetchMetrics = async (hours = 24): Promise<RequestMetric[]> => {
+const fetchMetrics = async (hours = 24) => {
   // This would be a real API endpoint in production
   // For now, generate mock data
-  const data: RequestMetric[] = [];
+  const data = [];
   const now = new Date();
   for (let i = hours; i >= 0; i--) {
     const timestamp = new Date(now.getTime() - i * 60 * 60 * 1000);
@@ -117,7 +120,7 @@ const fetchMetrics = async (hours = 24): Promise<RequestMetric[]> => {
   return data;
 };
 
-const acknowledgeAlertAPI = async (alertId: string): Promise<void> => {
+const acknowledgeAlertAPI = async (alertId) => {
   const response = await fetch('/.netlify/functions/admin/sendAlert', {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
@@ -127,7 +130,7 @@ const acknowledgeAlertAPI = async (alertId: string): Promise<void> => {
 };
 
 // Helper functions
-const getStatusColor = (status: string): string => {
+const getStatusColor = (status) => {
   switch (status) {
     case 'healthy':
     case 'sent':
@@ -149,7 +152,7 @@ const getStatusColor = (status: string): string => {
   }
 };
 
-const getSeverityColor = (severity: string): string => {
+const getSeverityColor = (severity) => {
   switch (severity) {
     case 'critical':
       return 'text-red-600 bg-red-50';
@@ -167,25 +170,17 @@ const getSeverityColor = (severity: string): string => {
   }
 };
 
-const formatResponseTime = (ms: number): string => {
+const formatResponseTime = (ms) => {
   if (ms < 1000) return `${ms}ms`;
   return `${(ms / 1000).toFixed(2)}s`;
 };
 
-const formatDate = (dateString: string): string => {
+const formatDate = (dateString) => {
   return new Date(dateString).toLocaleString();
 };
 
 // Components
-const StatusCard: React.FC<{
-  title: string;
-  value: string | number;
-  subtitle?: string;
-  icon: React.ReactNode;
-  trend?: 'up' | 'down' | 'neutral';
-  trendValue?: string;
-  status?: 'healthy' | 'warning' | 'error';
-}> = ({ title, value, subtitle, icon, trend, trendValue, status }) => {
+const StatusCard = ({ title, value, subtitle, icon, trend, trendValue, status }) => {
   const statusColors = {
     healthy: 'border-green-200 bg-green-50/50',
     warning: 'border-yellow-200 bg-yellow-50/50',
@@ -228,7 +223,7 @@ const StatusCard: React.FC<{
   );
 };
 
-const HealthCheckItem: React.FC<{ check: HealthCheck }> = ({ check }) => {
+const HealthCheckItem = ({ check }) => {
   const statusIcons = {
     healthy: <CheckCircle className="text-green-500" size={20} />,
     degraded: <AlertTriangle className="text-yellow-500" size={20} />,
@@ -258,11 +253,7 @@ const HealthCheckItem: React.FC<{ check: HealthCheck }> = ({ check }) => {
   );
 };
 
-const ErrorLogItem: React.FC<{ 
-  error: ErrorLog; 
-  expanded: boolean; 
-  onToggle: () => void;
-}> = ({ error, expanded, onToggle }) => {
+const ErrorLogItem = ({ error, expanded, onToggle }) => {
   return (
     <div className="border rounded-lg overflow-hidden">
       <div 
@@ -316,10 +307,7 @@ const ErrorLogItem: React.FC<{
   );
 };
 
-const AlertItem: React.FC<{ 
-  alert: Alert; 
-  onAcknowledge: () => void;
-}> = ({ alert, onAcknowledge }) => {
+const AlertItem = ({ alert, onAcknowledge }) => {
   return (
     <div className="flex items-center justify-between p-4 border rounded-lg bg-white">
       <div className="flex items-start gap-3">
@@ -359,7 +347,7 @@ const AlertItem: React.FC<{
 };
 
 // Main Monitoring Dashboard
-const MonitoringDashboard: React.FC = () => {
+const MonitoringDashboard = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [expandedError, setExpandedError] = useState<string | null>(null);
@@ -393,7 +381,7 @@ const MonitoringDashboard: React.FC = () => {
   });
 
   // Mutations
-  const handleAcknowledge = async (alertId: string) => {
+  const handleAcknowledge = async (alertId) => {
     try {
       await acknowledgeAlertAPI(alertId);
       queryClient.invalidateQueries({ queryKey: ['alerts'] });
@@ -419,8 +407,8 @@ const MonitoringDashboard: React.FC = () => {
   const errorStats = useMemo(() => {
     if (!errorLogs) return { byCategory: {}, bySeverity: {} };
     
-    const byCategory: Record<string, number> = {};
-    const bySeverity: Record<string, number> = {};
+    const byCategory = {};
+    const bySeverity = {};
     
     errorLogs.forEach(error => {
       byCategory[error.category] = (byCategory[error.category] || 0) + 1;
@@ -550,7 +538,7 @@ const MonitoringDashboard: React.FC = () => {
                       />
                       <YAxis />
                       <Tooltip 
-                        labelFormatter={(value) => formatDate(value as string)}
+                        labelFormatter={(value) => formatDate(value )}
                       />
                       <Area 
                         type="monotone" 
@@ -583,7 +571,7 @@ const MonitoringDashboard: React.FC = () => {
                       />
                       <YAxis />
                       <Tooltip 
-                        labelFormatter={(value) => formatDate(value as string)}
+                        labelFormatter={(value) => formatDate(value )}
                       />
                       <Legend />
                       <Line 
