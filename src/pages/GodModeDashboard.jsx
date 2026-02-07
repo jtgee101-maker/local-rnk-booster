@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
+import { base44 } from '@/api/base44Client';
 import { 
   LayoutDashboard, 
   Settings, 
@@ -23,7 +24,7 @@ import {
   Activity
 } from 'lucide-react';
 
-// Mock data for demonstration (backend entities not deployed yet)
+// Mock data fallback (used when backend entities not available)
 const MOCK_TENANTS = [
   {
     id: '1',
@@ -228,8 +229,36 @@ export default function GodModeDashboard() {
   const [activeTab, setActiveTab] = useState('tenants');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [tenants, setTenants] = useState(MOCK_TENANTS);
+  const [loading, setLoading] = useState(true);
+  const [useRealData, setUseRealData] = useState(false);
 
-  const filteredTenants = MOCK_TENANTS.filter(tenant => {
+  // Try to fetch real data from Base44
+  useEffect(() => {
+    const fetchTenants = async () => {
+      try {
+        setLoading(true);
+        // Attempt to fetch from Base44 entities
+        const response = await base44.entities?.Tenant?.list({
+          sort: { field: 'created_at', direction: 'desc' }
+        });
+        
+        if (response && response.length > 0) {
+          setTenants(response);
+          setUseRealData(true);
+        }
+      } catch (error) {
+        console.log('Using mock data - entities not deployed yet');
+        setUseRealData(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTenants();
+  }, []);
+
+  const filteredTenants = tenants.filter(tenant => {
     const matchesSearch = tenant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          tenant.subdomain.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || tenant.status === statusFilter;
@@ -237,10 +266,10 @@ export default function GodModeDashboard() {
   });
 
   const stats = [
-    { label: 'Total Tenants', value: MOCK_TENANTS.length, color: '#00F2FF' },
-    { label: 'Active', value: MOCK_TENANTS.filter(t => t.status === 'active').length, color: '#10b981' },
-    { label: 'Pending', value: MOCK_TENANTS.filter(t => t.status === 'pending').length, color: '#f59e0b' },
-    { label: 'Suspended', value: MOCK_TENANTS.filter(t => t.status === 'suspended').length, color: '#ef4444' }
+    { label: 'Total Tenants', value: tenants.length, color: '#00F2FF' },
+    { label: 'Active', value: tenants.filter(t => t.status === 'active').length, color: '#10b981' },
+    { label: 'Pending', value: tenants.filter(t => t.status === 'pending').length, color: '#f59e0b' },
+    { label: 'Suspended', value: tenants.filter(t => t.status === 'suspended').length, color: '#ef4444' }
   ];
 
   return (
@@ -271,6 +300,22 @@ export default function GodModeDashboard() {
 
       {/* Main content */}
       <main className="max-w-7xl mx-auto px-6 py-8">
+        {/* Data Source Indicator */}
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${useRealData ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+            <span className="text-sm text-gray-400">
+              {useRealData ? 'Live Data' : 'Demo Data'} 
+              {loading && '- Loading...'}
+            </span>
+          </div>
+          {!useRealData && (
+            <span className="text-xs text-gray-500">
+              Entities deploying to Base44...
+            </span>
+          )}
+        </div>
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="bg-gray-900/50 border border-gray-800 p-1">
             <TabsTrigger 
