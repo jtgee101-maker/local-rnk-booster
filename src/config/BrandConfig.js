@@ -28,35 +28,6 @@ export const TechNoirTheme = {
     
     // Text
     text: '#ffffff',
-    textMuted: '#888888',
-    textDark: '#666666',
-    
-    // Status
-    success: '#00ff88',
-    warning: '#ffaa00',
-    error: '#ff4444',
-    info: '#0088ff'
-  },
-    // Primary - Neon Cyan
-    primary: '#00F2FF',
-    primaryDark: '#00C4CC',
-    primaryLight: '#33F5FF',
-    primaryGlow: 'rgba(0, 242, 255, 0.5)',
-    
-    // Secondary - Acid Green
-    secondary: '#c8ff00',
-    secondaryDark: '#A3CC00',
-    secondaryLight: '#D4FF33',
-    secondaryGlow: 'rgba(200, 255, 0, 0.5)',
-    
-    // Background - OLED Black
-    background: '#000000',
-    surface: '#0a0a0a',
-    surfaceElevated: '#141414',
-    surfaceGlass: 'rgba(10, 10, 10, 0.8)',
-    
-    // Text
-    text: '#ffffff',
     textSecondary: 'rgba(255, 255, 255, 0.7)',
     textMuted: 'rgba(255, 255, 255, 0.5)',
     
@@ -187,94 +158,17 @@ export const neonButtonStyles = {
     border: 'none',
     borderRadius: '0.5rem',
     fontWeight: 600,
-    transition: 'all 250ms ease'
+    transition: 'all 0.2s ease'
   },
   secondary: {
     background: 'transparent',
     color: '#00F2FF',
-    border: '1px solid rgba(0, 242, 255, 0.5)',
+    border: '1px solid #00F2FF',
+    boxShadow: '0 0 10px rgba(0, 242, 255, 0.2)',
     borderRadius: '0.5rem',
-    fontWeight: 500,
-    transition: 'all 250ms ease'
-  },
-  ghost: {
-    background: 'transparent',
-    color: 'rgba(255, 255, 255, 0.7)',
-    border: 'none',
-    borderRadius: '0.5rem',
-    fontWeight: 500,
-    transition: 'all 250ms ease'
+    fontWeight: 600,
+    transition: 'all 0.2s ease'
   }
-};
-
-// Animation keyframes
-export const animations = {
-  fadeIn: `@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }`,
-  
-  slideUp: `@keyframes slideUp {
-    from { 
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to { 
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }`,
-  
-  pulse: `@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-  }`,
-  
-  glow: `@keyframes glow {
-    0%, 100% { box-shadow: 0 0 20px rgba(0, 242, 255, 0.3); }
-    50% { box-shadow: 0 0 40px rgba(0, 242, 255, 0.6); }
-  }`,
-  
-  spin: `@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }`
-};
-
-// Utility classes
-export const utilityClasses = {
-  glass: `
-    bg-[#0a0a0a]/80 
-    backdrop-blur-xl 
-    border 
-    border-white/10 
-    rounded-2xl
-  `,
-  
-  neonText: `
-    text-[#00F2FF] 
-    drop-shadow-[0_0_10px_rgba(0,242,255,0.5)]
-  `,
-  
-  neonBorder: `
-    border-[#00F2FF]/50 
-    shadow-[0_0_20px_rgba(0,242,255,0.1)]
-  `,
-  
-  hoverGlow: `
-    transition-all 
-    duration-300 
-    hover:border-[#00F2FF]/30 
-    hover:shadow-[0_0_30px_rgba(0,242,255,0.1)]
-  `,
-  
-  gradientText: `
-    bg-gradient-to-r 
-    from-[#00F2FF] 
-    to-[#c8ff00] 
-    bg-clip-text 
-    text-transparent
-  `
 };
 
 // Status colors mapping
@@ -322,7 +216,10 @@ export const statusColors = {
 
 // Direct exports for convenience
 export const colors = TechNoirTheme.colors;
-export const glassmorphism = TechNoirTheme.glassmorphism;
+export const typography = TechNoirTheme.typography;
+export const spacing = TechNoirTheme.spacing;
+export const shadows = TechNoirTheme.shadows;
+export const transitions = TechNoirTheme.transitions;
 
 // Export default theme configuration
 export default TechNoirTheme;
