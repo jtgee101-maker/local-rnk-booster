@@ -33,9 +33,14 @@ export default defineConfig({
           'vendor-charts': ['recharts'],
           'vendor-animation': ['framer-motion'],
           'vendor-icons': ['lucide-react'],
-          'vendor-utils': ['date-fns', 'lodash', 'clsx', 'tailwind-merge'],
+          'vendor-utils': ['date-fns', 'clsx', 'tailwind-merge'],
           'vendor-forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
           'vendor-query': ['@tanstack/react-query'],
+          // Heavy libraries - lazy loaded
+          'vendor-3d': ['three'],
+          'vendor-editor': ['react-quill'],
+          'vendor-maps': ['react-leaflet', 'leaflet'],
+          // jspdf removed from client bundle - moved to server-side
         },
       },
     },
