@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, Mail, ShoppingCart, MousePointer, Clock, DollarSign, 
-  Download, RefreshCw, Loader2, AlertTriangle, TrendingUp,
+  Download, RefreshCw, Loader2, AlertTriangle,
   Calendar, Filter, Zap, Target, Activity
 } from 'lucide-react';
 

@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,7 +8,6 @@ import CookieConsentTracker from '@/components/tracking/CookieConsentTracker';
 import SEOHead from '@/components/shared/SEOHead';
 import FoxyMascotImage from '@/components/shared/FoxyMascotImage';
 import ScrollTracker from '@/components/shared/ScrollTracker';
-import SkeletonCard from '@/components/shared/SkeletonCard';
 
 // Import quiz step components (same as V1)
 import CategoryStep from '@/components/quiz/CategoryStep';
@@ -19,7 +17,7 @@ import TimelineStep from '@/components/quiz/TimelineStep';
 import BusinessSearchStep from '@/components/quiz/BusinessSearchStep';
 import ContactInfoStep from '@/components/quiz/ContactInfoStep';
 import ProcessingStepEnhanced from '@/components/quiz/ProcessingStepEnhanced';
-import { Loader2, TrendingUp, TrendingDown, MapPin, Sparkles, Users, Calculator, Target } from 'lucide-react';
+import { TrendingUp, TrendingDown, MapPin, Sparkles, Users, Calculator, Target } from 'lucide-react';
 
 // Import Foxy V2 components
 import FoxyHealthScore from '@/components/foxyv2/FoxyHealthScore';

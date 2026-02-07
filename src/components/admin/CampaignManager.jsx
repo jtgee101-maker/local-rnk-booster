@@ -7,9 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  QrCode, Mail, Link as LinkIcon, BarChart3, Plus, Download,
-  ExternalLink, Copy, Check, TrendingUp, Users, MousePointer,
-  Calendar, DollarSign, Target, Eye, Zap, Settings, Pause, Play, Trash2, Edit, RefreshCw
+  QrCode, Mail, Link as LinkIcon, BarChart3, Plus,
+  ExternalLink, TrendingUp, MousePointer, DollarSign, Target, Eye, Zap, Pause, Play, Trash2, RefreshCw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CampaignBuilder from './CampaignBuilder';

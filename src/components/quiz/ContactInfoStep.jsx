@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Mail, Phone, CheckCircle2, Award, Shield } from 'lucide-react';
+import { Mail, Phone, Award, Shield } from 'lucide-react';
 import { emailSchema, phoneSchema, validateInput } from '@/components/utils/validation';
 
 export default function ContactInfoStep({ onNext, onBack, initialData }) {

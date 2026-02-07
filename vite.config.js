@@ -1,6 +1,7 @@
 import base44 from "@base44/vite-plugin"
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -15,5 +16,30 @@ export default defineConfig({
       visualEditAgent: true
     }),
     react(),
-  ]
+    visualizer({
+      filename: 'stats.html',
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+    }),
+  ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor chunks - split large dependencies
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select', '@radix-ui/react-tabs'],
+          'vendor-charts': ['recharts'],
+          'vendor-animation': ['framer-motion'],
+          'vendor-icons': ['lucide-react'],
+          'vendor-utils': ['date-fns', 'lodash', 'clsx', 'tailwind-merge'],
+          'vendor-forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
+          'vendor-query': ['@tanstack/react-query'],
+        },
+      },
+    },
+    // Chunk size warning limit (in KB)
+    chunkSizeWarningLimit: 1000,
+  },
 });

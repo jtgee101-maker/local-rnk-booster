@@ -1,12 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import { ABTestProvider } from '@/components/abtest/ABTestProvider';
-import { calculateHealthScore, generateCriticalIssues } from '@/components/utils/healthScoreCalculator';
+import { calculateHealthScore } from '@/components/utils/healthScoreCalculator';
 import { LEAD_COSTS } from '@/components/utils/constants';
 import { quizRateLimiter } from '@/components/utils/rateLimiter';
 import { checkDuplicateLead, getLeadAction, mergeLeadData } from '@/components/utils/leadDeduplication';

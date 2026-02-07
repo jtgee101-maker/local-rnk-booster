@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Slider } from '@/components/ui/slider';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Users, Target, TrendingUp, Plus, Edit, Trash2, Play } from 'lucide-react';
+import { Target, Plus, Edit, Trash2, Play } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function AdvancedSegmentation() {

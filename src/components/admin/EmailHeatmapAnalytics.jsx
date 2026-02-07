@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Mail, MousePointer, Eye, TrendingUp, Clock } from 'lucide-react';
+import { Mail, MousePointer, Eye, Clock } from 'lucide-react';
 
 export default function EmailHeatmapAnalytics() {
   const [selectedEmail, setSelectedEmail] = useState('welcome');

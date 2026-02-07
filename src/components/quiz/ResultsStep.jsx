@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, CheckCircle, ArrowRight, Zap, DollarSign } from 'lucide-react';

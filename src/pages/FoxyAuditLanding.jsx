@@ -7,16 +7,13 @@ import { createPageUrl } from '@/utils';
 import { 
   MapPin, TrendingUp, DollarSign, Clock, CheckCircle, 
   AlertTriangle, Star, Users, Eye, Target, Zap, ArrowRight,
-  Shield, TrendingDown, PhoneCall, MessageSquare
+  Shield, TrendingDown, PhoneCall
 } from 'lucide-react';
 import SEOHead from '@/components/shared/SEOHead';
-import FoxyMascotImage from '@/components/shared/FoxyMascotImage';
 import SocialProofNotification from '@/components/shared/SocialProofNotification';
 import ScrollTracker from '@/components/shared/ScrollTracker';
-import TrustBadges from '@/components/shared/TrustBadges';
 import ScarcityTimer from '@/components/shared/ScarcityTimer';
 import GuaranteeSection from '@/components/shared/GuaranteeSection';
-import TrustLogos from '@/components/shared/TrustLogos';
 import FAQAccordion from '@/components/shared/FAQAccordion';
 import ComparisonTable from '@/components/shared/ComparisonTable';
 import VideoTestimonial from '@/components/shared/VideoTestimonial';

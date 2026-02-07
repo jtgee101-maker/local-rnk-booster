@@ -1,7 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import IndustryLandingTemplate from '@/components/landing/IndustryLandingTemplate';
-import { Home, AlertCircle, DollarSign, MapPin, TrendingUp } from 'lucide-react';
+import { Home, AlertCircle, MapPin, TrendingUp } from 'lucide-react';
 
 export default function RealEstateLanding() {
 

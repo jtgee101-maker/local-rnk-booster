@@ -9,13 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Search, Download, Filter, TrendingUp, Users, Mail, 
-  Building2, Calendar, Eye, RefreshCw, AlertCircle,
+  Search, Download, TrendingUp, Users, Mail, 
+  Building2, Calendar, RefreshCw, AlertCircle,
   CheckCircle2, Clock, XCircle, Loader2
 } from 'lucide-react';
 import EnhancedLeadDetailModal from './EnhancedLeadDetailModal';
-import BulkActionBar from './BulkActionBar';
-import DateRangePicker from './DateRangePicker';
 
 export default function AdminLeadsSection({ expanded = false }) {
   const [searchTerm, setSearchTerm] = useState('');

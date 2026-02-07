@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, TrendingUp, Users, Star, Phone, DollarSign } from 'lucide-react';
+import { ArrowRight, TrendingUp, Star, Phone, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const beforeStats = [

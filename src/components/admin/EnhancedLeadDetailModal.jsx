@@ -7,8 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { base44 } from '@/api/base44Client';
-import { 
-  User, Mail, Phone, MapPin, Calendar, TrendingUp, 
+import { Mail, Phone, MapPin, Calendar, TrendingUp, 
   Star, MessageSquare, Save, Send, Target, Clock
 } from 'lucide-react';
 import { toast } from 'sonner';

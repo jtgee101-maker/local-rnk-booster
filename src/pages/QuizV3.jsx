@@ -1,6 +1,6 @@
 import React, { useState, useCallback, lazy, Suspense, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { ArrowLeft, Target, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,6 @@ import { ABTestProvider } from '@/components/abtest/ABTestProvider';
 import { prefetchResources, sessionCache } from '@/components/utils/performanceHooks';
 import { calculateHealthScore, generateCriticalIssues } from '@/components/utils/healthScoreCalculator';
 import { quizRateLimiter } from '@/components/utils/rateLimiter';
-import { REVENUE_LOSS_PER_POINT } from '@/components/utils/constants';
 import { checkDuplicateLead, getLeadAction, mergeLeadData } from '@/components/utils/leadDeduplication';
 import { errorLogger } from '@/components/utils/errorLogger';
 import ErrorBoundary from '@/components/ErrorBoundary';

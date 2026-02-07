@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { 
-  Brain, TrendingUp, Eye, MousePointer, Clock, Zap, 
+  Brain, TrendingUp, Eye, Clock, 
   Users, Target, Activity, Settings, RefreshCw, ExternalLink, DollarSign
 } from 'lucide-react';
 import { motion } from 'framer-motion';

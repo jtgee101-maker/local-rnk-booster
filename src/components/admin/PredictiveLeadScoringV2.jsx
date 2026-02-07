@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Target, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
+import { Target, CheckCircle } from 'lucide-react';
 
 export default function PredictiveLeadScoringV2() {
   const { data: scoringData, isLoading } = useQuery({

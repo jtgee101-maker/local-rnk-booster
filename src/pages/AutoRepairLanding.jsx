@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, AlertCircle, Wrench, Star, Zap, Award } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Wrench, Star, Award } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Helmet } from 'react-helmet';

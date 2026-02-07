@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, TrendingDown, Star, Eye, Phone, Clock, MapPin, ChevronRight, Image, Calendar, TrendingUp, Zap } from 'lucide-react';
+import { AlertTriangle, TrendingDown, Star, ChevronRight, Image, Zap } from 'lucide-react';
 
 export default function GuidedInsights({ healthScore, criticalIssues, lead, onComplete }) {
   const [currentInsight, setCurrentInsight] = useState(0);

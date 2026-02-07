@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { base44 } from '@/api/base44Client';
-import { CheckCircle2, AlertCircle, Clock, Zap } from 'lucide-react';
+import { CheckCircle2, Clock, Zap } from 'lucide-react';
 
 export default function SystemHealthCheck() {
   const [health, setHealth] = useState({

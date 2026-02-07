@@ -1,6 +1,6 @@
 import React, { useState, useCallback, lazy, Suspense, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { ArrowLeft, Target, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';

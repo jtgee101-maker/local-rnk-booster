@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, Users, DollarSign, Target, RefreshCw, Download, ExternalLink } from 'lucide-react';
+import { TrendingUp, Users, Target, RefreshCw, Download, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function AffiliateAnalytics() {

@@ -7,9 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Users, TrendingUp, Mail, Clock, Target, RefreshCw, 
-  Zap, AlertCircle, Send, Lightbulb 
+  Zap, Lightbulb 
 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function SegmentManager() {
   const queryClient = useQueryClient();

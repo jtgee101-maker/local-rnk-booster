@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useRef, useCallback } from 'react';
 
 // Debounce for performance-heavy operations
 export const useDebounce = (callback, delay) => {

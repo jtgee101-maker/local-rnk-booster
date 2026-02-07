@@ -6,9 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { 
-  TrendingUp, TrendingDown, Users, MousePointer, ExternalLink, Target, Clock, 
-  Award, AlertCircle, RefreshCw, Download, Loader2, ArrowUpRight, ArrowDownRight,
-  Mail, Activity, BarChart3, PieChart, Calendar
+  TrendingUp, Users, MousePointer, ExternalLink, Target, Clock, 
+  Award, AlertCircle, RefreshCw, Download, Loader2, ArrowUpRight, ArrowDownRight, BarChart3, PieChart, Calendar
 } from 'lucide-react';
 
 // Trend indicator component

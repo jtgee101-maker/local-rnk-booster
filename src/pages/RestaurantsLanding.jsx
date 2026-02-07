@@ -2,7 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { UtensilsCrossed, MapPin, Star, TrendingUp } from 'lucide-react';
+import { UtensilsCrossed } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import LegalFooter from '@/components/shared/LegalFooter';

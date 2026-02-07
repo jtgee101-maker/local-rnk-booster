@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  TrendingUp, TrendingDown, Download, DollarSign, Target, 
+  TrendingUp, Download, DollarSign, Target, 
   Users, Activity, ArrowUpRight, Sparkles 
 } from 'lucide-react';
 

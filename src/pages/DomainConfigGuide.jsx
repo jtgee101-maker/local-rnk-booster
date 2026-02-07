@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Globe, Copy, CheckCircle2, AlertCircle, ExternalLink,
-  Mail, Settings, Code, Zap, ArrowRight
+  Mail, Settings, Code, Zap
 } from 'lucide-react';
 
 export default function DomainConfigGuide() {

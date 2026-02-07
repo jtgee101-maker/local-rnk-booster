@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   CheckCircle2, XCircle, AlertCircle, Loader2, RefreshCw,
-  Mail, Database, Settings, Activity, Zap, ExternalLink,
+  Mail, Database, Activity, Zap, ExternalLink,
   Globe, Lock, TrendingUp, Users, MessageSquare
 } from 'lucide-react';
 

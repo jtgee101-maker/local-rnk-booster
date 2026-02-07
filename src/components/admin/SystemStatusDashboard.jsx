@@ -1,10 +1,8 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import { Card, CardContent } from '@/components/ui/card';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { CheckCircle, AlertTriangle, XCircle, Server, Database, Mail, Zap } from 'lucide-react';
+import { Server, Database, Mail, Zap } from 'lucide-react';
 
 export default function SystemStatusDashboard() {
   const { data: systemStatus, isLoading } = useQuery({

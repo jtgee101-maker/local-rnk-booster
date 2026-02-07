@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { 
-  MousePointer, Mail, DollarSign, CheckCircle, XCircle, 
-  Clock, MapPin, ExternalLink, ArrowRight 
+  MousePointer, Mail, DollarSign, 
+  Clock, MapPin 
 } from 'lucide-react';
 
 export default function CustomerJourneyMap({ leadId }) {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, Users, Award } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 
 const stats = [
   {

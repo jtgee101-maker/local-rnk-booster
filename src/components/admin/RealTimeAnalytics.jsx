@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Activity, Users, DollarSign, TrendingUp, Eye, MousePointer, Clock } from 'lucide-react';
+import { Activity, Users, DollarSign, TrendingUp } from 'lucide-react';
 
 export default function RealTimeAnalytics() {
   const [liveData, setLiveData] = useState({

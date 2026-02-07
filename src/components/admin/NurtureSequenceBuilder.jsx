@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Save, Mail, Clock, ArrowDown, Eye } from 'lucide-react';
+import { Plus, Trash2, Save, Clock, ArrowDown, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function NurtureSequenceBuilder({ sequence, open, onClose, onSave }) {

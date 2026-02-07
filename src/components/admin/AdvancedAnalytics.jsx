@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   TrendingUp, Users, DollarSign, Target, BarChart3, RefreshCw, Loader2, 
-  ArrowUpRight, ArrowDownRight, Calendar, Download, Mail, UserPlus, Send 
+  ArrowUpRight, ArrowDownRight, Download, Mail, UserPlus, Send 
 } from 'lucide-react';
 import CustomerJourneyView from '@/components/admin/CustomerJourneyView';
 import RevenueAttributionChart from '@/components/admin/RevenueAttributionChart';

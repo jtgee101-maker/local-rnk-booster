@@ -1,8 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { AlertTriangle, TrendingDown, DollarSign, Zap, ArrowRight, Shield } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { AlertTriangle, TrendingDown, Zap, ArrowRight, Shield } from 'lucide-react';
 import { useABTest } from '@/components/abtest/ABTestProvider';
 import { REVENUE_LOSS_PER_POINT } from '@/components/utils/constants';
 import ShareDashboard from '@/components/referrals/ShareDashboard';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Share2, Facebook, Twitter, Linkedin, Mail } from 'lucide-react';
+import { Facebook, Twitter, Linkedin, Mail } from 'lucide-react';
 
 export default function SocialShareButton({ businessName, healthScore }) {
   const shareText = `Just got my free GMB audit from LocalRank.ai! My business scored ${healthScore}/100. Check yours:`;

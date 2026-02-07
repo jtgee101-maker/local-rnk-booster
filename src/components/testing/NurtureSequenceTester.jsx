@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
-import { CheckCircle2, AlertCircle, Loader2, Send, Database } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Loader2, Database } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function NurtureSequenceTester() {

@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { base44 } from '@/api/base44Client';
-import { CheckCircle, XCircle, AlertTriangle, Rocket, ExternalLink } from 'lucide-react';
-import { toast } from 'sonner';
+import { CheckCircle, XCircle, AlertTriangle, Rocket } from 'lucide-react';
 
 export default function ProductionReadinessChecklist() {
   const [checks, setChecks] = useState([]);

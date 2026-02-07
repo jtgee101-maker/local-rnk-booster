@@ -5,10 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area } from 'recharts';
-import { TrendingUp, Users, MousePointer, Target, MapPin, Download, RefreshCw, Calendar, Clock, Smartphone, Monitor, Tablet, Globe } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
+import { TrendingUp, Users, MousePointer, Target, MapPin, Download, RefreshCw, Calendar, Clock, Smartphone, Monitor, Globe } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { format, parseISO, subDays, startOfDay, endOfDay } from 'date-fns';
+import { format, parseISO, subDays } from 'date-fns';
 
 export default function CampaignAnalytics({ campaigns, selectedCampaign: propSelectedCampaign }) {
   const [selectedCampaign, setSelectedCampaign] = useState(propSelectedCampaign || campaigns?.[0]?.id || null);

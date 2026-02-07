@@ -2,12 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { ArrowRight, Shield, Clock, Award, Loader2, CreditCard, Lock } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
+import { useStripe, useElements } from '@stripe/react-stripe-js';
 
 import OrderBump from '@/components/checkout/OrderBump';
 import PricingSummary from '@/components/checkout/PricingSummary';

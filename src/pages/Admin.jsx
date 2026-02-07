@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -8,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, DollarSign, TrendingUp, AlertCircle, Download, Search, RefreshCw, BarChart3, UserCog, Mail, Bug, Repeat, Radio, MapPin, Shield, Activity } from 'lucide-react';
+import { Users, DollarSign, TrendingUp, Download, Search, RefreshCw, UserCog, Mail, Bug, Repeat, Radio, MapPin, Shield, Activity } from 'lucide-react';
 import UserManagement from '@/components/admin/UserManagement';
 import EmailTracking from '@/components/admin/EmailTracking';
 import ErrorMonitoring from '@/components/admin/ErrorMonitoring';

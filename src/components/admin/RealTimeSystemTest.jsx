@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { base44 } from '@/api/base44Client';
-import { Activity, CheckCircle, XCircle, Loader2, Zap, Bell, RefreshCw, Clock } from 'lucide-react';
+import { Activity, CheckCircle, XCircle, Loader2, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function RealTimeSystemTest() {

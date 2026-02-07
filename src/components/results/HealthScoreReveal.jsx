@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { AlertTriangle } from 'lucide-react';
 
 export default function HealthScoreReveal({ healthScore, onRevealComplete }) {
   const [displayScore, setDisplayScore] = useState(0);

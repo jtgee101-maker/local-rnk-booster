@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { FlaskConical, TrendingUp, Users, Play, Pause, Trophy, Edit } from 'lucide-react';
+import { FlaskConical, Pause, Trophy, Edit } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function ABTestManager() {

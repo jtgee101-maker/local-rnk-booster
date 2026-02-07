@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { DollarSign, TrendingUp, Shield, Zap, CheckCircle, Users, Lightbulb, Target } from 'lucide-react';
+import { DollarSign, TrendingUp, Shield, Zap, CheckCircle, Lightbulb, Target } from 'lucide-react';
 
 export default function V2ResultsStep({ 
   healthScore, 

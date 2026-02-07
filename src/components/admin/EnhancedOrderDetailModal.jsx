@@ -5,8 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { base44 } from '@/api/base44Client';
-import { 
-  DollarSign, Package, CreditCard, User, Mail, Calendar, 
+import { Package, User, Mail, Calendar, 
   CheckCircle, XCircle, AlertCircle, RefreshCw
 } from 'lucide-react';
 import { toast } from 'sonner';

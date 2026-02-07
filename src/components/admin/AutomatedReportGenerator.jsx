@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { FileText, Download, Calendar, TrendingUp, Mail } from 'lucide-react';
+import { FileText, Download, Calendar, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function AutomatedReportGenerator() {

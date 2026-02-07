@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Brain, AlertTriangle, TrendingUp, Target, RefreshCw, Zap } from 'lucide-react';
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function PredictiveAnalytics() {
   const { data: leadQuality, isLoading: loadingQuality, refetch: refetchQuality } = useQuery({

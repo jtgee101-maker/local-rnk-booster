@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { createPageUrl } from '@/utils';
-import { ArrowLeft, Search, Home } from 'lucide-react';
+import { Search, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import DocsFooter from '@/components/docs/DocsFooter';
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, X, Shield, Clock, RefreshCw, Bell } from 'lucide-react';
+import { Menu, Shield, Clock, RefreshCw } from 'lucide-react';
 
 export default function MobileOptimizedHeader({ lastRefresh, onRefresh, notificationCount = 0 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

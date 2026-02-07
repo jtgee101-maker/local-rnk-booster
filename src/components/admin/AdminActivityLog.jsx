@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Activity, UserPlus, Mail, Settings, DollarSign, AlertCircle } from 'lucide-react';
+import { Activity, UserPlus, Mail, DollarSign } from 'lucide-react';
 
 export default function AdminActivityLog() {
   const { data: activities, isLoading } = useQuery({
