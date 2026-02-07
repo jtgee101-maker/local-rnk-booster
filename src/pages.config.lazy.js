@@ -46,7 +46,8 @@ const Features = lazy(() => import('./pages/Features'));
 const FinalLaunchChecklist = lazy(() => import('./pages/FinalLaunchChecklist'));
 const FoxyAuditLanding = lazy(() => import('./pages/FoxyAuditLanding'));
 const GettingStarted = lazy(() => import('./pages/GettingStarted'));
-const GodModeDashboard = lazy(() => import('./pages/GodModeDashboard'));
+// GodModeDashboard imported eagerly to avoid lazy-load issues
+import GodModeDashboard from './pages/GodModeDashboard';
 const GuideQuizGeenius = lazy(() => import('./pages/GuideQuizGeenius'));
 const HVACLanding = lazy(() => import('./pages/HVACLanding'));
 const HandymanLanding = lazy(() => import('./pages/HandymanLanding'));
