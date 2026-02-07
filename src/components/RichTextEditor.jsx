@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import DOMPurify from 'dompurify';
 
 /**
  * RichTextEditor - A rich text editor component using react-quill
@@ -44,9 +45,16 @@ export default function RichTextEditor({
   ];
 
   const handleChange = (newContent) => {
-    setContent(newContent);
+    // Sanitize content to prevent XSS attacks
+    const sanitizedContent = DOMPurify.sanitize(newContent, {
+      ALLOWED_TAGS: ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'strike', 
+                     'a', 'h1', 'h2', 'h3', 'ul', 'ol', 'li', 'blockquote', 
+                     'img', 'div', 'span'],
+      ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'target']
+    });
+    setContent(sanitizedContent);
     if (onChange) {
-      onChange(newContent);
+      onChange(sanitizedContent);
     }
   };
 

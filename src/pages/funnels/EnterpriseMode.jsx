@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { 
   Select,
   SelectContent,
@@ -40,41 +37,28 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useToast } from '@/components/ui/use-toast';
 import { 
-  LineChart,
   Line,
-  BarChart,
   Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  AreaChart,
   Area,
-  PieChart,
-  Pie,
-  Cell,
   ComposedChart,
   Legend
 } from 'recharts';
 import {
   Building2,
-  Users,
   Key,
-  Palette,
   Settings,
   Shield,
-  Globe,
   Plus,
   MoreHorizontal,
   CheckCircle2,
-  AlertCircle,
   Clock,
   TrendingUp,
-  TrendingDown,
-  MapPin,
   Phone,
   Mail,
   Copy,
@@ -82,7 +66,6 @@ import {
   Trash2,
   Edit3,
   Eye,
-  Download,
   Upload,
   Code,
   Webhook,
@@ -1209,9 +1192,6 @@ const SLAMonitoring = () => {
     </div>
   );
 };
-
-// Import Upload and Checkbox
-import { Upload, Checkbox } from 'lucide-react';
 
 // Main EnterpriseMode Component
 const EnterpriseMode = () => {

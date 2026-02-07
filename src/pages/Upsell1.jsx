@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { ABTestProvider, useABTest } from '@/components/abtest/ABTestProvider';
 import { toast } from 'sonner';
 import MobileOptimizations from '@/components/quizv3/MobileOptimizations';
 import MobileViewportFix from '@/components/utils/MobileViewportFix';
+import DOMPurify from 'dompurify';
 
 function Upsell1Content() {
   const navigate = useNavigate();
@@ -69,6 +70,12 @@ function Upsell1Content() {
   };
 
   const variantContent = isLogicVariant ? content.logic : content.fear;
+  
+  // Sanitize headline to prevent XSS
+  const sanitizedHeadline = useMemo(() => DOMPurify.sanitize(variantContent.headline, {
+    ALLOWED_TAGS: ['span', 'b', 'i', 'em', 'strong', 'br'],
+    ALLOWED_ATTR: ['class']
+  }), [variantContent.headline]);
 
   const handleAccept = async () => {
     setIsProcessing(true);
@@ -203,7 +210,7 @@ function Upsell1Content() {
           >
             <h1 
               className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight"
-              dangerouslySetInnerHTML={{ __html: variantContent.headline }}
+              dangerouslySetInnerHTML={{ __html: sanitizedHeadline }}
             />
             <p className="text-gray-400 text-lg mb-2">
               {variantContent.subheadline}

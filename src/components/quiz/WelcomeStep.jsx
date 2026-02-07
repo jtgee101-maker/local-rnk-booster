@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Zap, MapPin, Star, Shield, TrendingUp, CheckCircle, Clock, Award } from 'lucide-react';
 import FlowPreview from './FlowPreview';
 import FAQSection from './FAQSection';
 import { useABTest } from '@/components/abtest/ABTestProvider';
+import DOMPurify from 'dompurify';
 
 export default function WelcomeStep({ onStart }) {
   const { getVariant, trackView } = useABTest();
@@ -15,8 +16,14 @@ export default function WelcomeStep({ onStart }) {
     trackView('quiz', 'headline');
   }, []);
 
-  const headline = headlineVariant?.variant?.content?.headline || 'Stop Losing 15 Calls a Day To Your Competitors';
+  const rawHeadline = headlineVariant?.variant?.content?.headline || 'Stop Losing 15 Calls a Day To Your Competitors';
   const subheadline = headlineVariant?.variant?.content?.subheadline || "Don't Read a 100-Page Blueprint. Run Our 60-Second AI Scan.";
+  
+  // Sanitize headline to prevent XSS
+  const headline = useMemo(() => DOMPurify.sanitize(rawHeadline, {
+    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'br', 'span'],
+    ALLOWED_ATTR: ['class']
+  }), [rawHeadline]);
 
   return (
     <motion.div

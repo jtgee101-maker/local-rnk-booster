@@ -1,8 +1,11 @@
 import { createClient } from 'npm:@base44/sdk@0.8.6';
 import { z } from 'npm:zod@3.24.2';
 
-// JWT configuration
-const JWT_SECRET = Deno.env.get('JWT_SECRET') || 'your-secret-key-change-in-production';
+// JWT configuration - MUST be set in environment
+const JWT_SECRET = Deno.env.get('JWT_SECRET');
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
 const JWT_EXPIRES_IN = 24 * 60 * 60 * 1000; // 24 hours
 const REFRESH_TOKEN_EXPIRES_IN = 7 * 24 * 60 * 60 * 1000; // 7 days
 
