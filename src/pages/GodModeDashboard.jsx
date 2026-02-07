@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { TenantList, FeatureToggles, ResourceLimits } from '@/components/godmode';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { 
   LayoutDashboard, 
   Settings, 
@@ -9,18 +12,236 @@ import {
   BarChart3,
   Globe,
   Shield,
-  Zap
+  Zap,
+  Search,
+  Plus,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Database,
+  TrendingUp,
+  Activity
 } from 'lucide-react';
 
-// God Mode Dashboard Page
+// Mock data for demonstration (backend entities not deployed yet)
+const MOCK_TENANTS = [
+  {
+    id: '1',
+    name: 'Acme Digital',
+    subdomain: 'acme',
+    custom_domain: 'seo.acme.com',
+    status: 'active',
+    plan_id: 'enterprise',
+    domain_verified: true,
+    active_users: 12,
+    current_audits: 456,
+    health_status: 'healthy',
+    last_check_at: new Date().toISOString()
+  },
+  {
+    id: '2',
+    name: 'Metro Plumbing',
+    subdomain: 'metro-plumbing',
+    status: 'active',
+    plan_id: 'growth',
+    domain_verified: false,
+    active_users: 3,
+    current_audits: 89,
+    health_status: 'healthy',
+    last_check_at: new Date(Date.now() - 3600000).toISOString()
+  },
+  {
+    id: '3',
+    name: 'Elite Roofing',
+    subdomain: 'elite-roofing',
+    status: 'suspended',
+    plan_id: 'starter',
+    domain_verified: true,
+    active_users: 0,
+    current_audits: 0,
+    health_status: 'unhealthy',
+    last_check_at: new Date(Date.now() - 86400000 * 3).toISOString()
+  }
+];
+
+const MOCK_FEATURES = [
+  { key: 'seo_audit', name: 'SEO Audits', enabled: true, limit: 1000, category: 'analytics' },
+  { key: 'ai_content', name: 'AI Content Generation', enabled: true, limit: 500, category: 'content' },
+  { key: 'custom_domain', name: 'Custom Domains', enabled: true, limit: 1, category: 'white_label' },
+  { key: 'white_label', name: 'White Label Mode', enabled: false, limit: null, category: 'white_label' },
+  { key: 'api_access', name: 'API Access', enabled: true, limit: 10000, category: 'integrations' },
+  { key: 'priority_support', name: 'Priority Support', enabled: false, limit: null, category: 'general' },
+];
+
+// Status badge component
+const StatusBadge = ({ status }) => {
+  const variants = {
+    active: { bg: 'bg-emerald-500/20', text: 'text-emerald-400', icon: CheckCircle },
+    pending: { bg: 'bg-amber-500/20', text: 'text-amber-400', icon: AlertCircle },
+    suspended: { bg: 'bg-red-500/20', text: 'text-red-400', icon: XCircle },
+    cancelled: { bg: 'bg-gray-500/20', text: 'text-gray-400', icon: XCircle },
+  };
+  
+  const variant = variants[status] || variants.pending;
+  const Icon = variant.icon;
+  
+  return (
+    <Badge className={`${variant.bg} ${variant.text} border-0 flex items-center gap-1`}>
+      <Icon className="w-3 h-3" />
+      <span className="capitalize">{status}</span>
+    </Badge>
+  );
+};
+
+// Health indicator
+const HealthIndicator = ({ status }) => {
+  const colors = {
+    healthy: 'bg-emerald-500',
+    degraded: 'bg-amber-500',
+    unhealthy: 'bg-red-500',
+    unknown: 'bg-gray-500'
+  };
+  
+  return (
+    <div className="flex items-center gap-2">
+      <div className={`w-2 h-2 rounded-full ${colors[status] || colors.unknown} animate-pulse`} />
+      <span className="text-xs text-gray-400 capitalize">{status}</span>
+    </div>
+  );
+};
+
+// Tenant card component
+const TenantCard = ({ tenant }) => {
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="group relative bg-[#0a0a0a]/80 backdrop-blur-xl border border-gray-800/50 rounded-2xl p-6 hover:border-[#00F2FF]/30 transition-all duration-300"
+      style={{ boxShadow: '0 4px 24px rgba(0, 242, 255, 0.05)' }}
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-[#00F2FF]/5 via-transparent to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+      
+      <div className="relative z-10">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#00F2FF]/20 to-[#c8ff00]/20 flex items-center justify-center">
+              <Globe className="w-6 h-6 text-[#00F2FF]" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-white text-lg">{tenant.name}</h3>
+              <p className="text-sm text-gray-400">{tenant.subdomain}.localrnk.io</p>
+            </div>
+          </div>
+          <StatusBadge status={tenant.status} />
+        </div>
+        
+        {tenant.custom_domain && (
+          <div className="flex items-center gap-2 mb-4 px-3 py-2 bg-gray-800/50 rounded-lg">
+            <Globe className="w-4 h-4 text-[#c8ff00]" />
+            <span className="text-sm text-gray-300">{tenant.custom_domain}</span>
+            {tenant.domain_verified ? (
+              <CheckCircle className="w-4 h-4 text-emerald-400 ml-auto" />
+            ) : (
+              <AlertCircle className="w-4 h-4 text-amber-400 ml-auto" />
+            )}
+          </div>
+        )}
+        
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="bg-gray-900/50 rounded-xl p-3 text-center">
+            <Users className="w-4 h-4 text-[#00F2FF] mx-auto mb-1" />
+            <p className="text-lg font-bold text-white">{tenant.active_users}</p>
+            <p className="text-xs text-gray-500">Users</p>
+          </div>
+          <div className="bg-gray-900/50 rounded-xl p-3 text-center">
+            <Activity className="w-4 h-4 text-[#c8ff00] mx-auto mb-1" />
+            <p className="text-lg font-bold text-white">{tenant.current_audits}</p>
+            <p className="text-xs text-gray-500">Audits</p>
+          </div>
+          <div className="bg-gray-900/50 rounded-xl p-3 text-center">
+            <Database className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
+            <p className="text-lg font-bold text-white capitalize">{tenant.plan_id}</p>
+            <p className="text-xs text-gray-500">Plan</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center justify-between pt-4 border-t border-gray-800/50">
+          <HealthIndicator status={tenant.health_status} />
+          <Button variant="ghost" size="sm" className="text-[#00F2FF] hover:text-[#00F2FF] hover:bg-[#00F2FF]/10">
+            Manage
+          </Button>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+// Feature toggle card
+const FeatureCard = ({ feature }) => {
+  const categoryColors = {
+    analytics: '#00F2FF',
+    content: '#a855f7',
+    white_label: '#ec4899',
+    integrations: '#f59e0b',
+    general: '#c8ff00'
+  };
+  
+  const color = categoryColors[feature.category] || '#c8ff00';
+  
+  return (
+    <div className={`relative bg-[#0a0a0a]/80 backdrop-blur-xl border rounded-2xl p-5 transition-all duration-300 ${feature.enabled ? 'border-gray-800/50 hover:border-[#00F2FF]/30' : 'border-gray-800/30 opacity-60'}`}>
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${color}20` }}>
+            <Zap className="w-5 h-5" style={{ color }} />
+          </div>
+          <div>
+            <h4 className="font-semibold text-white">{feature.name}</h4>
+            <Badge variant="outline" className="text-xs mt-1" style={{ borderColor: `${color}40`, color }}>
+              {feature.category}
+            </Badge>
+          </div>
+        </div>
+        <Switch checked={feature.enabled} className="data-[state=checked]:bg-[#00F2FF]" />
+      </div>
+      
+      {feature.limit && feature.enabled && (
+        <div className="flex items-center gap-3 pt-3 border-t border-gray-800/50">
+          <span className="text-sm text-gray-500">Limit:</span>
+          <Input
+            type="number"
+            value={feature.limit}
+            className="w-24 h-8 bg-gray-800/50 border-gray-700 text-white text-sm"
+            readOnly
+          />
+          <span className="text-sm text-gray-500">/month</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Main God Mode Dashboard
 export default function GodModeDashboard() {
   const [selectedTenantId, setSelectedTenantId] = useState(null);
   const [activeTab, setActiveTab] = useState('tenants');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
-  const handleTenantSelect = (tenantId) => {
-    setSelectedTenantId(tenantId);
-    setActiveTab('features');
-  };
+  const filteredTenants = MOCK_TENANTS.filter(tenant => {
+    const matchesSearch = tenant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         tenant.subdomain.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || tenant.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const stats = [
+    { label: 'Total Tenants', value: MOCK_TENANTS.length, color: '#00F2FF' },
+    { label: 'Active', value: MOCK_TENANTS.filter(t => t.status === 'active').length, color: '#10b981' },
+    { label: 'Pending', value: MOCK_TENANTS.filter(t => t.status === 'pending').length, color: '#f59e0b' },
+    { label: 'Suspended', value: MOCK_TENANTS.filter(t => t.status === 'suspended').length, color: '#ef4444' }
+  ];
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -61,16 +282,14 @@ export default function GodModeDashboard() {
             </TabsTrigger>
             <TabsTrigger 
               value="features"
-              disabled={!selectedTenantId}
-              className="data-[state=active]:bg-[#00F2FF]/20 data-[state=active]:text-[#00F2FF] disabled:opacity-50"
+              className="data-[state=active]:bg-[#00F2FF]/20 data-[state=active]:text-[#00F2FF]"
             >
               <Zap className="w-4 h-4 mr-2" />
               Features
             </TabsTrigger>
             <TabsTrigger 
               value="resources"
-              disabled={!selectedTenantId}
-              className="data-[state=active]:bg-[#00F2FF]/20 data-[state=active]:text-[#00F2FF] disabled:opacity-50"
+              className="data-[state=active]:bg-[#00F2FF]/20 data-[state=active]:text-[#00F2FF]"
             >
               <BarChart3 className="w-4 h-4 mr-2" />
               Resources
@@ -84,16 +303,72 @@ export default function GodModeDashboard() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="tenants" className="mt-0">
-            <TenantList />
+          <TabsContent value="tenants" className="mt-0 space-y-6">
+            {/* Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {stats.map((stat, idx) => (
+                <div key={idx} className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
+                  <p className="text-2xl font-bold" style={{ color: stat.color }}>{stat.value}</p>
+                  <p className="text-sm text-gray-500">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+            
+            {/* Filters */}
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search tenants..."
+                  className="pl-10 bg-gray-900/50 border-gray-800 text-white"
+                />
+              </div>
+              <div className="flex gap-2">
+                {['all', 'active', 'pending', 'suspended'].map((status) => (
+                  <Button
+                    key={status}
+                    variant={statusFilter === status ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setStatusFilter(status)}
+                    className={statusFilter === status ? 'bg-[#00F2FF]/20 text-[#00F2FF] border-[#00F2FF]/50' : 'border-gray-700 text-gray-400'}
+                  >
+                    <span className="capitalize">{status}</span>
+                  </Button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Tenant Grid */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredTenants.map((tenant) => (
+                <TenantCard key={tenant.id} tenant={tenant} />
+              ))}
+            </div>
+            
+            {filteredTenants.length === 0 && (
+              <div className="text-center py-16 bg-gray-900/30 border border-gray-800/50 rounded-2xl">
+                <Globe className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-2">No tenants found</h3>
+                <p className="text-gray-400">Try adjusting your search or filters</p>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="features" className="mt-0">
-            <FeatureToggles tenantId={selectedTenantId} />
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {MOCK_FEATURES.map((feature) => (
+                <FeatureCard key={feature.key} feature={feature} />
+              ))}
+            </div>
           </TabsContent>
 
           <TabsContent value="resources" className="mt-0">
-            <ResourceLimits tenantId={selectedTenantId} />
+            <div className="bg-[#0a0a0a]/80 backdrop-blur-xl border border-gray-800/50 rounded-2xl p-8">
+              <h2 className="text-2xl font-bold text-white mb-6">Resource Limits</h2>
+              <p className="text-gray-400">Resource management will be available once backend entities are deployed.</p>
+            </div>
           </TabsContent>
 
           <TabsContent value="settings" className="mt-0">
