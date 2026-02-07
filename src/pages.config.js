@@ -49,9 +49,6 @@
  */
 import ABTestDashboard from './pages/ABTestDashboard';
 import Admin from './pages/Admin';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminTenants from './pages/admin/AdminTenants';
-import AdminUsers from './pages/admin/AdminUsers';
 import AdminAuditPlan from './pages/AdminAuditPlan';
 import AdminControlCenter from './pages/AdminControlCenter';
 import adminDeprecated from './pages/Admin_DEPRECATED';
@@ -88,7 +85,7 @@ import Home from './pages/Home';
 import LandscapingLanding from './pages/LandscapingLanding';
 import LawnCareLanding from './pages/LawnCareLanding';
 import LegalLanding from './pages/LegalLanding';
-import Monitoring from './pages/admin/Monitoring';
+import MoltBotDemo from './pages/MoltBotDemo';
 import PlumbersLanding from './pages/PlumbersLanding';
 import PowerWashingLanding from './pages/PowerWashingLanding';
 import PreDeploymentAudit from './pages/PreDeploymentAudit';
@@ -121,15 +118,21 @@ import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import UserJourneyTest from './pages/UserJourneyTest';
 import V2Start from './pages/V2Start';
+import GodModeDashboard from './pages/GodModeDashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminTenants from './pages/AdminTenants';
+import AdminUsers from './pages/AdminUsers';
+import BrandEditor from './pages/BrandEditor';
+import Monitoring from './pages/Monitoring';
+import EnterpriseMode from './pages/EnterpriseMode';
+import GrowthMode from './pages/GrowthMode';
+import QuickStartWizard from './pages/QuickStartWizard';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "ABTestDashboard": ABTestDashboard,
     "Admin": Admin,
-    "AdminDashboard": AdminDashboard,
-    "AdminTenants": AdminTenants,
-    "AdminUsers": AdminUsers,
     "AdminAuditPlan": AdminAuditPlan,
     "AdminControlCenter": AdminControlCenter,
     "Admin_DEPRECATED": adminDeprecated,
@@ -166,7 +169,7 @@ export const PAGES = {
     "LandscapingLanding": LandscapingLanding,
     "LawnCareLanding": LawnCareLanding,
     "LegalLanding": LegalLanding,
-    "Monitoring": Monitoring,
+    "MoltBotDemo": MoltBotDemo,
     "PlumbersLanding": PlumbersLanding,
     "PowerWashingLanding": PowerWashingLanding,
     "PreDeploymentAudit": PreDeploymentAudit,
@@ -199,6 +202,15 @@ export const PAGES = {
     "Upsell1": Upsell1,
     "UserJourneyTest": UserJourneyTest,
     "V2Start": V2Start,
+    "GodModeDashboard": GodModeDashboard,
+    "AdminDashboard": AdminDashboard,
+    "AdminTenants": AdminTenants,
+    "AdminUsers": AdminUsers,
+    "BrandEditor": BrandEditor,
+    "Monitoring": Monitoring,
+    "EnterpriseMode": EnterpriseMode,
+    "GrowthMode": GrowthMode,
+    "QuickStartWizard": QuickStartWizard,
 }
 
 export const pagesConfig = {

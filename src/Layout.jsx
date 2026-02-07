@@ -5,7 +5,26 @@ import { Menu, X, Zap, Settings, Shield, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { OfflineBanner } from '@/components/OfflineBanner';
-import { colors } from '@/config/BrandConfig';
+// Brand colors - inline config until BrandConfig is fixed
+const colors = {
+  brand: {
+    DEFAULT: '#c8ff00',
+    foreground: '#0a0a0f'
+  },
+  background: {
+    primary: '#0a0a0f',
+    secondary: '#1a1a2e'
+  },
+  text: {
+    primary: '#ffffff',
+    secondary: '#d1d5db',
+    muted: '#9ca3af'
+  },
+  border: {
+    DEFAULT: '#374151',
+    glass: '1px solid rgba(255, 255, 255, 0.1)'
+  }
+};
 
 /**
  * Layout Component - Unified Navigation
