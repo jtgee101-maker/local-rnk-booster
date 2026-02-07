@@ -28,6 +28,35 @@ export const TechNoirTheme = {
     
     // Text
     text: '#ffffff',
+    textMuted: '#888888',
+    textDark: '#666666',
+    
+    // Status
+    success: '#00ff88',
+    warning: '#ffaa00',
+    error: '#ff4444',
+    info: '#0088ff'
+  },
+    // Primary - Neon Cyan
+    primary: '#00F2FF',
+    primaryDark: '#00C4CC',
+    primaryLight: '#33F5FF',
+    primaryGlow: 'rgba(0, 242, 255, 0.5)',
+    
+    // Secondary - Acid Green
+    secondary: '#c8ff00',
+    secondaryDark: '#A3CC00',
+    secondaryLight: '#D4FF33',
+    secondaryGlow: 'rgba(200, 255, 0, 0.5)',
+    
+    // Background - OLED Black
+    background: '#000000',
+    surface: '#0a0a0a',
+    surfaceElevated: '#141414',
+    surfaceGlass: 'rgba(10, 10, 10, 0.8)',
+    
+    // Text
+    text: '#ffffff',
     textSecondary: 'rgba(255, 255, 255, 0.7)',
     textMuted: 'rgba(255, 255, 255, 0.5)',
     
@@ -290,6 +319,10 @@ export const statusColors = {
     border: 'border-red-500/30'
   }
 };
+
+// Direct exports for convenience
+export const colors = TechNoirTheme.colors;
+export const glassmorphism = TechNoirTheme.glassmorphism;
 
 // Export default theme configuration
 export default TechNoirTheme;
