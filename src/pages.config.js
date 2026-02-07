@@ -78,6 +78,8 @@ import Features from './pages/Features';
 import FinalLaunchChecklist from './pages/FinalLaunchChecklist';
 import FoxyAuditLanding from './pages/FoxyAuditLanding';
 import GettingStarted from './pages/GettingStarted';
+import GodModeDashboard from './pages/GodModeDashboard';
+import godmodedashboardTest from './pages/GodModeDashboard.test';
 import GuideQuizGeenius from './pages/GuideQuizGeenius';
 import HVACLanding from './pages/HVACLanding';
 import HandymanLanding from './pages/HandymanLanding';
@@ -118,8 +120,6 @@ import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import UserJourneyTest from './pages/UserJourneyTest';
 import V2Start from './pages/V2Start';
-import GodModeDashboard from './pages/GodModeDashboard';
-import godmodedashboardTest from './pages/GodModeDashboard.test';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminTenants from './pages/AdminTenants';
 import AdminUsers from './pages/AdminUsers';
@@ -163,6 +163,8 @@ export const PAGES = {
     "FinalLaunchChecklist": FinalLaunchChecklist,
     "FoxyAuditLanding": FoxyAuditLanding,
     "GettingStarted": GettingStarted,
+    "GodModeDashboard": GodModeDashboard,
+    "GodModeDashboard.test": godmodedashboardTest,
     "GuideQuizGeenius": GuideQuizGeenius,
     "HVACLanding": HVACLanding,
     "HandymanLanding": HandymanLanding,
@@ -203,8 +205,6 @@ export const PAGES = {
     "Upsell1": Upsell1,
     "UserJourneyTest": UserJourneyTest,
     "V2Start": V2Start,
-    "GodModeDashboard": GodModeDashboard,
-    "GodModeDashboard.test": godmodedashboardTest,
     "AdminDashboard": AdminDashboard,
     "AdminTenants": AdminTenants,
     "AdminUsers": AdminUsers,

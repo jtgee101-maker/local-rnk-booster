@@ -240,16 +240,13 @@ export default function GodModeDashboard() {
 
   const handleManageTenant = (tenant) => {
     setSelectedTenantId(tenant.id);
-    // Navigate to tenant management page or open modal
     alert(`Managing tenant: ${tenant.name}\nID: ${tenant.id}\n\nTenant management interface coming soon!`);
   };
 
-  // Try to fetch real data from Base44
   useEffect(() => {
     const fetchTenants = async () => {
       try {
         setLoading(true);
-        // Attempt to fetch from Base44 entities
         const response = await base44.entities?.Tenant?.list({
           sort: { field: 'created_at', direction: 'desc' }
         });
@@ -285,7 +282,6 @@ export default function GodModeDashboard() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Header */}
       <header className="border-b border-gray-800/50 bg-[#0a0a0a]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -309,9 +305,7 @@ export default function GodModeDashboard() {
         </div>
       </header>
 
-      {/* Main content */}
       <main className="max-w-7xl mx-auto px-6 py-8">
-        {/* Data Source Indicator */}
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full ${useRealData ? 'bg-emerald-400' : 'bg-amber-400'}`} />
@@ -360,7 +354,6 @@ export default function GodModeDashboard() {
           </TabsList>
 
           <TabsContent value="tenants" className="mt-0 space-y-6">
-            {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {stats.map((stat, idx) => (
                 <div key={idx} className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
@@ -370,7 +363,6 @@ export default function GodModeDashboard() {
               ))}
             </div>
             
-            {/* Filters */}
             <div className="flex flex-col md:flex-row gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
@@ -396,7 +388,6 @@ export default function GodModeDashboard() {
               </div>
             </div>
             
-            {/* Tenant Grid */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredTenants.map((tenant) => (
                 <TenantCard key={tenant.id} tenant={tenant} onManage={handleManageTenant} />
@@ -477,7 +468,6 @@ export default function GodModeDashboard() {
         </Tabs>
       </main>
 
-      {/* Footer */}
       <footer className="border-t border-gray-800/50 mt-16">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between text-sm text-gray-500">
