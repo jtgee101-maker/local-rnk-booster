@@ -1,23 +1,21 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
-  LineChart, Line, AreaChart, Area, BarChart, Bar, 
+  LineChart, Line, AreaChart, Area, 
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell
 } from 'recharts';
 import { 
   Activity, AlertTriangle, AlertCircle, CheckCircle, 
-  TrendingUp, TrendingDown, Clock, Server, Database, 
-  RefreshCw, Filter, Download, Bell, Shield, X,
-  ChevronDown, ChevronUp, Search, Zap, XCircle
+  TrendingUp, TrendingDown, Clock, 
+  RefreshCw, Filter, Download, Bell,
+  ChevronDown, ChevronUp, XCircle
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/components/ui/use-toast';

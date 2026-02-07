@@ -30,11 +30,13 @@ export default function FoxyAuditLanding() {
 
   // Initialize tracking pixels
   useEffect(() => {
-    const FB_PIXEL_ID = 'YOUR_FB_PIXEL_ID'; 
-    const GOOGLE_ADS_ID = 'AW-XXXXXXXXXX';
+    const FB_PIXEL_ID = import.meta.env.VITE_FB_PIXEL_ID || ''; 
+    const GOOGLE_ADS_ID = import.meta.env.VITE_GOOGLE_ADS_ID || '';
     
-    initializePixels(FB_PIXEL_ID, GOOGLE_ADS_ID);
-    trackConversion(CONVERSION_EVENTS.LANDING_PAGE_VIEW);
+    if (FB_PIXEL_ID || GOOGLE_ADS_ID) {
+      initializePixels(FB_PIXEL_ID, GOOGLE_ADS_ID);
+      trackConversion(CONVERSION_EVENTS.LANDING_PAGE_VIEW);
+    }
   }, []);
 
   useEffect(() => {

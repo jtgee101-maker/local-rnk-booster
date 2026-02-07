@@ -147,3 +147,9 @@ css
   font-family: system-ui;
   font-display: swap;
 }
+
+/* Funnel Visualization Shimmer Animation */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}

@@ -612,13 +612,6 @@ export default function FunnelVisualization({ dateRange }) {
         </CardContent>
       </Card>
 
-      {/* Add shimmer animation keyframes */}
-      <style jsx>{`
-        @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-      `}</style>
     </div>
   );
 }
