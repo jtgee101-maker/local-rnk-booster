@@ -2,7 +2,8 @@ import base44 from "@base44/vite-plugin"
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { visualizer } from 'rollup-plugin-visualizer'
-import { VitePWA } from 'vite-plugin-pwa'
+// PWA disabled for stable builds - re-enable after fixing service worker
+// import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -17,77 +18,79 @@ export default defineConfig({
       visualEditAgent: true
     }),
     react(),
-    VitePWA({
-      registerType: 'autoUpdate',
-      strategies: 'generateSW',
-      manifest: {
-        name: 'LocalRnk',
-        short_name: 'LocalRnk',
-        description: 'Local Business Ranking & SEO Optimization Platform',
-        theme_color: '#3b82f6',
-        background_color: '#ffffff',
-        display: 'standalone',
-        scope: '/',
-        start_url: '/',
-        orientation: 'portrait-primary',
-        icons: [
-          { src: '/icon-72x72.png', sizes: '72x72', type: 'image/png' },
-          { src: '/icon-96x96.png', sizes: '96x96', type: 'image/png' },
-          { src: '/icon-128x128.png', sizes: '128x128', type: 'image/png' },
-          { src: '/icon-144x144.png', sizes: '144x144', type: 'image/png' },
-          { src: '/icon-152x152.png', sizes: '152x152', type: 'image/png' },
-          { src: '/icon-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
-          { src: '/icon-384x384.png', sizes: '384x384', type: 'image/png' },
-          { src: '/icon-512x512.png', sizes: '512x512', type: 'image/png' }
-        ],
-        shortcuts: [
-          { name: 'Dashboard', short_name: 'Dashboard', description: 'View your business dashboard', url: '/dashboard' },
-          { name: 'Analytics', short_name: 'Analytics', description: 'View analytics and reports', url: '/analytics' },
-          { name: 'Campaigns', short_name: 'Campaigns', description: 'Manage your campaigns', url: '/campaigns' }
-        ]
-      },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-cache',
-              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'gstatic-fonts-cache',
-              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 }
-            }
-          },
-          {
-            urlPattern: /\.(?:png|jpg|jpeg|gif|svg|webp)$/i,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'images-cache',
-              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 7 }
-            }
-          },
-          {
-            urlPattern: /^\/api\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-cache',
-              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 5 }
-            }
-          }
-        ]
-      },
-      devOptions: {
-        enabled: process.env.VITE_ENABLE_SW_IN_DEV === 'true',
-        type: 'module'
-      }
-    }),
+    // PWA temporarily disabled - uncomment when ready for PWA
+    // VitePWA({
+    //   registerType: 'autoUpdate',
+    //   strategies: 'generateSW',
+    //   manifest: {
+    //     name: 'LocalRnk',
+    //     short_name: 'LocalRnk',
+    //     description: 'Local Business Ranking & SEO Optimization Platform',
+    //     theme_color: '#3b82f6',
+    //     background_color: '#ffffff',
+    //     display: 'standalone',
+    //     scope: '/',
+    //     start_url: '/',
+    //     orientation: 'portrait-primary',
+    //     icons: [
+    //       { src: '/icon-72x72.png', sizes: '72x72', type: 'image/png' },
+    //       { src: '/icon-96x96.png', sizes: '96x96', type: 'image/png' },
+    //       { src: '/icon-128x128.png', sizes: '128x128', type: 'image/png' },
+    //       { src: '/icon-144x144.png', sizes: '144x144', type: 'image/png' },
+    //       { src: '/icon-152x152.png', sizes: '152x152', type: 'image/png' },
+    //       { src: '/icon-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+    //       { src: '/icon-384x384.png', sizes: '384x384', type: 'image/png' },
+    //       { src: '/icon-512x512.png', sizes: '512x512', type: 'image/png' }
+    //     ],
+    //     shortcuts: [
+    //       { name: 'Dashboard', short_name: 'Dashboard', description: 'View your business dashboard', url: '/dashboard' },
+    //       { name: 'Analytics', short_name: 'Analytics', description: 'View analytics and reports', url: '/analytics' },
+    //       { name: 'Campaigns', short_name: 'Campaigns', description: 'Manage your campaigns', url: '/campaigns' }
+    //     ]
+    //   },
+    //   workbox: {
+    //     maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+    //     globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+    //     runtimeCaching: [
+    //       {
+    //         urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+    //         handler: 'CacheFirst',
+    //         options: {
+    //           cacheName: 'google-fonts-cache',
+    //           expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 }
+    //         }
+    //       },
+    //       {
+    //         urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+    //         handler: 'CacheFirst',
+    //         options: {
+    //           cacheName: 'gstatic-fonts-cache',
+    //           expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 }
+    //         }
+    //       },
+    //       {
+    //         urlPattern: /\.(?:png|jpg|jpeg|gif|svg|webp)$/i,
+    //         handler: 'StaleWhileRevalidate',
+    //         options: {
+    //           cacheName: 'images-cache',
+    //           expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 7 }
+    //         }
+    //       },
+    //       {
+    //         urlPattern: /^\/api\/.*/i,
+    //         handler: 'NetworkFirst',
+    //         options: {
+    //           cacheName: 'api-cache',
+    //           expiration: { maxEntries: 100, maxAgeSeconds: 60 * 5 }
+    //         }
+    //       }
+    //     ]
+    //   },
+    //   devOptions: {
+    //     enabled: process.env.VITE_ENABLE_SW_IN_DEV === 'true',
+    //     type: 'module'
+    //   }
+    // }),
     visualizer({
       filename: 'stats.html',
       open: false,
