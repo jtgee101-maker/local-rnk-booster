@@ -49,6 +49,9 @@
  */
 import ABTestDashboard from './pages/ABTestDashboard';
 import Admin from './pages/Admin';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminTenants from './pages/admin/AdminTenants';
+import AdminUsers from './pages/admin/AdminUsers';
 import AdminAuditPlan from './pages/AdminAuditPlan';
 import AdminControlCenter from './pages/AdminControlCenter';
 import adminDeprecated from './pages/Admin_DEPRECATED';
@@ -85,6 +88,7 @@ import Home from './pages/Home';
 import LandscapingLanding from './pages/LandscapingLanding';
 import LawnCareLanding from './pages/LawnCareLanding';
 import LegalLanding from './pages/LegalLanding';
+import Monitoring from './pages/admin/Monitoring';
 import PlumbersLanding from './pages/PlumbersLanding';
 import PowerWashingLanding from './pages/PowerWashingLanding';
 import PreDeploymentAudit from './pages/PreDeploymentAudit';
@@ -123,6 +127,9 @@ import __Layout from './Layout.jsx';
 export const PAGES = {
     "ABTestDashboard": ABTestDashboard,
     "Admin": Admin,
+    "AdminDashboard": AdminDashboard,
+    "AdminTenants": AdminTenants,
+    "AdminUsers": AdminUsers,
     "AdminAuditPlan": AdminAuditPlan,
     "AdminControlCenter": AdminControlCenter,
     "Admin_DEPRECATED": adminDeprecated,
@@ -159,6 +166,7 @@ export const PAGES = {
     "LandscapingLanding": LandscapingLanding,
     "LawnCareLanding": LawnCareLanding,
     "LegalLanding": LegalLanding,
+    "Monitoring": Monitoring,
     "PlumbersLanding": PlumbersLanding,
     "PowerWashingLanding": PowerWashingLanding,
     "PreDeploymentAudit": PreDeploymentAudit,

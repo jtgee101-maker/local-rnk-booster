@@ -4,6 +4,7 @@ import { createPageUrl } from '@/utils';
 import { Menu, X, Zap, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
+import { OfflineBanner } from '@/components/OfflineBanner';
 
 export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -185,6 +186,9 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Page Content */}
       <main>{children}</main>
+
+      {/* Offline Banner */}
+      <OfflineBanner />
 
       {/* Footer */}
       <footer className="relative border-t border-gray-800/50 bg-[#0a0a0f]/80 backdrop-blur-sm mt-20">

@@ -2,13 +2,47 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="https://base44.com/logo_v2.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="LocalRnk" />
+    <meta name="description" content="Local Business Ranking & SEO Optimization Platform" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    
+    <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json" />
-    <title>Base44 APP</title>
+    
+    <!-- Icons -->
+    <link rel="apple-touch-icon" href="/icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512x512.png" />
+    
+    <!-- Preconnect to critical domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <title>LocalRnk - Local Business SEO Platform</title>
+    
+    <!-- Critical CSS for initial render -->
+    <style>
+      /* Critical render path optimization */
+      html { background-color: #ffffff; }
+      body { margin: 0; min-height: 100vh; }
+      #root { min-height: 100vh; }
+    </style>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Service Worker Registration Fallback -->
+    <noscript>
+      <div style="padding: 2rem; text-align: center; font-family: system-ui;">
+        <h1>JavaScript Required</h1>
+        <p>LocalRnk requires JavaScript to function. Please enable JavaScript in your browser.</p>
+      </div>
+    </noscript>
   </body>
 </html>

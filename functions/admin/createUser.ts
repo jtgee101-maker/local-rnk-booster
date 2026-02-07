@@ -1,0 +1,170 @@
+/**
+ * Create a new user
+ */
+export default async function createUser(request) {
+  try {
+    // Verify admin access
+    const currentUser = request.user;
+    if (!currentUser || !['admin', 'super-admin'].includes(currentUser.role)) {
+      return {
+        success: false,
+        error: 'Unauthorized: Admin access required'
+      };
+    }
+
+    const { 
+      name, 
+      email, 
+      password,
+      role = 'user', 
+      status = 'active',
+      company = '',
+      sendWelcomeEmail = true
+    } = request.data || {};
+
+    // Validation
+    if (!email || !name) {
+      return {
+        success: false,
+        error: 'Email and name are required'
+      };
+    }
+
+    // Check if email already exists
+    const existingUser = await base44.db.collections.users?.findOne?.({ email });
+    if (existingUser) {
+      return {
+        success: false,
+        error: 'User with this email already exists'
+      };
+    }
+
+    // Validate role
+    const validRoles = ['user', 'support', 'admin', 'super-admin'];
+    if (!validRoles.includes(role)) {
+      return {
+        success: false,
+        error: 'Invalid role specified'
+      };
+    }
+
+    // Only super-admin can create other super-admins
+    if (role === 'super-admin' && currentUser.role !== 'super-admin') {
+      return {
+        success: false,
+        error: 'Only super admins can create super admin accounts'
+      };
+    }
+
+    // Create user object
+    const newUser = {
+      name,
+      email: email.toLowerCase().trim(),
+      role,
+      status,
+      company,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      createdBy: currentUser.id || currentUser._id,
+      emailVerified: false
+    };
+
+    // Handle password
+    if (password) {
+      // In real implementation, hash the password
+      newUser.passwordHash = await hashPassword(password);
+    } else {
+      // Generate temporary password
+      const tempPassword = generateTempPassword();
+      newUser.passwordHash = await hashPassword(tempPassword);
+      newUser.tempPassword = true;
+    }
+
+    // Insert user
+    const result = await base44.db.collections.users?.insertOne?.(newUser);
+    
+    if (!result?.insertedId && !result?.acknowledged) {
+      throw new Error('Failed to create user');
+    }
+
+    const userId = result.insertedId?.toString?.() || result.insertedId;
+
+    // Send welcome email if requested
+    if (sendWelcomeEmail) {
+      try {
+        await base44.emails.send({
+          to: email,
+          template: 'welcome-new-user',
+          data: {
+            name,
+            tempPassword: password || 'Check your email for setup instructions',
+            loginUrl: `${process.env.APP_URL}/login`
+          }
+        });
+      } catch (emailError) {
+        console.error('Failed to send welcome email:', emailError);
+        // Don't fail the request if email fails
+      }
+    }
+
+    // Log admin action
+    await logAdminAction({
+      adminId: currentUser.id || currentUser._id,
+      action: 'CREATE_USER',
+      targetId: userId,
+      targetType: 'user',
+      details: { email, role }
+    });
+
+    return {
+      success: true,
+      data: {
+        id: userId,
+        name,
+        email,
+        role,
+        status,
+        message: 'User created successfully'
+      }
+    };
+
+  } catch (error) {
+    console.error('createUser error:', error);
+    return {
+      success: false,
+      error: error.message || 'Failed to create user'
+    };
+  }
+}
+
+// Helper functions
+async function hashPassword(password) {
+  // In real implementation, use bcrypt or similar
+  // This is a placeholder
+  return `hashed_${password}`;
+}
+
+function generateTempPassword() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+  let password = '';
+  for (let i = 0; i < 12; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
+}
+
+async function logAdminAction({ adminId, action, targetId, targetType, details }) {
+  try {
+    await base44.db.collections.adminLogs?.insertOne?.({
+      adminId,
+      action,
+      targetId,
+      targetType,
+      details,
+      timestamp: new Date(),
+      ip: request.ip
+    });
+  } catch (error) {
+    console.error('Failed to log admin action:', error);
+  }
+}

@@ -15,6 +15,9 @@ import __Layout from './Layout.jsx';
 const ABTestDashboard = lazy(() => import('./pages/ABTestDashboard'));
 const Admin = lazy(() => import('./pages/Admin'));
 const AdminAuditPlan = lazy(() => import('./pages/AdminAuditPlan'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminTenants = lazy(() => import('./pages/admin/AdminTenants'));
+const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
 const AdminControlCenter = lazy(() => import('./pages/AdminControlCenter'));
 const adminDeprecated = lazy(() => import('./pages/Admin_DEPRECATED'));
 const AnalyticsVerification = lazy(() => import('./pages/AnalyticsVerification'));
@@ -87,6 +90,9 @@ export const PAGES = {
     "ABTestDashboard": ABTestDashboard,
     "Admin": Admin,
     "AdminAuditPlan": AdminAuditPlan,
+    "AdminDashboard": AdminDashboard,
+    "AdminTenants": AdminTenants,
+    "AdminUsers": AdminUsers,
     "AdminControlCenter": AdminControlCenter,
     "Admin_DEPRECATED": adminDeprecated,
     "AnalyticsVerification": AnalyticsVerification,
