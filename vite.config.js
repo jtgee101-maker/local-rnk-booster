@@ -111,7 +111,6 @@ export default defineConfig({
           'vendor-query': ['@tanstack/react-query'],
           // Heavy libraries - lazy loaded
           'vendor-3d': ['three'],
-          'vendor-editor': ['react-quill'],
           'vendor-maps': ['react-leaflet', 'leaflet'],
           // jspdf removed from client bundle - moved to server-side
         },
