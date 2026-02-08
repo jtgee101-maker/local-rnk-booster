@@ -61,7 +61,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Ranking grid error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));
 
 function generateGridPoints(lat, lng, radiusMiles) {
   const radiusKm = radiusMiles * 1.60934;

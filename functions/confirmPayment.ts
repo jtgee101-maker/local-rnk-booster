@@ -54,4 +54,4 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Payment confirmation error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));

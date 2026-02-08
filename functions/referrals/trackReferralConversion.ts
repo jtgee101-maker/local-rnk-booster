@@ -112,7 +112,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Track referral conversion error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));
 
 function calculateAffiliateTier(conversions) {
   if (conversions >= 50) return 'platinum';

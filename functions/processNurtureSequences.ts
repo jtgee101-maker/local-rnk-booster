@@ -87,4 +87,4 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Nurture processing error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));

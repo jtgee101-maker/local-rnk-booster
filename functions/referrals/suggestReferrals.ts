@@ -134,7 +134,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Suggest referrals error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));
 
 async function generateOrGetReferralCode(base44, email) {
   const existing = await base44.asServiceRole.entities.Referral.filter({

@@ -94,7 +94,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Abandoned GeeNiusPath error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));
 
 function getTemplate(daysSince, lead) {
   const businessName = lead.business_name || 'there';

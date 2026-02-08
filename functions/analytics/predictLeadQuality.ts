@@ -49,7 +49,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Lead quality prediction error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));
 
 async function calculateLeadScore(base44, lead) {
   let score = 0;

@@ -36,7 +36,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Deployment validation error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));
 
 async function validateDatabase(base44) {
   try {

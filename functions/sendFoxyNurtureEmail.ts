@@ -129,7 +129,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
 
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));
 
 // WOMP Framework Email Templates with real database data
 function getEmailTemplate(step, auditData, lead) {

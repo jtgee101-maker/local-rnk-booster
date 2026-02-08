@@ -64,7 +64,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       error: error.message
     }, { status: 500 });
   }
-});
+}));
 
 function getCTRByRank(rank) {
   // 2026 CTR data for Google Maps Pack

@@ -81,7 +81,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Reengagement error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));
 
 function getReengagementTemplate(lead, days) {
   const templates = {

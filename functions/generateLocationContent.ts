@@ -99,7 +99,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Generate location content error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));
 
 async function fetchNearbyLandmarks(lat, lng, apiKey) {
   if (!apiKey) return [];

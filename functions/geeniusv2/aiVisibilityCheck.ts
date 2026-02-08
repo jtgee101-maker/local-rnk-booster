@@ -71,7 +71,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       error: error.message || 'Failed to complete AI visibility analysis'
     }, { status: 500 });
   }
-});
+}));
 
 async function checkAIVisibility(platform, businessName, location, keyword, industry, base44) {
   try {

@@ -94,7 +94,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Funnel analysis error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));
 
 async function calculateAvgTimeOnStage(base44, funnelVersion, currentEvent, startDate, endDate) {
   const events = await base44.asServiceRole.entities.ConversionEvent.filter({

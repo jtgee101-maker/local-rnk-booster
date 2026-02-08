@@ -99,7 +99,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       stack: error.stack 
     }, { status: 500 });
   }
-});
+}));
 
 function calculateEngagementScore(behavior) {
   if (!behavior) return 0;

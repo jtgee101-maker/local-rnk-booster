@@ -127,7 +127,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       message: 'Heatmap analysis failed. Please try again.'
     }, { status: 500 });
   }
-});
+}));
 
 function generateGridNodes(centerLat, centerLng, radiusMeters, gridSize = 5) {
   const nodes = [];

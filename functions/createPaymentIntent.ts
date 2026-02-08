@@ -25,4 +25,4 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Payment intent error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));

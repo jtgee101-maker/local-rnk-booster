@@ -51,7 +51,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       error: error.message
     }, { status: 500 });
   }
-});
+}));
 
 function calculateReviewVelocity(reviews) {
   const last90Days = reviews?.filter(r => {

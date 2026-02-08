@@ -58,4 +58,4 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Error in abandoned cart reminders:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));

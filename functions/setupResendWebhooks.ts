@@ -63,4 +63,4 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       stack: error.stack
     }, { status: 500 });
   }
-});
+}));

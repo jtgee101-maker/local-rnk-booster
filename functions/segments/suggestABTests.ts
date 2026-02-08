@@ -233,7 +233,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('A/B test suggestion error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));
 
 function generateSegmentSpecificCTA(segmentName) {
   const ctaMap = {

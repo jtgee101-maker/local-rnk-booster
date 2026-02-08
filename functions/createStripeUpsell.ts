@@ -62,4 +62,4 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Stripe upsell error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));

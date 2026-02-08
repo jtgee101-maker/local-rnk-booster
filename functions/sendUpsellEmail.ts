@@ -40,4 +40,4 @@ Deno.serve(withDenoErrorHandler(async (req) => {
 
     return Response.json({ error: error.message, errorId: errorInfo.logId }, { status: 500 });
   }
-});
+}));

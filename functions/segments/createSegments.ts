@@ -188,7 +188,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Segment creation error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));
 
 async function calculateSegmentConversionRate(base44, leadIds) {
   if (leadIds.length === 0) return 0;

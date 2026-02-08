@@ -401,7 +401,7 @@ export const cacheStrategies = {
 export const cache = new CacheLayer({
   maxMemorySize: 10000,
   defaultTTL: 5 * 60 * 1000
-});
+}));
 
 export const cacheWarmer = new CacheWarmer(cache);
 

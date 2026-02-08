@@ -84,4 +84,4 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       timestamp: new Date().toISOString()
     }, { status: 500 });
   }
-});
+}));

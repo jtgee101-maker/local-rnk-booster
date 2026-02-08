@@ -115,4 +115,4 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Revenue forecast error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));

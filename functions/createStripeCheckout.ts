@@ -25,4 +25,4 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Stripe checkout error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));

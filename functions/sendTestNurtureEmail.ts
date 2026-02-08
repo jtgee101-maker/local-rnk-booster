@@ -62,7 +62,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Test email error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));
 
 function getEmailTemplate(step, auditData, lead) {
   const templates = {

@@ -89,7 +89,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       error: error.message
     }, { status: 500 });
   }
-});
+}));
 
 function mapEventToStatus(eventType) {
   const mapping = {

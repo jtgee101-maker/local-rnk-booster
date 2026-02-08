@@ -461,4 +461,4 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       error: (error as Error).message,
     }, { status: 503 });
   }
-});
+}));

@@ -63,7 +63,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Create referral error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));
 
 function generateReferralCode(email) {
   const prefix = email.substring(0, 3).toUpperCase();

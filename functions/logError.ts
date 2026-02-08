@@ -44,4 +44,4 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Error logging error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));

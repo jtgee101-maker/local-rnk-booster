@@ -56,7 +56,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Email personalization error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));
 
 async function generatePersonalizedContent(lead, segments, scoreData, templateType) {
   const segment = segments[0]; // Primary segment

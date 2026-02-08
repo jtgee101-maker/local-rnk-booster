@@ -60,7 +60,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Send-time optimization error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));
 
 async function analyzeSegmentSendTimes(base44, segment) {
   const leadIds = segment.lead_ids || [];

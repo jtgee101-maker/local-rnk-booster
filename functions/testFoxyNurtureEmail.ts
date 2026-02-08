@@ -137,4 +137,4 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       error: error.message 
     }, { status: 500 });
   }
-});
+}));

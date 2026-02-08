@@ -125,7 +125,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Post-purchase error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));
 
 function getDay1Template(businessName, order) {
   return `

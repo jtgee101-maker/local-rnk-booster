@@ -51,7 +51,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
 
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));
 
 /**
  * TACTICAL HEALTH SCORE - Never reaches 100

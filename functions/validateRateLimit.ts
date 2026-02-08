@@ -47,4 +47,4 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       error: 'Validation error'
     }, { status: 500 });
   }
-});
+}));
