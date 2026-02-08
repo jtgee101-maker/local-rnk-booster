@@ -7,6 +7,7 @@
  */
 
 import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { withDenoErrorHandler } from '../utils/errorHandler';
 
 // Cache for tenant lookups (TTL: 5 minutes)
 const tenantCache = new Map();
@@ -327,7 +328,7 @@ export function clearTenantCache(tenantId?: string): void {
 }
 
 // Main handler for Netlify Functions
-Deno.serve(async (req) => {
+Deno.serve(withDenoErrorHandler(async (req) => {
   const url = new URL(req.url);
   const path = url.pathname;
   
@@ -428,4 +429,4 @@ Deno.serve(async (req) => {
       { path: '/api/tenant/clear-cache', method: 'POST', description: 'Clear tenant cache (admin)' }
     ]
   });
-});
+}));
