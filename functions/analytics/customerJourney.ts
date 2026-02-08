@@ -36,7 +36,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Customer journey error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));
 
 async function getLeadJourney(base44, leadId) {
   const lead = await base44.asServiceRole.entities.Lead.get(leadId);
