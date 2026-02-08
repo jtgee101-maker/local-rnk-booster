@@ -133,30 +133,44 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       status: nextStep >= nurture.total_steps ? 'completed' : 'active'
     });
 
+    const latencyMs = Date.now() - startTime;
+    
     return Response.json({ 
       success: true, 
       email_id: result.id,
       next_step: nextStep,
-      sequence_complete: nextStep >= nurture.total_steps
+      sequence_complete: nextStep >= nurture.total_steps,
+      latency_ms: latencyMs,
+      _optimization: { circuit_breaker: true }
     });
 
   } catch (error) {
+    const latencyMs = Date.now() - startTime;
     console.error('Email send error:', error);
     
-    // Log error
+    // 200X: Log error with circuit breaker status
     try {
       const base44 = createClientFromRequest(req);
       await base44.asServiceRole.entities.ErrorLog.create({
         error_type: 'email_failure',
         severity: 'high',
         message: `Foxy nurture email failed: ${error.message}`,
-        metadata: { function: 'sendFoxyNurtureEmail', error: error.stack }
+        metadata: { 
+          function: 'sendFoxyNurtureEmail', 
+          error: error.stack,
+          latency_ms: latencyMs,
+          circuit_breaker_state: resendCircuitBreaker.getStats().state
+        }
       });
     } catch (logError) {
       console.error('Failed to log error:', logError);
     }
 
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ 
+      error: error.message,
+      latency_ms: latencyMs,
+      circuit_breaker: resendCircuitBreaker.getStats()
+    }, { status: 500 });
   }
 }));
 

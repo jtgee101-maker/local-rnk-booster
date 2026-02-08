@@ -2,6 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
 import { UltraCache } from '../utils/cache-200x.ts';
 import { PerformanceMonitor } from '../utils/performanceMonitor.ts';
+import { RateLimiter } from '../utils/rateLimiter.ts';
 
 /**
  * Cohort Analysis - 200X OPTIMIZED VERSION
@@ -22,6 +23,13 @@ const analyticsCache = new UltraCache({ maxSizeMB: 100, defaultTTLSeconds: 300 }
 const cohortResultCache = new UltraCache({ maxSizeMB: 50, defaultTTLSeconds: 600 });
 const performanceMonitor = new PerformanceMonitor();
 
+// 200X: Rate limiter for analytics endpoints (100 req/min per IP)
+const rateLimiter = new RateLimiter({
+  tokensPerInterval: 100,
+  interval: 60000,
+  maxTokens: 150
+});
+
 // Legacy cache cleanup (kept for compatibility during transition)
 const CACHE_TTL = 5 * 60 * 1000;
 
@@ -31,6 +39,25 @@ const MAX_MEMORY_MB = 256; // Memory limit
 
 Deno.serve(withDenoErrorHandler(async (req) => {
   try {
+    // 200X: Rate limiting check
+    const clientId = req.headers.get('x-forwarded-for') || 'unknown';
+    const rateLimitResult = await rateLimiter.check(clientId);
+    
+    if (!rateLimitResult.allowed) {
+      return Response.json({ 
+        error: 'Rate limit exceeded',
+        retry_after: rateLimitResult.retryAfter,
+        remaining: rateLimitResult.remaining
+      }, { 
+        status: 429,
+        headers: {
+          'X-RateLimit-Limit': '100',
+          'X-RateLimit-Remaining': '0',
+          'X-RateLimit-Reset': String(rateLimitResult.resetTime)
+        }
+      });
+    }
+    
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
 

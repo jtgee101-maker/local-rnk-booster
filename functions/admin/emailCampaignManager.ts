@@ -2,6 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import { withDenoErrorHandler } from './utils/errorHandler.js';
 import { BatchProcessor } from '../utils/batchProcessor.ts';
 import { PerformanceMonitor } from '../utils/performanceMonitor.ts';
+import { RateLimiter } from '../utils/rateLimiter.ts';
 
 /**
  * Email Campaign Manager - 200X OPTIMIZED VERSION
@@ -27,8 +28,34 @@ const PAGE_SIZE = 500;
 // 200X: Performance monitoring
 const performanceMonitor = new PerformanceMonitor();
 
+// 200X: Rate limiter for email endpoints (stricter - 50 req/min)
+const rateLimiter = new RateLimiter({
+  tokensPerInterval: 50,
+  interval: 60000,
+  maxTokens: 75
+});
+
 Deno.serve(withDenoErrorHandler(async (req) => {
   try {
+    // 200X: Rate limiting check
+    const clientId = req.headers.get('x-forwarded-for') || 'unknown';
+    const rateLimitResult = await rateLimiter.check(clientId);
+    
+    if (!rateLimitResult.allowed) {
+      return Response.json({ 
+        error: 'Rate limit exceeded',
+        retry_after: rateLimitResult.retryAfter,
+        remaining: rateLimitResult.remaining
+      }, { 
+        status: 429,
+        headers: {
+          'X-RateLimit-Limit': '50',
+          'X-RateLimit-Remaining': '0',
+          'X-RateLimit-Reset': String(rateLimitResult.resetTime)
+        }
+      });
+    }
+    
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
 

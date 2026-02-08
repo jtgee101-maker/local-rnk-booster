@@ -35,7 +35,7 @@ export class ConnectionPool<T> {
     timeout: NodeJS.Timeout;
   }> = [];
   private connectionCounter = 0;
-  private shutdown = false;
+  private isShutdown = false;
 
   constructor(
     private readonly factory: () => Promise<T>,
@@ -84,7 +84,7 @@ export class ConnectionPool<T> {
   }
 
   async acquire(): Promise<T> {
-    if (this.shutdown) {
+    if (this.isShutdown) {
       throw new Error('Pool is shutdown');
     }
 
@@ -203,7 +203,7 @@ export class ConnectionPool<T> {
   }
 
   async shutdown(): Promise<void> {
-    this.shutdown = true;
+    this.isShutdown = true;
     
     // Reject all waiting
     for (const waiter of this.waiting) {
