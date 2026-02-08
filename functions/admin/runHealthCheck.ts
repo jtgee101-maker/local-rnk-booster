@@ -78,7 +78,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       execution_time_ms: Date.now() - startTime
     }, { status: 500 });
   }
-});
+}));
 
 async function checkDatabase(base44) {
   try {

@@ -581,4 +581,4 @@ Deno.serve(withDenoErrorHandler(async (req) => {
   } catch (error) {
     return Response.json({ success: false, error: (error as Error).message }, { status: 500 });
   }
-});
+}));
