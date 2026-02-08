@@ -196,7 +196,7 @@ export class TieredCache<T> {
   }
 
   async set(key: string, value: T, ttl?: number): Promise<void> {
-    this.l1.set(key, value, Math.min(tttl || 60, 60)); // L1: short TTL
+    this.l1.set(key, value, Math.min(ttl || 60, 60)); // L1: short TTL
     this.l2.set(key, value, ttl); // L2: full TTL
   }
 }

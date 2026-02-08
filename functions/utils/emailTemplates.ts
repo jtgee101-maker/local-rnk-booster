@@ -15,14 +15,14 @@ export const getEmailStyles = () => ({
   urgencyBox: 'background: rgba(239, 68, 68, 0.1); border: 2px solid rgba(239, 68, 68, 0.4); border-radius: 8px; padding: 15px; margin: 20px 0; text-align: center;',
   socialProof: 'background: rgba(100, 200, 255, 0.08); border-radius: 8px; padding: 15px; margin: 20px 0; display: flex; align-items: center; gap: 15px;',
   footer: 'border-top: 1px solid #333; margin-top: 30px; padding-top: 20px;'
-}));
+});
 
 export const getAdminEmailStyles = () => ({
   container: 'font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;',
   wrapper: 'background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 20px 0;',
   highlight: 'background: rgba(200, 255, 0, 0.1); border-left: 4px solid #c8ff00; padding: 15px; margin-bottom: 20px;',
   ctaButton: 'display: inline-block; background: #c8ff00; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;'
-}));
+});
 
 export const quizSubmissionTemplate = (leadData, domain = 'https://localrnk.com') => {
   const styles = getEmailStyles();

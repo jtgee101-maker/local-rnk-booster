@@ -1,87 +1,66 @@
-// Tenant Entity - Core white-label customer
-export interface Tenant {
-  id: string;
-  name: string;
-  slug: string;
-  subdomain: string;
-  custom_domain?: string;
-  status: 'pending' | 'active' | 'suspended' | 'cancelled';
-  branding_config: object;
-  domain_verified: boolean;
-  ssl_status: 'pending' | 'active' | 'error' | 'renewing';
-  max_audits: number;
-  max_users: number;
-  max_projects: number;
-  storage_limit_mb: number;
-  plan_id: string;
-  subscription_status: string;
-  created_at: string;
-  updated_at: string;
-}
+/**
+ * Base44 Entities Index - 200X Optimized
+ * All 10 entities exported for production use
+ * 
+ * @version 2.0.0
+ * @status PRODUCTION READY
+ */
 
-// Feature Override - Per-tenant feature toggles
-export interface FeatureOverride {
-  id: string;
-  tenant_id: string;
-  feature_key: string;
-  feature_category: string;
-  is_enabled: boolean;
-  limit_value?: number;
-  created_at: string;
-  updated_at: string;
-}
+// ============================================================================
+// ENTITY EXPORTS
+// ============================================================================
 
-// Tenant User - User membership in tenant
-export interface TenantUser {
-  id: string;
-  tenant_id: string;
-  user_id: string;
-  role: 'owner' | 'admin' | 'manager' | 'member' | 'viewer';
-  is_active: boolean;
-  joined_at: string;
-}
+export type { Tenant } from './entity-definitions-200x';
+export type { User } from './entity-definitions-200x';
+export type { FeatureOverride } from './entity-definitions-200x';
+export type { UTMSession } from './entity-definitions-200x';
+export type { ResourceUsage } from './entity-definitions-200x';
+export type { TenantHealthCheck } from './entity-definitions-200x';
+export type { GodModeAuditLog } from './entity-definitions-200x';
+export type { ErrorLog } from './entity-definitions-200x';
+export type { PaymentTransaction } from './entity-definitions-200x';
+export type { AuditLog } from './entity-definitions-200x';
 
-// UTM Session - Attribution tracking
-export interface UTMSession {
-  id: string;
-  session_id: string;
-  tenant_id?: string;
-  utm_source?: string;
-  utm_medium?: string;
-  utm_campaign?: string;
-  landing_page: string;
-  converted: boolean;
-  created_at: string;
-  expires_at: string;
-}
+// ============================================================================
+// UTILITY EXPORTS
+// ============================================================================
 
-// Resource Usage - Consumption tracking
-export interface ResourceUsage {
-  id: string;
-  tenant_id: string;
-  resource_type: string;
-  usage_count: number;
-  usage_date: string;
-}
+export {
+  // Error handling
+  EntityError,
+  handleEntityError,
+  
+  // Query optimization
+  buildOptimizedQuery,
+  
+  // Index definitions
+  CRITICAL_INDEXES,
+  HIGH_PRIORITY_INDEXES,
+  MEDIUM_PRIORITY_INDEXES,
+  
+  // Default configs
+  DEFAULT_TENANT_CONFIG,
+  DEFAULT_USER_PREFERENCES,
+} from './entity-definitions-200x';
 
-// Tenant Health Check - Monitoring
-export interface TenantHealthCheck {
-  id: string;
-  tenant_id: string;
-  audits_count: number;
-  users_count: number;
-  projects_count: number;
-  storage_used_mb: number;
-  overall_status: 'healthy' | 'degraded' | 'unhealthy';
-  checked_at: string;
-}
+// ============================================================================
+// TYPE EXPORTS
+// ============================================================================
 
-// God Mode Audit Log - Admin actions
-export interface GodModeAuditLog {
-  id: string;
-  admin_user_id: string;
-  tenant_id?: string;
-  action: string;
-  action_details: object;
-  created_at: string;
-}
+export type { QueryOptions } from './entity-definitions-200x';
+
+// ============================================================================
+// LEGACY EXPORTS (for backward compatibility)
+// ============================================================================
+
+// Re-export from tenant-entities.ts for compatibility
+export type {
+  TenantUser,
+  FeatureDefinition,
+} from './tenant-entities';
+
+export {
+  DEFAULT_TENANT_CONFIG as LEGACY_DEFAULT_TENANT_CONFIG,
+  FEATURE_DEFINITIONS,
+  PLAN_PRESETS,
+} from './tenant-entities';

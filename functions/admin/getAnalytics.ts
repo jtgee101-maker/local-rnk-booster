@@ -1,5 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
+import { UltraCache } from '../utils/cache-200x.ts';
+import { PerformanceMonitor } from '../utils/performanceMonitor.ts';
+
+// 200X: UltraCache for analytics data
+const analyticsCache = new UltraCache({ maxSizeMB: 50, defaultTTLSeconds: 120 });
+const performanceMonitor = new PerformanceMonitor();
 
 Deno.serve(withDenoErrorHandler(async (req) => {
   try {
@@ -10,6 +16,15 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
+    // 200X: Check cache for analytics summary
+    const cacheKey = `analytics_summary_${new Date().toISOString().slice(0, 13)}`; // Hourly cache
+    const cached = analyticsCache.get(cacheKey);
+    if (cached) {
+      performanceMonitor.record('analytics_cache_hit', 1);
+      return Response.json({ ...cached, _source: 'cache', _cached_at: new Date().toISOString() });
+    }
+
+    return performanceMonitor.time('getAnalytics', async () => {
     const [leads, orders, abTests, abEvents] = await Promise.all([
       base44.asServiceRole.entities.Lead.list('-created_date', 10000),
       base44.asServiceRole.entities.Order.list('-created_date', 10000),
@@ -69,7 +84,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       revenueByDay[date] = (revenueByDay[date] || 0) + (order.total_amount || 0);
     });
 
-    return Response.json({
+    const result = {
       overview: {
         totalLeads,
         totalRevenue: totalRevenue.toFixed(2),
@@ -84,6 +99,16 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       },
       abTests: abTestResults,
       revenueByDay
+    };
+    
+    // 200X: Cache result for 5 minutes
+    analyticsCache.set(cacheKey, result, 300);
+    performanceMonitor.record('analytics_cache_miss', 1);
+    
+    return Response.json({
+      ...result,
+      _optimization: { ultracache: true, cached: false }
+    });
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

@@ -1,7 +1,31 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
+import { CircuitBreaker } from './utils/circuitBreaker.ts';
+import { PerformanceMonitor } from './utils/performanceMonitor.ts';
+
+// 200X: Circuit breaker for Resend API
+const resendCircuitBreaker = new CircuitBreaker(
+  async () => {
+    // Health check function
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'HEAD',
+      headers: { 'Authorization': `Bearer ${Deno.env.get('RESEND_API_KEY')}` }
+    });
+    return response.ok;
+  },
+  {
+    failureThreshold: 5,
+    resetTimeout: 30000,
+    halfOpenMaxCalls: 3,
+    monitoringPeriod: 60000
+  }
+);
+
+const performanceMonitor = new PerformanceMonitor();
 
 Deno.serve(withDenoErrorHandler(async (req) => {
+  const startTime = Date.now();
+  
   try {
     const base44 = createClientFromRequest(req);
     const { nurtureId } = await req.json();
@@ -53,26 +77,31 @@ Deno.serve(withDenoErrorHandler(async (req) => {
 
     const emailContent = getEmailTemplate(nurture.current_step + 1, auditData, leadData);
 
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'onboarding@resend.dev',
-        to: leadData.email,
-        subject: emailContent.subject,
-        html: emailContent.html,
-      }),
+    // 200X: Send email with circuit breaker protection
+    const result = await performanceMonitor.time('sendEmail', async () => {
+      return await resendCircuitBreaker.execute(async () => {
+        const response = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${RESEND_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: 'onboarding@resend.dev',
+            to: leadData.email,
+            subject: emailContent.subject,
+            html: emailContent.html,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Resend API error: ${response.statusText} - ${errorText}`);
+        }
+
+        return await response.json();
+      });
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Resend API error: ${response.statusText} - ${errorText}`);
-    }
-
-    const result = await response.json();
 
     // Log email
     await base44.asServiceRole.entities.EmailLog.create({
