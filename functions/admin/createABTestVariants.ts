@@ -94,4 +94,4 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.error('Error creating A/B tests:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
-});
+}));
