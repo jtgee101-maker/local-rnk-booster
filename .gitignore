@@ -30,3 +30,4 @@ dist-ssr
 .env
 # Local Netlify folder
 .netlify
+stats.html
