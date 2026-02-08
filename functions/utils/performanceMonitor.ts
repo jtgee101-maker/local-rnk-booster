@@ -1,319 +1,300 @@
 /**
- * Database Performance Monitor
- * Tracks query execution times and identifies slow queries
+ * 200X Performance Monitor - Real-time metrics and alerting
+ * Track performance, identify bottlenecks, alert on issues
  */
 
-interface QueryMetrics {
-  collection: string;
-  operation: string;
-  query: any;
-  duration: number;
-  timestamp: Date;
-  slow: boolean;
+interface Metric {
+  name: string;
+  value: number;
+  timestamp: number;
+  tags?: Record<string, string>;
 }
 
-class PerformanceMonitor {
-  private metrics: QueryMetrics[] = [];
-  private readonly SLOW_QUERY_THRESHOLD = 100; // ms
-  private maxMetricsSize = 1000;
+interface PerformanceSnapshot {
+  timestamp: number;
+  metrics: Map<string, number>;
+  slowOperations: Array<{ name: string; duration: number }>;
+  memoryUsage: NodeJS.MemoryUsage;
+}
+
+interface AlertThreshold {
+  metric: string;
+  operator: '>' | '<' | '>=' | '<=' | '==';
+  value: number;
+  duration?: number; // ms - must exceed for this duration
+}
+
+interface Alert {
+  id: string;
+  metric: string;
+  threshold: number;
+  actualValue: number;
+  timestamp: number;
+  severity: 'warning' | 'critical';
+}
+
+export class PerformanceMonitor {
+  private metrics: Metric[] = [];
+  private thresholds: AlertThreshold[] = [];
+  private alerts: Alert[] = [];
+  private operationTimings: Map<string, number[]> = new Map();
+  private maxMetricsHistory = 10000;
 
   /**
-   * Wrap a database operation with timing
+   * Record a metric
    */
-  async track<T>(
-    collection: string,
-    operation: string,
-    query: any,
-    fn: () => Promise<T>
+  record(name: string, value: number, tags?: Record<string, string>): void {
+    this.metrics.push({
+      name,
+      value,
+      timestamp: Date.now(),
+      tags
+    });
+
+    // Trim old metrics
+    if (this.metrics.length > this.maxMetricsHistory) {
+      this.metrics = this.metrics.slice(-this.maxMetricsHistory);
+    }
+
+    // Check thresholds
+    this.checkThresholds(name, value);
+  }
+
+  /**
+   * Time an operation
+   */
+  async time<T>(
+    name: string,
+    operation: () => Promise<T>,
+    tags?: Record<string, string>
   ): Promise<T> {
     const start = performance.now();
-    
     try {
-      const result = await fn();
+      const result = await operation();
       const duration = performance.now() - start;
+      this.record(`${name}_duration`, duration, tags);
+      this.record(`${name}_success`, 1, tags);
       
-      this.recordMetric({
-        collection,
-        operation,
-        query: this.sanitizeQuery(query),
-        duration,
-        timestamp: new Date(),
-        slow: duration > this.SLOW_QUERY_THRESHOLD
-      });
+      // Track for statistics
+      this.trackTiming(name, duration);
       
       return result;
     } catch (error) {
       const duration = performance.now() - start;
-      this.recordMetric({
-        collection,
-        operation,
-        query: this.sanitizeQuery(query),
-        duration,
-        timestamp: new Date(),
-        slow: true
-      });
+      this.record(`${name}_duration`, duration, tags);
+      this.record(`${name}_error`, 1, tags);
       throw error;
     }
   }
 
   /**
-   * Record a metric, maintaining max size
+   * Add an alert threshold
    */
-  private recordMetric(metric: QueryMetrics): void {
-    this.metrics.push(metric);
-    
-    // Keep only recent metrics to prevent memory bloat
-    if (this.metrics.length > this.maxMetricsSize) {
-      this.metrics = this.metrics.slice(-this.maxMetricsSize);
-    }
-
-    // Log slow queries immediately
-    if (metric.slow) {
-      console.warn(`[SLOW QUERY] ${metric.collection}.${metric.operation} took ${metric.duration.toFixed(2)}ms`, {
-        query: metric.query,
-        timestamp: metric.timestamp
-      });
-    }
+  addThreshold(threshold: AlertThreshold): void {
+    this.thresholds.push(threshold);
   }
 
   /**
-   * Get top 10 slowest queries
+   * Get metric statistics
    */
-  getSlowestQueries(limit: number = 10): QueryMetrics[] {
-    return this.metrics
-      .filter(m => m.slow)
-      .sort((a, b) => b.duration - a.duration)
-      .slice(0, limit);
-  }
-
-  /**
-   * Get query statistics by collection
-   */
-  getCollectionStats(): Record<string, {
-    totalQueries: number;
-    avgDuration: number;
-    slowQueries: number;
-    operations: Record<string, { count: number; avgDuration: number }>
-  }> {
-    const stats: Record<string, any> = {};
-
-    for (const metric of this.metrics) {
-      if (!stats[metric.collection]) {
-        stats[metric.collection] = {
-          totalQueries: 0,
-          totalDuration: 0,
-          slowQueries: 0,
-          operations: {}
-        };
-      }
-
-      const coll = stats[metric.collection];
-      coll.totalQueries++;
-      coll.totalDuration += metric.duration;
-      if (metric.slow) coll.slowQueries++;
-
-      if (!coll.operations[metric.operation]) {
-        coll.operations[metric.operation] = { count: 0, totalDuration: 0 };
-      }
-      coll.operations[metric.operation].count++;
-      coll.operations[metric.operation].totalDuration += metric.duration;
-    }
-
-    // Calculate averages
-    for (const collName in stats) {
-      const coll = stats[collName];
-      coll.avgDuration = coll.totalQueries > 0 ? coll.totalDuration / coll.totalQueries : 0;
-      
-      for (const opName in coll.operations) {
-        const op = coll.operations[opName];
-        op.avgDuration = op.count > 0 ? op.totalDuration / op.count : 0;
-        delete op.totalDuration;
-      }
-      
-      delete coll.totalDuration;
-    }
-
-    return stats;
-  }
-
-  /**
-   * Generate performance report
-   */
-  generateReport(): {
-    summary: {
-      totalQueries: number;
-      slowQueryCount: number;
-      slowQueryPercentage: number;
-      avgResponseTime: number;
-    };
-    slowestQueries: QueryMetrics[];
-    collectionStats: ReturnType<typeof this.getCollectionStats>;
-    recommendations: string[];
+  getStats(name: string, timeWindow: number = 60000): {
+    count: number;
+    min: number;
+    max: number;
+    avg: number;
+    p95: number;
+    p99: number;
   } {
-    const totalQueries = this.metrics.length;
-    const slowQueries = this.metrics.filter(m => m.slow);
-    const avgResponseTime = totalQueries > 0
-      ? this.metrics.reduce((sum, m) => sum + m.duration, 0) / totalQueries
-      : 0;
+    const cutoff = Date.now() - timeWindow;
+    const values = this.metrics
+      .filter(m => m.name === name && m.timestamp >= cutoff)
+      .map(m => m.value)
+      .sort((a, b) => a - b);
 
-    const collectionStats = this.getCollectionStats();
-    const recommendations = this.generateRecommendations(collectionStats);
+    if (values.length === 0) {
+      return { count: 0, min: 0, max: 0, avg: 0, p95: 0, p99: 0 };
+    }
+
+    const sum = values.reduce((a, b) => a + b, 0);
+    const avg = sum / values.length;
+    
+    const p95Index = Math.floor(values.length * 0.95);
+    const p99Index = Math.floor(values.length * 0.99);
 
     return {
-      summary: {
-        totalQueries,
-        slowQueryCount: slowQueries.length,
-        slowQueryPercentage: totalQueries > 0 ? (slowQueries.length / totalQueries) * 100 : 0,
-        avgResponseTime
-      },
-      slowestQueries: this.getSlowestQueries(10),
-      collectionStats,
-      recommendations
+      count: values.length,
+      min: values[0],
+      max: values[values.length - 1],
+      avg,
+      p95: values[p95Index] || values[values.length - 1],
+      p99: values[p99Index] || values[values.length - 1]
     };
   }
 
   /**
-   * Generate optimization recommendations
+   * Get performance snapshot
    */
-  private generateRecommendations(
-    stats: ReturnType<typeof this.getCollectionStats>
-  ): string[] {
-    const recommendations: string[] = [];
-
-    for (const [collection, data] of Object.entries(stats)) {
-      if (data.slowQueries > data.totalQueries * 0.1) {
-        recommendations.push(
-          `Collection '${collection}' has ${data.slowQueries} slow queries (${((data.slowQueries/data.totalQueries)*100).toFixed(1)}%). Consider adding indexes.`
-        );
-      }
-
-      // Check for N+1 pattern (high count of findOne operations)
-      const findOneOps = data.operations['findOne'];
-      if (findOneOps && findOneOps.count > 100 && findOneOps.avgDuration > 50) {
-        recommendations.push(
-          `Collection '${collection}' has many findOne operations. Consider using $in queries or joins to reduce N+1 queries.`
-        );
-      }
+  getSnapshot(): PerformanceSnapshot {
+    const metrics = new Map<string, number>();
+    
+    // Aggregate current metrics
+    const latestMetrics = this.getLatestMetrics();
+    for (const [name, value] of latestMetrics) {
+      metrics.set(name, value);
     }
 
-    return recommendations;
+    // Get slow operations
+    const slowOperations = this.getSlowOperations();
+
+    return {
+      timestamp: Date.now(),
+      metrics,
+      slowOperations,
+      memoryUsage: process.memoryUsage()
+    };
   }
 
   /**
-   * Sanitize query for logging (remove sensitive data)
+   * Get all alerts
    */
-  private sanitizeQuery(query: any): any {
-    if (!query || typeof query !== 'object') return query;
-    
-    const sensitiveFields = ['password', 'token', 'secret', 'creditCard', 'ssn'];
-    const sanitized = { ...query };
-    
-    for (const field of sensitiveFields) {
-      if (sanitized[field]) {
-        sanitized[field] = '[REDACTED]';
-      }
+  getAlerts(severity?: 'warning' | 'critical'): Alert[] {
+    if (severity) {
+      return this.alerts.filter(a => a.severity === severity);
     }
-    
-    return sanitized;
+    return [...this.alerts];
   }
 
   /**
-   * Clear all metrics
+   * Clear old alerts
    */
-  clear(): void {
-    this.metrics = [];
+  clearAlerts(olderThan?: number): void {
+    if (olderThan) {
+      const cutoff = Date.now() - olderThan;
+      this.alerts = this.alerts.filter(a => a.timestamp >= cutoff);
+    } else {
+      this.alerts = [];
+    }
+  }
+
+  /**
+   * Export metrics for external systems
+   */
+  exportMetrics(format: 'json' | 'prometheus' = 'json'): string {
+    if (format === 'prometheus') {
+      return this.toPrometheusFormat();
+    }
+    return JSON.stringify(this.metrics.slice(-1000));
+  }
+
+  private trackTiming(name: string, duration: number): void {
+    const timings = this.operationTimings.get(name) || [];
+    timings.push(duration);
+    
+    // Keep last 1000 timings
+    if (timings.length > 1000) {
+      timings.shift();
+    }
+    
+    this.operationTimings.set(name, timings);
+  }
+
+  private getLatestMetrics(): Map<string, number> {
+    const latest = new Map<string, number>();
+    
+    for (let i = this.metrics.length - 1; i >= 0; i--) {
+      const metric = this.metrics[i];
+      if (!latest.has(metric.name)) {
+        latest.set(metric.name, metric.value);
+      }
+    }
+    
+    return latest;
+  }
+
+  private getSlowOperations(): Array<{ name: string; duration: number }> {
+    const slow: Array<{ name: string; duration: number }> = [];
+    
+    for (const [name, timings] of this.operationTimings.entries()) {
+      if (timings.length === 0) continue;
+      
+      const avg = timings.reduce((a, b) => a + b, 0) / timings.length;
+      if (avg > 100) { // > 100ms is slow
+        slow.push({ name, duration: avg });
+      }
+    }
+    
+    return slow.sort((a, b) => b.duration - a.duration).slice(0, 10);
+  }
+
+  private checkThresholds(metricName: string, value: number): void {
+    for (const threshold of this.thresholds) {
+      if (threshold.metric !== metricName) continue;
+      
+      let breached = false;
+      switch (threshold.operator) {
+        case '>': breached = value > threshold.value; break;
+        case '<': breached = value < threshold.value; break;
+        case '>=': breached = value >= threshold.value; break;
+        case '<=': breached = value <= threshold.value; break;
+        case '==': breached = value === threshold.value; break;
+      }
+      
+      if (breached) {
+        this.createAlert(threshold, value);
+      }
+    }
+  }
+
+  private createAlert(threshold: AlertThreshold, actualValue: number): void {
+    const alert: Alert = {
+      id: `alert-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      metric: threshold.metric,
+      threshold: threshold.value,
+      actualValue,
+      timestamp: Date.now(),
+      severity: threshold.operator === '>' && actualValue > threshold.value * 2 ? 'critical' : 'warning'
+    };
+    
+    this.alerts.push(alert);
+    
+    // Log alert
+    console.warn(`[PerformanceMonitor] ALERT: ${alert.metric} ${threshold.operator} ${threshold.value} (actual: ${actualValue})`);
+  }
+
+  private toPrometheusFormat(): string {
+    const lines: string[] = [];
+    
+    for (const [name, stats] of this.operationTimings.entries()) {
+      if (stats.length === 0) continue;
+      
+      const avg = stats.reduce((a, b) => a + b, 0) / stats.length;
+      lines.push(`# HELP ${name} Average duration in ms`);
+      lines.push(`# TYPE ${name} gauge`);
+      lines.push(`${name}_avg ${avg.toFixed(2)}`);
+    }
+    
+    return lines.join('\n');
   }
 }
 
-// Singleton instance
-export const dbMonitor = new PerformanceMonitor();
+// Global monitor instance
+export const globalMonitor = new PerformanceMonitor();
 
-/**
- * Decorator for tracking function calls
- */
-export function trackQuery(collection: string, operation: string) {
-  return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+// Decorator for automatic timing
+export function Timed(name: string, tags?: Record<string, string>) {
+  return function (
+    target: any,
+    propertyKey: string,
+    descriptor: PropertyDescriptor
+  ) {
     const originalMethod = descriptor.value;
     
-    descriptor.value = async function(...args: any[]) {
-      return dbMonitor.track(collection, operation, args[0], () => 
-        originalMethod.apply(this, args)
-      );
+    descriptor.value = async function (...args: any[]) {
+      return globalMonitor.time(name, () => originalMethod.apply(this, args), tags);
     };
     
     return descriptor;
   };
 }
 
-/**
- * Wrap base44 db operations with monitoring
- */
-export function wrapWithMonitoring(db: any) {
-  const wrapped = { ...db };
-  
-  if (db.collections) {
-    wrapped.collections = {};
-    
-    for (const [collectionName, collection] of Object.entries(db.collections)) {
-      wrapped.collections[collectionName] = wrapCollection(collectionName, collection);
-    }
-  }
-  
-  return wrapped;
-}
-
-function wrapCollection(name: string, collection: any) {
-  if (!collection) return collection;
-  
-  const wrapped: any = {};
-  
-  const operations = ['find', 'findOne', 'count', 'countDocuments', 'aggregate', 'insertOne', 'updateOne', 'updateMany', 'deleteOne', 'deleteMany'];
-  
-  for (const op of operations) {
-    if (typeof collection[op] === 'function') {
-      wrapped[op] = (...args: any[]) => {
-        return dbMonitor.track(name, op, args[0], () => collection[op](...args));
-      };
-    }
-  }
-  
-  // Handle chained operations (find().sort().limit())
-  if (collection.find) {
-    wrapped.find = (...args: any[]) => {
-      const cursor = collection.find(...args);
-      return wrapCursor(name, cursor);
-    };
-  }
-  
-  return wrapped;
-}
-
-function wrapCursor(collectionName: string, cursor: any) {
-  if (!cursor) return cursor;
-  
-  const wrapped: any = {};
-  const chainMethods = ['sort', 'skip', 'limit', 'project'];
-  
-  for (const method of chainMethods) {
-    if (typeof cursor[method] === 'function') {
-      wrapped[method] = (...args: any[]) => {
-        const newCursor = cursor[method](...args);
-        return wrapCursor(collectionName, newCursor);
-      };
-    }
-  }
-  
-  // Terminal operations
-  const terminalOps = ['toArray', 'next', 'forEach', 'count'];
-  for (const op of terminalOps) {
-    if (typeof cursor[op] === 'function') {
-      wrapped[op] = (...args: any[]) => {
-        return dbMonitor.track(collectionName, `cursor.${op}`, {}, () => cursor[op](...args));
-      };
-    }
-  }
-  
-  return wrapped;
-}
-
-export default dbMonitor;
+export default PerformanceMonitor;
