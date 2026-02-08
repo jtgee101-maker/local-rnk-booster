@@ -731,10 +731,10 @@ export interface QueryOptions {
   select?: string[];
 }
 
-export const buildOptimizedQuery = <T>(
-  baseQuery: Record<string, unknown>,
+export const buildOptimizedQuery = <T extends Record<string, unknown>>(
+  baseQuery: T,
   options: QueryOptions = {}
-): Record<string, unknown> => {
+): T & Record<string, unknown> => {
   return {
     ...baseQuery,
     ...(options.limit && { $limit: options.limit }),
