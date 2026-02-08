@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Menu, X, Zap, Settings, Shield, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -40,7 +40,6 @@ export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
-  const location = useLocation();
 
   // Pages with special layouts
   const fullWidthPages = ['Quiz', 'QuizV2', 'QuizV3', 'Checkout', 'CheckoutV2', 'Upsell', 'Upsell1', 'Pricing', 'BridgeV3', 'ThankYou', 'GodModeDashboard'];
