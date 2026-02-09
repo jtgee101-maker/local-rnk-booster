@@ -334,7 +334,6 @@ function FunnelModeSwitcher() {
   }
 
   const updateGeeniusPathways = async () => {
-    // Validate all URLs
     const urlFields = [
       { key: 'pathway1_url', label: 'Pathway #1 (Gov Tech Grant)' },
       { key: 'pathway2_url', label: 'Pathway #2 (Done For You)' },
@@ -360,40 +359,56 @@ function FunnelModeSwitcher() {
       const sanitizedPathways = {
         pathway1_url: geeniusPathways.pathway1_url.trim(),
         pathway2_url: geeniusPathways.pathway2_url.trim(),
-        pathway3_checkout_url: geeniusPathways.pathway3_checkout_url.trim()
+        pathway3_checkout_url: geeniusPathways.pathway3_checkout_url.trim(),
+        updated_at: new Date().toISOString()
       };
       
-      const existing = await base44.entities.AppSettings.filter({ setting_key: 'geenius_pathways' });
-      
-      if (existing.length > 0) {
-        await base44.entities.AppSettings.update(existing[0].id, {
-          setting_value: { ...sanitizedPathways, updated_at: new Date().toISOString() }
-        });
-      } else {
-        await base44.entities.AppSettings.create({
-          setting_key: 'geenius_pathways',
-          setting_value: { ...sanitizedPathways, updated_at: new Date().toISOString() },
-          category: 'general',
-          description: 'GeeNius pathway URLs configuration'
-        });
+      try {
+        const existing = await base44.entities.AppSettings.filter({ setting_key: 'geenius_pathways' });
+        
+        if (existing && existing.length > 0) {
+          await base44.entities.AppSettings.update(existing[0].id, {
+            setting_value: sanitizedPathways
+          });
+        } else {
+          await base44.entities.AppSettings.create({
+            setting_key: 'geenius_pathways',
+            setting_value: sanitizedPathways,
+            category: 'general',
+            description: 'GeeNius pathway URLs configuration'
+          });
+        }
+      } catch (entityError) {
+        console.error('Entity error:', entityError);
+        throw new Error(`Database operation failed: ${entityError.message}`);
       }
       
       setGeeniusPathways(sanitizedPathways);
       setIsEditingGeenius(false);
-      await base44.analytics.track({ eventName: 'geenius_pathways_updated' }).catch(() => {});
+      
+      try {
+        await base44.analytics.track({ eventName: 'geenius_pathways_updated', properties: { pathways: Object.keys(sanitizedPathways) } });
+      } catch (trackError) {
+        console.warn('Analytics tracking failed:', trackError);
+      }
+      
       alert('✓ GeeNius pathways updated successfully');
       
     } catch (error) {
       console.error('Error updating geenius pathways:', error);
-      alert('Failed to update GeeNius pathways. Please try again.');
+      alert(`Failed to update GeeNius pathways: ${error.message}`);
       
-      await base44.entities.ErrorLog.create({
-        error_type: 'system_error',
-        severity: 'medium',
-        message: 'Failed to update GeeNius pathways',
-        stack_trace: error.stack || error.message,
-        metadata: { component: 'FunnelModeSwitcher', action: 'updateGeeniusPathways' }
-      }).catch(() => {});
+      try {
+        await base44.entities.ErrorLog.create({
+          error_type: 'system_error',
+          severity: 'medium',
+          message: 'Failed to update GeeNius pathways',
+          stack_trace: error.stack || error.message,
+          metadata: { component: 'FunnelModeSwitcher', action: 'updateGeeniusPathways', error: error.message }
+        });
+      } catch (logError) {
+        console.error('Could not log error:', logError);
+      }
     }
   };
 
