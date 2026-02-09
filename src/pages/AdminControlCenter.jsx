@@ -1,6 +1,13 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { base44 } from '@/api/base44Client';
-import { colors } from '@/config/BrandConfig';
+
+// Inline brand colors
+const colors = {
+  brand: {
+    DEFAULT: '#c8ff00',
+    foreground: '#0a0a0f'
+  }
+};
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
