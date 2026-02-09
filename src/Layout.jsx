@@ -5,26 +5,8 @@ import { Menu, X, Zap, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { OfflineBanner } from '@/components/OfflineBanner';
-// Brand colors - inline config until BrandConfig is fixed
-const colors = {
-  brand: {
-    DEFAULT: '#c8ff00',
-    foreground: '#0a0a0f'
-  },
-  background: {
-    primary: '#0a0a0f',
-    secondary: '#1a1a2e'
-  },
-  text: {
-    primary: '#ffffff',
-    secondary: '#d1d5db',
-    muted: '#9ca3af'
-  },
-  border: {
-    DEFAULT: '#374151',
-    glass: '1px solid rgba(255, 255, 255, 0.1)'
-  }
-};
+// Import design tokens
+import '@/styles/design-tokens.css';
 
 /**
  * Layout Component - Unified Navigation
@@ -148,29 +130,29 @@ export default function Layout({ children, currentPageName }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: colors.background.primary }}>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: colors.brand.DEFAULT }} />
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--brand-primary)' }} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: colors.background.primary }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Navigation */}
       <nav 
         className="relative z-50 border-b border-gray-800/50 backdrop-blur-sm"
-        style={{ backgroundColor: `${colors.background.primary}80` }}
+        style={{ backgroundColor: `${var(--bg-primary)}80` }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to={createPageUrl('QuizGeenius')} className="flex items-center gap-2">
-              <Zap className="w-6 h-6" style={{ color: colors.brand.DEFAULT }} />
-              <span className="font-bold text-xl tracking-tight" style={{ color: colors.brand.DEFAULT }}>
+              <Zap className="w-6 h-6" style={{ color: var(--brand-primary) }} />
+              <span className="font-bold text-xl tracking-tight" style={{ color: var(--brand-primary) }}>
                 LocalRank<span className="text-white">.ai</span>
               </span>
               {isAdmin && (
-                <Crown className="w-4 h-4 ml-1" style={{ color: colors.brand.DEFAULT }} />
+                <Crown className="w-4 h-4 ml-1" style={{ color: var(--brand-primary) }} />
               )}
             </Link>
 
@@ -181,16 +163,16 @@ export default function Layout({ children, currentPageName }) {
                   <div key={link.name} className="relative group">
                     <button 
                       className="transition-colors flex items-center gap-1"
-                      style={{ color: colors.text.secondary }}
+                      style={{ color: var(--text-secondary) }}
                     >
-                      {link.highlight && <Crown className="w-4 h-4" style={{ color: colors.brand.DEFAULT }} />}
-                      <span style={link.highlight ? { color: colors.brand.DEFAULT } : {}}>{link.name}</span>
+                      {link.highlight && <Crown className="w-4 h-4" style={{ color: var(--brand-primary) }} />}
+                      <span style={link.highlight ? { color: var(--brand-primary) } : {}}>{link.name}</span>
                     </button>
                     <div 
                       className="absolute top-full left-0 mt-2 w-56 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all"
                       style={{ 
-                        backgroundColor: colors.background.secondary,
-                        border: colors.border.glass
+                        backgroundColor: var(--bg-secondary),
+                        border: var(--border-default)
                       }}
                     >
                       {link.items === 'industries' && industryPages.map((item) => (
@@ -198,9 +180,9 @@ export default function Layout({ children, currentPageName }) {
                           key={item.name}
                           to={item.path}
                           className="block px-4 py-2 text-sm first:rounded-t-lg last:rounded-b-lg transition-colors"
-                          style={{ color: colors.text.secondary }}
-                          onMouseEnter={(e) => e.target.style.color = colors.brand.DEFAULT}
-                          onMouseLeave={(e) => e.target.style.color = colors.text.secondary}
+                          style={{ color: var(--text-secondary) }}
+                          onMouseEnter={(e) => e.target.style.color = var(--brand-primary)}
+                          onMouseLeave={(e) => e.target.style.color = var(--text-secondary)}
                         >
                           {item.name}
                         </Link>
@@ -210,9 +192,9 @@ export default function Layout({ children, currentPageName }) {
                           key={item.name}
                           to={item.path}
                           className="block px-4 py-2 text-sm first:rounded-t-lg last:rounded-b-lg transition-colors"
-                          style={{ color: colors.text.secondary }}
-                          onMouseEnter={(e) => e.target.style.color = colors.brand.DEFAULT}
-                          onMouseLeave={(e) => e.target.style.color = colors.text.secondary}
+                          style={{ color: var(--text-secondary) }}
+                          onMouseEnter={(e) => e.target.style.color = var(--brand-primary)}
+                          onMouseLeave={(e) => e.target.style.color = var(--text-secondary)}
                         >
                           {item.name}
                         </Link>
@@ -222,9 +204,9 @@ export default function Layout({ children, currentPageName }) {
                           key={item.name}
                           to={item.path}
                           className="block px-4 py-2 text-sm first:rounded-t-lg last:rounded-b-lg transition-colors"
-                          style={{ color: colors.text.secondary }}
-                          onMouseEnter={(e) => e.target.style.color = colors.brand.DEFAULT}
-                          onMouseLeave={(e) => e.target.style.color = colors.text.secondary}
+                          style={{ color: var(--text-secondary) }}
+                          onMouseEnter={(e) => e.target.style.color = var(--brand-primary)}
+                          onMouseLeave={(e) => e.target.style.color = var(--text-secondary)}
                         >
                           {item.name}
                         </Link>
@@ -236,9 +218,9 @@ export default function Layout({ children, currentPageName }) {
                     key={link.name}
                     to={link.path}
                     className="transition-colors"
-                    style={{ color: link.highlight ? colors.brand.DEFAULT : colors.text.secondary }}
-                    onMouseEnter={(e) => !link.highlight && (e.target.style.color = colors.text.primary)}
-                    onMouseLeave={(e) => !link.highlight && (e.target.style.color = colors.text.secondary)}
+                    style={{ color: link.highlight ? var(--brand-primary) : var(--text-secondary) }}
+                    onMouseEnter={(e) => !link.highlight && (e.target.style.color = var(--text-primary))}
+                    onMouseLeave={(e) => !link.highlight && (e.target.style.color = var(--text-secondary))}
                   >
                     {link.highlight && <Crown className="w-4 h-4 inline mr-1" />}
                     {link.name}
@@ -250,7 +232,7 @@ export default function Layout({ children, currentPageName }) {
               {!user && (
                 <Button
                   onClick={() => window.location.href = createPageUrl('QuizGeenius')}
-                  style={{ backgroundColor: colors.brand.DEFAULT, color: colors.brand.foreground }}
+                  style={{ backgroundColor: var(--brand-primary), color: var(--text-inverse) }}
                   className="font-semibold"
                 >
                   Free Audit
@@ -260,14 +242,14 @@ export default function Layout({ children, currentPageName }) {
               {/* User menu for authenticated users */}
               {user && (
                 <div className="flex items-center gap-3">
-                  <span className="text-sm" style={{ color: colors.text.muted }}>
+                  <span className="text-sm" style={{ color: var(--text-muted) }}>
                     {user.email}
                   </span>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => base44.auth.logout()}
-                    style={{ borderColor: colors.border.DEFAULT, color: colors.text.secondary }}
+                    style={{ borderColor: var(--border-default), color: var(--text-secondary) }}
                   >
                     Logout
                   </Button>
@@ -279,7 +261,7 @@ export default function Layout({ children, currentPageName }) {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden"
-              style={{ color: colors.text.secondary }}
+              style={{ color: var(--text-secondary) }}
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -290,13 +272,13 @@ export default function Layout({ children, currentPageName }) {
         {mobileMenuOpen && (
           <div 
             className="md:hidden border-t border-gray-800"
-            style={{ backgroundColor: colors.background.primary }}
+            style={{ backgroundColor: var(--bg-primary) }}
           >
             <div className="px-4 py-4 space-y-3">
               {navItems.map((link) => (
                 link.dropdown ? (
                   <div key={link.name}>
-                    <div className="text-sm font-semibold mb-2 flex items-center gap-1" style={{ color: colors.text.muted }}>
+                    <div className="text-sm font-semibold mb-2 flex items-center gap-1" style={{ color: var(--text-muted) }}>
                       {link.name}
                     </div>
                     <div className="pl-4 space-y-2">
@@ -306,7 +288,7 @@ export default function Layout({ children, currentPageName }) {
                           key={item.name}
                           to={item.path}
                           className="block py-1 transition-colors"
-                          style={{ color: colors.text.secondary }}
+                          style={{ color: var(--text-secondary) }}
                           onClick={() => setMobileMenuOpen(false)}
                         >
                           {item.name}
@@ -319,7 +301,7 @@ export default function Layout({ children, currentPageName }) {
                     key={link.name}
                     to={link.path}
                     className="block py-2 transition-colors"
-                    style={{ color: link.highlight ? colors.brand.DEFAULT : colors.text.secondary }}
+                    style={{ color: link.highlight ? var(--brand-primary) : var(--text-secondary) }}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {link.highlight && <Crown className="w-4 h-4 inline mr-1" />}
@@ -335,7 +317,7 @@ export default function Layout({ children, currentPageName }) {
                     setMobileMenuOpen(false);
                   }}
                   className="w-full font-semibold"
-                  style={{ backgroundColor: colors.brand.DEFAULT, color: colors.brand.foreground }}
+                  style={{ backgroundColor: var(--brand-primary), color: var(--text-inverse) }}
                 >
                   Free Audit
                 </Button>
@@ -349,7 +331,7 @@ export default function Layout({ children, currentPageName }) {
                     setMobileMenuOpen(false);
                   }}
                   className="w-full"
-                  style={{ borderColor: colors.border.DEFAULT }}
+                  style={{ borderColor: var(--border-default) }}
                 >
                   Logout
                 </Button>
@@ -371,18 +353,18 @@ export default function Layout({ children, currentPageName }) {
       {!isAdminPage && (
         <footer 
           className="relative border-t border-gray-800/50 backdrop-blur-sm mt-20"
-          style={{ backgroundColor: `${colors.background.primary}80` }}
+          style={{ backgroundColor: `${var(--bg-primary)}80` }}
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8">
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <Zap className="w-5 h-5" style={{ color: colors.brand.DEFAULT }} />
-                  <span className="font-bold text-lg" style={{ color: colors.brand.DEFAULT }}>
+                  <Zap className="w-5 h-5" style={{ color: var(--brand-primary) }} />
+                  <span className="font-bold text-lg" style={{ color: var(--brand-primary) }}>
                     LocalRank<span className="text-white">.ai</span>
                   </span>
                 </div>
-                <p className="text-sm leading-relaxed" style={{ color: colors.text.muted }}>
+                <p className="text-sm leading-relaxed" style={{ color: var(--text-muted) }}>
                   AI-powered GMB optimization for local businesses.
                 </p>
               </div>
@@ -390,13 +372,13 @@ export default function Layout({ children, currentPageName }) {
               <div>
                 <h4 className="text-white font-semibold text-sm mb-4">Quick Links</h4>
                 <div className="space-y-2">
-                  <Link to={createPageUrl('QuizGeenius')} className="block text-sm transition-colors" style={{ color: colors.text.muted }}>
+                  <Link to={createPageUrl('QuizGeenius')} className="block text-sm transition-colors" style={{ color: var(--text-muted) }}>
                     Free Audit
                   </Link>
-                  <Link to={createPageUrl('Pricing')} className="block text-sm transition-colors" style={{ color: colors.text.muted }}>
+                  <Link to={createPageUrl('Pricing')} className="block text-sm transition-colors" style={{ color: var(--text-muted) }}>
                     Pricing
                   </Link>
-                  <Link to={createPageUrl('Referrals')} className="block text-sm transition-colors" style={{ color: colors.text.muted }}>
+                  <Link to={createPageUrl('Referrals')} className="block text-sm transition-colors" style={{ color: var(--text-muted) }}>
                     Referral Program
                   </Link>
                 </div>
@@ -405,13 +387,13 @@ export default function Layout({ children, currentPageName }) {
               <div>
                 <h4 className="text-white font-semibold text-sm mb-4">Documentation</h4>
                 <div className="space-y-2">
-                  <Link to={createPageUrl('DocsHome')} className="block text-sm transition-colors" style={{ color: colors.text.muted }}>
+                  <Link to={createPageUrl('DocsHome')} className="block text-sm transition-colors" style={{ color: var(--text-muted) }}>
                     All Docs & Guides
                   </Link>
-                  <Link to={createPageUrl('GuideQuizGeenius')} className="block text-sm transition-colors" style={{ color: colors.text.muted }}>
+                  <Link to={createPageUrl('GuideQuizGeenius')} className="block text-sm transition-colors" style={{ color: var(--text-muted) }}>
                     QuizGeenius Flow
                   </Link>
-                  <Link to={createPageUrl('Roadmap')} className="block text-sm transition-colors" style={{ color: colors.text.muted }}>
+                  <Link to={createPageUrl('Roadmap')} className="block text-sm transition-colors" style={{ color: var(--text-muted) }}>
                     12-Month Roadmap
                   </Link>
                 </div>
@@ -420,13 +402,13 @@ export default function Layout({ children, currentPageName }) {
               <div>
                 <h4 className="text-white font-semibold text-sm mb-4">Industries</h4>
                 <div className="space-y-2">
-                  <Link to={createPageUrl('PlumbersLanding')} className="block text-sm transition-colors" style={{ color: colors.text.muted }}>
+                  <Link to={createPageUrl('PlumbersLanding')} className="block text-sm transition-colors" style={{ color: var(--text-muted) }}>
                     Plumbers
                   </Link>
-                  <Link to={createPageUrl('ElectriciansLanding')} className="block text-sm transition-colors" style={{ color: colors.text.muted }}>
+                  <Link to={createPageUrl('ElectriciansLanding')} className="block text-sm transition-colors" style={{ color: var(--text-muted) }}>
                     Electricians
                   </Link>
-                  <Link to={createPageUrl('HVACLanding')} className="block text-sm transition-colors" style={{ color: colors.text.muted }}>
+                  <Link to={createPageUrl('HVACLanding')} className="block text-sm transition-colors" style={{ color: var(--text-muted) }}>
                     HVAC
                   </Link>
                 </div>
@@ -435,17 +417,17 @@ export default function Layout({ children, currentPageName }) {
               <div>
                 <h4 className="text-white font-semibold text-sm mb-4">Legal</h4>
                 <div className="space-y-2">
-                  <Link to={createPageUrl('Privacy')} className="block text-sm transition-colors" style={{ color: colors.text.muted }}>
+                  <Link to={createPageUrl('Privacy')} className="block text-sm transition-colors" style={{ color: var(--text-muted) }}>
                     Privacy Policy
                   </Link>
-                  <Link to={createPageUrl('Terms')} className="block text-sm transition-colors" style={{ color: colors.text.muted }}>
+                  <Link to={createPageUrl('Terms')} className="block text-sm transition-colors" style={{ color: var(--text-muted) }}>
                     Terms of Service
                   </Link>
                 </div>
               </div>
             </div>
 
-            <div className="pt-8 border-t border-gray-800/50 text-center text-sm" style={{ color: colors.text.muted }}>
+            <div className="pt-8 border-t border-gray-800/50 text-center text-sm" style={{ color: var(--text-muted) }}>
               © {new Date().getFullYear()} LocalRank.ai. All rights reserved.
             </div>
           </div>
