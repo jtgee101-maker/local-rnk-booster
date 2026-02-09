@@ -78,6 +78,8 @@ const RealTimeSystemTest = lazy(() => import('@/components/admin/RealTimeSystemT
 const ControlActionsVerifier = lazy(() => import('@/components/admin/ControlActionsVerifier'));
 const EndToEndFlowTest = lazy(() => import('@/components/admin/EndToEndFlowTest'));
 const SecurityComplianceTest = lazy(() => import('@/components/admin/SecurityComplianceTest'));
+const GeeniusEmailAutomationControl = lazy(() => import('@/components/admin/GeeniusEmailAutomationControl'));
+const EmailFlowDemoPanel = lazy(() => import('@/components/admin/EmailFlowDemoPanel'));
 
 // Modern loading component with skeleton
 const TabLoader = () => (
@@ -1003,6 +1005,8 @@ export default function AdminControlCenter() {
     { value: 'abtests', icon: Eye, label: 'A/B Tests', color: 'cyan' },
     { value: 'automations', icon: Repeat, label: 'Automations', color: 'orange' },
     { value: 'emails', icon: Mail, label: 'Emails', color: 'red' },
+    { value: 'geenius-emails', icon: Mail, label: 'GeeNius Emails', color: 'pink' },
+    { value: 'email-flows', icon: Zap, label: 'Email Flows Demo', color: 'purple' },
     { value: 'security', icon: Shield, label: 'Security', color: 'red' },
     { value: 'nurture', icon: Activity, label: 'Nurture', color: 'teal' },
     { value: 'scoring', icon: Target, label: 'Scoring', color: 'lime' },
@@ -1215,6 +1219,18 @@ export default function AdminControlCenter() {
               <TabsContent value="emails" className="mt-0">
                 <Suspense fallback={<TabLoader />}>
                   <EmailAnalyticsDashboard />
+                </Suspense>
+              </TabsContent>
+
+              <TabsContent value="geenius-emails" className="mt-0">
+                <Suspense fallback={<TabLoader />}>
+                  <GeeniusEmailAutomationControl />
+                </Suspense>
+              </TabsContent>
+
+              <TabsContent value="email-flows" className="mt-0">
+                <Suspense fallback={<TabLoader />}>
+                  <EmailFlowDemoPanel />
                 </Suspense>
               </TabsContent>
 
