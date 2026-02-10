@@ -174,6 +174,15 @@ function FunnelModeSwitcher() {
       }
     } catch (error) {
       console.error('Error loading funnel mode:', error);
+      // Set defaults on error
+      setCurrentMode('geenius');
+      setAffiliateLink('https://www.merchynt.com/paige?fpr=mr22&fp_sid=sg');
+      setBridgeTimer(3);
+      setGeeniusPathways({
+        pathway1_url: 'https://example.com/govtech-grant',
+        pathway2_url: 'https://example.com/done-for-you',
+        pathway3_checkout_url: 'https://buy.stripe.com/test_example'
+      });
     } finally {
       setIsLoading(false);
     }
@@ -182,6 +191,11 @@ function FunnelModeSwitcher() {
   const switchMode = async (mode) => {
     if (!['v2', 'v3', 'geenius'].includes(mode)) {
       alert('Invalid funnel mode');
+      return;
+    }
+    
+    if (mode === currentMode) {
+      alert('This mode is already active');
       return;
     }
     
@@ -910,16 +924,20 @@ export default function AdminControlCenter() {
       const providedKey = urlParams.get('key');
       
       if (providedKey) {
-        // Validate against ADMIN_ACCESS_KEY secret
-        const adminKey = Deno?.env?.get?.('ADMIN_ACCESS_KEY') || 'admin123';
-        
-        if (providedKey === adminKey || providedKey === 'admin123') {
-          setUser({ email: 'admin@key-access', role: 'admin', full_name: 'Admin (Key Access)' });
-          setLoading(false);
-          return;
-        } else {
-          console.warn('Invalid admin key provided');
-          // Continue to normal auth instead of blocking
+        // Use the backend function to validate the key securely
+        try {
+          const response = await base44.functions.invoke('admin/validateAdminKey', { key: providedKey });
+          if (response.data?.valid) {
+            setUser({ email: 'admin@key-access', role: 'admin', full_name: 'Admin (Key Access)' });
+            setLoading(false);
+            return;
+          } else {
+            console.warn('Invalid admin key provided');
+            // Continue to normal auth instead of blocking
+          }
+        } catch (keyError) {
+          console.error('Key validation error:', keyError);
+          // Continue to normal auth
         }
       }
       
