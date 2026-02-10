@@ -8,15 +8,17 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { base44 } from '@/api/base44Client';
 import { Mail, Phone, MapPin, Calendar, TrendingUp, 
-  Star, MessageSquare, Save, Send, Target, Clock
+  Star, MessageSquare, Save, Send, Target, Clock, Sparkles
 } from 'lucide-react';
 import { toast } from 'sonner';
 import GoalManagement from './GoalManagement';
+import AIEmailComposer from './AIEmailComposer';
 
 export default function EnhancedLeadDetailModal({ lead, open, onClose, onUpdate }) {
   const [updating, setUpdating] = useState(false);
   const [status, setStatus] = useState(lead?.status || 'new');
   const [notes, setNotes] = useState(lead?.admin_notes || '');
+  const [showEmailComposer, setShowEmailComposer] = useState(false);
 
   if (!lead) return null;
 
@@ -114,6 +116,7 @@ export default function EnhancedLeadDetailModal({ lead, open, onClose, onUpdate 
           <TabsList className="bg-gray-800 border border-gray-700">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="goals">Goals</TabsTrigger>
+            <TabsTrigger value="email">Email</TabsTrigger>
             <TabsTrigger value="gmb">GMB Details</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>
             <TabsTrigger value="actions">Quick Actions</TabsTrigger>
@@ -122,6 +125,11 @@ export default function EnhancedLeadDetailModal({ lead, open, onClose, onUpdate 
           {/* Goals Tab */}
           <TabsContent value="goals">
             <GoalManagement leadId={lead?.id} onUpdate={onUpdate} />
+          </TabsContent>
+
+          {/* Email Tab */}
+          <TabsContent value="email">
+            <AIEmailComposer leadId={lead?.id} onClose={onClose} />
           </TabsContent>
 
           {/* Overview Tab */}
@@ -387,11 +395,18 @@ export default function EnhancedLeadDetailModal({ lead, open, onClose, onUpdate 
               </CardHeader>
               <CardContent className="space-y-2">
                 <Button 
+                  onClick={() => setShowEmailComposer(true)}
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  AI Email Composer
+                </Button>
+                <Button 
                   onClick={handleSendEmail}
                   className="w-full bg-blue-500 hover:bg-blue-600 text-white"
                 >
                   <Send className="w-4 h-4 mr-2" />
-                  Send Email
+                  Quick Send Email
                 </Button>
                 <Button 
                   variant="outline"
