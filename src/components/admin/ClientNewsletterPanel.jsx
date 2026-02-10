@@ -46,7 +46,7 @@ export default function ClientNewsletterPanel() {
 
     setSending(true);
     try {
-      const response = await base44.functions.invoke('sendClientNewsletter', {
+      const response = await base44.functions.invoke('nurture/sendClientNewsletter', {
         ...newsletter,
         test_mode: testMode
       });

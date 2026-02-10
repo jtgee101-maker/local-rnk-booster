@@ -131,7 +131,7 @@ export default function AdminLeadsSection({ expanded = false }) {
       
       // If marked as converted/closed, trigger welcome email
       if (newStatus === 'converted') {
-        await base44.functions.invoke('closedDealWelcome', { lead_id: leadId });
+        await base44.functions.invoke('nurture/closedDealWelcome', { lead_id: leadId });
       }
       
       refetch();
