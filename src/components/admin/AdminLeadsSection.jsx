@@ -121,8 +121,23 @@ export default function AdminLeadsSection({ expanded = false }) {
     setSelectedLead(null);
   };
 
-  const handleModalUpdate = () => {
+  const handleModalUpdate = async () => {
     refetch();
+  };
+
+  const handleStatusChange = async (leadId, newStatus) => {
+    try {
+      await base44.entities.Lead.update(leadId, { status: newStatus });
+      
+      // If marked as converted/closed, trigger welcome email
+      if (newStatus === 'converted') {
+        await base44.functions.invoke('closedDealWelcome', { lead_id: leadId });
+      }
+      
+      refetch();
+    } catch (error) {
+      console.error('Error updating lead status:', error);
+    }
   };
 
   return (
