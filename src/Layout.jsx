@@ -157,7 +157,7 @@ export default function Layout({ children, currentPageName }) {
     <div className="min-h-screen" style={{ backgroundColor: colors.background.primary }}>
       {/* Navigation */}
       <nav 
-        className="relative z-50 border-b border-gray-800/50 backdrop-blur-sm"
+        className="relative z-[100] border-b border-gray-800/50 backdrop-blur-sm"
         style={{ backgroundColor: `${colors.background.primary}80` }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -186,7 +186,7 @@ export default function Layout({ children, currentPageName }) {
                       <span style={link.highlight ? { color: colors.brand.DEFAULT } : {}}>{link.name}</span>
                     </button>
                     <div 
-                      className="absolute top-full left-0 mt-2 w-56 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all"
+                      className="absolute top-full left-0 mt-2 w-56 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[9999]"
                       style={{ 
                         backgroundColor: colors.background.secondary,
                         border: colors.border.glass
@@ -296,7 +296,7 @@ export default function Layout({ children, currentPageName }) {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div 
-            className="md:hidden border-t border-gray-800"
+            className="md:hidden border-t border-gray-800 relative z-[9999]"
             style={{ backgroundColor: colors.background.primary }}
           >
             <div className="px-4 py-4 space-y-3">
