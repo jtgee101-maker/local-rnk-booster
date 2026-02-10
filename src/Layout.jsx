@@ -110,12 +110,12 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   const adminTools = [
+    { name: 'Admin Control Center', path: createPageUrl('AdminControlCenter') },
     { name: 'Production Checklist', path: createPageUrl('ProductionChecklist') },
     { name: 'Security Audit', path: createPageUrl('SecurityAudit') },
     { name: 'Data Cleanup', path: createPageUrl('DataCleanup') },
     { name: 'Stripe Setup', path: createPageUrl('StripeSetupGuide') },
-    { name: 'Final Launch', path: createPageUrl('FinalLaunchChecklist') },
-    { name: 'Admin Dashboard', path: createPageUrl('AdminControlCenter') }
+    { name: 'Final Launch', path: createPageUrl('FinalLaunchChecklist') }
   ];
 
   const systemTools = [
