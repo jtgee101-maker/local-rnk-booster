@@ -149,7 +149,7 @@ Deno.serve(async (req) => {
               html: generateNewsletterHtml(email),
               tags: [
                 { name: 'type', value: 'client_newsletter' },
-                { name: 'campaign', value: new Date().toISOString().split('T')[0] }
+                { name: 'campaign', value: new Date().toISOString().split('T')[0].replace(/-/g, '') }
               ]
             }))
           )

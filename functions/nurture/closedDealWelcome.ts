@@ -144,8 +144,7 @@ Deno.serve(async (req) => {
         html: emailHtml,
         tags: [
           { name: 'type', value: 'closed_deal_welcome' },
-          { name: 'funnel', value: 'geenius' },
-          { name: 'business', value: businessName }
+          { name: 'funnel', value: 'geenius' }
         ]
       })
     });
