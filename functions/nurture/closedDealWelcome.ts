@@ -180,26 +180,12 @@ Deno.serve(async (req) => {
       admin_notes: (lead.admin_notes || '') + `\n[${new Date().toISOString()}] Closed deal welcome email sent`
     });
 
-    // Trigger onboarding workflow
-    try {
-      await base44.asServiceRole.functions.invoke('onboarding/initializeOnboarding', { lead_id });
-    } catch (err) {
-      console.error('Error initializing onboarding:', err);
-    }
-
-    // Generate AI action plan
-    try {
-      await base44.asServiceRole.functions.invoke('ai/generateActionPlan', { lead_id });
-    } catch (err) {
-      console.error('Error generating action plan:', err);
-    }
-
-    // Capture initial GMB metrics
-    try {
-      await base44.asServiceRole.functions.invoke('metrics/captureGMBSnapshot', { lead_id });
-    } catch (err) {
-      console.error('Error capturing GMB snapshot:', err);
-    }
+    // Trigger background workflows (non-blocking)
+    Promise.all([
+      base44.asServiceRole.functions.invoke('onboarding/initializeOnboarding', { lead_id }).catch(e => console.error('Onboarding error:', e)),
+      base44.asServiceRole.functions.invoke('ai/generateActionPlan', { lead_id }).catch(e => console.error('Action plan error:', e)),
+      base44.asServiceRole.functions.invoke('metrics/captureGMBSnapshot', { lead_id }).catch(e => console.error('Snapshot error:', e))
+    ]).catch(() => {});
 
     return Response.json({ 
       success: true, 

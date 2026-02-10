@@ -14,7 +14,8 @@ Deno.serve(async (req) => {
     }
 
     // Fetch lead data
-    const lead = await base44.asServiceRole.entities.Lead.filter({ id: lead_id }).then(r => r[0]);
+    const leads = await base44.asServiceRole.entities.Lead.filter({ id: lead_id });
+    const lead = leads[0];
     
     if (!lead) {
       return Response.json({ error: 'Lead not found' }, { status: 404 });
