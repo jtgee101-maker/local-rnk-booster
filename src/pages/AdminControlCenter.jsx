@@ -1059,39 +1059,74 @@ export default function AdminControlCenter() {
         <KeyboardShortcuts onNavigate={setActiveTab} />
       </Suspense>
 
-      {/* Mobile Optimized Header */}
-      <Suspense fallback={null}>
-        <MobileOptimizedHeader 
-          lastRefresh={lastRefresh}
-          onRefresh={handleRefresh}
-        />
-      </Suspense>
+      {/* Professional Header */}
+      <div className="sticky top-0 z-50 border-b border-gray-800/50 bg-[#0a0a0f]/90 backdrop-blur-xl">
+        <div className="max-w-[1800px] mx-auto px-4 lg:px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-gradient-to-br" style={{
+                  background: `linear-gradient(135deg, ${colors.brand.DEFAULT}20, ${colors.brand.DEFAULT}05)`
+                }}>
+                  <Shield className="w-6 h-6" style={{color: colors.brand.DEFAULT}} />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-white tracking-tight">Admin Control Center</h1>
+                  <p className="text-xs text-gray-400">LocalRank.ai Platform Management</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <div className="hidden lg:flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800/50 border border-gray-700">
+                <Activity className="w-4 h-4 text-green-400 animate-pulse" />
+                <span className="text-xs text-gray-400">System Healthy</span>
+              </div>
+              
+              <Button
+                onClick={handleRefresh}
+                variant="ghost"
+                size="sm"
+                className="text-gray-400 hover:text-white"
+              >
+                <Repeat className="w-4 h-4" />
+              </Button>
+              
+              <div className="px-3 py-2 rounded-lg bg-gray-800/50 border border-gray-700">
+                <p className="text-xs text-gray-400">{user?.full_name || 'Admin'}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Main Content */}
-      <div className="max-w-[1800px] mx-auto p-4 lg:p-6 space-y-4 lg:space-y-6">
-        {/* Test Mode Indicator & Error Display */}
-        <Suspense fallback={null}>
-          <TestModeIndicator isTestMode={true} />
-        </Suspense>
-        
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-center gap-3"
-          >
-            <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-            <p className="text-red-200 text-sm">{error}</p>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setError(null)}
-              className="ml-auto text-red-400 hover:text-red-300"
+      <div className="max-w-[1800px] mx-auto p-4 lg:p-6 space-y-4 lg:space-y-6 mt-4">
+        {/* Notification Center & Status */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <Suspense fallback={null}>
+            <NotificationCenter />
+          </Suspense>
+          
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="lg:col-span-2 bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-center gap-3"
             >
-              Dismiss
-            </Button>
-          </motion.div>
-        )}
+              <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+              <p className="text-red-200 text-sm">{error}</p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setError(null)}
+                className="ml-auto text-red-400 hover:text-red-300"
+              >
+                Dismiss
+              </Button>
+            </motion.div>
+          )}
+        </div>
         
         {/* Quick Stats */}
         <motion.div
@@ -1105,19 +1140,21 @@ export default function AdminControlCenter() {
 
         {/* Enhanced Tabs with Better UI */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 lg:space-y-6">
-          <div className="overflow-x-auto -mx-4 px-4 lg:mx-0 lg:px-0">
-            <TabsList className="inline-flex h-auto p-1 bg-gray-800/50 border border-gray-700 rounded-xl gap-1 flex-nowrap">
-              {tabConfig.map((tab) => (
-                <TabsTrigger 
-                  key={tab.value}
-                  value={tab.value}
-                  className="flex items-center gap-2 px-3 lg:px-4 py-2 lg:py-2.5 rounded-lg data-[state=active]:bg-[var(--brand-color)] data-[state=active]:text-black text-gray-400 hover:text-white transition-all whitespace-nowrap" style={{'--brand-color': colors.brand.DEFAULT}}
-                >
-                  <tab.icon className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
-                  <span className="text-xs lg:text-sm font-medium">{tab.label}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
+          <div className="sticky top-[73px] z-40 -mx-4 lg:mx-0 px-4 lg:px-0 py-3 bg-[#0a0a0f]/95 backdrop-blur-xl border-b border-gray-800/30">
+            <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
+              <TabsList className="inline-flex h-auto p-1.5 bg-gray-800/80 border border-gray-700/50 rounded-xl gap-1 flex-nowrap min-w-full lg:min-w-0">
+                {tabConfig.map((tab) => (
+                  <TabsTrigger 
+                    key={tab.value}
+                    value={tab.value}
+                    className="flex items-center gap-2 px-3 lg:px-4 py-2.5 rounded-lg data-[state=active]:bg-[var(--brand-color)] data-[state=active]:text-black data-[state=active]:shadow-lg data-[state=active]:shadow-[var(--brand-color)]/20 text-gray-400 hover:text-white hover:bg-gray-700/50 transition-all whitespace-nowrap group" style={{'--brand-color': colors.brand.DEFAULT}}
+                  >
+                    <tab.icon className="w-4 h-4 group-data-[state=active]:scale-110 transition-transform" />
+                    <span className="text-xs lg:text-sm font-medium">{tab.label}</span>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
           </div>
 
           {/* Tab Contents */}

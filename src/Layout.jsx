@@ -234,12 +234,20 @@ export default function Layout({ children, currentPageName }) {
                   <Link
                     key={link.name}
                     to={link.path}
-                    className="transition-colors"
+                    className="transition-colors flex items-center gap-1 font-medium"
                     style={{ color: link.highlight ? colors.brand.DEFAULT : colors.text.secondary }}
-                    onMouseEnter={(e) => !link.highlight && (e.target.style.color = colors.text.primary)}
-                    onMouseLeave={(e) => !link.highlight && (e.target.style.color = colors.text.secondary)}
+                    onMouseEnter={(e) => {
+                      if (!link.highlight) {
+                        e.currentTarget.style.color = colors.text.primary;
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!link.highlight) {
+                        e.currentTarget.style.color = colors.text.secondary;
+                      }
+                    }}
                   >
-                    {link.highlight && <Crown className="w-4 h-4 inline mr-1" />}
+                    {link.highlight && <Crown className="w-4 h-4" />}
                     {link.name}
                   </Link>
                 )
