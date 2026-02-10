@@ -128,6 +128,10 @@ import Monitoring from './pages/Monitoring';
 import EnterpriseMode from './pages/EnterpriseMode';
 import GrowthMode from './pages/GrowthMode';
 import QuickStartWizard from './pages/QuickStartWizard';
+import FeatureFlags from './pages/FeatureFlags';
+import TenantManager from './pages/TenantManager';
+import SystemHealth from './pages/SystemHealth';
+import APILogs from './pages/APILogs';
 import __Layout from './Layout.jsx';
 
 
@@ -213,6 +217,10 @@ export const PAGES = {
     "EnterpriseMode": EnterpriseMode,
     "GrowthMode": GrowthMode,
     "QuickStartWizard": QuickStartWizard,
+    "FeatureFlags": FeatureFlags,
+    "TenantManager": TenantManager,
+    "SystemHealth": SystemHealth,
+    "APILogs": APILogs,
 }
 
 export const pagesConfig = {
