@@ -10,6 +10,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import OnboardingProgressCard from '../components/dashboard/OnboardingProgressCard';
 import GMBHealthCard from '../components/dashboard/GMBHealthCard';
 import GoalsProgressCard from '../components/dashboard/GoalsProgressCard';
+import AIInsightsCard from '../components/dashboard/AIInsightsCard';
 
 export default function ClientDashboard() {
   const [user, setUser] = useState(null);
@@ -140,6 +141,9 @@ export default function ClientDashboard() {
           />
           <GoalsProgressCard goals={goals} />
         </div>
+
+        {/* AI Insights */}
+        <AIInsightsCard leadId={lead.id} />
 
         {/* Performance Metrics Chart */}
         {chartData.length > 0 && (
