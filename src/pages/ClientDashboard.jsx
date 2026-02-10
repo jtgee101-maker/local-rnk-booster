@@ -3,12 +3,12 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { 
-  TrendingUp, CheckCircle2, Clock, Target, ArrowRight,
-  Calendar, Users, BookOpen, Zap
+  TrendingUp, Target, ArrowRight, Calendar, Users, BookOpen
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import OnboardingProgressCard from '../components/dashboard/OnboardingProgressCard';
+import GMBHealthCard from '../components/dashboard/GMBHealthCard';
 
 export default function ClientDashboard() {
   const [user, setUser] = useState(null);
@@ -122,65 +122,17 @@ export default function ClientDashboard() {
           </Badge>
         </div>
 
-        {/* Onboarding Progress */}
-        {onboarding && onboarding.status !== 'completed' && (
-          <Card className="bg-gradient-to-br from-[#1a1a2e] to-[#16213e] border-[#c8ff00]/30">
-            <CardHeader>
-              <CardTitle className="text-[#c8ff00] flex items-center gap-2">
-                <Zap className="w-5 h-5" />
-                Onboarding Progress
-              </CardTitle>
-              <CardDescription className="text-gray-400">
-                Complete these steps to get started
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="mb-4">
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-gray-400">Progress</span>
-                  <span className="text-[#c8ff00] font-semibold">{Math.round(onboarding.completion_percentage)}%</span>
-                </div>
-                <Progress value={onboarding.completion_percentage} className="h-2" />
-              </div>
-              
-              <div className="grid gap-3">
-                {onboarding.steps.map((step, index) => (
-                  <div
-                    key={index}
-                    className={`p-4 rounded-lg border transition-all ${
-                      step.status === 'completed'
-                        ? 'bg-green-500/10 border-green-500/30'
-                        : 'bg-gray-800/50 border-gray-700 hover:border-[#c8ff00]/50'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-3">
-                        {step.status === 'completed' ? (
-                          <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5" />
-                        ) : (
-                          <Clock className="w-5 h-5 text-gray-500 mt-0.5" />
-                        )}
-                        <div>
-                          <h4 className="font-semibold text-white">{step.step_name}</h4>
-                          <p className="text-sm text-gray-400 mt-1">{step.description}</p>
-                        </div>
-                      </div>
-                      {step.status === 'pending' && (
-                        <Button
-                          size="sm"
-                          onClick={() => completeOnboardingStep(index)}
-                          className="bg-[#c8ff00] text-black hover:bg-[#a8dd00]"
-                        >
-                          Mark Complete
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {/* Onboarding Progress & Health Score */}
+        <div className="grid md:grid-cols-2 gap-6">
+          <OnboardingProgressCard 
+            onboarding={onboarding} 
+            onCompleteStep={completeOnboardingStep}
+          />
+          <GMBHealthCard 
+            lead={lead}
+            latestSnapshot={metricsHistory[metricsHistory.length - 1]}
+          />
+        </div>
 
         {/* Performance Metrics Chart */}
         {chartData.length > 0 && (

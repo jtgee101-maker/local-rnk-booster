@@ -62,6 +62,7 @@ import CampaignTesting from './pages/CampaignTesting';
 import Checkout from './pages/Checkout';
 import CheckoutV2 from './pages/CheckoutV2';
 import ChiropractorLanding from './pages/ChiropractorLanding';
+import ClientDashboard from './pages/ClientDashboard';
 import ContractorsLanding from './pages/ContractorsLanding';
 import CustomDomainGuide from './pages/CustomDomainGuide';
 import Dashboard from './pages/Dashboard';
@@ -132,7 +133,6 @@ import Monitoring from './pages/Monitoring';
 import EnterpriseMode from './pages/EnterpriseMode';
 import GrowthMode from './pages/GrowthMode';
 import QuickStartWizard from './pages/QuickStartWizard';
-import ClientDashboard from './pages/ClientDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -152,6 +152,7 @@ export const PAGES = {
     "Checkout": Checkout,
     "CheckoutV2": CheckoutV2,
     "ChiropractorLanding": ChiropractorLanding,
+    "ClientDashboard": ClientDashboard,
     "ContractorsLanding": ContractorsLanding,
     "CustomDomainGuide": CustomDomainGuide,
     "Dashboard": Dashboard,
@@ -222,7 +223,6 @@ export const PAGES = {
     "EnterpriseMode": EnterpriseMode,
     "GrowthMode": GrowthMode,
     "QuickStartWizard": QuickStartWizard,
-    "ClientDashboard": ClientDashboard,
 }
 
 export const pagesConfig = {

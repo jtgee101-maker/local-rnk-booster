@@ -11,9 +11,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, Download, TrendingUp, Users, Mail, 
   Building2, Calendar, RefreshCw, AlertCircle,
-  CheckCircle2, Clock, XCircle, Loader2
+  CheckCircle2, Clock, XCircle, Loader2, Target
 } from 'lucide-react';
 import EnhancedLeadDetailModal from './EnhancedLeadDetailModal';
+import ActionPlanViewer from './ActionPlanViewer';
 
 export default function AdminLeadsSection({ expanded = false }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,6 +23,7 @@ export default function AdminLeadsSection({ expanded = false }) {
   const [scoreFilter, setScoreFilter] = useState('all');
   const [selectedLead, setSelectedLead] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [actionPlanLeadId, setActionPlanLeadId] = useState(null);
   
   const { data: leads = [], isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['admin-leads-section', expanded],
@@ -148,6 +150,22 @@ export default function AdminLeadsSection({ expanded = false }) {
         onClose={handleModalClose}
         onUpdate={handleModalUpdate}
       />
+
+      {actionPlanLeadId && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
+              <h3 className="text-lg font-semibold">AI Action Plan & Roadmap</h3>
+              <Button variant="outline" onClick={() => setActionPlanLeadId(null)}>
+                Close
+              </Button>
+            </div>
+            <div className="p-6">
+              <ActionPlanViewer leadId={actionPlanLeadId} onRefresh={refetch} />
+            </div>
+          </div>
+        </div>
+      )}
 
       <Card className={`border-gray-700 bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm ${expanded ? 'col-span-full' : 'col-span-2'}`}>
       <CardHeader>
@@ -379,10 +397,23 @@ export default function AdminLeadsSection({ expanded = false }) {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge className={`${getStatusColor(lead.status)} border gap-1`}>
-                            {getStatusIcon(lead.status)}
-                            {lead.status || 'new'}
-                          </Badge>
+                          <div className="flex items-center gap-2">
+                            <Badge className={`${getStatusColor(lead.status)} border gap-1`}>
+                              {getStatusIcon(lead.status)}
+                              {lead.status || 'new'}
+                            </Badge>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 px-2"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActionPlanLeadId(lead.id);
+                              }}
+                            >
+                              <Target className="w-4 h-4 text-blue-400" />
+                            </Button>
+                          </div>
                         </TableCell>
                         {expanded && (
                           <TableCell className="text-gray-400 text-sm">

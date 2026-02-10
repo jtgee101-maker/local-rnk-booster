@@ -78,7 +78,8 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   const userNav = [
-    { name: 'Dashboard', path: createPageUrl('Dashboard') },
+    { name: 'Dashboard', path: createPageUrl('ClientDashboard') },
+    { name: 'My Progress', path: createPageUrl('Dashboard') },
     { name: 'Audits', path: createPageUrl('GMBAudit') },
     { name: 'Reports', path: createPageUrl('Reports') },
     { name: 'Settings', path: createPageUrl('Settings') }
