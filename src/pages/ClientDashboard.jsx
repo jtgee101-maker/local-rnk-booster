@@ -9,6 +9,7 @@ import {
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import OnboardingProgressCard from '../components/dashboard/OnboardingProgressCard';
 import GMBHealthCard from '../components/dashboard/GMBHealthCard';
+import GoalsProgressCard from '../components/dashboard/GoalsProgressCard';
 
 export default function ClientDashboard() {
   const [user, setUser] = useState(null);
@@ -16,6 +17,7 @@ export default function ClientDashboard() {
   const [actionPlan, setActionPlan] = useState(null);
   const [onboarding, setOnboarding] = useState(null);
   const [metricsHistory, setMetricsHistory] = useState([]);
+  const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,6 +50,10 @@ export default function ClientDashboard() {
           30
         );
         setMetricsHistory(history.reverse());
+
+        // Fetch goals
+        const clientGoals = await base44.entities.ClientGoal.filter({ lead_id: leadData.id });
+        setGoals(clientGoals);
       }
     } catch (error) {
       console.error('Error loading client data:', error);
@@ -122,8 +128,8 @@ export default function ClientDashboard() {
           </Badge>
         </div>
 
-        {/* Onboarding Progress & Health Score */}
-        <div className="grid md:grid-cols-2 gap-6">
+        {/* Onboarding Progress & Health Score & Goals */}
+        <div className="grid md:grid-cols-3 gap-6">
           <OnboardingProgressCard 
             onboarding={onboarding} 
             onCompleteStep={completeOnboardingStep}
@@ -132,6 +138,7 @@ export default function ClientDashboard() {
             lead={lead}
             latestSnapshot={metricsHistory[metricsHistory.length - 1]}
           />
+          <GoalsProgressCard goals={goals} />
         </div>
 
         {/* Performance Metrics Chart */}
