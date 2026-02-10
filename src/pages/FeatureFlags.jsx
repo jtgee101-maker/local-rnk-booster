@@ -1,209 +1,218 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Flag, Plus, Trash2, Save, AlertCircle, CheckCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
-
-const colors = {
-  brand: { DEFAULT: '#c8ff00', foreground: '#0a0a0f' }
-};
+import { Input } from '@/components/ui/input';
+import { base44 } from '@/api/base44Client';
+import { Flag, Search, Save, RefreshCw } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function FeatureFlags() {
   const [flags, setFlags] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [newFlagName, setNewFlagName] = useState('');
-  const [newFlagDesc, setNewFlagDesc] = useState('');
   const [saving, setSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    loadFlags();
+    checkAuthAndLoadFlags();
   }, []);
+
+  const checkAuthAndLoadFlags = async () => {
+    try {
+      const currentUser = await base44.auth.me();
+      if (!currentUser || currentUser.role !== 'admin') {
+        window.location.href = '/';
+        return;
+      }
+      setUser(currentUser);
+      await loadFlags();
+    } catch (error) {
+      console.error('Auth error:', error);
+      window.location.href = '/';
+    }
+  };
 
   const loadFlags = async () => {
     try {
+      setLoading(true);
       const settings = await base44.entities.AppSettings.filter({ category: 'feature_flag' });
-      setFlags(settings);
+      
+      // If no flags exist, create default ones
+      if (settings.length === 0) {
+        const defaultFlags = [
+          { key: 'enable_ab_testing', name: 'A/B Testing', description: 'Enable A/B testing across the platform', enabled: true, category: 'analytics' },
+          { key: 'enable_advanced_analytics', name: 'Advanced Analytics', description: 'Enable advanced analytics dashboard', enabled: true, category: 'analytics' },
+          { key: 'enable_ai_content', name: 'AI Content Generation', description: 'Enable AI-powered content generation', enabled: true, category: 'content' },
+          { key: 'enable_email_automation', name: 'Email Automation', description: 'Enable automated email sequences', enabled: true, category: 'email' },
+          { key: 'enable_location_content', name: 'Location Content', description: 'Enable location-based content generation', enabled: true, category: 'content' },
+          { key: 'enable_campaign_tracking', name: 'Campaign Tracking', description: 'Enable campaign and PURL tracking', enabled: true, category: 'marketing' },
+          { key: 'enable_affiliate_portal', name: 'Affiliate Portal', description: 'Enable affiliate management portal', enabled: false, category: 'marketing' },
+          { key: 'enable_white_label', name: 'White Label Mode', description: 'Enable white label customization', enabled: false, category: 'general' },
+          { key: 'maintenance_mode', name: 'Maintenance Mode', description: 'Put the platform in maintenance mode', enabled: false, category: 'system' }
+        ];
+
+        for (const flag of defaultFlags) {
+          await base44.entities.AppSettings.create({
+            setting_key: flag.key,
+            setting_value: { enabled: flag.enabled, name: flag.name, description: flag.description, category: flag.category },
+            category: 'feature_flag',
+            description: flag.description
+          });
+        }
+        
+        await loadFlags();
+        return;
+      }
+
+      const formattedFlags = settings.map(s => ({
+        id: s.id,
+        key: s.setting_key,
+        name: s.setting_value.name || s.setting_key,
+        description: s.setting_value.description || s.description,
+        enabled: s.setting_value.enabled || false,
+        category: s.setting_value.category || 'general'
+      }));
+
+      setFlags(formattedFlags);
     } catch (error) {
-      console.error('Error loading feature flags:', error);
+      console.error('Failed to load flags:', error);
+      toast.error('Failed to load feature flags');
     } finally {
       setLoading(false);
     }
   };
 
-  const toggleFlag = async (flag) => {
+  const toggleFlag = async (flagId, currentState) => {
     try {
-      await base44.entities.AppSettings.update(flag.id, {
-        is_active: !flag.is_active
-      });
-      setFlags(flags.map(f => f.id === flag.id ? { ...f, is_active: !f.is_active } : f));
-    } catch (error) {
-      console.error('Error toggling flag:', error);
-      alert('Failed to toggle feature flag');
-    }
-  };
-
-  const createFlag = async () => {
-    if (!newFlagName.trim()) {
-      alert('Please enter a flag name');
-      return;
-    }
-
-    setSaving(true);
-    try {
-      const newFlag = await base44.entities.AppSettings.create({
-        setting_key: `feature_${newFlagName.toLowerCase().replace(/\s+/g, '_')}`,
-        setting_value: { enabled: true },
-        category: 'feature_flag',
-        description: newFlagDesc || `Feature flag for ${newFlagName}`,
-        is_active: false
+      const flag = flags.find(f => f.id === flagId);
+      await base44.entities.AppSettings.update(flagId, {
+        setting_value: {
+          ...flag,
+          enabled: !currentState
+        }
       });
 
-      setFlags([...flags, newFlag]);
-      setNewFlagName('');
-      setNewFlagDesc('');
+      setFlags(flags.map(f => f.id === flagId ? { ...f, enabled: !currentState } : f));
+      toast.success(`${flag.name} ${!currentState ? 'enabled' : 'disabled'}`);
     } catch (error) {
-      console.error('Error creating flag:', error);
-      alert('Failed to create feature flag');
-    } finally {
-      setSaving(false);
+      console.error('Failed to toggle flag:', error);
+      toast.error('Failed to update feature flag');
     }
   };
 
-  const deleteFlag = async (flagId) => {
-    if (!confirm('Are you sure you want to delete this feature flag?')) return;
+  const filteredFlags = flags.filter(flag => 
+    flag.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    flag.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    flag.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-    try {
-      await base44.entities.AppSettings.delete(flagId);
-      setFlags(flags.filter(f => f.id !== flagId));
-    } catch (error) {
-      console.error('Error deleting flag:', error);
-      alert('Failed to delete feature flag');
-    }
-  };
+  const groupedFlags = filteredFlags.reduce((acc, flag) => {
+    const cat = flag.category || 'general';
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(flag);
+    return acc;
+  }, {});
 
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
-        <div className="text-gray-400">Loading feature flags...</div>
+        <RefreshCw className="w-8 h-8 text-[#c8ff00] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] p-6">
-      <div className="max-w-5xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-purple-500/20">
-            <Flag className="w-6 h-6 text-purple-400" />
-          </div>
+    <div className="min-h-screen bg-[#0a0a0f] text-white p-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-white">Feature Flags</h1>
-            <p className="text-sm text-gray-400">Control feature rollout and A/B testing</p>
+            <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+              <Flag className="w-8 h-8 text-[#c8ff00]" />
+              Feature Flags
+            </h1>
+            <p className="text-gray-400 mt-2">Control platform features and functionality</p>
           </div>
+          <Button onClick={loadFlags} variant="outline" className="gap-2">
+            <RefreshCw className="w-4 h-4" />
+            Refresh
+          </Button>
         </div>
 
-        {/* Create New Flag */}
-        <Card className="border-gray-800 bg-gray-900/50">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Plus className="w-5 h-5" style={{color: colors.brand.DEFAULT}} />
-              Create New Feature Flag
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="mb-6 bg-[#1a1a2e] border-gray-800">
+          <CardContent className="pt-6">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
               <Input
-                placeholder="Flag name (e.g., new_checkout_flow)"
-                value={newFlagName}
-                onChange={(e) => setNewFlagName(e.target.value)}
-                className="bg-gray-800 border-gray-700 text-white"
-              />
-              <Input
-                placeholder="Description (optional)"
-                value={newFlagDesc}
-                onChange={(e) => setNewFlagDesc(e.target.value)}
-                className="bg-gray-800 border-gray-700 text-white"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search feature flags..."
+                className="pl-10 bg-[#0a0a0f] border-gray-700 text-white"
               />
             </div>
-            <Button 
-              onClick={createFlag}
-              disabled={saving || !newFlagName.trim()}
-              className="w-full"
-              style={{backgroundColor: colors.brand.DEFAULT, color: colors.brand.foreground}}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              {saving ? 'Creating...' : 'Create Flag'}
-            </Button>
           </CardContent>
         </Card>
 
-        {/* Feature Flags List */}
-        <div className="grid gap-4">
-          {flags.length === 0 ? (
-            <Card className="border-gray-800 bg-gray-900/50">
-              <CardContent className="py-12 text-center">
-                <Flag className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-                <p className="text-gray-400">No feature flags yet. Create your first one above.</p>
-              </CardContent>
-            </Card>
-          ) : (
-            flags.map((flag) => (
-              <motion.div
-                key={flag.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                <Card className="border-gray-800 bg-gray-900/50 hover:border-gray-700 transition-colors">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
+        <div className="space-y-6">
+          {Object.entries(groupedFlags).map(([category, categoryFlags]) => (
+            <Card key={category} className="bg-[#1a1a2e] border-gray-800">
+              <CardHeader>
+                <CardTitle className="text-xl capitalize flex items-center gap-2">
+                  {category}
+                  <Badge variant="outline" className="text-xs">{categoryFlags.length}</Badge>
+                </CardTitle>
+                <CardDescription>
+                  {category === 'analytics' && 'Analytics and tracking features'}
+                  {category === 'content' && 'Content generation and management'}
+                  {category === 'email' && 'Email and communication features'}
+                  {category === 'marketing' && 'Marketing and campaign features'}
+                  {category === 'system' && 'System-level settings'}
+                  {category === 'general' && 'General platform features'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {categoryFlags.map((flag) => (
+                    <div
+                      key={flag.id}
+                      className="flex items-start justify-between p-4 bg-[#0a0a0f] rounded-lg border border-gray-800 hover:border-gray-700 transition-colors"
+                    >
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <code className="text-sm font-mono text-white bg-gray-800 px-2 py-1 rounded">
-                            {flag.setting_key}
-                          </code>
-                          <Badge variant={flag.is_active ? 'default' : 'outline'} style={flag.is_active ? {backgroundColor: colors.brand.DEFAULT, color: colors.brand.foreground} : {}}>
-                            {flag.is_active ? (
-                              <>
-                                <CheckCircle className="w-3 h-3 mr-1" />
-                                Active
-                              </>
-                            ) : (
-                              <>
-                                <AlertCircle className="w-3 h-3 mr-1" />
-                                Inactive
-                              </>
-                            )}
+                          <h3 className="font-semibold text-white">{flag.name}</h3>
+                          <Badge
+                            variant={flag.enabled ? 'default' : 'outline'}
+                            className={flag.enabled ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50' : 'text-gray-500'}
+                          >
+                            {flag.enabled ? 'Enabled' : 'Disabled'}
                           </Badge>
                         </div>
                         <p className="text-sm text-gray-400">{flag.description}</p>
+                        <p className="text-xs text-gray-600 mt-1 font-mono">{flag.key}</p>
                       </div>
-                      
-                      <div className="flex items-center gap-4">
-                        <Switch
-                          checked={flag.is_active}
-                          onCheckedChange={() => toggleFlag(flag)}
-                        />
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => deleteFlag(flag.id)}
-                          className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+                      <Switch
+                        checked={flag.enabled}
+                        onCheckedChange={() => toggleFlag(flag.id, flag.enabled)}
+                        className="data-[state=checked]:bg-[#c8ff00]"
+                      />
                     </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))
-          )}
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
+
+        {filteredFlags.length === 0 && (
+          <Card className="bg-[#1a1a2e] border-gray-800">
+            <CardContent className="py-12 text-center">
+              <Flag className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-white mb-2">No flags found</h3>
+              <p className="text-gray-400">Try adjusting your search query</p>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

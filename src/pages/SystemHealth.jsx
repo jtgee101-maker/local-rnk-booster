@@ -1,185 +1,296 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Activity, CheckCircle, AlertCircle, XCircle, RefreshCw } from 'lucide-react';
-import { motion } from 'framer-motion';
-
-const colors = {
-  brand: { DEFAULT: '#c8ff00', foreground: '#0a0a0f' }
-};
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { base44 } from '@/api/base44Client';
+import { Activity, Database, Mail, CreditCard, AlertCircle, CheckCircle, XCircle, RefreshCw, TrendingUp, Zap } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function SystemHealth() {
   const [health, setHealth] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [checking, setChecking] = useState(false);
+  const [lastCheck, setLastCheck] = useState(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    checkHealth();
+    checkAuthAndLoadHealth();
   }, []);
 
-  const checkHealth = async () => {
-    setChecking(true);
+  const checkAuthAndLoadHealth = async () => {
     try {
-      const response = await base44.functions.invoke('admin/getSystemStatus', {});
-      setHealth(response.data);
+      const currentUser = await base44.auth.me();
+      if (!currentUser || currentUser.role !== 'admin') {
+        window.location.href = '/';
+        return;
+      }
+      setUser(currentUser);
+      await runHealthCheck();
     } catch (error) {
-      console.error('Error checking system health:', error);
-      setHealth({
-        health: { status: 'critical', score: 0 },
-        metrics: {},
-        error: error.message
+      console.error('Auth error:', error);
+      window.location.href = '/';
+    }
+  };
+
+  const runHealthCheck = async () => {
+    try {
+      setLoading(true);
+      
+      // Run comprehensive health checks
+      const checks = [];
+      
+      // Database check
+      try {
+        const leads = await base44.entities.Lead.list();
+        checks.push({
+          name: 'Database Connection',
+          status: 'healthy',
+          message: `Connected - ${leads.length} leads`,
+          icon: Database,
+          color: '#10b981'
+        });
+      } catch (err) {
+        checks.push({
+          name: 'Database Connection',
+          status: 'unhealthy',
+          message: 'Failed to connect',
+          icon: Database,
+          color: '#ef4444'
+        });
+      }
+
+      // Email system check
+      try {
+        const emailLogs = await base44.entities.EmailLog.list();
+        const recentFailed = emailLogs.filter(e => e.status === 'failed' && new Date(e.created_date) > new Date(Date.now() - 86400000));
+        checks.push({
+          name: 'Email System',
+          status: recentFailed.length > 10 ? 'degraded' : 'healthy',
+          message: `${recentFailed.length} failures in 24h`,
+          icon: Mail,
+          color: recentFailed.length > 10 ? '#f59e0b' : '#10b981'
+        });
+      } catch (err) {
+        checks.push({
+          name: 'Email System',
+          status: 'unknown',
+          message: 'Unable to check',
+          icon: Mail,
+          color: '#6b7280'
+        });
+      }
+
+      // Payment system check
+      try {
+        const orders = await base44.entities.Order.list();
+        const recentFailed = orders.filter(o => o.status === 'failed' && new Date(o.created_date) > new Date(Date.now() - 86400000));
+        checks.push({
+          name: 'Payment System',
+          status: recentFailed.length > 5 ? 'degraded' : 'healthy',
+          message: `${recentFailed.length} failures in 24h`,
+          icon: CreditCard,
+          color: recentFailed.length > 5 ? '#f59e0b' : '#10b981'
+        });
+      } catch (err) {
+        checks.push({
+          name: 'Payment System',
+          status: 'unknown',
+          message: 'Unable to check',
+          icon: CreditCard,
+          color: '#6b7280'
+        });
+      }
+
+      // Error tracking check
+      try {
+        const errors = await base44.entities.ErrorLog.list();
+        const criticalErrors = errors.filter(e => e.severity === 'critical' && !e.resolved);
+        checks.push({
+          name: 'Error Tracking',
+          status: criticalErrors.length > 5 ? 'unhealthy' : 'healthy',
+          message: `${criticalErrors.length} unresolved critical errors`,
+          icon: AlertCircle,
+          color: criticalErrors.length > 5 ? '#ef4444' : '#10b981'
+        });
+      } catch (err) {
+        checks.push({
+          name: 'Error Tracking',
+          status: 'unknown',
+          message: 'Unable to check',
+          icon: AlertCircle,
+          color: '#6b7280'
+        });
+      }
+
+      // Automation check
+      try {
+        const automations = await base44.entities.LeadNurture.filter({ status: 'active' });
+        checks.push({
+          name: 'Automation System',
+          status: 'healthy',
+          message: `${automations.length} active sequences`,
+          icon: Zap,
+          color: '#10b981'
+        });
+      } catch (err) {
+        checks.push({
+          name: 'Automation System',
+          status: 'unknown',
+          message: 'Unable to check',
+          icon: Zap,
+          color: '#6b7280'
+        });
+      }
+
+      // API performance check
+      const apiStart = Date.now();
+      await base44.entities.ConversionEvent.list();
+      const apiTime = Date.now() - apiStart;
+      checks.push({
+        name: 'API Performance',
+        status: apiTime > 2000 ? 'degraded' : 'healthy',
+        message: `${apiTime}ms response time`,
+        icon: TrendingUp,
+        color: apiTime > 2000 ? '#f59e0b' : '#10b981'
       });
+
+      // Calculate overall health score
+      const healthyCount = checks.filter(c => c.status === 'healthy').length;
+      const totalCount = checks.length;
+      const score = Math.round((healthyCount / totalCount) * 100);
+      
+      let overallStatus = 'healthy';
+      if (score < 50) overallStatus = 'unhealthy';
+      else if (score < 80) overallStatus = 'degraded';
+
+      setHealth({
+        score,
+        status: overallStatus,
+        checks,
+        timestamp: new Date().toISOString()
+      });
+      
+      setLastCheck(new Date());
+      toast.success('Health check completed');
+    } catch (error) {
+      console.error('Health check failed:', error);
+      toast.error('Failed to run health check');
     } finally {
       setLoading(false);
-      setChecking(false);
     }
   };
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'healthy': return <CheckCircle className="w-5 h-5 text-green-400" />;
-      case 'warning': return <AlertCircle className="w-5 h-5 text-yellow-400" />;
-      case 'critical': return <XCircle className="w-5 h-5 text-red-400" />;
-      default: return <Activity className="w-5 h-5 text-gray-400" />;
+      case 'healthy': return <CheckCircle className="w-5 h-5 text-emerald-400" />;
+      case 'degraded': return <AlertCircle className="w-5 h-5 text-amber-400" />;
+      case 'unhealthy': return <XCircle className="w-5 h-5 text-red-400" />;
+      default: return <AlertCircle className="w-5 h-5 text-gray-400" />;
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'healthy': return 'bg-green-500/20 text-green-400 border-green-500/30';
-      case 'warning': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-      case 'critical': return 'bg-red-500/20 text-red-400 border-red-500/30';
-      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+      case 'healthy': return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50';
+      case 'degraded': return 'bg-amber-500/20 text-amber-400 border-amber-500/50';
+      case 'unhealthy': return 'bg-red-500/20 text-red-400 border-red-500/50';
+      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/50';
     }
   };
 
-  if (loading) {
+  if (loading && !health) {
     return (
       <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
-        <div className="text-gray-400">Checking system health...</div>
+        <RefreshCw className="w-8 h-8 text-[#c8ff00] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] p-6">
-      <div className="max-w-5xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-green-500/20">
-              <Activity className="w-6 h-6 text-green-400" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white">System Health</h1>
-              <p className="text-sm text-gray-400">Real-time platform monitoring</p>
-            </div>
+    <div className="min-h-screen bg-[#0a0a0f] text-white p-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+              <Activity className="w-8 h-8 text-[#c8ff00]" />
+              System Health
+            </h1>
+            <p className="text-gray-400 mt-2">Monitor platform health and performance</p>
           </div>
-          <Button
-            onClick={checkHealth}
-            disabled={checking}
-            variant="outline"
-            className="border-gray-700 text-gray-400 hover:text-white"
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${checking ? 'animate-spin' : ''}`} />
-            Refresh
+          <Button onClick={runHealthCheck} disabled={loading} className="gap-2 bg-[#c8ff00] text-black hover:bg-[#c8ff00]/90">
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            Run Check
           </Button>
         </div>
 
-        {/* Overall Status */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <Card className={`border ${getStatusColor(health?.health?.status)} bg-gray-900/50`}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  {getStatusIcon(health?.health?.status)}
+        {health && (
+          <>
+            <Card className="mb-6 bg-[#1a1a2e] border-gray-800">
+              <CardHeader>
+                <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-xl font-bold text-white">
-                      System Status: {health?.health?.status?.toUpperCase()}
-                    </h2>
-                    <p className="text-sm text-gray-400">Health Score: {health?.health?.score}/100</p>
+                    <CardTitle className="text-2xl flex items-center gap-3">
+                      Overall Status
+                      {getStatusIcon(health.status)}
+                    </CardTitle>
+                    <CardDescription>
+                      Last checked: {lastCheck?.toLocaleTimeString()}
+                    </CardDescription>
                   </div>
+                  <Badge className={`${getStatusColor(health.status)} text-lg px-4 py-2`}>
+                    {health.score}%
+                  </Badge>
                 </div>
-                <Badge 
-                  className={getStatusColor(health?.health?.status)}
-                  style={health?.health?.status === 'healthy' ? {backgroundColor: colors.brand.DEFAULT, color: colors.brand.foreground, border: 'none'} : {}}
-                >
-                  {health?.health?.status === 'healthy' ? 'All Systems Operational' : 'Issues Detected'}
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Metrics Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: 'Total Leads', value: health?.metrics?.total_leads || 0, color: 'text-blue-400' },
-            { label: 'Total Orders', value: health?.metrics?.total_orders || 0, color: 'text-green-400' },
-            { label: 'Unresolved Errors', value: health?.metrics?.unresolved_errors || 0, color: 'text-red-400' },
-            { label: 'Failed Emails', value: health?.metrics?.failed_emails || 0, color: 'text-orange-400' }
-          ].map((metric) => (
-            <Card key={metric.label} className="border-gray-800 bg-gray-900/50">
-              <CardContent className="p-4">
-                <p className="text-sm text-gray-400 mb-1">{metric.label}</p>
-                <p className={`text-2xl font-bold ${metric.color}`}>{metric.value}</p>
+              </CardHeader>
+              <CardContent>
+                <Progress value={health.score} className="h-3" />
+                <div className="flex justify-between mt-2 text-sm text-gray-400">
+                  <span>{health.checks.filter(c => c.status === 'healthy').length} / {health.checks.length} checks passing</span>
+                  <span className="capitalize">{health.status}</span>
+                </div>
               </CardContent>
             </Card>
-          ))}
-        </div>
 
-        {/* Recent Activity */}
-        <Card className="border-gray-800 bg-gray-900/50">
-          <CardHeader>
-            <CardTitle className="text-white">Last 24 Hours</CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-gray-800/50 rounded-lg">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-400">New Leads</span>
-                <span className="text-white font-bold text-xl">{health?.metrics?.recent_leads_24h || 0}</span>
-              </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              {health.checks.map((check, idx) => {
+                const Icon = check.icon;
+                return (
+                  <Card key={idx} className="bg-[#1a1a2e] border-gray-800">
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${check.color}20` }}>
+                            <Icon className="w-6 h-6" style={{ color: check.color }} />
+                          </div>
+                          <div>
+                            <CardTitle className="text-lg">{check.name}</CardTitle>
+                            <p className="text-sm text-gray-400 mt-1">{check.message}</p>
+                          </div>
+                        </div>
+                        <Badge className={getStatusColor(check.status)}>
+                          {check.status}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                  </Card>
+                );
+              })}
             </div>
-            <div className="p-4 bg-gray-800/50 rounded-lg">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-400">New Orders</span>
-                <span className="text-white font-bold text-xl">{health?.metrics?.recent_orders_24h || 0}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Active Automations */}
-        <Card className="border-gray-800 bg-gray-900/50">
-          <CardHeader>
-            <CardTitle className="text-white">Active Services</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
-              <span className="text-gray-300">Email Automations</span>
-              <Badge style={{backgroundColor: colors.brand.DEFAULT, color: colors.brand.foreground}}>
-                {health?.metrics?.active_automations || 0} Active
-              </Badge>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
-              <span className="text-gray-300">GeeNius Workflow</span>
-              <Badge style={{backgroundColor: colors.brand.DEFAULT, color: colors.brand.foreground}}>
-                Running
-              </Badge>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
-              <span className="text-gray-300">Lead Scoring Engine</span>
-              <Badge style={{backgroundColor: colors.brand.DEFAULT, color: colors.brand.foreground}}>
-                Operational
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
+            <Card className="mt-6 bg-[#1a1a2e] border-gray-800">
+              <CardHeader>
+                <CardTitle>Health History</CardTitle>
+                <CardDescription>Recent health check results</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8 text-gray-400">
+                  <Activity className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                  <p>Health history tracking coming soon</p>
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
     </div>
   );
