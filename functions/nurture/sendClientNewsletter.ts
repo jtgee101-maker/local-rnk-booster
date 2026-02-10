@@ -142,9 +142,9 @@ Deno.serve(async (req) => {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify(
-            batch.map(email => ({
-              from: 'GeeNius Insider <newsletter@localrank.ai>',
-              to: email,
+          batch.map(email => ({
+            from: 'GeeNius Insider <onboarding@resend.dev>',
+            to: email,
               subject: subject,
               html: generateNewsletterHtml(email),
               tags: [
@@ -163,7 +163,7 @@ Deno.serve(async (req) => {
           for (let j = 0; j < batch.length; j++) {
             await base44.asServiceRole.entities.EmailLog.create({
               to: batch[j],
-              from: 'GeeNius Insider <newsletter@localrank.ai>',
+              from: 'GeeNius Insider <onboarding@resend.dev>',
               subject: subject,
               type: 'other',
               status: 'sent',

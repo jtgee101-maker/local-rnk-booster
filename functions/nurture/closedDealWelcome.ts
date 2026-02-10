@@ -130,7 +130,10 @@ Deno.serve(async (req) => {
       </div>
     `;
 
-    // Send email via Resend
+    // Send email via Resend (test mode sends to admin only)
+    const isTestEnvironment = !RESEND_API_KEY || RESEND_API_KEY.includes('re_');
+    const recipientEmail = isTestEnvironment ? 'jtgee101@gmail.com' : lead.email;
+    
     const emailResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -139,7 +142,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         from: 'GeeNius Team <onboarding@resend.dev>',
-        to: lead.email,
+        to: recipientEmail,
         subject: `🎉 Welcome to GeeNius Pathway, ${businessName}!`,
         html: emailHtml,
         tags: [
