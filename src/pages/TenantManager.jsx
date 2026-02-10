@@ -5,11 +5,25 @@ import { Globe, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function TenantManager() {
+  const [user, setUser] = useState(null);
   const [stats, setStats] = useState({ leads: 0, orders: 0, users: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadStats();
+    const checkAuth = async () => {
+      try {
+        const currentUser = await base44.auth.me();
+        if (currentUser?.role !== 'admin') {
+          window.location.href = '/QuizGeenius';
+          return;
+        }
+        setUser(currentUser);
+        loadStats();
+      } catch (err) {
+        window.location.href = '/QuizGeenius';
+      }
+    };
+    checkAuth();
   }, []);
 
   const loadStats = async () => {
@@ -27,7 +41,7 @@ export default function TenantManager() {
     setLoading(false);
   };
 
-  if (loading) {
+  if (!user || loading) {
     return (
       <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
         <RefreshCw className="w-8 h-8 text-[#c8ff00] animate-spin" />

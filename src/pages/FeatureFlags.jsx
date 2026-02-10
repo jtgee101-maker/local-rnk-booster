@@ -7,12 +7,31 @@ import { Flag, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function FeatureFlags() {
+  const [user, setUser] = useState(null);
   const [flags, setFlags] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadFlags();
+    const checkAuth = async () => {
+      try {
+        const currentUser = await base44.auth.me();
+        if (currentUser?.role !== 'admin') {
+          window.location.href = '/QuizGeenius';
+          return;
+        }
+        setUser(currentUser);
+      } catch (err) {
+        window.location.href = '/QuizGeenius';
+      }
+    };
+    checkAuth();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      loadFlags();
+    }
+  }, [user]);
 
   const loadFlags = async () => {
     setLoading(true);
@@ -42,7 +61,7 @@ export default function FeatureFlags() {
     }
   };
 
-  if (loading) {
+  if (!user || loading) {
     return (
       <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
         <RefreshCw className="w-8 h-8 text-[#c8ff00] animate-spin" />

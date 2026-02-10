@@ -7,8 +7,9 @@ import { Activity, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function SystemHealth() {
+  const [user, setUser] = useState(null);
   const [checks, setChecks] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const runCheck = async () => {
     setLoading(true);
@@ -41,8 +42,30 @@ export default function SystemHealth() {
   };
 
   useEffect(() => {
-    runCheck();
+    const checkAuth = async () => {
+      try {
+        const currentUser = await base44.auth.me();
+        if (currentUser?.role !== 'admin') {
+          window.location.href = '/QuizGeenius';
+          return;
+        }
+        setUser(currentUser);
+        setLoading(false);
+        runCheck();
+      } catch (err) {
+        window.location.href = '/QuizGeenius';
+      }
+    };
+    checkAuth();
   }, []);
+
+  if (!user || loading) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+        <RefreshCw className="w-8 h-8 text-[#c8ff00] animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white p-6">
