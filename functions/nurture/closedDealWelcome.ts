@@ -180,11 +180,33 @@ Deno.serve(async (req) => {
       admin_notes: (lead.admin_notes || '') + `\n[${new Date().toISOString()}] Closed deal welcome email sent`
     });
 
+    // Trigger onboarding workflow
+    try {
+      await base44.asServiceRole.functions.invoke('onboarding/initializeOnboarding', { lead_id });
+    } catch (err) {
+      console.error('Error initializing onboarding:', err);
+    }
+
+    // Generate AI action plan
+    try {
+      await base44.asServiceRole.functions.invoke('ai/generateActionPlan', { lead_id });
+    } catch (err) {
+      console.error('Error generating action plan:', err);
+    }
+
+    // Capture initial GMB metrics
+    try {
+      await base44.asServiceRole.functions.invoke('metrics/captureGMBSnapshot', { lead_id });
+    } catch (err) {
+      console.error('Error capturing GMB snapshot:', err);
+    }
+
     return Response.json({ 
       success: true, 
       resend_id: resendData.id,
       email_sent: true,
-      to: lead.email
+      to: lead.email,
+      workflows_triggered: ['onboarding', 'action_plan', 'metrics_snapshot']
     });
 
   } catch (error) {
