@@ -5,14 +5,13 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { base44 } from '@/api/base44Client';
-import { FileText, Search, RefreshCw, Download, Filter, AlertCircle, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { FileText, Search, RefreshCw, Download, AlertCircle, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function APILogs() {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [typeFilter, setTypeFilter] = useState('all');
   const [severityFilter, setSeverityFilter] = useState('all');
   const [user, setUser] = useState(null);
 
@@ -39,13 +38,9 @@ export default function APILogs() {
     try {
       setLoading(true);
       
-      // Fetch error logs (our API logs)
       const errorLogs = await base44.entities.ErrorLog.list('-created_date', 50);
-      
-      // Fetch conversion events as API activity logs
       const conversionEvents = await base44.entities.ConversionEvent.list('-created_date', 50);
       
-      // Combine and format logs
       const formattedLogs = [
         ...errorLogs.map(log => ({
           id: log.id,
@@ -104,9 +99,8 @@ export default function APILogs() {
   const filteredLogs = logs.filter(log => {
     const matchesSearch = log.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          log.type.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesType = typeFilter === 'all' || log.type === typeFilter;
     const matchesSeverity = severityFilter === 'all' || log.severity === severityFilter;
-    return matchesSearch && matchesType && matchesSeverity;
+    return matchesSearch && matchesSeverity;
   });
 
   const getStatusIcon = (status) => {

@@ -5,13 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { base44 } from '@/api/base44Client';
-import { Flag, Search, Save, RefreshCw } from 'lucide-react';
+import { Flag, Search, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function FeatureFlags() {
   const [flags, setFlags] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [user, setUser] = useState(null);
 
@@ -39,7 +38,6 @@ export default function FeatureFlags() {
       setLoading(true);
       const settings = await base44.entities.AppSettings.filter({ category: 'feature_flag' });
       
-      // If no flags exist, create default ones
       if (settings.length === 0) {
         const defaultFlags = [
           { key: 'enable_ab_testing', name: 'A/B Testing', description: 'Enable A/B testing across the platform', enabled: true, category: 'analytics' },

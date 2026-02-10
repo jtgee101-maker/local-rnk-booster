@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { base44 } from '@/api/base44Client';
-import { Globe, Users, Activity, Database, Plus, RefreshCw, Search, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Globe, Users, Activity, Database, RefreshCw, Search, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function TenantManager() {
@@ -37,7 +37,6 @@ export default function TenantManager() {
     try {
       setLoading(true);
       
-      // Since we don't have a Tenant entity yet, show the main app as a tenant
       const [leads, orders] = await Promise.all([
         base44.entities.Lead.list(),
         base44.entities.Order.list()
@@ -119,12 +118,10 @@ export default function TenantManager() {
             </h1>
             <p className="text-gray-400 mt-2">Manage platform tenants and organizations</p>
           </div>
-          <div className="flex gap-2">
-            <Button onClick={loadTenants} variant="outline" className="gap-2">
-              <RefreshCw className="w-4 h-4" />
-              Refresh
-            </Button>
-          </div>
+          <Button onClick={loadTenants} variant="outline" className="gap-2">
+            <RefreshCw className="w-4 h-4" />
+            Refresh
+          </Button>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">

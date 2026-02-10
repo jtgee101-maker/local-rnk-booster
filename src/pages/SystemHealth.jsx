@@ -36,10 +36,8 @@ export default function SystemHealth() {
     try {
       setLoading(true);
       
-      // Run comprehensive health checks
       const checks = [];
       
-      // Database check
       try {
         const leads = await base44.entities.Lead.list();
         checks.push({
@@ -59,7 +57,6 @@ export default function SystemHealth() {
         });
       }
 
-      // Email system check
       try {
         const emailLogs = await base44.entities.EmailLog.list();
         const recentFailed = emailLogs.filter(e => e.status === 'failed' && new Date(e.created_date) > new Date(Date.now() - 86400000));
@@ -80,7 +77,6 @@ export default function SystemHealth() {
         });
       }
 
-      // Payment system check
       try {
         const orders = await base44.entities.Order.list();
         const recentFailed = orders.filter(o => o.status === 'failed' && new Date(o.created_date) > new Date(Date.now() - 86400000));
@@ -101,7 +97,6 @@ export default function SystemHealth() {
         });
       }
 
-      // Error tracking check
       try {
         const errors = await base44.entities.ErrorLog.list();
         const criticalErrors = errors.filter(e => e.severity === 'critical' && !e.resolved);
@@ -122,7 +117,6 @@ export default function SystemHealth() {
         });
       }
 
-      // Automation check
       try {
         const automations = await base44.entities.LeadNurture.filter({ status: 'active' });
         checks.push({
@@ -142,7 +136,6 @@ export default function SystemHealth() {
         });
       }
 
-      // API performance check
       const apiStart = Date.now();
       await base44.entities.ConversionEvent.list();
       const apiTime = Date.now() - apiStart;
@@ -154,7 +147,6 @@ export default function SystemHealth() {
         color: apiTime > 2000 ? '#f59e0b' : '#10b981'
       });
 
-      // Calculate overall health score
       const healthyCount = checks.filter(c => c.status === 'healthy').length;
       const totalCount = checks.length;
       const score = Math.round((healthyCount / totalCount) * 100);
