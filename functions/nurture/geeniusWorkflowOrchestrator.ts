@@ -17,103 +17,126 @@ Deno.serve(async (req) => {
     const { event, data } = await req.json();
 
     // Handle lead creation - send audit_submitted email immediately
-    if (event === 'lead_created') {
-      const { lead_id } = data;
-      const lead = await base44.entities.Lead.filter({ id: lead_id }).then(r => r[0]);
+    if (event?.type === 'create' && event?.entity_name === 'Lead') {
+      const lead_id = event.entity_id || data?.id;
+      const lead = data || await base44.asServiceRole.entities.Lead.filter({ id: lead_id }).then(r => r[0]);
 
       if (lead && lead.email) {
-        // Send audit confirmation email
-        await base44.functions.invoke('nurture/geeniusEmailSequences', {
+        // Send audit confirmation email immediately
+        await base44.asServiceRole.functions.invoke('nurture/geeniusEmailSequences', {
           lead_id,
           sequence_key: 'audit_submitted'
         }).catch(e => console.error('Failed to send audit_submitted:', e));
 
-        // Schedule pathway selection nudge (2 hours later)
-        scheduleEmail(lead_id, 'pathway_selection_nudge_2h', 2 * 60 * 60 * 1000);
-
-        // Schedule urgent reminder (12 hours later)
-        scheduleEmail(lead_id, 'pathway_selection_urgent_12h', 12 * 60 * 60 * 1000);
+        // Create scheduled email records in LeadNurture entity
+        await scheduleEmail(base44, lead, 'pathway_selection_nudge_2h', 2);
+        await scheduleEmail(base44, lead, 'pathway_selection_urgent_12h', 12);
       }
 
       return new Response(JSON.stringify({ success: true, event: 'lead_created_workflow_started' }), { status: 200 });
     }
 
-    // Handle lead status change - triggered by conversion toggle
-    if (event === 'lead_converted') {
-      const { lead_id, pathway } = data;
-      const lead = await base44.entities.Lead.filter({ id: lead_id }).then(r => r[0]);
+    // Handle lead status change - triggered by conversion toggle or pathway selection
+    if (event?.type === 'update' && event?.entity_name === 'Lead') {
+      const lead_id = event.entity_id || data?.id;
+      const lead = data || await base44.asServiceRole.entities.Lead.filter({ id: lead_id }).then(r => r[0]);
 
-      if (lead && lead.email) {
+      // Check if admin_notes contains pathway selection trigger
+      if (lead && lead.email && lead.admin_notes) {
         let sequence_key;
+        let pathway;
 
-        // Trigger based on selected pathway
-        if (pathway === 1) {
+        // Parse pathway from admin_notes (e.g., "Selected Pathway 1 - Grant")
+        if (lead.admin_notes.includes('Pathway 1') || lead.admin_notes.includes('Grant')) {
           sequence_key = 'grant_pathway_selected';
-        } else if (pathway === 2) {
+          pathway = 1;
+        } else if (lead.admin_notes.includes('Pathway 2') || lead.admin_notes.includes('Done For You') || lead.admin_notes.includes('DFY')) {
           sequence_key = 'dfy_pathway_selected';
-        } else if (pathway === 3) {
+          pathway = 2;
+        } else if (lead.admin_notes.includes('Pathway 3') || lead.admin_notes.includes('DIY')) {
           sequence_key = 'diy_pathway_selected';
+          pathway = 3;
         }
 
         if (sequence_key) {
-          await base44.functions.invoke('nurture/geeniusEmailSequences', {
+          await base44.asServiceRole.functions.invoke('nurture/geeniusEmailSequences', {
             lead_id,
             sequence_key
           }).catch(e => console.error(`Failed to send ${sequence_key}:`, e));
 
-          // Schedule checkout follow-up
-          scheduleEmail(lead_id, 'checkout_abandoned_1h', 1 * 60 * 60 * 1000);
-          scheduleEmail(lead_id, 'checkout_abandoned_24h', 24 * 60 * 60 * 1000);
+          // Schedule checkout abandoned emails
+          await scheduleEmail(base44, lead, 'checkout_abandoned_1h', 1);
+          await scheduleEmail(base44, lead, 'checkout_abandoned_24h', 24);
         }
       }
 
-      return new Response(JSON.stringify({ success: true, event: 'lead_converted_workflow_started' }), { status: 200 });
+      return new Response(JSON.stringify({ success: true, event: 'lead_updated_workflow_processed' }), { status: 200 });
     }
 
-    // Handle post-purchase
-    if (event === 'order_completed') {
-      const { lead_id } = data;
-      const lead = await base44.entities.Lead.filter({ id: lead_id }).then(r => r[0]);
+    // Handle post-purchase (Order entity creation)
+    if (event?.type === 'create' && event?.entity_name === 'Order') {
+      const order = data;
+      
+      if (order && order.email) {
+        // Find the lead by email
+        const leads = await base44.asServiceRole.entities.Lead.filter({ email: order.email });
+        const lead = leads[0];
 
-      if (lead && lead.email) {
-        // Send welcome email immediately
-        await base44.functions.invoke('nurture/geeniusEmailSequences', {
-          lead_id,
-          sequence_key: 'post_purchase_day1'
-        }).catch(e => console.error('Failed to send post_purchase_day1:', e));
+        if (lead) {
+          // Send welcome email immediately
+          await base44.asServiceRole.functions.invoke('nurture/geeniusEmailSequences', {
+            lead_id: lead.id,
+            sequence_key: 'post_purchase_day1'
+          }).catch(e => console.error('Failed to send post_purchase_day1:', e));
+        }
       }
 
       return new Response(JSON.stringify({ success: true, event: 'order_completed_workflow_started' }), { status: 200 });
     }
 
-    // Handle checkout abandonment
-    if (event === 'checkout_abandoned') {
-      const { lead_id } = data;
-
-      // Schedule abandoned cart emails
-      scheduleEmail(lead_id, 'checkout_abandoned_1h', 1 * 60 * 60 * 1000);
-      scheduleEmail(lead_id, 'checkout_abandoned_24h', 24 * 60 * 60 * 1000);
-
-      return new Response(JSON.stringify({ success: true, event: 'checkout_abandoned_workflow_started' }), { status: 200 });
-    }
-
-    return new Response(JSON.stringify({ error: 'Invalid event' }), { status: 400 });
+    return new Response(JSON.stringify({ 
+      error: 'Invalid event structure',
+      received: { event, data_keys: data ? Object.keys(data) : [] }
+    }), { status: 400 });
   } catch (error) {
     console.error('Orchestrator error:', error);
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 });
 
-// Helper to schedule email with delay
-async function scheduleEmail(lead_id, sequence_key, delay_ms) {
-  const delay_seconds = Math.floor(delay_ms / 1000);
-
+// Helper to schedule email with delay using LeadNurture entity
+async function scheduleEmail(base44, lead, sequence_key, delay_hours) {
   try {
-    // In a real implementation, you'd use a task queue or scheduled automation
-    // For now, we'll create a simple scheduling record that can be processed by a cron job
-    console.log(`Scheduled email: ${sequence_key} for lead ${lead_id} in ${delay_seconds}s`);
+    const next_email_date = new Date(Date.now() + delay_hours * 60 * 60 * 1000).toISOString();
+
+    // Check if nurture record already exists
+    const existing = await base44.asServiceRole.entities.LeadNurture.filter({
+      lead_id: lead.id,
+      sequence_name: `geenius_${sequence_key}`
+    });
+
+    if (existing.length === 0) {
+      // Create new nurture record
+      await base44.asServiceRole.entities.LeadNurture.create({
+        lead_id: lead.id,
+        email: lead.email,
+        sequence_name: `geenius_${sequence_key}`,
+        current_step: 0,
+        total_steps: 1,
+        status: 'active',
+        next_email_date,
+        metadata: {
+          sequence_key,
+          delay_hours,
+          scheduled_at: new Date().toISOString()
+        }
+      });
+      
+      console.log(`Scheduled email: ${sequence_key} for lead ${lead.id} at ${next_email_date}`);
+    } else {
+      console.log(`Nurture record already exists for ${sequence_key}`);
+    }
     
-    // TODO: Implement persistent scheduling via AppSettings or dedicated ScheduledTask entity
     return true;
   } catch (error) {
     console.error(`Failed to schedule ${sequence_key}:`, error);

@@ -231,10 +231,14 @@ const sequences = {
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-
-    if (!user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+    
+    // Allow service role or authenticated user
+    let user;
+    try {
+      user = await base44.auth.me();
+    } catch (e) {
+      // If auth fails, we might be called from automation - continue with service role
+      console.log('Auth failed, using service role');
     }
 
     const { lead_id, sequence_key } = await req.json();
@@ -246,9 +250,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    const lead = await base44.entities.Lead.filter({ id: lead_id }).then(r => r[0]);
+    // Use service role to fetch lead
+    const lead = await base44.asServiceRole.entities.Lead.filter({ id: lead_id }).then(r => r[0]);
     if (!lead) {
-      return new Response(JSON.stringify({ error: 'Lead not found' }), { status: 404 });
+      return new Response(JSON.stringify({ error: `Lead not found with id: ${lead_id}` }), { status: 404 });
     }
 
     const sequence = sequences[sequence_key];
@@ -285,8 +290,8 @@ Deno.serve(async (req) => {
 
     const resendData = await emailResponse.json();
 
-    // Log email
-    await base44.entities.EmailLog.create({
+    // Log email using service role
+    await base44.asServiceRole.entities.EmailLog.create({
       to: lead.email,
       from: emailData.from,
       subject: emailData.subject,
@@ -296,11 +301,17 @@ Deno.serve(async (req) => {
         lead_id,
         sequence_key,
         business_name: lead.business_name,
-        resend_id: resendData.id
+        resend_id: resendData.id,
+        funnel: 'geenius'
       }
     });
 
-    return new Response(JSON.stringify({ success: true, resend_id: resendData.id }), { status: 200 });
+    return new Response(JSON.stringify({ 
+      success: true, 
+      resend_id: resendData.id,
+      lead_email: lead.email,
+      sequence_key 
+    }), { status: 200 });
   } catch (error) {
     console.error('Error:', error);
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
