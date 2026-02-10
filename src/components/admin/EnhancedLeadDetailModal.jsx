@@ -11,6 +11,7 @@ import { Mail, Phone, MapPin, Calendar, TrendingUp,
   Star, MessageSquare, Save, Send, Target, Clock
 } from 'lucide-react';
 import { toast } from 'sonner';
+import GoalManagement from './GoalManagement';
 
 export default function EnhancedLeadDetailModal({ lead, open, onClose, onUpdate }) {
   const [updating, setUpdating] = useState(false);
@@ -112,10 +113,16 @@ export default function EnhancedLeadDetailModal({ lead, open, onClose, onUpdate 
         <Tabs defaultValue="overview" className="mt-4">
           <TabsList className="bg-gray-800 border border-gray-700">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="goals">Goals</TabsTrigger>
             <TabsTrigger value="gmb">GMB Details</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>
             <TabsTrigger value="actions">Quick Actions</TabsTrigger>
           </TabsList>
+
+          {/* Goals Tab */}
+          <TabsContent value="goals">
+            <GoalManagement leadId={lead?.id} onUpdate={onUpdate} />
+          </TabsContent>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-4">
