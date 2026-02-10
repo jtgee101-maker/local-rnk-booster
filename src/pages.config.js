@@ -48,6 +48,7 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import ABTestDashboard from './pages/ABTestDashboard';
+import APILogs from './pages/APILogs';
 import Admin from './pages/Admin';
 import AdminAuditPlan from './pages/AdminAuditPlan';
 import AdminControlCenter from './pages/AdminControlCenter';
@@ -74,6 +75,7 @@ import ElectriciansLanding from './pages/ElectriciansLanding';
 import Error403 from './pages/Error403';
 import Error404 from './pages/Error404';
 import Error500 from './pages/Error500';
+import FeatureFlags from './pages/FeatureFlags';
 import Features from './pages/Features';
 import FinalLaunchChecklist from './pages/FinalLaunchChecklist';
 import FoxyAuditLanding from './pages/FoxyAuditLanding';
@@ -112,6 +114,8 @@ import RoofersLanding from './pages/RoofersLanding';
 import SecurityAudit from './pages/SecurityAudit';
 import Settings from './pages/Settings';
 import StripeSetupGuide from './pages/StripeSetupGuide';
+import SystemHealth from './pages/SystemHealth';
+import TenantManager from './pages/TenantManager';
 import Terms from './pages/Terms';
 import Testing from './pages/Testing';
 import TestingChecklist from './pages/TestingChecklist';
@@ -120,10 +124,6 @@ import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import UserJourneyTest from './pages/UserJourneyTest';
 import V2Start from './pages/V2Start';
-import FeatureFlags from './pages/FeatureFlags';
-import TenantManager from './pages/TenantManager';
-import SystemHealth from './pages/SystemHealth';
-import APILogs from './pages/APILogs';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminTenants from './pages/AdminTenants';
 import AdminUsers from './pages/AdminUsers';
@@ -132,11 +132,13 @@ import Monitoring from './pages/Monitoring';
 import EnterpriseMode from './pages/EnterpriseMode';
 import GrowthMode from './pages/GrowthMode';
 import QuickStartWizard from './pages/QuickStartWizard';
+import ClientDashboard from './pages/ClientDashboard';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "ABTestDashboard": ABTestDashboard,
+    "APILogs": APILogs,
     "Admin": Admin,
     "AdminAuditPlan": AdminAuditPlan,
     "AdminControlCenter": AdminControlCenter,
@@ -163,6 +165,7 @@ export const PAGES = {
     "Error403": Error403,
     "Error404": Error404,
     "Error500": Error500,
+    "FeatureFlags": FeatureFlags,
     "Features": Features,
     "FinalLaunchChecklist": FinalLaunchChecklist,
     "FoxyAuditLanding": FoxyAuditLanding,
@@ -201,6 +204,8 @@ export const PAGES = {
     "SecurityAudit": SecurityAudit,
     "Settings": Settings,
     "StripeSetupGuide": StripeSetupGuide,
+    "SystemHealth": SystemHealth,
+    "TenantManager": TenantManager,
     "Terms": Terms,
     "Testing": Testing,
     "TestingChecklist": TestingChecklist,
@@ -209,10 +214,6 @@ export const PAGES = {
     "Upsell1": Upsell1,
     "UserJourneyTest": UserJourneyTest,
     "V2Start": V2Start,
-    "FeatureFlags": FeatureFlags,
-    "TenantManager": TenantManager,
-    "SystemHealth": SystemHealth,
-    "APILogs": APILogs,
     "AdminDashboard": AdminDashboard,
     "AdminTenants": AdminTenants,
     "AdminUsers": AdminUsers,
@@ -221,6 +222,7 @@ export const PAGES = {
     "EnterpriseMode": EnterpriseMode,
     "GrowthMode": GrowthMode,
     "QuickStartWizard": QuickStartWizard,
+    "ClientDashboard": ClientDashboard,
 }
 
 export const pagesConfig = {
