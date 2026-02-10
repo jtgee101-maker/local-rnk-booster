@@ -138,7 +138,7 @@ Deno.serve(async (req) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'GeeNius Team <welcome@localrank.ai>',
+        from: 'GeeNius Team <onboarding@resend.dev>',
         to: lead.email,
         subject: `🎉 Welcome to GeeNius Pathway, ${businessName}!`,
         html: emailHtml,
@@ -159,7 +159,7 @@ Deno.serve(async (req) => {
     // Log email
     await base44.asServiceRole.entities.EmailLog.create({
       to: lead.email,
-      from: 'GeeNius Team <welcome@localrank.ai>',
+      from: 'GeeNius Team <onboarding@resend.dev>',
       subject: `🎉 Welcome to GeeNius Pathway, ${businessName}!`,
       type: 'welcome',
       status: 'sent',
