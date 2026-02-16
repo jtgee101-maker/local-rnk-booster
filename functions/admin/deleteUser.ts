@@ -3,7 +3,55 @@
  */
 
 import { withErrorHandler, FunctionError, successResponse } from './utils/errorHandler';
-async function deleteUserHandler(request) {
+
+// Type declarations for base44 global
+declare const base44: {
+  db: {
+    collections: {
+      users?: {
+        findOne?: (query: Record<string, unknown>) => Promise<Record<string, unknown> | null>;
+        count?: (query: Record<string, unknown>) => Promise<number>;
+        deleteOne?: (query: Record<string, unknown>) => Promise<unknown>;
+        updateOne?: (query: Record<string, unknown>, update: Record<string, unknown>) => Promise<unknown>;
+      };
+      adminLogs?: {
+        insertOne?: (data: Record<string, unknown>) => Promise<unknown>;
+      };
+      sessions?: {
+        deleteMany?: (query: Record<string, unknown>) => Promise<unknown>;
+      };
+      apiKeys?: {
+        deleteMany?: (query: Record<string, unknown>) => Promise<unknown>;
+      };
+      activityLogs?: {
+        updateMany?: (query: Record<string, unknown>, update: Record<string, unknown>) => Promise<unknown>;
+      };
+    };
+  };
+  emails: {
+    send: (data: { to: string; template: string; data: Record<string, unknown> }) => Promise<unknown>;
+  };
+};
+
+// Type for request user
+interface RequestUser {
+  id?: string;
+  _id?: string | { toString?: () => string };
+  role: string;
+  name?: string;
+}
+
+// Type for request
+interface DeleteUserRequest {
+  user?: RequestUser;
+  data?: {
+    id?: string;
+    hardDelete?: boolean;
+    reason?: string;
+  };
+}
+
+async function deleteUserHandler(request: DeleteUserRequest) {
   try {
     // Verify admin access
     const currentUser = request.user;
@@ -38,8 +86,8 @@ async function deleteUserHandler(request) {
       };
     }
 
-    const currentUserId = currentUser.id || currentUser._id?.toString?.();
-    const targetUserId = existingUser._id?.toString?.() || existingUser.id;
+    const currentUserId = currentUser.id || (typeof currentUser._id === 'object' ? currentUser._id?.toString?.() : currentUser._id);
+    const targetUserId = typeof existingUser._id === 'object' ? (existingUser._id as { toString?: () => string })?.toString?.() : existingUser._id as string | undefined;
 
     // Prevent self-deletion
     if (currentUserId === targetUserId) {
@@ -50,7 +98,7 @@ async function deleteUserHandler(request) {
     }
 
     // Only super-admin can delete other admins
-    if (['admin', 'super-admin'].includes(existingUser.role) && currentUser.role !== 'super-admin') {
+    if (['admin', 'super-admin'].includes(existingUser.role as string) && currentUser.role !== 'super-admin') {
       return {
         success: false,
         error: 'Only super admins can delete admin accounts'
@@ -60,7 +108,7 @@ async function deleteUserHandler(request) {
     // Prevent deleting the last super-admin
     if (existingUser.role === 'super-admin') {
       const superAdminCount = await base44.db.collections.users?.count?.({ role: 'super-admin' });
-      if (superAdminCount <= 1) {
+      if (superAdminCount !== undefined && superAdminCount <= 1) {
         return {
           success: false,
           error: 'Cannot delete the last super admin account'
@@ -109,7 +157,7 @@ async function deleteUserHandler(request) {
     // Send deletion notification
     try {
       await base44.emails.send({
-        to: existingUser.email,
+        to: existingUser.email as string,
         template: 'account-deleted',
         data: { 
           name: existingUser.name,
@@ -130,17 +178,17 @@ async function deleteUserHandler(request) {
       }
     };
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('deleteUser error:', error);
     return {
       success: false,
-      error: error.message || 'Failed to delete user'
+      error: error instanceof Error ? error.message : 'Failed to delete user'
     };
   }
 }
 
 // Helper to clean up user-related data
-async function cleanupUserData(userId) {
+async function cleanupUserData(userId: string) {
   try {
     // Delete user's sessions
     await base44.db.collections.sessions?.deleteMany?.({ userId });
@@ -160,7 +208,15 @@ async function cleanupUserData(userId) {
   }
 }
 
-async function logAdminAction({ adminId, action, targetId, targetType, details }) {
+interface AdminActionParams {
+  adminId?: string;
+  action: string;
+  targetId: string;
+  targetType: string;
+  details: Record<string, unknown>;
+}
+
+async function logAdminAction({ adminId, action, targetId, targetType, details }: AdminActionParams) {
   try {
     await base44.db.collections.adminLogs?.insertOne?.({
       adminId,

@@ -3,7 +3,63 @@
  */
 
 import { withErrorHandler, FunctionError, successResponse } from './utils/errorHandler';
-async function createUserHandler(request) {
+
+// Type declarations for base44 global
+declare const base44: {
+  db: {
+    collections: {
+      users?: {
+        findOne?: (query: Record<string, unknown>) => Promise<Record<string, unknown> | null>;
+        insertOne?: (data: Record<string, unknown>) => Promise<{ insertedId?: string; acknowledged?: boolean }>;
+      };
+      adminLogs?: {
+        insertOne?: (data: Record<string, unknown>) => Promise<unknown>;
+      };
+    };
+  };
+  emails: {
+    send: (data: { to: string; template: string; data: Record<string, unknown> }) => Promise<unknown>;
+  };
+};
+
+// Type for request user
+interface RequestUser {
+  id?: string;
+  _id?: string;
+  role: string;
+  name?: string;
+}
+
+// Type for request
+interface CreateUserRequest {
+  user?: RequestUser;
+  data?: {
+    name?: string;
+    email?: string;
+    password?: string;
+    role?: string;
+    status?: string;
+    company?: string;
+    sendWelcomeEmail?: boolean;
+  };
+}
+
+// Type for new user
+interface NewUser {
+  name: string;
+  email: string;
+  role: string;
+  status: string;
+  company: string;
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy: string | undefined;
+  emailVerified: boolean;
+  passwordHash?: string;
+  tempPassword?: boolean;
+}
+
+async function createUserHandler(request: CreateUserRequest) {
   try {
     // Verify admin access
     const currentUser = request.user;
@@ -59,7 +115,7 @@ async function createUserHandler(request) {
     }
 
     // Create user object
-    const newUser = {
+    const newUser: NewUser = {
       name,
       email: email.toLowerCase().trim(),
       role,
@@ -89,7 +145,7 @@ async function createUserHandler(request) {
       throw new Error('Failed to create user');
     }
 
-    const userId = result.insertedId?.toString?.() || result.insertedId;
+    const userId = typeof result.insertedId === 'string' ? result.insertedId : String(result.insertedId);
 
     // Send welcome email if requested
     if (sendWelcomeEmail) {
@@ -130,23 +186,23 @@ async function createUserHandler(request) {
       }
     };
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('createUser error:', error);
     return {
       success: false,
-      error: error.message || 'Failed to create user'
+      error: error instanceof Error ? error.message : 'Failed to create user'
     };
   }
 }
 
 // Helper functions
-async function hashPassword(password) {
+async function hashPassword(password: string): Promise<string> {
   // In real implementation, use bcrypt or similar
   // This is a placeholder
   return `hashed_${password}`;
 }
 
-function generateTempPassword() {
+function generateTempPassword(): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
   let password = '';
   for (let i = 0; i < 12; i++) {
@@ -155,7 +211,15 @@ function generateTempPassword() {
   return password;
 }
 
-async function logAdminAction({ adminId, action, targetId, targetType, details }) {
+interface AdminActionParams {
+  adminId?: string;
+  action: string;
+  targetId: string;
+  targetType: string;
+  details: Record<string, unknown>;
+}
+
+async function logAdminAction({ adminId, action, targetId, targetType, details }: AdminActionParams) {
   try {
     await base44.db.collections.adminLogs?.insertOne?.({
       adminId,
@@ -163,8 +227,7 @@ async function logAdminAction({ adminId, action, targetId, targetType, details }
       targetId,
       targetType,
       details,
-      timestamp: new Date(),
-      ip: request.ip
+      timestamp: new Date()
     });
   } catch (error) {
     console.error('Failed to log admin action:', error);

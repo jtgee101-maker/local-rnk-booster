@@ -10,11 +10,20 @@
  * @performance 200X optimized
  */
 
+// Index definition interface
+interface IndexDefinition {
+  name: string;
+  entity: string;
+  fields: string[];
+  unique?: boolean;
+  sparse?: boolean;
+}
+
 // ============================================================================
 // CRITICAL INDEXES - Must have for production
 // ============================================================================
 
-export const CRITICAL_INDEXES = [
+export const CRITICAL_INDEXES: IndexDefinition[] = [
   // Tenant indexes
   { name: 'tenant_slug_idx', entity: 'Tenant', fields: ['slug'], unique: true },
   { name: 'tenant_subdomain_idx', entity: 'Tenant', fields: ['subdomain'], unique: true },
@@ -45,7 +54,7 @@ export const CRITICAL_INDEXES = [
 // HIGH PRIORITY INDEXES - Recommended for performance
 // ============================================================================
 
-export const HIGH_PRIORITY_INDEXES = [
+export const HIGH_PRIORITY_INDEXES: IndexDefinition[] = [
   // TenantHealthCheck indexes
   { name: 'health_check_latest_idx', entity: 'TenantHealthCheck', fields: ['tenant_id', 'checked_at'] },
   { name: 'health_status_idx', entity: 'TenantHealthCheck', fields: ['overall_status', 'checked_at'] },
@@ -74,7 +83,7 @@ export const HIGH_PRIORITY_INDEXES = [
 // ALL INDEXES COMBINED
 // ============================================================================
 
-export const ALL_INDEXES = [
+export const ALL_INDEXES: IndexDefinition[] = [
   ...CRITICAL_INDEXES,
   ...HIGH_PRIORITY_INDEXES,
 ];

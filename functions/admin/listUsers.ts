@@ -3,7 +3,49 @@
  */
 
 import { withErrorHandler, FunctionError, successResponse } from './utils/errorHandler';
-async function listUsersHandler(request) {
+
+// Type declarations for base44 global
+declare const base44: {
+  db: {
+    collections: {
+      users?: {
+        find?: (query: Record<string, unknown>) => {
+          sort?: (sort: Record<string, number>) => {
+            skip?: (n: number) => {
+              limit?: (n: number) => {
+                toArray?: () => Promise<Array<Record<string, unknown>>>;
+              };
+            };
+          };
+        };
+        countDocuments?: (query: Record<string, unknown>) => Promise<number>;
+      };
+    };
+  };
+};
+
+// Type for request user
+interface RequestUser {
+  id?: string;
+  _id?: string;
+  role: string;
+}
+
+// Type for request
+interface ListUsersRequest {
+  user?: RequestUser;
+  data?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    role?: string | null;
+    status?: string | null;
+    sortBy?: string;
+    sortOrder?: string;
+  };
+}
+
+async function listUsersHandler(request: ListUsersRequest) {
   try {
     // Verify admin access
     const currentUser = request.user;
@@ -25,7 +67,7 @@ async function listUsersHandler(request) {
     } = request.data || {};
 
     // Build query
-    const query = {};
+    const query: Record<string, unknown> = {};
     
     if (search) {
       query.$or = [
@@ -44,25 +86,25 @@ async function listUsersHandler(request) {
     }
 
     // Build sort
-    const sort = {};
+    const sort: Record<string, number> = {};
     sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
 
     // Execute query
     const skip = (page - 1) * limit;
     
+    const usersQuery = base44.db.collections.users?.find?.(query);
+    const sortedQuery = usersQuery?.sort?.(sort);
+    const skippedQuery = sortedQuery?.skip?.(skip);
+    const limitedQuery = skippedQuery?.limit?.(limit);
+    
     const [users, totalCount] = await Promise.all([
-      base44.db.collections.users
-        ?.find?.(query)
-        ?.sort?.(sort)
-        ?.skip?.(skip)
-        ?.limit?.(limit)
-        ?.toArray?.() || [],
-      base44.db.collections.users?.countDocuments?.(query) || 0
+      limitedQuery?.toArray?.() || Promise.resolve([]),
+      base44.db.collections.users?.countDocuments?.(query) || Promise.resolve(0)
     ]);
 
     // Format user data (remove sensitive fields)
-    const formattedUsers = users.map(user => ({
-      id: user._id?.toString?.() || user.id,
+    const formattedUsers = users.map((user: Record<string, unknown>) => ({
+      id: (user._id as { toString?: () => string })?.toString?.() || user.id,
       name: user.name || user.displayName || 'Unknown',
       email: user.email,
       role: user.role || 'user',
@@ -89,11 +131,11 @@ async function listUsersHandler(request) {
       }
     };
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('listUsers error:', error);
     return {
       success: false,
-      error: error.message || 'Failed to list users'
+      error: error instanceof Error ? error.message : 'Failed to list users'
     };
   }
 }

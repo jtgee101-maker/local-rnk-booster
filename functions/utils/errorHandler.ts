@@ -4,7 +4,10 @@
  */
 
 export class FunctionError extends Error {
-  constructor(message, statusCode = 500, code = 'INTERNAL_ERROR') {
+  statusCode: number;
+  code: string;
+
+  constructor(message: string, statusCode = 500, code = 'INTERNAL_ERROR') {
     super(message);
     this.statusCode = statusCode;
     this.code = code;
@@ -26,7 +29,7 @@ export const errorCodes = {
  * Handle errors and return standardized response
  * For Base44 functions (return objects)
  */
-export function handleError(error) {
+export function handleError(error: unknown): { success: false; error: string; code: string; timestamp: string } {
   console.error('Function error:', error);
 
   if (error instanceof FunctionError) {
@@ -41,7 +44,7 @@ export function handleError(error) {
   // Generic error response
   return {
     success: false,
-    error: process.env.NODE_ENV === 'development' 
+    error: process.env.NODE_ENV === 'development' && error instanceof Error
       ? error.message 
       : 'An unexpected error occurred',
     code: 'INTERNAL_ERROR',
@@ -53,7 +56,7 @@ export function handleError(error) {
  * Create success response
  * For Base44 functions (return objects)
  */
-export function successResponse(data, meta = {}) {
+export function successResponse<T>(data: T, meta: Record<string, unknown> = {}): { success: true; data: T; timestamp: string } & Record<string, unknown> {
   return {
     success: true,
     data,
@@ -66,8 +69,10 @@ export function successResponse(data, meta = {}) {
  * Wrapper for Base44 handler functions
  * Usage: export default withErrorHandler(handlerName);
  */
-export function withErrorHandler(handler) {
-  return async (request, context) => {
+export function withErrorHandler<T extends Record<string, unknown>>(
+  handler: (request: unknown, context: unknown) => Promise<T>
+): (request: unknown, context: unknown) => Promise<T | ReturnType<typeof handleError>> {
+  return async (request: unknown, context: unknown) => {
     try {
       return await handler(request, context);
     } catch (error) {
@@ -80,18 +85,20 @@ export function withErrorHandler(handler) {
  * Wrapper for Deno.serve handlers
  * Usage: Deno.serve(withDenoErrorHandler(async (req) => { ... }));
  */
-export function withDenoErrorHandler(handler) {
-  return async (req) => {
+export function withDenoErrorHandler(
+  handler: (req: Request) => Promise<Response>
+): (req: Request) => Promise<Response> {
+  return async (req: Request) => {
     try {
       return await handler(req);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Deno serve error:', error);
 
       const statusCode = error instanceof FunctionError ? error.statusCode : 500;
       const code = error instanceof FunctionError ? error.code : 'INTERNAL_ERROR';
       const message = error instanceof FunctionError 
         ? error.message 
-        : (process.env.NODE_ENV === 'development' ? error.message : 'Internal server error');
+        : (process.env.NODE_ENV === 'development' && error instanceof Error ? error.message : 'Internal server error');
 
       return Response.json({
         error: code,
@@ -105,7 +112,7 @@ export function withDenoErrorHandler(handler) {
 /**
  * Validation helper - throws FunctionError if fields missing
  */
-export function validateRequired(data, fields) {
+export function validateRequired(data: Record<string, unknown>, fields: string[]): void {
   const missing = fields.filter(field => {
     const value = data?.[field];
     return value === undefined || value === null || value === '';
@@ -123,7 +130,7 @@ export function validateRequired(data, fields) {
 /**
  * Validate request body exists
  */
-export function validateBody(request) {
+export function validateBody(request: { data?: unknown; body?: unknown }): unknown {
   if (!request?.data && !request?.body) {
     throw new FunctionError('Request body is required', 400, 'BAD_REQUEST');
   }
@@ -133,7 +140,7 @@ export function validateBody(request) {
 /**
  * Validate admin access
  */
-export function requireAdmin(request, allowedRoles = ['admin', 'super-admin']) {
+export function requireAdmin(request: { user?: { role: string } }, allowedRoles = ['admin', 'super-admin']): { role: string } {
   const user = request?.user;
   if (!user || !allowedRoles.includes(user.role)) {
     throw new FunctionError('Admin access required', 403, 'FORBIDDEN');
@@ -144,7 +151,7 @@ export function requireAdmin(request, allowedRoles = ['admin', 'super-admin']) {
 /**
  * Validate super admin access
  */
-export function requireSuperAdmin(request) {
+export function requireSuperAdmin(request: { user?: { role: string } }): { role: string } {
   const user = request?.user;
   if (!user || user.role !== 'super-admin') {
     throw new FunctionError('Super admin access required', 403, 'FORBIDDEN');
@@ -155,7 +162,12 @@ export function requireSuperAdmin(request) {
 /**
  * Rate limit check helper
  */
-export function checkRateLimit(ip, requests, windowMs = 60000, maxRequests = 100) {
+export function checkRateLimit(
+  _ip: string,
+  requests: Array<{ timestamp: number }>,
+  windowMs = 60000,
+  maxRequests = 100
+): Array<{ timestamp: number }> {
   const now = Date.now();
   const windowStart = now - windowMs;
   
@@ -175,7 +187,15 @@ export function checkRateLimit(ip, requests, windowMs = 60000, maxRequests = 100
 /**
  * Async wrapper for logging errors without throwing
  */
-export async function logErrorAsync(base44, errorType, message, metadata = {}) {
+export async function logErrorAsync(
+  base44: {
+    asServiceRole?: { entities?: { ErrorLog?: { create: (data: Record<string, unknown>) => Promise<unknown> } } };
+    functions?: { invoke?: (name: string, data: Record<string, unknown>) => Promise<unknown> };
+  },
+  errorType: string,
+  message: string,
+  metadata: Record<string, unknown> & { severity?: string } = {}
+): Promise<void> {
   try {
     if (base44?.asServiceRole?.entities?.ErrorLog) {
       await base44.asServiceRole.entities.ErrorLog.create({
