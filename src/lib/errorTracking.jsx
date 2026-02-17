@@ -22,6 +22,9 @@
 
 import * as Sentry from '@sentry/react';
 import { BrowserTracing } from '@sentry/tracing';
+import { createLogger } from '@/lib/logger';
+
+const logger = createLogger('ErrorTracking');
 
 // Configuration
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
@@ -39,12 +42,12 @@ const MAX_BREADCRUMBS = 100;
  */
 export function initErrorTracking() {
   if (!SENTRY_DSN) {
-    console.warn('[ErrorTracking] Sentry DSN not configured. Error tracking disabled.');
+    logger.warn('Sentry DSN not configured. Error tracking disabled.');
     return;
   }
 
   if (APP_ENV === 'development' && !import.meta.env.VITE_ENABLE_SENTRY_DEV) {
-    console.log('[ErrorTracking] Sentry disabled in development. Set VITE_ENABLE_SENTRY_DEV=true to enable.');
+    logger.debug('Sentry disabled in development. Set VITE_ENABLE_SENTRY_DEV=true to enable.');
     return;
   }
 

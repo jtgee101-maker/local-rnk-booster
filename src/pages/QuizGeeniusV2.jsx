@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
+import { createLogger } from '@/lib/logger';
+
+const logger = createLogger('QuizGeeniusV2');
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -97,11 +100,11 @@ export default function QuizGeeniusV2() {
       // Start nurture sequence in background (non-blocking)
        base44.functions.invoke('nurture/foxyAuditNurture', { leadId: lead.id })
          .catch(error => {
-           console.error('Failed to start nurture sequence:', error);
+           logger.error('Failed to start nurture sequence:', error);
          });
 
     } catch (error) {
-      console.error('Quiz completion error:', error);
+      logger.error('Quiz completion error:', error);
       setSectionErrors(prev => ({ ...prev, quiz: error.message }));
       setCurrentStep(prev => prev - 1);
     }
@@ -145,7 +148,7 @@ export default function QuizGeeniusV2() {
           throw new Error('Health score: No valid response');
         }
       } catch (error) {
-        console.error('Health score error:', error);
+        logger.error('Health score error:', error);
         setSectionErrors(prev => ({ ...prev, health: error.message }));
         setAuditStage('revenue');
       }
@@ -173,7 +176,7 @@ export default function QuizGeeniusV2() {
           throw new Error('Revenue: No valid response');
         }
       } catch (error) {
-        console.error('Revenue error:', error);
+        logger.error('Revenue error:', error);
         setSectionErrors(prev => ({ ...prev, revenue: error.message }));
         setAuditStage('heatmap');
       }
@@ -199,7 +202,7 @@ export default function QuizGeeniusV2() {
           throw new Error('Heatmap: No valid response');
         }
       } catch (error) {
-        console.error('Heatmap error:', error);
+        logger.error('Heatmap error:', error);
         setSectionErrors(prev => ({ ...prev, heatmap: error.message }));
         setAuditStage('ai');
       }
@@ -207,8 +210,8 @@ export default function QuizGeeniusV2() {
       // Step 4: AI Visibility - NO TIMEOUT, LET IT COMPLETE
       setAuditStage('ai');
       try {
-        console.log('🤖 ============= AI VISIBILITY CHECK START =============');
-        console.log('🤖 Lead data:', { 
+        logger.debug('AI VISIBILITY CHECK START');
+        logger.debug('Lead data:', { 
           business_name: lead.business_name, 
           address: lead.address, 
           category: lead.business_category 
@@ -221,11 +224,7 @@ export default function QuizGeeniusV2() {
           industry: lead.business_category
         });
 
-        console.log('🤖 FULL AI RESPONSE:', JSON.stringify(aiResponse, null, 2));
-        console.log('🤖 Response type:', typeof aiResponse);
-        console.log('🤖 Response.data:', aiResponse?.data);
-        console.log('🤖 Response.data.success:', aiResponse?.data?.success);
-        console.log('🤖 Response.data.data:', aiResponse?.data?.data);
+        logger.debug('AI RESPONSE received:', { type: typeof aiResponse, hasData: !!aiResponse?.data });
 
         // Handle response - function returns { data: { success, data } }
         if (!aiResponse || !aiResponse.data) {
@@ -244,7 +243,7 @@ export default function QuizGeeniusV2() {
           throw new Error('Invalid AI data structure - missing platforms');
         }
 
-        console.log('✅ AI DATA VALID:', { 
+        logger.debug('AI DATA VALID:', { 
           score: aiData.overallScore, 
           platformCount: Object.keys(aiData.platforms).length,
           platforms: Object.keys(aiData.platforms)
@@ -263,7 +262,7 @@ export default function QuizGeeniusV2() {
         await new Promise(resolve => setTimeout(resolve, 800));
         setAuditStage('complete');
 
-        console.log('✅ ============= AI VISIBILITY CHECK COMPLETE =============');
+        logger.debug('AI VISIBILITY CHECK COMPLETE');
 
         // Track completion
         try {
@@ -279,20 +278,17 @@ export default function QuizGeeniusV2() {
             }
           });
         } catch (e) {
-          console.log('Analytics tracking skipped:', e.message);
+          logger.debug('Analytics tracking skipped:', e.message);
         }
 
       } catch (error) {
-        console.error('❌ ============= AI VISIBILITY CHECK FAILED =============');
-        console.error('❌ Error:', error);
-        console.error('❌ Error message:', error.message);
-        console.error('❌ Error stack:', error.stack);
+        logger.error('AI VISIBILITY CHECK FAILED:', error);
         setSectionErrors(prev => ({ ...prev, ai: error.message || 'AI analysis failed' }));
         setAuditStage('complete');
       }
 
     } catch (error) {
-      console.error('Foxy V2 audit error:', error);
+      logger.error('Foxy V2 audit error:', error);
       setAuditStage('complete');
     }
   };
@@ -503,7 +499,7 @@ export default function QuizGeeniusV2() {
                         hasError={!!sectionErrors.ai}
                         isEmpty={!auditData.ai}
                         onRetry={() => {
-                          console.log('🔄 Retrying AI visibility check...');
+                          logger.debug('Retrying AI visibility check...');
                           setSectionErrors(prev => {
                             const newErrors = { ...prev };
                             delete newErrors.ai;

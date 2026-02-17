@@ -9,6 +9,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Trash2, Save, Clock, ArrowDown, Eye } from 'lucide-react';
 import { toast } from 'sonner';
+import { createLogger } from '@/lib/logger';
+
+const logger = createLogger('NurtureSequenceBuilder');
 
 export default function NurtureSequenceBuilder({ sequence, open, onClose, onSave }) {
   const [loading, setLoading] = useState(false);
@@ -81,12 +84,12 @@ export default function NurtureSequenceBuilder({ sequence, open, onClose, onSave
     setLoading(true);
     try {
       // In production, this would save to backend
-      console.log('Saving sequence:', formData);
+      logger.debug('Saving sequence:', formData);
       toast.success('Nurture sequence saved successfully');
       onSave && onSave(formData);
       onClose();
     } catch (error) {
-      console.error('Failed to save sequence:', error);
+      logger.error('Failed to save sequence:', error);
       toast.error('Failed to save sequence');
     } finally {
       setLoading(false);

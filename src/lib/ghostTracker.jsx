@@ -3,26 +3,12 @@
  * 
  * Captures UTM parameters on landing and persists them across the entire
  * user journey using localStorage + cookies (30-day expiry).
- * 
- * Features:
- * - Auto-capture on page load
- * - Persists in localStorage (session) and cookies (30 days)
- * - Injects UTM data into all form submissions
- * - Tracks attribution to revenue
- * - Works with white-label tenants
- * 
- * Usage:
- * import { initGhostTracker, getUTMParams, injectUTMToForm } from '@/lib/utmGhostTracker';
- * 
- * // Initialize on app load
- * initGhostTracker();
- * 
- * // Get current UTM params
- * const utm = getUTMParams();
- * 
- * // Inject into form before submit
- * injectUTMToForm(formElement);
  */
+
+import React, { useState, useEffect, useRef } from 'react';
+import { createLogger } from '@/lib/logger';
+
+const logger = createLogger('GhostTracker');
 
 // Configuration
 const UTM_CONFIG = {
@@ -163,10 +149,8 @@ export function initGhostTracker() {
   setLocalStorage(UTM_CONFIG.LOCAL_STORAGE_KEY, mergedParams);
   setCookie(UTM_CONFIG.COOKIE_NAME, mergedParams, UTM_CONFIG.COOKIE_DAYS);
   
-  // Log for debugging (remove in production)
-  if (process.env.NODE_ENV === 'development') {
-    console.log('👻 Ghost Tracker initialized:', mergedParams);
-  }
+  // Log for debugging
+  logger.debug('Ghost Tracker initialized:', mergedParams);
   
   // Track the session start if new UTM params detected
   if (Object.keys(urlParams).length > 2) {

@@ -11,6 +11,9 @@
  */
 
 import { base44 } from '@/api/base44Client';
+import { createLogger } from '@/lib/logger';
+
+const logger = createLogger('secureStorage');
 
 // ==========================================
 // LEAD DATA MANAGEMENT (Secure)
@@ -30,7 +33,7 @@ export function saveLeadReference(leadId, version = 'v3') {
   sessionStorage.setItem('lead_id', leadId);
   sessionStorage.setItem('quiz_version', version);
   
-  console.log(`✅ Saved lead reference: ${leadId} (${version})`);
+  logger.debug(`Saved lead reference: ${leadId} (${version})`);
 }
 
 /**
@@ -177,5 +180,5 @@ export function clearAllQuizData() {
   sessionStorage.removeItem('quizv3_step_number');
   sessionStorage.removeItem('quizv3_data');
   
-  console.log('🧹 Cleared all quiz session data');
+  logger.debug('Cleared all quiz session data');
 }

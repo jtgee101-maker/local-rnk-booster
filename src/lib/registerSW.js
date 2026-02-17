@@ -5,6 +5,9 @@
 
 import { Workbox } from 'workbox-window';
 import { toast } from 'sonner';
+import { createLogger } from '@/lib/logger';
+
+const logger = createLogger('SW');
 
 let wb = null;
 let isUpdateAvailable = false;
@@ -16,7 +19,7 @@ let refreshing = false;
  */
 export async function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) {
-    console.log('[SW] Service workers not supported');
+    logger.debug('Service workers not supported');
     return null;
   }
 
@@ -30,7 +33,7 @@ export async function registerServiceWorker() {
 
     // Handle updates
     wb.addEventListener('waiting', (event) => {
-      console.log('[SW] New version waiting');
+      logger.debug('New version waiting');
       isUpdateAvailable = true;
       showUpdateToast();
     });
@@ -41,7 +44,7 @@ export async function registerServiceWorker() {
         return;
       }
       
-      console.log('[SW] New version controlling');
+      logger.debug('New version controlling');
       
       // Reload to use new version
       if (event.isUpdate) {
@@ -61,7 +64,7 @@ export async function registerServiceWorker() {
 
     // Register
     await wb.register();
-    console.log('[SW] Registered successfully');
+    logger.debug('Registered successfully');
 
     // Check for updates periodically
     startUpdateChecks();
@@ -86,7 +89,7 @@ function showUpdateToast() {
     },
     secondaryAction: {
       label: 'Later',
-      onClick: () => console.log('[SW] Update postponed')
+      onClick: () => logger.debug('Update postponed')
     }
   });
 }
@@ -126,7 +129,7 @@ export async function checkForUpdates() {
     toast.success('App is up to date');
     return false;
   } catch (error) {
-    console.error('[SW] Update check failed:', error);
+    logger.error('Update check failed:', error);
     toast.error('Failed to check for updates');
     return false;
   }
@@ -149,7 +152,7 @@ export async function getSWVersion() {
     wb.messageSW({ type: 'GET_VERSION' }, messageChannel.port2);
     return await versionPromise;
   } catch (error) {
-    console.error('[SW] Failed to get version:', error);
+    logger.error('Failed to get version:', error);
     return null;
   }
 }
@@ -163,10 +166,10 @@ export async function unregisterServiceWorker() {
   try {
     const registrations = await navigator.serviceWorker.getRegistrations();
     await Promise.all(registrations.map((reg) => reg.unregister()));
-    console.log('[SW] Unregistered all');
+    logger.debug('Unregistered all');
     toast.success('Service Worker unregistered');
   } catch (error) {
-    console.error('[SW] Unregister failed:', error);
+    logger.error('Unregister failed:', error);
     toast.error('Failed to unregister');
   }
 }
@@ -184,7 +187,7 @@ export async function clearAllCaches() {
     wb.messageSW({ type: 'CLEAR_CACHE' });
     toast.success('Caches cleared');
   } catch (error) {
-    console.error('[SW] Cache clear failed:', error);
+    logger.error('Cache clear failed:', error);
     toast.error('Failed to clear caches');
   }
 }
@@ -202,7 +205,7 @@ export async function precacheUrls(urls) {
     wb.messageSW({ type: 'PRECACHE_URLS', payload: { urls } });
     toast.success(`Precaching ${urls.length} URLs...`);
   } catch (error) {
-    console.error('[SW] Precache failed:', error);
+    logger.error('Precache failed:', error);
     toast.error('Failed to precache');
   }
 }
@@ -270,7 +273,7 @@ export function getSWStatus() {
  */
 export function initServiceWorker() {
   if (import.meta.env.DEV && !import.meta.env.VITE_ENABLE_SW_IN_DEV) {
-    console.log('[SW] Disabled in dev mode');
+    logger.debug('Disabled in dev mode');
     return Promise.resolve(null);
   }
   

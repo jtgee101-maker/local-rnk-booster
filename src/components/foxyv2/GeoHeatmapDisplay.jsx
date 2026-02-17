@@ -5,6 +5,9 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, AlertTriangle, Maximize2 } from 'lucide-react';
 import FoxyMascot from './FoxyMascot';
+import { createLogger } from '@/lib/logger';
+
+const logger = createLogger('GeoHeatmapDisplay');
 
 const mapContainerStyle = {
   width: '100%',
@@ -21,10 +24,10 @@ export default function GeoHeatmapDisplay({ heatmapData }) {
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY
   });
 
-  console.log('🗺️ GeoHeatmapDisplay received data:', heatmapData);
+  logger.debug('GeoHeatmapDisplay received data:', heatmapData);
   
   if (!heatmapData) {
-    console.warn('⚠️ No heatmap data provided to component');
+    logger.warn('No heatmap data provided to component');
     return null;
   }
 

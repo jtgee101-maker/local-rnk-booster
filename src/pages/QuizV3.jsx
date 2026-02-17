@@ -2,6 +2,9 @@ import React, { useState, useCallback, lazy, Suspense, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
+import { createLogger } from '@/lib/logger';
+
+const logger = createLogger('QuizV3');
 import { ArrowLeft, Target, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
@@ -113,7 +116,7 @@ function QuizV3Content() {
       });
       if (res && typeof res.catch === 'function') res.catch(() => {});
     } catch (e) {
-      console.warn('Analytics tracking failed:', e);
+      logger.warn('Analytics tracking failed:', e);
     }
 
     try {
@@ -125,7 +128,7 @@ function QuizV3Content() {
       });
       if (res && typeof res.catch === 'function') res.catch(() => {});
     } catch (e) {
-      console.warn('Event creation failed:', e);
+      logger.warn('Event creation failed:', e);
     }
   }, []);
 
@@ -139,7 +142,7 @@ function QuizV3Content() {
          });
          if (res && typeof res.catch === 'function') res.catch(() => {});
        } catch (e) {
-         console.warn('Step view tracking failed:', e);
+         logger.warn('Step view tracking failed:', e);
        }
 
        return () => {
@@ -151,7 +154,7 @@ function QuizV3Content() {
            });
            if (res && typeof res.catch === 'function') res.catch(() => {});
          } catch (e) {
-           console.warn('Step exit tracking failed:', e);
+           logger.warn('Step exit tracking failed:', e);
          }
        };
      }
@@ -185,7 +188,7 @@ function QuizV3Content() {
       });
       if (res && typeof res.catch === 'function') res.catch(() => {});
     } catch (e) {
-      console.warn('Analytics tracking failed:', e);
+      logger.warn('Analytics tracking failed:', e);
     }
 
     try {
@@ -200,7 +203,7 @@ function QuizV3Content() {
       });
       if (res && typeof res.catch === 'function') res.catch(() => {});
     } catch (e) {
-      console.warn('Event creation failed:', e);
+      logger.warn('Event creation failed:', e);
     }
     
     setStep('category');
@@ -221,7 +224,7 @@ function QuizV3Content() {
         } 
       }).catch(() => {});
     } catch (e) {
-      console.warn('Analytics tracking failed:', e);
+      logger.warn('Analytics tracking failed:', e);
     }
     
     const sessionId = sessionStorage.getItem('ab_session_id');
@@ -237,7 +240,7 @@ function QuizV3Content() {
         }
       }).catch(() => {});
     } catch (e) {
-      console.warn('Event creation failed:', e);
+      logger.warn('Event creation failed:', e);
     }
     
     setQuizData(prev => ({ ...prev, business_category: category }));
@@ -259,7 +262,7 @@ function QuizV3Content() {
         } 
       }).catch(() => {});
     } catch (e) {
-      console.warn('Analytics tracking failed:', e);
+      logger.warn('Analytics tracking failed:', e);
     }
     
     const sessionId = sessionStorage.getItem('ab_session_id');
@@ -276,7 +279,7 @@ function QuizV3Content() {
         }
       }).catch(() => {});
     } catch (e) {
-      console.warn('Event creation failed:', e);
+      logger.warn('Event creation failed:', e);
     }
     
     setQuizData(prev => ({ ...prev, pain_point: painPoint }));
@@ -312,7 +315,7 @@ function QuizV3Content() {
         } 
       }).catch(() => {});
     } catch (e) {
-      console.warn('Analytics tracking failed:', e);
+      logger.warn('Analytics tracking failed:', e);
     }
     
     const sessionId = sessionStorage.getItem('ab_session_id');
@@ -331,7 +334,7 @@ function QuizV3Content() {
         }
       }).catch(() => {});
     } catch (e) {
-      console.warn('Event creation failed:', e);
+      logger.warn('Event creation failed:', e);
     }
     
     setQuizData(prev => ({ ...prev, goals }));
@@ -355,7 +358,7 @@ function QuizV3Content() {
         } 
       }).catch(() => {});
     } catch (e) {
-      console.warn('Analytics tracking failed:', e);
+      logger.warn('Analytics tracking failed:', e);
     }
     
     const sessionId = sessionStorage.getItem('ab_session_id');
@@ -374,7 +377,7 @@ function QuizV3Content() {
         }
       }).catch(() => {});
     } catch (e) {
-      console.warn('Event creation failed:', e);
+      logger.warn('Event creation failed:', e);
     }
     
     setQuizData(prev => ({ ...prev, timeline }));
@@ -458,7 +461,7 @@ function QuizV3Content() {
         } 
       }).catch(() => {});
     } catch (e) {
-      console.warn('Analytics tracking failed:', e);
+      logger.warn('Analytics tracking failed:', e);
     }
     
     try {
@@ -474,7 +477,7 @@ function QuizV3Content() {
         }
       }).catch(() => {});
     } catch (e) {
-      console.warn('Event creation failed:', e);
+      logger.warn('Event creation failed:', e);
     }
     
     // Client-side rate limiting check
@@ -526,11 +529,11 @@ function QuizV3Content() {
         // Update existing lead
         const mergedData = mergeLeadData(duplicateCheck.existingLead, finalData);
         savedLead = await base44.entities.Lead.update(leadAction.leadId, mergedData);
-        console.log('Updated existing lead:', leadAction.reason);
+        logger.debug('Updated existing lead:', leadAction.reason);
       } else {
         // Create new lead
         savedLead = await base44.entities.Lead.create(finalData);
-        console.log('Created new lead:', leadAction.reason);
+        logger.debug('Created new lead:', leadAction.reason);
       }
       
       quizRateLimiter.recordSubmission();
@@ -553,7 +556,7 @@ function QuizV3Content() {
           } 
         }).catch(() => {});
       } catch (e) {
-        console.warn('Analytics tracking failed:', e);
+        logger.warn('Analytics tracking failed:', e);
       }
       
       try {
@@ -581,7 +584,7 @@ function QuizV3Content() {
           }
         }).catch(() => {});
       } catch (e) {
-        console.warn('Event creation failed:', e);
+        logger.warn('Event creation failed:', e);
       }
       
       // SECURITY: Only store lead ID, not full lead object
@@ -618,7 +621,7 @@ function QuizV3Content() {
         }
       }).catch(() => {});
     } catch (e) {
-      console.warn('Analytics tracking failed:', e);
+      logger.warn('Analytics tracking failed:', e);
     }
     
     try {
@@ -637,7 +640,7 @@ function QuizV3Content() {
         }
       }).catch(() => {});
     } catch (e) {
-      console.warn('Event creation failed:', e);
+      logger.warn('Event creation failed:', e);
     }
     
     window.location.href = createPageUrl('BridgeV3');
@@ -647,7 +650,7 @@ function QuizV3Content() {
     try {
       base44.analytics.track({ eventName: 'quizv3_back_clicked', properties: { from_step: step } }).catch(() => {});
     } catch (e) {
-      console.warn('Analytics tracking failed:', e);
+      logger.warn('Analytics tracking failed:', e);
     }
     
     if (step === 'category') {

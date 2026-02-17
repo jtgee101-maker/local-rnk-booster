@@ -4,12 +4,15 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Brain, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import FoxyMascot from './FoxyMascot';
+import { createLogger } from '@/lib/logger';
+
+const logger = createLogger('AIVisibilityReport');
 
 export default function AIVisibilityReport({ aiData }) {
-  console.log('🦊 AIVisibilityReport called with aiData:', aiData);
-  
+  logger.debug('AIVisibilityReport called with aiData:', aiData);
+
   if (!aiData) {
-    console.error('❌ AIVisibilityReport: No aiData provided');
+    logger.error('AIVisibilityReport: No aiData provided');
     return (
       <div className="text-center py-8">
         <p className="text-red-400">No AI visibility data available</p>
@@ -17,11 +20,11 @@ export default function AIVisibilityReport({ aiData }) {
     );
   }
 
-  console.log('🦊 AIVisibilityReport rendering with:', JSON.stringify(aiData).substring(0, 500));
+  logger.debug('AIVisibilityReport rendering with data');
 
-  const { 
-    overallScore = 0, 
-    platforms = {}, 
+  const {
+    overallScore = 0,
+    platforms = {},
     summary = { foundIn: 0, totalPlatforms: 3, averageRank: null, trustScore: 0 },
     recommendations = [],
     entityDensity,
@@ -31,9 +34,9 @@ export default function AIVisibilityReport({ aiData }) {
 
   // Convert platforms object to array and ensure valid data
   const platformsArray = Object.values(platforms).filter(p => p && p.platform);
-  
+
   if (platformsArray.length === 0) {
-    console.warn('⚠️ No platform data found in aiData');
+    logger.warn('No platform data found in aiData');
   }
 
   const platformIcons = {

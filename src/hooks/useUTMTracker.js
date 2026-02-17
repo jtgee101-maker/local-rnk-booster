@@ -6,7 +6,10 @@ import {
   hasUTMParams, 
   clearUTMParams,
   trackConversion as trackConv
-} from '@/lib/ghostTracker.jsx';
+} from '@/lib/ghostTracker';
+import { createLogger } from '@/lib/logger';
+
+const logger = createLogger('UTMTracker');
 
 /**
  * useUTMTracker - React Hook for UTM Ghost Tracking
@@ -73,14 +76,12 @@ export function useUTMTracker() {
       await trackConv(eventType, value);
       
       // Log for debugging
-      if (process.env.NODE_ENV === 'development') {
-        console.log('👻 Conversion tracked:', {
-          event: eventType,
-          value,
-          attribution: getAttribution(),
-          metadata
-        });
-      }
+      logger.debug('Conversion tracked:', {
+        event: eventType,
+        value,
+        attribution: getAttribution(),
+        metadata
+      });
     } catch (error) {
       console.warn('Failed to track conversion:', error);
     }

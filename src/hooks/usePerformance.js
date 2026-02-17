@@ -4,6 +4,9 @@
  */
 
 import { useEffect, useRef, useCallback, useState } from 'react';
+import { createLogger } from '@/lib/logger';
+
+const logger = createLogger('Performance');
 
 // Performance observer singleton
 let observer = null;
@@ -176,9 +179,7 @@ function reportMetric(name, data) {
   }
   
   // Log in development
-  if (import.meta.env.DEV) {
-    console.log(`[Performance] ${name}:`, data);
-  }
+  logger.debug(`[Performance] ${name}:`, data);
 }
 
 /**

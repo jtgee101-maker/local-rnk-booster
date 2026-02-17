@@ -27,16 +27,20 @@ export default function LiveActivityIndicator() {
   useEffect(() => {
     if (!isVisible) return;
 
+    let timeoutId;
     const interval = setInterval(() => {
       setIsVisible(false);
       
-      setTimeout(() => {
+      timeoutId = setTimeout(() => {
         setCurrentNotification((prev) => (prev + 1) % notifications.length);
         setIsVisible(true);
       }, 500);
     }, 8000); // Show each notification for 8 seconds
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [isVisible]);
 
   const notification = notifications[currentNotification];

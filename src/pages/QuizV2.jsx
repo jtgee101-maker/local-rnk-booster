@@ -2,6 +2,9 @@ import React, { useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
+import { createLogger } from '@/lib/logger';
+
+const logger = createLogger('QuizV2');
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
@@ -168,7 +171,7 @@ function QuizV2Content() {
       setCurrentStepNumber(4);
       setIsLoading(false);
     } catch (error) {
-      console.error('Error processing business data:', error);
+      logger.error('Error processing business data:', error);
       errorLogger.systemError(error, {
         context: 'quiz_v2_business_search',
         business_name: businessData.business_name
@@ -218,10 +221,10 @@ function QuizV2Content() {
       if (leadAction.action === 'update') {
         const mergedData = mergeLeadData(duplicateCheck.existingLead, leadDataToSave);
         savedLead = await base44.entities.Lead.update(leadAction.leadId, mergedData);
-        console.log('Updated existing lead:', leadAction.reason);
+        logger.debug('Updated existing lead:', leadAction.reason);
       } else {
         savedLead = await base44.entities.Lead.create(leadDataToSave);
-        console.log('Created new lead:', leadAction.reason);
+        logger.debug('Created new lead:', leadAction.reason);
       }
       
       quizRateLimiter.recordSubmission();
@@ -247,7 +250,7 @@ function QuizV2Content() {
         thumbtackTax: yearlyTax
       });
     } catch (error) {
-      console.error('Error saving lead:', error);
+      logger.error('Error saving lead:', error);
       errorLogger.systemError(error, { 
         context: 'quiz_v2_lead_submission',
         email: contactData.email 
