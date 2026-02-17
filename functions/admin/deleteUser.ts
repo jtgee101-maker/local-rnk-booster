@@ -2,7 +2,7 @@
  * Delete a user (soft delete)
  */
 
-import { withErrorHandler, FunctionError, successResponse } from './utils/errorHandler';
+import { withErrorHandler, FunctionError, successResponse } from '../utils/errorHandler';
 
 // Type declarations for base44 global
 declare const base44: {

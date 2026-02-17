@@ -105,7 +105,7 @@ export function initErrorTracking() {
   // Track performance
   trackWebVitals();
   
-  console.log('[ErrorTracking] Sentry initialized successfully');
+  logger.info('Sentry initialized successfully');
 }
 
 /**

@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
+import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
 
 // Constant-time string comparison to prevent timing attacks
 function secureCompare(a, b) {

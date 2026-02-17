@@ -2,8 +2,43 @@
  * List tenants with pagination, filtering, and sorting
  */
 
-import { withErrorHandler, FunctionError, successResponse } from './utils/errorHandler';
-async function listTenantsHandler(request) {
+import { withErrorHandler, FunctionError, successResponse } from '../utils/errorHandler';
+
+interface ListTenantsRequest {
+  user?: {
+    role: string;
+  };
+  data?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string | null;
+    plan?: string | null;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  };
+  base44?: {
+    db: {
+      collections: Record<string, {
+        find?: (query: Record<string, unknown>) => {
+          sort?: (sort: Record<string, number>) => {
+            skip?: (n: number) => {
+              limit?: (n: number) => {
+                toArray?: () => Promise<unknown[]>;
+              };
+            };
+          };
+        };
+        count?: (query?: Record<string, unknown>) => Promise<number>;
+        countDocuments?: (query?: Record<string, unknown>) => Promise<number>;
+        aggregate?: (pipeline: unknown[]) => Promise<unknown[]>;
+      }>;
+    };
+  };
+}
+
+async function listTenantsHandler(request: ListTenantsRequest) {
+  const base44 = request.base44;
   try {
     // Verify admin access
     const currentUser = request.user;

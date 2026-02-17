@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
+import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
 
 Deno.serve(withDenoErrorHandler(async (req) => {
   try {

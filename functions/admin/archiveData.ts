@@ -397,13 +397,30 @@ class DataArchiver {
   }
 }
 
+interface ArchiveRequest {
+  data?: {
+    dryRun?: boolean;
+    action?: 'archive' | 'stats' | 'restore';
+    collection?: string | null;
+    documentId?: string | null;
+  };
+  user?: {
+    role: string;
+  };
+  base44?: {
+    db: {
+      collections: Record<string, unknown>;
+    };
+  };
+}
+
 /**
  * Base44 function handler for data archiving
  */
-export async function runDataArchiving(request: any) {
+export async function runDataArchiving(request: ArchiveRequest) {
   const {
     dryRun = true,
-    action = 'archive', // 'archive', 'stats', 'restore'
+    action = 'archive',
     collection = null,
     documentId = null
   } = request.data || {};
@@ -414,6 +431,14 @@ export async function runDataArchiving(request: any) {
     return {
       success: false,
       error: 'Admin access required'
+    };
+  }
+
+  const base44 = request.base44;
+  if (!base44) {
+    return {
+      success: false,
+      error: 'Base44 client not available'
     };
   }
 

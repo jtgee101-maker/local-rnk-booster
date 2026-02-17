@@ -245,7 +245,6 @@ export default function GodModeDashboard() {
           setUseRealData(true);
         }
       } catch (error) {
-        console.log('Using mock data - entities not deployed yet');
         setUseRealData(false);
       } finally {
         setLoading(false);

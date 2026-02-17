@@ -292,16 +292,34 @@ class IndexMigration {
   }
 }
 
+interface IndexMigrationRequest {
+  data?: {
+    dryRun?: boolean;
+    collections?: string[] | null;
+    dropExisting?: boolean;
+    background?: boolean;
+    action?: 'migrate' | 'verify' | 'drop';
+  };
+  user?: {
+    role: string;
+  };
+  base44?: {
+    db: {
+      collections: Record<string, unknown>;
+    };
+  };
+}
+
 /**
  * Base44 function handler for running migrations
  */
-export async function runIndexMigration(request: any) {
+export async function runIndexMigration(request: IndexMigrationRequest) {
   const { 
     dryRun = false, 
     collections = null, 
     dropExisting = false,
     background = true,
-    action = 'migrate' // 'migrate', 'verify', 'drop'
+    action = 'migrate'
   } = request.data || {};
 
   // Verify admin access
@@ -310,6 +328,14 @@ export async function runIndexMigration(request: any) {
     return {
       success: false,
       error: 'Admin access required'
+    };
+  }
+
+  const base44 = request.base44;
+  if (!base44) {
+    return {
+      success: false,
+      error: 'Base44 client not available'
     };
   }
 

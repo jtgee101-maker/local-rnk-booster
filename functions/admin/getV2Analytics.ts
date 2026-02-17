@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
+import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
 
 Deno.serve(withDenoErrorHandler(async (req) => {
   try {
@@ -77,6 +77,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
 
     const minutes = Math.floor(avgSessionDuration / 60);
     const seconds = avgSessionDuration % 60;
+    const bounceRate = quizStarts > 0 ? (100 - (reachedPricing / quizStarts) * 100).toFixed(1) : '0.0';
 
     // Health score distribution
     const healthScoreDistribution = {

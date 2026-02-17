@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
+import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
 import { UltraCache } from '../utils/cache-200x.ts';
 import { PerformanceMonitor } from '../utils/performanceMonitor.ts';
 import { RateLimiter } from '../utils/rateLimiter.ts';

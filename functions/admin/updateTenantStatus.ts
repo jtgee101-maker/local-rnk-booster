@@ -2,8 +2,55 @@
  * Update tenant status (activate, suspend, cancel)
  */
 
-import { withErrorHandler, FunctionError, successResponse } from './utils/errorHandler';
-async function updateTenantStatusHandler(request) {
+import { withErrorHandler, FunctionError, successResponse } from '../utils/errorHandler';
+
+interface Tenant {
+  id?: string;
+  _id?: { toString(): string };
+  status?: string;
+  statusHistory?: Array<{
+    from: string;
+    to: string;
+    changedAt: Date;
+    changedBy: string;
+    reason: string;
+  }>;
+  suspendedAt?: Date;
+  suspensionReason?: string | null;
+  cancelledAt?: Date;
+  cancellationReason?: string;
+  cancelledBy?: string;
+  reactivatedAt?: Date;
+  ownerId?: string;
+  ownerEmail?: string;
+}
+
+interface UpdateTenantStatusRequest {
+  user?: {
+    role: string;
+    id?: string;
+    _id?: { toString(): string };
+  };
+  data?: {
+    id?: string;
+    status?: string;
+    reason?: string;
+    notifyOwner?: boolean;
+  };
+  base44?: {
+    db: {
+      collections: Record<string, {
+        findOne?: (query: Record<string, unknown>) => Promise<Tenant | null>;
+        updateOne?: (filter: Record<string, unknown>, update: Record<string, unknown>) => Promise<{ modifiedCount?: number; acknowledged?: boolean }>;
+        updateMany?: (filter: Record<string, unknown>, update: Record<string, unknown>) => Promise<unknown>;
+        create?: <T = Record<string, unknown>>(data: T) => Promise<T>;
+      }>;
+    };
+  };
+}
+
+async function updateTenantStatusHandler(request: UpdateTenantStatusRequest) {
+  const base44 = request.base44;
   try {
     // Verify admin access
     const currentUser = request.user;
@@ -72,7 +119,7 @@ async function updateTenantStatusHandler(request) {
     const currentUserId = currentUser.id || currentUser._id?.toString?.();
 
     // Build update data
-    const updateData = {
+    const updateData: Record<string, unknown> = {
       status,
       updatedAt: new Date(),
       updatedBy: currentUserId,

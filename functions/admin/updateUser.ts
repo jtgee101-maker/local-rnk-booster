@@ -2,7 +2,7 @@
  * Update an existing user
  */
 
-import { withErrorHandler, FunctionError, successResponse } from './utils/errorHandler';
+import { withErrorHandler, FunctionError, successResponse } from '../utils/errorHandler';
 async function updateUserHandler(request) {
   try {
     // Verify admin access

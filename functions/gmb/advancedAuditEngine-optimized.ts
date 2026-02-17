@@ -15,7 +15,7 @@
  */
 
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError, validateRequired } from '../utils/errorHandler.js';
+import { withDenoErrorHandler, FunctionError, validateRequired } from '../utils/errorHandler';
 
 // ============================================================================
 // CONSTANTS & CONFIGURATION
@@ -159,6 +159,10 @@ function fnv1aHash(str) {
  * Implements wave-function-based ranking potential calculation
  */
 class QuantumScoringEngine {
+  amplitudes: Record<string, number>;
+  entanglementMatrix: Record<string, number>;
+  momentum: Map<string, number>;
+
   constructor() {
     // Base probability amplitudes (weights)
     this.amplitudes = {
@@ -185,7 +189,7 @@ class QuantumScoringEngine {
    * Calculate quantum ranking potential
    * Formula: Ψ(R) = Σ(αᵢ · factorᵢ · e^(-λt)) + uncertainty
    */
-  calculateWaveFunction(factors, context = {}) {
+  calculateWaveFunction(factors: Record<string, number>, context: { timeSinceUpdate?: number; marketVolatility?: number } = {}) {
     const { timeSinceUpdate = 0, marketVolatility = 0.5 } = context;
     
     // Apply time decay
@@ -324,6 +328,8 @@ const quantumEngine = new QuantumScoringEngine();
  * Complexity: O(n) per review (was O(n·m) with keyword matching)
  */
 class VectorizedSentimentAnalyzer {
+  idfCache: Map<string, number>;
+
   constructor() {
     // Pre-computed IDF values
     this.idfCache = new Map();
@@ -1047,8 +1053,8 @@ async function analyzePhotoOptimizationOptimized(businessData) {
 /**
  * O(n) balance score calculation
  */
-function calculateBalanceScoreOptimized(distribution) {
-  const values = Object.values(distribution);
+function calculateBalanceScoreOptimized(distribution: Record<string, number>) {
+  const values = Object.values(distribution) as number[];
   const mean = values.reduce((a, b) => a + b, 0) / values.length;
   const variance = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / values.length;
   return Math.max(0, 30 - variance / 10);

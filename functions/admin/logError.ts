@@ -11,7 +11,67 @@
 
 import { createClient, createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
-// ... keep enums and interfaces from original ...
+// Error log entry interface
+interface ErrorLogEntry {
+  errorType: string;
+  severity: ErrorSeverity;
+  message: string;
+  stackTrace?: string;
+  context?: string;
+  userId?: string;
+  metadata?: Record<string, unknown>;
+  timestamp?: string;
+  category?: string;
+}
+
+enum ErrorSeverity {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+  CRITICAL = 'critical'
+}
+
+// Global config
+const globalConfig = {
+  sampleRate: 1.0
+};
+
+// Helper functions
+function categorizeError(error: Error): string {
+  if (error.message?.includes('network')) return 'network';
+  if (error.message?.includes('database')) return 'database';
+  if (error.message?.includes('auth')) return 'auth';
+  return 'unknown';
+}
+
+function determineSeverity(error: Error, category: string): ErrorSeverity {
+  if (error.message?.includes('critical')) return ErrorSeverity.CRITICAL;
+  if (category === 'database') return ErrorSeverity.HIGH;
+  return ErrorSeverity.MEDIUM;
+}
+
+function buildErrorEntry(
+  error: Error,
+  category: string,
+  severity: ErrorSeverity,
+  options: Partial<ErrorLogEntry>,
+  _req?: Request
+): ErrorLogEntry {
+  return {
+    errorType: category,
+    severity,
+    message: error.message,
+    stackTrace: error.stack,
+    context: options.context || 'unknown',
+    userId: options.userId,
+    metadata: options.metadata,
+    timestamp: new Date().toISOString()
+  };
+}
+
+function sendImmediateAlert(entry: ErrorLogEntry): void {
+  console.error('CRITICAL ERROR:', entry);
+}
 
 // BATCH PROCESSING CONFIG
 const BATCH_SIZE = 10;

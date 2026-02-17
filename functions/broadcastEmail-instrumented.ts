@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError } from './utils/errorHandler.js';
+import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
 import { sendEmailWithRetry } from './utils/emailRetry.js';
 import { logFunctionError } from './utils/addErrorLogging.js';
 

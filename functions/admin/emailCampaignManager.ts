@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler } from './utils/errorHandler.js';
+import { withDenoErrorHandler } from '../utils/errorHandler';
 import { BatchProcessor } from '../utils/batchProcessor.ts';
 import { PerformanceMonitor } from '../utils/performanceMonitor.ts';
 import { RateLimiter } from '../utils/rateLimiter.ts';

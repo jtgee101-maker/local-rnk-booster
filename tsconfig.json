@@ -43,6 +43,7 @@
   "include": [
     "src/**/*",
     "functions/**/*",
+    "functions/types/**/*",
     "entities/**/*",
     "utils/**/*"
   ],

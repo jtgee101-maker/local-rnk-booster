@@ -5,7 +5,22 @@
 
 import { withErrorHandler, FunctionError, successResponse } from '../utils/errorHandler';
 
-async function getDashboardStatsHandler(request) {
+interface DashboardStatsRequest {
+  user?: {
+    role: string;
+  };
+  base44?: {
+    db: {
+      collections: Record<string, {
+        count?: (query?: Record<string, unknown>) => Promise<number>;
+        aggregate?: (pipeline: unknown[]) => Promise<unknown[]>;
+      }>;
+    };
+  };
+}
+
+async function getDashboardStatsHandler(request: DashboardStatsRequest) {
+  const base44 = request.base44;
   // Get current user to verify admin access
   const currentUser = request.user;
   if (!currentUser || !['admin', 'super-admin'].includes(currentUser.role)) {

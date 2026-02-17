@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
+import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
 import Stripe from 'npm:stripe';
 import { isStripeTestMode, mockRefund } from './utils/stripeTestRelay.js';
 

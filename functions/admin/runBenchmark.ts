@@ -486,10 +486,25 @@ export function compareBenchmarks(
   return { improved, degraded, unchanged };
 }
 
+interface BenchmarkRequest {
+  data?: {
+    iterations?: number;
+    collections?: string[];
+  };
+  user?: {
+    role: string;
+  };
+  base44?: {
+    db: {
+      collections: Record<string, unknown>;
+    };
+  };
+}
+
 /**
  * Base44 function handler for running benchmarks
  */
-export async function runBenchmark(request: any) {
+export async function runBenchmark(request: BenchmarkRequest) {
   const {
     iterations = 100,
     collections = ['users', 'tenants', 'orders', 'leads']
@@ -501,6 +516,14 @@ export async function runBenchmark(request: any) {
     return {
       success: false,
       error: 'Admin access required'
+    };
+  }
+
+  const base44 = request.base44;
+  if (!base44) {
+    return {
+      success: false,
+      error: 'Base44 client not available'
     };
   }
 

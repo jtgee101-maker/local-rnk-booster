@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler } from './utils/errorHandler.js';
+import { withDenoErrorHandler } from '../utils/errorHandler';
 
 /**
  * Email Campaign Manager - OPTIMIZED VERSION

@@ -1,5 +1,30 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest, Base44Client } from 'npm:@base44/sdk@0.8.6';
 import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
+
+interface Order {
+  lead_id?: string;
+  total_amount?: number;
+  status?: string;
+  created_date?: string;
+}
+
+interface ConversionEvent {
+  lead_id?: string;
+  funnel_version?: string;
+  event_name?: string;
+  created_date?: string;
+  properties?: {
+    utm_source?: string;
+    referrer?: string;
+    ab_variant?: string;
+  };
+}
+
+interface Lead {
+  id?: string;
+  _id?: string;
+  business_category?: string;
+}
 
 /**
  * Revenue Attribution
@@ -60,17 +85,23 @@ Deno.serve(withDenoErrorHandler(async (req) => {
   }
 }));
 
-async function attributeByFunnel(base44, orders) {
-  const attribution = {};
+interface FunnelAttribution {
+  orders: number;
+  revenue: number;
+  leads: Set<string>;
+}
+
+async function attributeByFunnel(base44: Base44Client, orders: Order[]) {
+  const attribution: Record<string, FunnelAttribution> = {};
 
   for (const order of orders) {
     if (!order.lead_id) continue;
 
     // Find first funnel event for this lead
-    const events = await base44.asServiceRole.entities.ConversionEvent.filter({
+    const events = await base44.asServiceRole.entities.ConversionEvent.find({
       lead_id: order.lead_id,
       event_name: { $in: ['quizv3_started', 'quizv2_started', 'quiz_started'] }
-    }, 'created_date', 1);
+    }) as ConversionEvent[];
 
     const funnel = events[0]?.funnel_version || 'unknown';
     
@@ -97,15 +128,20 @@ async function attributeByFunnel(base44, orders) {
   }));
 }
 
-async function attributeBySource(base44, orders) {
-  const attribution = {};
+interface SourceAttribution {
+  orders: number;
+  revenue: number;
+}
+
+async function attributeBySource(base44: Base44Client, orders: Order[]) {
+  const attribution: Record<string, SourceAttribution> = {};
 
   for (const order of orders) {
     if (!order.lead_id) continue;
 
-    const events = await base44.asServiceRole.entities.ConversionEvent.filter({
+    const events = await base44.asServiceRole.entities.ConversionEvent.find({
       lead_id: order.lead_id
-    }, 'created_date', 1);
+    }) as ConversionEvent[];
 
     const source = events[0]?.properties?.utm_source || 
                    events[0]?.properties?.referrer || 
