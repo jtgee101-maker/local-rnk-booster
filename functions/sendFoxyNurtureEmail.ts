@@ -1,7 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
-import { CircuitBreaker } from './utils/circuitBreaker.ts';
-import { PerformanceMonitor } from './utils/performanceMonitor.ts';
+import { CircuitBreaker } from './utils/circuitBreaker';
+import { PerformanceMonitor } from './utils/performanceMonitor';
 
 // 200X: Circuit breaker for Resend API
 const resendCircuitBreaker = new CircuitBreaker(

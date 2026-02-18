@@ -17,7 +17,7 @@
 // @ts-ignore - Deno and npm imports are runtime-provided
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 // @ts-ignore - Local import
-import { withDenoErrorHandler, FunctionError } from './utils/errorHandler.ts';
+import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
 
 // Type declarations for Deno runtime
 declare const Deno: {

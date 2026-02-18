@@ -1,5 +1,6 @@
 /**
  * Base44 SDK Type Definitions
+ * Updated to fix TypeScript errors in functions
  */
 
 declare module 'npm:@base44/sdk@*' {
@@ -7,8 +8,8 @@ declare module 'npm:@base44/sdk@*' {
     collection(name: string): Collection;
     auth: AuthClient;
     me?: User;
-    asServiceRole?: ServiceRoleClient;
-    entities?: Record<string, EntityCollection>;
+    asServiceRole: ServiceRoleClient;
+    entities: Record<string, EntityCollection>;
     functions?: {
       invoke(name: string, data?: Record<string, unknown>): Promise<unknown>;
     };
@@ -16,12 +17,14 @@ declare module 'npm:@base44/sdk@*' {
 
   export interface ServiceRoleClient {
     entities: Record<string, EntityCollection>;
+    integrations?: Record<string, Record<string, (data: Record<string, unknown>) => Promise<unknown>>>;
   }
 
   export interface EntityCollection {
+    // Standard methods
     findOne<T = Record<string, unknown>>(query: Record<string, unknown>): Promise<T | null>;
     find<T = Record<string, unknown>>(query?: Record<string, unknown>): Promise<T[]>;
-    create<T = Record<string, unknown>>(data: T): Promise<T>;
+    create<T = Record<string, unknown>>(data: T): Promise<T & { id: string }>;
     update<T = Record<string, unknown>>(id: string, data: Partial<T>): Promise<T>;
     delete(id: string): Promise<void>;
     count(query?: Record<string, unknown>): Promise<number>;
@@ -29,6 +32,11 @@ declare module 'npm:@base44/sdk@*' {
     insertOne?<T = Record<string, unknown>>(data: T): Promise<T>;
     updateOne?<T = Record<string, unknown>>(filter: Record<string, unknown>, update: Partial<T>): Promise<T>;
     deleteOne?(filter: Record<string, unknown>): Promise<void>;
+    
+    // Additional methods used in the codebase
+    get<T = Record<string, unknown>>(id: string): Promise<T | null>;
+    filter<T = Record<string, unknown>>(query: Record<string, unknown>): Promise<T[]>;
+    list<T = Record<string, unknown>>(sort?: string, limit?: number): Promise<T[]>;
   }
 
   export interface Collection {
@@ -50,7 +58,7 @@ declare module 'npm:@base44/sdk@*' {
     signIn(credentials: { email: string; password: string }): Promise<{ user: User; session: Session }>;
     signUp(credentials: { email: string; password: string; metadata?: Record<string, unknown> }): Promise<{ user: User; session: Session }>;
     signOut(): Promise<void>;
-    me?: User;
+    me(): Promise<User | null>;
   }
 
   export interface User {
