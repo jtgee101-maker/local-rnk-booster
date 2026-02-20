@@ -1,0 +1,88 @@
+{
+  "timestamp": "2026-02-20T18:00:57Z",
+  "scan_type": "SECURITY_SCAN",
+  "mode": "PHASE_2_ACTIVE",
+  "overall_status": "WARNING",
+  "findings": {
+    "npm_audit": {
+      "status": "WARNING",
+      "high_vulnerabilities": 16,
+      "moderate_vulnerabilities": 1,
+      "low_vulnerabilities": 0,
+      "critical_vulnerabilities": 0,
+      "type": "dev_dependencies_only",
+      "packages_affected": [
+        "@eslint/config-array",
+        "@eslint/eslintrc",
+        "@sentry/node",
+        "@surma/rollup-plugin-off-main-thread",
+        "ajv"
+      ],
+      "notes": "All vulnerabilities are in development dependencies, not production code. PRs created at 15:00 UTC to address these."
+    },
+    "secrets_scan": {
+      "status": "PASS",
+      "leaked_secrets_found": 0,
+      "suspicious_commits": 0,
+      "files_checked": "*.ts, *.js, .env, *.json",
+      "last_commit_checked": "7f063ba"
+    },
+    "env_variables": {
+      "status": "WARNING",
+      "issues": [
+        {
+          "variable": "RESEND_API_KEY",
+          "status": "NOT_CONFIGURED",
+          "severity": "HIGH",
+          "impact": "Email system disabled",
+          "checks": 253
+        }
+      ]
+    },
+    "dependency_cves": {
+      "status": "WARNING",
+      "cves_found": 17,
+      "critical": 0,
+      "high": 16,
+      "moderate": 1,
+      "action": "PRs created - security/fix-jsPDF-CVE, deps/update-critical, ts/enable-strict-mode, deps/phase1-minor-updates",
+      "github_analysis_reference": "memory/github-analysis-20260220-0900.md"
+    },
+    "code_analysis": {
+      "status": "PASS",
+      "sensitive_data_exposure": 0,
+      "hardcoded_credentials": 0,
+      "insecure_patterns": 0
+    }
+  },
+  "alerts": [],
+  "notes": [
+    "No critical security issues found",
+    "No leaked secrets detected in commits",
+    "16 high vulnerabilities in dev dependencies (non-production) - stable",
+    "RESEND_API_KEY still missing (253 total checks)",
+    "GitHub PRs created at 15:00 UTC to address vulnerabilities",
+    "Phase 2 Active - 3 hours remaining",
+    "Next full scan tomorrow 06:00 UTC or upon PR merge"
+  ],
+  "recommendations": [
+    {
+      "priority": "MEDIUM",
+      "action": "Review and merge 4 GitHub PRs to resolve 16 high vulnerabilities",
+      "timeline": "Phase 2 (15:00-21:00 UTC)",
+      "reference": "memory/github-analysis-20260220-0900.md"
+    },
+    {
+      "priority": "HIGH",
+      "action": "Configure RESEND_API_KEY for email functionality",
+      "timeline": "Contact Pablo during business hours"
+    },
+    {
+      "priority": "LOW",
+      "action": "Review jspdf security update (CVE-2024)",
+      "timeline": "After PR merge"
+    }
+  ],
+  "next_scan": "2026-02-20T20:00:00Z",
+  "scans_today": 7
+}
