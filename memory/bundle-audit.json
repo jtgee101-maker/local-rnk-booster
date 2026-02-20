@@ -1,0 +1,77 @@
+{
+  "timestamp": "2026-02-20T04:02:33Z",
+  "audit_type": "BUNDLE_AUDIT",
+  "mode": "OVERNIGHT_MONITORING",
+  "day": 11,
+  "overall_status": "HEALTHY",
+  "summary": {
+    "total_bundle_size_mb": 6.1,
+    "total_source_size_mb": 4.2,
+    "total_dist_size_kb": 64,
+    "node_modules_size_mb": 648,
+    "pages_over_200kb": 0,
+    "pages_flagged": []
+  },
+  "bundle_sizes": {
+    "src": {
+      "size_mb": 4.2,
+      "files": 20,
+      "lines_of_code": 4225
+    },
+    "functions": {
+      "size_mb": 1.3,
+      "files": 191,
+      "lines_of_code": 43228
+    },
+    "dist": {
+      "size_kb": 64,
+      "files": 16,
+      "largest_file": "utm-tracker.js (10.3KB)"
+    }
+  },
+  "vendor_chunks": {
+    "vendor-utils": {
+      "description": "Utility libraries (date-fns, clsx, tailwind-merge)",
+      "status": "OK"
+    },
+    "vendor-forms": {
+      "description": "Form libraries (zod, react-hook-form, resolvers)",
+      "status": "OK"
+    },
+    "vendor-query": {
+      "description": "TanStack Query (React Query)",
+      "status": "OK"
+    },
+    "vendor-3d": {
+      "description": "Three.js 3D library",
+      "status": "OK"
+    },
+    "vendor-maps": {
+      "description": "Leaflet map libraries",
+      "status": "OK"
+    }
+  },
+  "page_analysis": {
+    "total_pages": 75,
+    "pages_checked": 75,
+    "pages_over_threshold": 0,
+    "threshold_kb": 200,
+    "flagged_pages": []
+  },
+  "trend_analysis": {
+    "week_over_week_change": "0%",
+    "trend": "STABLE",
+    "alert": false,
+    "growth_rate": "0%",
+    "target_growth_limit": "10%"
+  },
+  "alerts": [],
+  "warnings": [],
+  "notes": [
+    "Bundle size stable - no growth detected",
+    "All pages under 200KB threshold",
+    "No action required",
+    "Last full build: 03:00 UTC (Build #3)",
+    "Stats.html generated: 1.8MB visualization"
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "timestamp": "2026-02-20T06:00:37Z",
+  "scan_type": "SECURITY_SCAN",
+  "overall_status": "WARNING",
+  "findings": {
+    "npm_audit": {
+      "status": "WARNING",
+      "high_vulnerabilities": 16,
+      "moderate_vulnerabilities": 1,
+      "low_vulnerabilities": 0,
+      "critical_vulnerabilities": 0,
+      "type": "dev_dependencies_only",
+      "packages_affected": [
+        "@eslint/config-array",
+        "@eslint/eslintrc", 
+        "@sentry/node",
+        "@surma/rollup-plugin-off-main-thread",
+        "ajv"
+      ],
+      "notes": "All vulnerabilities are in development dependencies, not production code"
+    },
+    "secrets_scan": {
+      "status": "PASS",
+      "leaked_secrets_found": 0,
+      "suspicious_commits": 0,
+      "files_checked": "*.ts, *.js, .env"
+    },
+    "env_variables": {
+      "status": "WARNING",
+      "issues": [
+        {
+          "variable": "RESEND_API_KEY",
+          "status": "NOT_CONFIGURED",
+          "severity": "HIGH",
+          "impact": "Email system disabled"
+        }
+      ]
+    },
+    "dependency_cves": {
+      "status": "WARNING",
+      "cves_found": 17,
+      "critical": 0,
+      "high": 16,
+      "moderate": 1,
+      "action": "Update dev dependencies in next maintenance window"
+    }
+  },
+  "alerts": [],
+  "notes": [
+    "No critical security issues found",
+    "No leaked secrets detected in commits",
+    "16 high vulnerabilities in dev dependencies (non-production)",
+    "RESEND_API_KEY still missing (229 total checks)",
+    "Overall security posture: ACCEPTABLE for development"
+  ],
+  "recommendations": [
+    {
+      "priority": "MEDIUM",
+      "action": "Update dev dependencies to resolve 16 high vulnerabilities",
+      "timeline": "Next maintenance window"
+    },
+    {
+      "priority": "HIGH",
+      "action": "Configure RESEND_API_KEY for email functionality",
+      "timeline": "Immediate"
+    }
+  ],
+  "next_scan": "2026-02-20T08:00:37Z"
+}
