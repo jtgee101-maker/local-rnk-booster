@@ -400,7 +400,7 @@ class DataArchiver {
 interface ArchiveRequest {
   data?: {
     dryRun?: boolean;
-    action?: 'archive' | 'stats' | 'restore';
+    action?: 'archive' | 'stats' | 'restore' | 'softdelete';
     collection?: string | null;
     documentId?: string | null;
   };

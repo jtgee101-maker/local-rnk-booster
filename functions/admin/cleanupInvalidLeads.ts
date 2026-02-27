@@ -28,7 +28,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
 
     // Delete invalid leads
     const deletePromises = invalidLeads.map(lead => 
-      base44.asServiceRole.entities.Lead.delete(lead.id)
+      base44.asServiceRole.entities.Lead.delete(lead.id as string)
     );
 
     await Promise.all(deletePromises);
