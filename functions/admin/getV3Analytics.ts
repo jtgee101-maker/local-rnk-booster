@@ -128,7 +128,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
 
       const firstEvent = sessionEvents[0];
       const lastEvent = sessionEvents[sessionEvents.length - 1];
-      const duration = (new Date(lastEvent.created_date) - new Date(firstEvent.created_date)) / 1000;
+      const duration = (new Date(lastEvent.created_date).getTime() - new Date(firstEvent.created_date).getTime()) / 1000;
       
       const hasStarted = sessionEvents.some(e => e.event_name === 'quizv3_started');
       const hasCompleted = sessionEvents.some(e => e.event_name === 'quizv3_completed');
@@ -161,52 +161,54 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     const bounceRate = uniqueSessions > 0 ? ((bounces / uniqueSessions) * 100).toFixed(1) : '0.0';
 
     // ========== STEP ANALYSIS ==========
-    const stepViews = {};
-    const stepCompletions = {};
-    const stepTimes = {};
+    const stepViews: Record<string, number> = {};
+    const stepCompletions: Record<string, number> = {};
+    const stepTimes: Record<string, number[]> = {};
 
     currentPeriodEvents.forEach(e => {
-      const step = e.properties?.step;
+      const step = (e as { properties?: { step?: string } }).properties?.step;
       if (!step) return;
 
-      if (e.event_name === 'quizv3_step_viewed') {
+      if ((e as { event_name?: string }).event_name === 'quizv3_step_viewed') {
         stepViews[step] = (stepViews[step] || 0) + 1;
       }
-      if (e.event_name === 'quizv3_step_completed') {
+      if ((e as { event_name?: string }).event_name === 'quizv3_step_completed') {
         stepCompletions[step] = (stepCompletions[step] || 0) + 1;
       }
-      if (e.time_on_step) {
+      if ((e as { time_on_step?: number }).time_on_step) {
         if (!stepTimes[step]) stepTimes[step] = [];
-        stepTimes[step].push(e.time_on_step);
+        stepTimes[step].push((e as { time_on_step?: number }).time_on_step || 0);
       }
     });
 
     const avgStepTimes = Object.entries(stepTimes).reduce((acc, [step, times]) => {
       acc[step] = Math.round(times.reduce((sum, t) => sum + t, 0) / times.length);
       return acc;
-    }, {});
+    }, {} as Record<string, number>);
 
     // ========== EXIT POINTS ANALYSIS ==========
-    const exitPoints = {};
+    const exitPoints: Record<string, number> = {};
     sessionMetrics.filter(s => !s.hasCompleted && s.hasStarted).forEach(session => {
-      const step = session.lastStep;
-      exitPoints[step] = (exitPoints[step] || 0) + 1;
+      const step = (session as { lastStep?: string }).lastStep;
+      if (step) {
+        exitPoints[step] = (exitPoints[step] || 0) + 1;
+      }
     });
 
     // Sort and get top exit points
     const topExitPoints = Object.entries(exitPoints)
-      .sort((a, b) => b[1] - a[1])
+      .sort((a, b) => (b[1] as number) - (a[1] as number))
       .slice(0, 8)
       .map(([step, count]) => ({
         step,
         count,
-        percentage: uniqueSessions > 0 ? ((count / uniqueSessions) * 100).toFixed(1) : '0.0'
+        percentage: uniqueSessions > 0 ? (((count as number) / uniqueSessions) * 100).toFixed(1) : '0.0'
       }));
 
     // ========== PAIN POINT DISTRIBUTION ==========
-    const painPointDist = {};
+    const painPointDist: Record<string, number> = {};
     currentLeads.forEach(lead => {
-      const pp = lead.pain_point || 'unknown';
+      const pp = (lead as { pain_point?: string }).pain_point || 'unknown';
       painPointDist[pp] = (painPointDist[pp] || 0) + 1;
     });
 
