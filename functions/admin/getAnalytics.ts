@@ -71,8 +71,8 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     // Today's stats
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const todayLeads = leads.filter(l => new Date(l.created_date) >= today).length;
-    const todayOrders = orders.filter(o => new Date(o.created_date) >= today);
+    const todayLeads = leads.filter(l => new Date(l.created_date as string) >= today).length;
+    const todayOrders = orders.filter(o => new Date(o.created_date as string) >= today);
     const todayRevenue = todayOrders.reduce((sum, o) => sum + ((o.total_amount as number) || 0), 0);
 
     // A/B Test results
@@ -108,9 +108,9 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     const last30Days = new Date();
     last30Days.setDate(last30Days.getDate() - 30);
     
-    orders.filter(o => new Date(o.created_date) >= last30Days).forEach(order => {
-      const date = new Date(order.created_date).toISOString().split('T')[0];
-      revenueByDay[date] = (revenueByDay[date] || 0) + (order.total_amount || 0);
+    orders.filter(o => new Date(o.created_date as string) >= last30Days).forEach(order => {
+      const date = new Date(order.created_date as string).toISOString().split('T')[0];
+      revenueByDay[date] = (revenueByDay[date] || 0) + ((order.total_amount as number) || 0);
     });
 
     const result = {
