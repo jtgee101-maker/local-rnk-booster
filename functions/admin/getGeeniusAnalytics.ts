@@ -26,23 +26,23 @@ Deno.serve(withDenoErrorHandler(async (req) => {
 
     // Fetch Geenius events - use list() then filter client-side for better compatibility
     const [allEvents, leads] = await Promise.all([
-      base44.asServiceRole.entities.ConversionEvent.list('-created_date', 10000),
-      base44.asServiceRole.entities.Lead.list('-created_date', 1000)
+      base44.asServiceRole.entities.ConversionEvent.list(),
+      base44.asServiceRole.entities.Lead.list()
     ]);
 
     // Filter events client-side
     const currentEvents = allEvents.filter(e => 
-      e.funnel_version === 'geenius' && 
-      new Date(e.created_date) >= new Date(startDate)
+      (e as { funnel_version?: string }).funnel_version === 'geenius' && 
+      new Date((e as { created_date?: string }).created_date || '') >= new Date(startDate)
     );
     
     const previousEvents = allEvents.filter(e => 
-      e.funnel_version === 'geenius' && 
-      new Date(e.created_date) >= new Date(previousStartDate) &&
-      new Date(e.created_date) < new Date(startDate)
+      (e as { funnel_version?: string }).funnel_version === 'geenius' && 
+      new Date((e as { created_date?: string }).created_date || '') >= new Date(previousStartDate) &&
+      new Date((e as { created_date?: string }).created_date || '') < new Date(startDate)
     );
     
-    const currentLeads = leads.filter(l => new Date(l.created_date) >= new Date(startDate));
+    const currentLeads = leads.filter(l => new Date((l as { created_date?: string }).created_date || '') >= new Date(startDate));
 
     // Calculate metrics
     const quizStarts = currentEvents.filter(e => e.event_name === 'quiz_started').length;
