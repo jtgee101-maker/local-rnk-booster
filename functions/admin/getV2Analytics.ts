@@ -100,13 +100,14 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       painPoint,
       label: painPoint.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
       count,
-      percentage: leads.length > 0 ? ((count / leads.length) * 100).toFixed(1) : '0.0'
+      percentage: leads.length > 0 ? (((count as number) / leads.length) * 100).toFixed(1) : '0.0'
     }));
 
-    const categoriesMap = {};
+    const categoriesMap: Record<string, number> = {};
     leads.forEach(lead => {
-      if (lead.business_category) {
-        categoriesMap[lead.business_category] = (categoriesMap[lead.business_category] || 0) + 1;
+      const businessCategory = (lead as { business_category?: string }).business_category;
+      if (businessCategory) {
+        categoriesMap[businessCategory] = (categoriesMap[businessCategory] || 0) + 1;
       }
     });
 
@@ -114,11 +115,11 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       category,
       label: category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
       count,
-      percentage: leads.length > 0 ? ((count / leads.length) * 100).toFixed(1) : '0.0'
+      percentage: leads.length > 0 ? (((count as number) / leads.length) * 100).toFixed(1) : '0.0'
     }));
 
     const avgHealthScore = leads.length > 0
-      ? Math.round(leads.reduce((sum, l) => sum + (l.health_score || 0), 0) / leads.length)
+      ? Math.round(leads.reduce((sum, l) => sum + ((l as { health_score?: number }).health_score || 0), 0) / leads.length)
       : 0;
 
     return Response.json({
