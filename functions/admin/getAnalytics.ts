@@ -45,19 +45,21 @@ Deno.serve(withDenoErrorHandler(async (req) => {
 
     // 200X: Check cache for analytics summary
     const cacheKey = `analytics_summary_${new Date().toISOString().slice(0, 13)}`; // Hourly cache
-    const cached = analyticsCache.get(cacheKey);
+    const cached = analyticsCache.get(cacheKey) as Record<string, unknown>;
     if (cached) {
       performanceMonitor.record('analytics_cache_hit', 1);
       return Response.json({ ...cached, _source: 'cache', _cached_at: new Date().toISOString() });
     }
 
     return performanceMonitor.time('getAnalytics', async () => {
+    type ABEvent = { test_id?: string; variant_id?: string; event_type?: string };
     const [leads, orders, abTests, abEvents] = await Promise.all([
       base44.asServiceRole.entities.Lead.list('-created_date', 10000),
       base44.asServiceRole.entities.Order.list('-created_date', 10000),
       base44.asServiceRole.entities.ABTest.filter({ status: 'active' }),
       base44.asServiceRole.entities.ABTestEvent.list('-created_date', 10000)
     ]);
+    const typedAbEvents = abEvents as ABEvent[];
 
     // Calculate metrics
     const totalLeads = leads.length;
@@ -71,12 +73,12 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     today.setHours(0, 0, 0, 0);
     const todayLeads = leads.filter(l => new Date(l.created_date) >= today).length;
     const todayOrders = orders.filter(o => new Date(o.created_date) >= today);
-    const todayRevenue = todayOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
+    const todayRevenue = todayOrders.reduce((sum, o) => sum + ((o.total_amount as number) || 0), 0);
 
     // A/B Test results
     const abTestResults = abTests.map(test => {
-      const testEvents = abEvents.filter(e => e.test_id === test.id);
-      const variantStats = {};
+      const testEvents = typedAbEvents.filter(e => e.test_id === test.id);
+      const variantStats: Record<string, { name: string; views: number; conversions: number; conversionRate: string }> = {};
 
       (test.variants as Array<{ id: string; name: string }>).forEach(variant => {
         const variantEvents = testEvents.filter(e => e.variant_id === variant.id);
