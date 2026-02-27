@@ -59,24 +59,24 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       Promise.resolve([1, 2, 3])
     ]);
 
-    const revenue = totalRevenue.reduce((sum, order) => sum + (order.total_amount || 0), 0);
+    const revenue = totalRevenue.reduce((sum, order) => sum + ((order as { total_amount?: number }).total_amount || 0), 0);
     
     // Calculate conversion rate
     const conversionRate = totalLeads.length > 0 
       ? ((totalOrders.length / totalLeads.length) * 100).toFixed(2)
-      : 0;
+      : '0';
 
     // Calculate email success rate
     const totalEmails = emailsSent.length + emailsFailed.length;
     const emailSuccessRate = totalEmails > 0
       ? ((emailsSent.length / totalEmails) * 100).toFixed(2)
-      : 100;
+      : '100';
 
     // Performance score (0-100)
     let performanceScore = 100;
-    if (emailSuccessRate < 95) performanceScore -= 20;
+    if (parseFloat(emailSuccessRate) < 95) performanceScore -= 20;
     if (criticalErrors.length > 0) performanceScore -= 30;
-    if (conversionRate < 5) performanceScore -= 10;
+    if (parseFloat(conversionRate) < 5) performanceScore -= 10;
     
     return Response.json({
       success: true,
@@ -98,7 +98,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
           sent: emailsSent.length,
           failed: emailsFailed.length,
           success_rate: parseFloat(emailSuccessRate),
-          trend: emailSuccessRate >= 95 ? 'up' : 'down'
+          trend: parseFloat(emailSuccessRate) >= 95 ? 'up' : 'down'
         },
         errors: {
           critical: criticalErrors.length,
