@@ -47,7 +47,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     const orders = await base44.asServiceRole.entities.Order.filter({
       status: 'completed',
       created_date: { $gte: startDate, $lte: endDate }
-    }, '-created_date', 1000);
+    });
 
     // Attribution by funnel version
     const funnelAttribution = await attributeByFunnel(base44, orders);

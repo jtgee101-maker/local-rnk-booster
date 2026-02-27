@@ -22,12 +22,12 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     const orders = await base44.asServiceRole.entities.Order.filter({
       status: 'completed',
       created_date: { $gte: startDate, $lte: endDate }
-    }, '-created_date', 500);
+    });
 
     // Get all leads (limit to 500 to prevent timeout)
     const leads = await base44.asServiceRole.entities.Lead.filter({
       created_date: { $gte: startDate, $lte: endDate }
-    }, '-created_date', 500);
+    });
 
     // Calculate overall metrics
     const totalRevenue = orders.reduce((sum, o) => sum + (o.total_amount || 0), 0);

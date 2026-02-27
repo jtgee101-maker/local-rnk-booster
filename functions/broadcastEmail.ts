@@ -34,11 +34,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     // Get recipients based on type
     let recipients = [];
     if (recipientType === 'leads') {
-      const leads = await base44.asServiceRole.entities.Lead.filter(
-        filters, 
-        '-created_date', 
-        1000
-      );
+      const leads = await base44.asServiceRole.entities.Lead.filter(filters);
       recipients = leads.map(l => ({
         email: l.email,
         name: l.business_name,
@@ -46,9 +42,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       }));
     } else if (recipientType === 'orders') {
       const orders = await base44.asServiceRole.entities.Order.filter(
-        { status: 'completed', ...filters },
-        '-created_date',
-        1000
+        { status: 'completed', ...filters }
       );
       recipients = orders.map(o => ({
         email: o.email,
