@@ -19,11 +19,12 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     const allLeads = await base44.asServiceRole.entities.Lead.list('-created_date', 1000);
     
     // Find invalid leads
-    const invalidLeads = allLeads.filter(lead => 
-      !lead.email || 
-      !lead.email.includes('@') || 
-      lead.email.trim().length === 0
-    );
+    const invalidLeads = allLeads.filter(lead => {
+      const email = lead.email as string | undefined;
+      return !email || 
+        !email.includes('@') || 
+        email.trim().length === 0;
+    });
 
     // Delete invalid leads
     const deletePromises = invalidLeads.map(lead => 

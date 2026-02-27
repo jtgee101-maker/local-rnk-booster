@@ -51,7 +51,7 @@ async function getDashboardStatsHandler(request: DashboardStatsRequest) {
       base44.db.collections.orders?.aggregate?.([
         { $match: { status: 'completed' } },
         { $group: { _id: null, total: { $sum: '$amount' } } }
-      ]).then(r => r[0]?.total || 0) || 0,
+      ]).then(r => (r[0] as { total?: number })?.total || 0) || 0,
       base44.db.collections.orders?.aggregate?.([
         { 
           $match: { 
@@ -60,7 +60,7 @@ async function getDashboardStatsHandler(request: DashboardStatsRequest) {
           } 
         },
         { $group: { _id: null, total: { $sum: '$amount' } } }
-      ]).then(r => r[0]?.total || 0) || 0,
+      ]).then(r => (r[0] as { total?: number })?.total || 0) || 0,
       base44.db.collections.errorLogs?.count?.({
         timestamp: { $gte: new Date(Date.now() - 60 * 60 * 1000) }
       }) || 0,

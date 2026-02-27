@@ -10,7 +10,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    const body = await req.json();
+    const body = await req.json() as { status_filter?: string; max_retries?: number; hours_ago?: number };
     const { status_filter = 'failed', max_retries = 3, hours_ago = 24 } = body;
 
     const cutoffDate = new Date(Date.now() - hours_ago * 3600000).toISOString();
