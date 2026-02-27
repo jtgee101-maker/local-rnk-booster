@@ -63,7 +63,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
 
     // Calculate metrics
     const totalLeads = leads.length;
-    const totalRevenue = orders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
+    const totalRevenue = orders.reduce((sum, o) => sum + ((o.total_amount as number) || 0), 0);
     const completedOrders = orders.filter(o => o.status === 'completed');
     const conversionRate = totalLeads > 0 ? (completedOrders.length / totalLeads) * 100 : 0;
     const avgOrderValue = completedOrders.length > 0 ? totalRevenue / completedOrders.length : 0;
