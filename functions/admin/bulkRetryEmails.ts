@@ -45,7 +45,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
           body: (emailLog.metadata as { body?: string })?.body || 'Email content not available'
         });
 
-        await base44.asServiceRole.entities.EmailLog.update(emailLog.id, {
+        await base44.asServiceRole.entities.EmailLog.update(emailLog.id as string, {
           status: 'sent',
           resend_count: ((emailLog.resend_count as number) || 0) + 1,
           last_resent_at: new Date().toISOString(),
@@ -54,7 +54,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
 
         successCount++;
       } catch (error) {
-        await base44.asServiceRole.entities.EmailLog.update(emailLog.id, {
+        await base44.asServiceRole.entities.EmailLog.update(emailLog.id as string, {
           resend_count: ((emailLog.resend_count as number) || 0) + 1,
           last_resent_at: new Date().toISOString(),
           error_message: (error as Error).message
