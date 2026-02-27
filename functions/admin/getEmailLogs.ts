@@ -14,7 +14,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
 
     let logs;
     if (type || status) {
-      const filter = {};
+      const filter: { type?: string; status?: string } = {};
       if (type) filter.type = type;
       if (status) filter.status = status;
       logs = await base44.asServiceRole.entities.EmailLog.filter(filter, '-created_date', limit);

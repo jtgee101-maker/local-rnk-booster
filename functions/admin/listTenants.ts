@@ -60,7 +60,11 @@ async function listTenantsHandler(request: ListTenantsRequest) {
     } = request.data || {};
 
     // Build query
-    const query = {};
+    const query: { 
+      $or?: Array<Record<string, unknown>>; 
+      status?: string; 
+      plan?: string;
+    } = {};
     
     if (search) {
       query.$or = [

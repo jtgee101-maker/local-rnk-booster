@@ -78,7 +78,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       const testEvents = abEvents.filter(e => e.test_id === test.id);
       const variantStats = {};
 
-      test.variants.forEach(variant => {
+      (test.variants as Array<{ id: string; name: string }>).forEach(variant => {
         const variantEvents = testEvents.filter(e => e.variant_id === variant.id);
         const views = variantEvents.filter(e => e.event_type === 'view').length;
         const conversions = variantEvents.filter(e => e.event_type === 'conversion').length;

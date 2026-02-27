@@ -13,15 +13,18 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     const orders = await base44.asServiceRole.entities.Order.list('-created_date', 10000);
 
     const headers = ['ID', 'Email', 'Product', 'Total Amount', 'Status', 'Stripe Session ID', 'Created Date'];
-    const rows = orders.map(order => [
-      order.id,
-      order.email,
-      order.base_offer?.product || '',
-      order.total_amount || 0,
-      order.status,
-      order.stripe_session_id || '',
-      new Date(order.created_date).toISOString()
-    ]);
+    const rows = orders.map(order => {
+      const baseOffer = order.base_offer as { product?: string } | undefined;
+      return [
+        order.id,
+        order.email,
+        baseOffer?.product || '',
+        order.total_amount || 0,
+        order.status,
+        order.stripe_session_id || '',
+        new Date(order.created_date).toISOString()
+      ];
+    });
 
     const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
 

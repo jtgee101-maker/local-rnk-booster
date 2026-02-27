@@ -42,12 +42,20 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     ]);
 
     // Filter events by date range
-    const currentPeriodEvents = allEvents.filter(e => {
+    type ConversionEvent = {
+      created_date: string;
+      event_name: string;
+      session_id?: string;
+      properties?: { step?: string };
+      time_on_step?: number;
+    };
+    
+    const currentPeriodEvents = (allEvents as ConversionEvent[]).filter(e => {
       const date = new Date(e.created_date);
       return date >= startDate && date <= now;
     });
 
-    const previousPeriodEvents = allEvents.filter(e => {
+    const previousPeriodEvents = (allEvents as ConversionEvent[]).filter(e => {
       const date = new Date(e.created_date);
       return date >= previousPeriodStart && date < startDate;
     });
