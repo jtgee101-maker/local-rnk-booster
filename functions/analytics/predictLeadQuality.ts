@@ -20,7 +20,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       // Score all active leads
       const leads = await base44.asServiceRole.entities.Lead.filter({
         status: { $in: ['new', 'contacted', 'qualified'] }
-      }, '-created_date', 500);
+      });
 
       const scoredLeads = await Promise.all(
         leads.map(lead => calculateLeadScore(base44, lead))

@@ -38,7 +38,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
         funnel_version,
         event_name: stage.event,
         created_date: { $gte: startDate, $lte: endDate }
-      }, 'created_date', 10000);
+      });
 
       const uniqueSessions = new Set(events.map(e => e.session_id)).size;
       const dropoffRate = i > 0 && previousStageCount > 0 
@@ -76,7 +76,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     const orders = await base44.asServiceRole.entities.Order.filter({
       status: 'completed',
       created_date: { $gte: startDate, $lte: endDate }
-    }, 'created_date', 1000);
+    });
 
     const totalRevenue = orders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
 
