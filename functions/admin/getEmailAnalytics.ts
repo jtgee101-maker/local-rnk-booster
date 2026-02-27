@@ -17,7 +17,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     const start = startDate ? new Date(startDate) : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
     const end = endDate ? new Date(endDate) : new Date();
     
-    if ((end - start) > 90 * 24 * 60 * 60 * 1000) {
+    if ((end.getTime() - start.getTime()) > 90 * 24 * 60 * 60 * 1000) {
       return Response.json({ error: 'Date range cannot exceed 90 days' }, { status: 400 });
     }
 
@@ -39,8 +39,8 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     const totalSent = typedLogs.length;
     const totalFailed = typedLogs.filter(l => l.status === 'failed').length;
     const totalBounced = typedLogs.filter(l => l.status === 'bounced' || l.bounce_type).length;
-    const totalOpened = typedLogs.filter(l => l.status === 'opened' || l.open_count > 0).length;
-    const totalClicked = typedLogs.filter(l => l.status === 'clicked' || l.click_count > 0).length;
+    const totalOpened = typedLogs.filter(l => l.status === 'opened' || (l.open_count as number) > 0).length;
+    const totalClicked = typedLogs.filter(l => l.status === 'clicked' || (l.click_count as number) > 0).length;
     const totalUnsubscribed = typedLogs.filter(l => l.is_unsubscribed).length;
 
     const openRate = totalSent > 0 ? ((totalOpened / totalSent) * 100).toFixed(2) : 0;
@@ -57,21 +57,21 @@ Deno.serve(withDenoErrorHandler(async (req) => {
         dailySummary[date] = { sent: 0, opened: 0, clicked: 0, failed: 0, bounced: 0 };
       }
       dailySummary[date].sent++;
-      if (log.status === 'opened' || log.open_count > 0) dailySummary[date].opened++;
-      if (log.status === 'clicked' || log.click_count > 0) dailySummary[date].clicked++;
+      if (log.status === 'opened' || (log.open_count as number) > 0) dailySummary[date].opened++;
+      if (log.status === 'clicked' || (log.click_count as number) > 0) dailySummary[date].clicked++;
       if (log.status === 'failed') dailySummary[date].failed++;
       if (log.status === 'bounced' || log.bounce_type) dailySummary[date].bounced++;
     });
 
     // Group by type for type summary
-    const typeSummary = {};
+    const typeSummary: Record<string, { sent: number; opened: number; clicked: number; failed: number }> = {};
     allLogs.forEach(log => {
-      if (!typeSummary[log.type]) {
-        typeSummary[log.type] = { sent: 0, opened: 0, clicked: 0, failed: 0 };
+      if (!typeSummary[log.type as string]) {
+        typeSummary[log.type as string] = { sent: 0, opened: 0, clicked: 0, failed: 0 };
       }
-      typeSummary[log.type].sent++;
-      if (log.status === 'opened' || log.open_count > 0) typeSummary[log.type].opened++;
-      if (log.status === 'clicked' || log.click_count > 0) typeSummary[log.type].clicked++;
+      typeSummary[log.type as string].sent++;
+      if (log.status === 'opened' || (log.open_count as number) > 0) typeSummary[log.type as string].opened++;
+      if (log.status === 'clicked' || (log.click_count as number) > 0) typeSummary[log.type as string].clicked++;
       if (log.status === 'failed') typeSummary[log.type].failed++;
     });
 
