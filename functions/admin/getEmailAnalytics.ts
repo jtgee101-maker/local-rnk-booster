@@ -64,7 +64,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     });
 
     // Group by type for type summary
-    const typeSummary: Record<string, { sent: number; opened: number; clicked: number; failed: number }> = {};
+    const typeSummary: Record<string, { sent: number; opened: number; clicked: number; failed: number; openRate?: string | number; clickRate?: string | number; failureRate?: string | number }> = {};
     allLogs.forEach(log => {
       if (!typeSummary[log.type as string]) {
         typeSummary[log.type as string] = { sent: 0, opened: 0, clicked: 0, failed: 0 };
@@ -72,15 +72,15 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       typeSummary[log.type as string].sent++;
       if (log.status === 'opened' || (log.open_count as number) > 0) typeSummary[log.type as string].opened++;
       if (log.status === 'clicked' || (log.click_count as number) > 0) typeSummary[log.type as string].clicked++;
-      if (log.status === 'failed') typeSummary[log.type].failed++;
+      if (log.status === 'failed') typeSummary[log.type as string].failed++;
     });
 
     // Calculate rates for each type
     Object.keys(typeSummary).forEach(t => {
       const data = typeSummary[t];
-      data.openRate = data.sent > 0 ? ((data.opened / data.sent) * 100).toFixed(2) : 0;
-      data.clickRate = data.opened > 0 ? ((data.clicked / data.opened) * 100).toFixed(2) : 0;
-      data.failureRate = data.sent > 0 ? ((data.failed / data.sent) * 100).toFixed(2) : 0;
+      data.openRate = data.sent > 0 ? ((data.opened / data.sent) * 100).toFixed(2) : '0';
+      data.clickRate = data.opened > 0 ? ((data.clicked / data.opened) * 100).toFixed(2) : '0';
+      data.failureRate = data.sent > 0 ? ((data.failed / data.sent) * 100).toFixed(2) : '0';
     });
 
     return Response.json({
