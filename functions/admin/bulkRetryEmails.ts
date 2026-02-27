@@ -21,7 +21,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     });
 
     const eligibleEmails = failedEmails.filter(email => 
-      (email.resend_count || 0) < max_retries
+      ((email.resend_count as number) || 0) < max_retries
     );
 
     if (eligibleEmails.length === 0) {
@@ -47,7 +47,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
 
         await base44.asServiceRole.entities.EmailLog.update(emailLog.id, {
           status: 'sent',
-          resend_count: (emailLog.resend_count || 0) + 1,
+          resend_count: ((emailLog.resend_count as number) || 0) + 1,
           last_resent_at: new Date().toISOString(),
           error_message: null
         });
@@ -55,9 +55,9 @@ Deno.serve(withDenoErrorHandler(async (req) => {
         successCount++;
       } catch (error) {
         await base44.asServiceRole.entities.EmailLog.update(emailLog.id, {
-          resend_count: (emailLog.resend_count || 0) + 1,
+          resend_count: ((emailLog.resend_count as number) || 0) + 1,
           last_resent_at: new Date().toISOString(),
-          error_message: error.message
+          error_message: (error as Error).message
         });
 
         failCount++;
