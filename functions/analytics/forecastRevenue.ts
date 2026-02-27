@@ -23,10 +23,10 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       base44.asServiceRole.entities.Order.filter({
         status: 'completed',
         created_date: { $gte: ninetyDaysAgo }
-      }, '-created_date', 1000),
+      }),
       base44.asServiceRole.entities.Lead.filter({
         created_date: { $gte: ninetyDaysAgo }
-      }, '-created_date', 1000)
+      })
     ]);
 
     // Calculate historical metrics
@@ -37,7 +37,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     // Get current pipeline
     const pipelineLeads = await base44.asServiceRole.entities.Lead.filter({
       status: { $in: ['new', 'contacted', 'qualified'] }
-    }, '-created_date', 1000);
+    });
 
     // Predict conversions by lead quality
     const predictions = [];

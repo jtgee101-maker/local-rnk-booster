@@ -17,7 +17,9 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       const filter: { type?: string; status?: string } = {};
       if (type) filter.type = type;
       if (status) filter.status = status;
-      logs = await base44.asServiceRole.entities.EmailLog.filter(filter, '-created_date', limit);
+      logs = await base44.asServiceRole.entities.EmailLog.filter(filter);
+      // Sort and limit manually
+      logs = logs.sort((a, b) => new Date(b.created_date).getTime() - new Date(a.created_date).getTime()).slice(0, limit);
     } else {
       logs = await base44.asServiceRole.entities.EmailLog.list('-created_date', limit);
     }
