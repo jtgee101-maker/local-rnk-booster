@@ -22,7 +22,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     }
 
     // Get email logs with limit (max 5000 for performance)
-    const allLogs = await base44.asServiceRole.entities.EmailLog.list('-created_date', 5000);
+    const allLogs = await base44.asServiceRole.entities.EmailLog.list();
 
     // Filter by date range
     const filteredLogs = allLogs.filter(log => {
@@ -50,7 +50,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     const deliveryRate = totalSent > 0 ? (((totalSent - totalFailed) / totalSent) * 100).toFixed(2) : '0';
 
     // Group by date for daily summary
-    const dailySummary = {};
+    const dailySummary: Record<string, { sent: number; opened: number; clicked: number; failed: number; bounced: number }> = {};
     typedLogs.forEach(log => {
       const date = new Date(log.created_date).toISOString().split('T')[0];
       if (!dailySummary[date]) {
