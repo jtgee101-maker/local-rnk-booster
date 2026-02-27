@@ -1,6 +1,24 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
 
+// Type definitions for Geenius analytics
+interface GeeniusEvent {
+  event_name?: string;
+  session_id?: string;
+  created_date?: string;
+  properties?: {
+    time_on_step?: number;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+}
+
+interface GeeniusLead {
+  health_score?: number;
+  created_date?: string;
+  [key: string]: unknown;
+}
+
 Deno.serve(withDenoErrorHandler(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -31,18 +49,21 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     ]);
 
     // Filter events client-side
-    const currentEvents = allEvents.filter(e => 
+    const typedEvents = allEvents as GeeniusEvent[];
+    const typedLeads = leads as GeeniusLead[];
+    
+    const currentEvents = typedEvents.filter(e => 
       (e as { funnel_version?: string }).funnel_version === 'geenius' && 
-      new Date((e as { created_date?: string }).created_date || '') >= new Date(startDate)
+      new Date(e.created_date || '') >= new Date(startDate)
     );
     
-    const previousEvents = allEvents.filter(e => 
+    const previousEvents = typedEvents.filter(e => 
       (e as { funnel_version?: string }).funnel_version === 'geenius' && 
-      new Date((e as { created_date?: string }).created_date || '') >= new Date(previousStartDate) &&
-      new Date((e as { created_date?: string }).created_date || '') < new Date(startDate)
+      new Date(e.created_date || '') >= new Date(previousStartDate) &&
+      new Date(e.created_date || '') < new Date(startDate)
     );
     
-    const currentLeads = leads.filter(l => new Date((l as { created_date?: string }).created_date || '') >= new Date(startDate));
+    const currentLeads = typedLeads.filter(l => new Date(l.created_date || '') >= new Date(startDate));
 
     // Calculate metrics
     const quizStarts = currentEvents.filter(e => e.event_name === 'quiz_started').length;
@@ -90,9 +111,9 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     // Average session duration
     const sessionDurations = currentEvents
       .filter(e => e.properties?.time_on_step)
-      .map(e => e.properties.time_on_step);
+      .map(e => e.properties?.time_on_step as number);
     const avgSessionDuration = sessionDurations.length > 0
-      ? Math.round(sessionDurations.reduce((a, b) => a + b, 0) / sessionDurations.length)
+      ? Math.round(sessionDurations.reduce((a, b) => a + (b || 0), 0) / sessionDurations.length)
       : 0;
 
     const minutes = Math.floor(avgSessionDuration / 60);
@@ -100,10 +121,10 @@ Deno.serve(withDenoErrorHandler(async (req) => {
 
     // Health score distribution
     const healthScoreDistribution = {
-      critical: currentLeads.filter(l => l.health_score >= 0 && l.health_score <= 25).length,
-      poor: currentLeads.filter(l => l.health_score > 25 && l.health_score <= 50).length,
-      fair: currentLeads.filter(l => l.health_score > 50 && l.health_score <= 75).length,
-      good: currentLeads.filter(l => l.health_score > 75).length
+      critical: currentLeads.filter(l => (l.health_score || 0) >= 0 && (l.health_score || 0) <= 25).length,
+      poor: currentLeads.filter(l => (l.health_score || 0) > 25 && (l.health_score || 0) <= 50).length,
+      fair: currentLeads.filter(l => (l.health_score || 0) > 50 && (l.health_score || 0) <= 75).length,
+      good: currentLeads.filter(l => (l.health_score || 0) > 75).length
     };
 
     // Exit points - calculate dropout between stages
