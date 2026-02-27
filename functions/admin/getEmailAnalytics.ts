@@ -43,11 +43,11 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     const totalClicked = typedLogs.filter(l => l.status === 'clicked' || (l.click_count as number) > 0).length;
     const totalUnsubscribed = typedLogs.filter(l => l.is_unsubscribed).length;
 
-    const openRate = totalSent > 0 ? ((totalOpened / totalSent) * 100).toFixed(2) : 0;
-    const clickRate = totalOpened > 0 ? ((totalClicked / totalOpened) * 100).toFixed(2) : 0;
-    const bounceRate = totalSent > 0 ? ((totalBounced / totalSent) * 100).toFixed(2) : 0;
-    const unsubscribeRate = totalSent > 0 ? ((totalUnsubscribed / totalSent) * 100).toFixed(2) : 0;
-    const deliveryRate = totalSent > 0 ? (((totalSent - totalFailed) / totalSent) * 100).toFixed(2) : 0;
+    const openRate = totalSent > 0 ? ((totalOpened / totalSent) * 100).toFixed(2) : '0';
+    const clickRate = totalOpened > 0 ? ((totalClicked / totalOpened) * 100).toFixed(2) : '0';
+    const bounceRate = totalSent > 0 ? ((totalBounced / totalSent) * 100).toFixed(2) : '0';
+    const unsubscribeRate = totalSent > 0 ? ((totalUnsubscribed / totalSent) * 100).toFixed(2) : '0';
+    const deliveryRate = totalSent > 0 ? (((totalSent - totalFailed) / totalSent) * 100).toFixed(2) : '0';
 
     // Group by date for daily summary
     const dailySummary = {};
