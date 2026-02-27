@@ -10,7 +10,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    const orders = await base44.asServiceRole.entities.Order.list('-created_date', 10000);
+    const orders = await base44.asServiceRole.entities.Order.list('-created_date', 10000) as Array<{ id: string; email?: string; base_offer?: { product?: string }; total_amount?: number; status?: string; stripe_session_id?: string; created_date: string }>;
 
     const headers = ['ID', 'Email', 'Product', 'Total Amount', 'Status', 'Stripe Session ID', 'Created Date'];
     const rows = orders.map(order => {

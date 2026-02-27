@@ -10,7 +10,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    const leads = await base44.asServiceRole.entities.Lead.list('-created_date', 10000);
+    const leads = await base44.asServiceRole.entities.Lead.list('-created_date', 10000) as Array<{ id: string; email?: string; business_name?: string; phone?: string; business_category?: string; pain_point?: string; timeline?: string; health_score?: number; gmb_rating?: number; gmb_reviews_count?: number; created_date: string }>;
 
     // Convert to CSV
     const headers = ['ID', 'Business Name', 'Email', 'Phone', 'Category', 'Pain Point', 'Timeline', 'Health Score', 'Rating', 'Reviews', 'Created Date'];

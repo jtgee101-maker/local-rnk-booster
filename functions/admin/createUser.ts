@@ -139,7 +139,7 @@ async function createUserHandler(request: CreateUserRequest) {
     }
 
     // Insert user
-    const result = await base44.db.collections.users?.insertOne?.(newUser);
+    const result = await base44.db.collections.users?.insertOne?.(newUser as Record<string, unknown>);
     
     if (!result?.insertedId && !result?.acknowledged) {
       throw new Error('Failed to create user');
