@@ -39,10 +39,10 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     for (const emailLog of eligibleEmails.slice(0, 50)) {
       try {
         await base44.asServiceRole.integrations.Core.SendEmail({
-          to: emailLog.to,
-          from_name: emailLog.from || 'LocalRank.ai',
-          subject: emailLog.subject,
-          body: emailLog.metadata?.body || 'Email content not available'
+          to: emailLog.to as string,
+          from_name: (emailLog.from as string) || 'LocalRank.ai',
+          subject: emailLog.subject as string,
+          body: (emailLog.metadata as { body?: string })?.body || 'Email content not available'
         });
 
         await base44.asServiceRole.entities.EmailLog.update(emailLog.id, {
