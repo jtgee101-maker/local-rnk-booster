@@ -63,7 +63,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       new Date(e.created_date || '') < new Date(startDate)
     );
     
-    const currentLeads = typedLeads.filter(l => new Date(l.created_date || '') >= new Date(startDate));
+    const currentLeads = typedLeads.filter(l => new Date((l as { created_date?: string }).created_date || '') >= new Date(startDate));
 
     // Calculate metrics
     const quizStarts = currentEvents.filter(e => e.event_name === 'quiz_started').length;
@@ -89,9 +89,9 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     const prevPathwaySelections = previousEvents.filter(e => 
       ['pathway_govtech_grant_clicked', 'pathway_done_for_you_clicked', 'pathway_diy_software_clicked'].includes(e.event_name)
     ).length;
-    const prevLeads = leads.filter(l => 
-      new Date(l.created_date) >= new Date(previousStartDate) &&
-      new Date(l.created_date) < new Date(startDate)
+    const prevLeads = typedLeads.filter(l => 
+      new Date((l as { created_date?: string }).created_date || '') >= new Date(previousStartDate) &&
+      new Date((l as { created_date?: string }).created_date || '') < new Date(startDate)
     );
 
     const startsTrend = prevQuizStarts > 0 ? (((quizStarts - prevQuizStarts) / prevQuizStarts) * 100) : (quizStarts > 0 ? 100 : 0);
@@ -106,7 +106,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
           const sessionEvents = currentEvents.filter(ev => ev.session_id === e.session_id);
           return sessionEvents.length === 1;
         }).length / uniqueSessions) * 100).toFixed(1)
-      : 0;
+      : '0';
 
     // Average session duration
     const sessionDurations = currentEvents
@@ -144,10 +144,11 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       }));
 
     // Pain points
-    const painPointsMap = {};
+    const painPointsMap: Record<string, number> = {};
     currentLeads.forEach(lead => {
-      if (lead.pain_point) {
-        painPointsMap[lead.pain_point] = (painPointsMap[lead.pain_point] || 0) + 1;
+      const painPoint = (lead as { pain_point?: string }).pain_point;
+      if (painPoint) {
+        painPointsMap[painPoint] = (painPointsMap[painPoint] || 0) + 1;
       }
     });
 
@@ -155,14 +156,15 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       painPoint,
       label: painPoint.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
       count,
-      percentage: currentLeads.length > 0 ? ((count / currentLeads.length) * 100).toFixed(1) : '0.0'
+      percentage: currentLeads.length > 0 ? (((count as number) / currentLeads.length) * 100).toFixed(1) : '0.0'
     }));
 
     // Categories
-    const categoriesMap = {};
+    const categoriesMap: Record<string, number> = {};
     currentLeads.forEach(lead => {
-      if (lead.business_category) {
-        categoriesMap[lead.business_category] = (categoriesMap[lead.business_category] || 0) + 1;
+      const businessCategory = (lead as { business_category?: string }).business_category;
+      if (businessCategory) {
+        categoriesMap[businessCategory] = (categoriesMap[businessCategory] || 0) + 1;
       }
     });
 
@@ -170,12 +172,12 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       category,
       label: category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
       count,
-      percentage: currentLeads.length > 0 ? ((count / currentLeads.length) * 100).toFixed(1) : '0.0'
+      percentage: currentLeads.length > 0 ? (((count as number) / currentLeads.length) * 100).toFixed(1) : '0.0'
     }));
 
     // Avg health score
     const avgHealthScore = currentLeads.length > 0
-      ? Math.round(currentLeads.reduce((sum, l) => sum + (l.health_score || 0), 0) / currentLeads.length)
+      ? Math.round(currentLeads.reduce((sum, l) => sum + ((l as { health_score?: number }).health_score || 0), 0) / currentLeads.length)
       : 0;
 
     return Response.json({
