@@ -65,14 +65,14 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     const customersTrend = prevOrders.length > 0 ? (((paidCustomers - prevOrders.length) / prevOrders.length) * 100) : 0;
 
     // Revenue
-    const totalRevenue = orders.filter(o => o.status === 'completed')
-      .reduce((sum, o) => sum + (o.total_amount || 0), 0);
+    const totalRevenue = orders.filter(o => (o as { status?: string }).status === 'completed')
+      .reduce((sum, o) => sum + ((o as { total_amount?: number }).total_amount || 0), 0);
 
     // Session metrics
-    const uniqueSessions = new Set(currentEvents.map(e => e.session_id)).size;
+    const uniqueSessions = new Set(currentEvents.map(e => (e as { session_id?: string }).session_id)).size;
     const avgSessionDuration = Math.round(
-      currentEvents.filter(e => e.time_on_step).reduce((sum, e) => sum + (e.time_on_step || 0), 0) / 
-      Math.max(currentEvents.filter(e => e.time_on_step).length, 1)
+      currentEvents.filter(e => (e as { time_on_step?: number }).time_on_step).reduce((sum, e) => sum + ((e as { time_on_step?: number }).time_on_step || 0), 0) / 
+      Math.max(currentEvents.filter(e => (e as { time_on_step?: number }).time_on_step).length, 1)
     );
 
     const minutes = Math.floor(avgSessionDuration / 60);
@@ -81,17 +81,18 @@ Deno.serve(withDenoErrorHandler(async (req) => {
 
     // Health score distribution
     const healthScoreDistribution = {
-      critical: leads.filter(l => l.health_score >= 0 && l.health_score <= 25).length,
-      poor: leads.filter(l => l.health_score > 25 && l.health_score <= 50).length,
-      fair: leads.filter(l => l.health_score > 50 && l.health_score <= 75).length,
-      good: leads.filter(l => l.health_score > 75).length
+      critical: leads.filter(l => ((l as { health_score?: number }).health_score || 0) >= 0 && ((l as { health_score?: number }).health_score || 0) <= 25).length,
+      poor: leads.filter(l => ((l as { health_score?: number }).health_score || 0) > 25 && ((l as { health_score?: number }).health_score || 0) <= 50).length,
+      fair: leads.filter(l => ((l as { health_score?: number }).health_score || 0) > 50 && ((l as { health_score?: number }).health_score || 0) <= 75).length,
+      good: leads.filter(l => ((l as { health_score?: number }).health_score || 0) > 75).length
     };
 
     // Pain points and categories (same as V3/Geenius)
-    const painPointsMap = {};
+    const painPointsMap: Record<string, number> = {};
     leads.forEach(lead => {
-      if (lead.pain_point) {
-        painPointsMap[lead.pain_point] = (painPointsMap[lead.pain_point] || 0) + 1;
+      const painPoint = (lead as { pain_point?: string }).pain_point;
+      if (painPoint) {
+        painPointsMap[painPoint] = (painPointsMap[painPoint] || 0) + 1;
       }
     });
 
