@@ -160,17 +160,17 @@ function buildAudienceQuery(segment, payload) {
 /**
  * Quick count estimate (uses index, very fast)
  */
-async function estimateAudienceSize(base44, query) {
+async function estimateAudienceSize(base44, query): Promise<number> {
   try {
     // Get first page to estimate
-    const sample = await base44.asServiceRole.entities.Lead.filter(query, '_id', 1);
+    const sample = await base44.asServiceRole.entities.Lead.filter(query);
     if (sample.length === 0) return 0;
     
     // For accurate count, we'd need aggregation
     // For now, return optimistic estimate
-    return 'unknown (will count during processing)';
+    return 999; // Unknown - will count during processing
   } catch (error) {
-    return 'unknown';
+    return 0;
   }
 }
 
