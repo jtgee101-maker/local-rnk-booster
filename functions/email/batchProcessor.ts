@@ -16,8 +16,8 @@
  * - Priority queue support
  */
 
-import { sendEmailWithFallback, EmailData } from './providerManager.ts';
-import { logErrorAsync } from '../utils/errorHandler.ts';
+import { sendEmailWithFallback, EmailData } from './providerManager';
+import { logErrorAsync } from '../utils/errorHandler';
 
 export type JobStatus = 'pending' | 'processing' | 'paused' | 'completed' | 'failed' | 'cancelled';
 export type EmailPriority = 'high' | 'normal' | 'low';

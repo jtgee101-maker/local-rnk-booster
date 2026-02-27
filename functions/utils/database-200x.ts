@@ -5,11 +5,11 @@
  * for all database operations.
  */
 
-import { ConnectionPool } from './connectionPool.ts';
-import { QueryOptimizer } from './queryOptimizer.ts';
-import { RateLimiter } from './rateLimiter.ts';
-import { PerformanceMonitor } from './performanceMonitor.ts';
-import { UltraCache } from './cache-200x.ts';
+import { ConnectionPool } from './connectionPool';
+import { QueryOptimizer } from './queryOptimizer';
+import { RateLimiter } from './rateLimiter';
+import { PerformanceMonitor } from './performanceMonitor';
+import { UltraCache } from './cache-200x';
 
 // 200X: Global rate limiter for API endpoints
 export const apiRateLimiter = new RateLimiter({
@@ -104,7 +104,7 @@ export async function batchProcess<T, R>(
   const { batchSize = 10, concurrency = 3, operationName = 'batchProcess' } = options;
   
   return performanceMonitor.time(operationName, async () => {
-    const { BatchProcessor } = await import('./batchProcessor.ts');
+    const { BatchProcessor } = await import('./batchProcessor');
     return BatchProcessor.process(items, processor, {
       batchSize,
       concurrency,

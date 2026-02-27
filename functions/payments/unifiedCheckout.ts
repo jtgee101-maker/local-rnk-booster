@@ -5,8 +5,8 @@
  */
 
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError, logErrorAsync } from '../utils/errorHandler.ts';
-import { gatewayRouter } from './gatewayRouter.ts';
+import { withDenoErrorHandler, FunctionError, logErrorAsync } from '../utils/errorHandler';
+import { gatewayRouter } from './gatewayRouter';
 import { 
   PaymentRequest, 
   PaymentResponse, 
@@ -15,17 +15,17 @@ import {
   PaymentGateway,
   TransactionType,
   PaymentStatus
-} from './types.ts';
+} from './types';
 
 // Import gateway implementations
-import { StripeGateway } from './stripe/checkout.ts';
-import { WhopGateway } from './whop/checkout.ts';
-import { GeeniusPayGateway } from './geeniuspay/checkout.ts';
-import { NMIGateway } from './nmi/checkout.ts';
-import { PayraGateway } from './payra/checkout.ts';
-import { AuthorizeGateway } from './authorize/checkout.ts';
-import { CryptoGateway } from './crypto/checkout.ts';
-import { PayPalGateway } from './paypal/checkout.ts';
+import { StripeGateway } from './stripe/checkout';
+import { WhopGateway } from './whop/checkout';
+import { GeeniusPayGateway } from './geeniuspay/checkout';
+import { NMIGateway } from './nmi/checkout';
+import { PayraGateway } from './payra/checkout';
+import { AuthorizeGateway } from './authorize/checkout';
+import { CryptoGateway } from './crypto/checkout';
+import { PayPalGateway } from './paypal/checkout';
 
 // Gateway instances
 const gateways: Record<PaymentGateway, any> = {

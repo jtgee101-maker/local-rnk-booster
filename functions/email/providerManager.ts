@@ -18,7 +18,7 @@ import {
   getCircuitBreaker,
   getAllCircuitBreakerStatus,
   CircuitBreaker 
-} from './circuitBreaker.ts';
+} from './circuitBreaker';
 
 export type EmailProvider = 'resend' | 'base44';
 

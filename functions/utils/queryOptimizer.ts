@@ -3,7 +3,7 @@
  * Prevents N+1, adds caching, optimizes joins
  */
 
-import { UltraCache } from './cache-200x.ts';
+import { UltraCache } from './cache-200x';
 
 interface QueryPlan {
   sql: string;

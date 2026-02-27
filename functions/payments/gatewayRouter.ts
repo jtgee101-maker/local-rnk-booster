@@ -11,8 +11,8 @@ import {
   RoutingRule,
   TransactionType,
   GatewayHealth 
-} from './types.ts';
-import { FunctionError } from '../utils/errorHandler.ts';
+} from './types';
+import { FunctionError } from '../utils/errorHandler';
 
 // Default gateway configurations
 // PRIORITY ORDER: GeeniusPay → NMI → Payra → CryptoProcessing → Others

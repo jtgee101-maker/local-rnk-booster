@@ -12,7 +12,7 @@ import {
   GatewayConfig,
   PaymentStatus,
   SubscriptionConfig
-} from '../types.ts';
+} from '../types';
 
 export class StripeGateway {
   private stripe: Stripe | null = null;

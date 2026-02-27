@@ -1,9 +1,9 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError, logErrorAsync } from '../utils/errorHandler.ts';
-import { sendEmailWithFallback } from './providerManager.ts';
-import { recordEmailEvent } from './deliverabilityMonitor.ts';
-import { getFoxyNurtureTemplate } from './optimizedTemplates.ts';
-import { getCircuitBreaker } from './circuitBreaker.ts';
+import { withDenoErrorHandler, FunctionError, logErrorAsync } from '../utils/errorHandler';
+import { sendEmailWithFallback } from './providerManager';
+import { recordEmailEvent } from './deliverabilityMonitor';
+import { getFoxyNurtureTemplate } from './optimizedTemplates';
+import { getCircuitBreaker } from './circuitBreaker';
 
 /**
  * FOXY NURTURE EMAIL - OPTIMIZED VERSION

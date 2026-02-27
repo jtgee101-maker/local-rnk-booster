@@ -11,7 +11,7 @@ import {
   RefundResponse,
   GatewayConfig,
   PaymentStatus
-} from '../types.ts';
+} from '../types';
 
 export class CryptoProcessingGateway {
   private apiKey: string | null = null;

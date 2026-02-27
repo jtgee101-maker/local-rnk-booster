@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError, logErrorAsync } from '../utils/errorHandler.ts';
-import { sendEmailWithFallback, getProviderHealth } from './providerManager.ts';
+import { withDenoErrorHandler, FunctionError, logErrorAsync } from '../utils/errorHandler';
+import { sendEmailWithFallback, getProviderHealth } from './providerManager';
 import { 
   createBatchJob, 
   startBatchJob, 
@@ -12,8 +12,8 @@ import {
   getProcessingStats,
   getDeadLetterQueue,
   retryDeadLetter
-} from './batchProcessor.ts';
-import { recordEmailEvent } from './deliverabilityMonitor.ts';
+} from './batchProcessor';
+import { recordEmailEvent } from './deliverabilityMonitor';
 import { 
   getDeliverabilityMetrics, 
   getReputationScore,
@@ -21,8 +21,8 @@ import {
   acknowledgeAlert,
   generateHealthReport,
   getRemediationSuggestions
-} from './deliverabilityMonitor.ts';
-import { getAllCircuitBreakerStatus, resetAllCircuitBreakers } from './circuitBreaker.ts';
+} from './deliverabilityMonitor';
+import { getAllCircuitBreakerStatus, resetAllCircuitBreakers } from './circuitBreaker';
 
 /**
  * EMAIL CAMPAIGN MANAGER - OPTIMIZED VERSION (200X SCALE)

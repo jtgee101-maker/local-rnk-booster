@@ -10,7 +10,7 @@ import {
   RefundResponse,
   GatewayConfig,
   PaymentStatus
-} from '../types.ts';
+} from '../types';
 
 export class PayraGateway {
   private apiKey: string | null = null;

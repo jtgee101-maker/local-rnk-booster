@@ -15,7 +15,7 @@
  * - Automatic remediation suggestions
  */
 
-import { getAllCircuitBreakerStatus } from './circuitBreaker.ts';
+import { getAllCircuitBreakerStatus } from './circuitBreaker';
 
 export type AlertSeverity = 'info' | 'warning' | 'critical';
 export type MetricType = 'bounce' | 'complaint' | 'open' | 'click' | 'delivery' | 'deferral';

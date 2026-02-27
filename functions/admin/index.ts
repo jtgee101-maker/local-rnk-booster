@@ -15,7 +15,7 @@ export {
   clearOldErrors,
   ErrorSeverity,
   ErrorCategory,
-} from './logError.ts';
+} from './logError';
 
 // Alert System
 export {
@@ -28,4 +28,4 @@ export {
   AlertChannel,
   AlertSeverity,
   AlertStatus,
-} from './sendAlert.ts';
+} from './sendAlert';

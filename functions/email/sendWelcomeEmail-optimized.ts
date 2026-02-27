@@ -1,7 +1,7 @@
-import { withDenoErrorHandler, FunctionError, logErrorAsync } from '../utils/errorHandler.ts';
-import { sendEmailWithFallback } from './providerManager.ts';
-import { recordEmailEvent } from './deliverabilityMonitor.ts';
-import { getWelcomeTemplate } from './optimizedTemplates.ts';
+import { withDenoErrorHandler, FunctionError, logErrorAsync } from '../utils/errorHandler';
+import { sendEmailWithFallback } from './providerManager';
+import { recordEmailEvent } from './deliverabilityMonitor';
+import { getWelcomeTemplate } from './optimizedTemplates';
 
 /**
  * WELCOME EMAIL - OPTIMIZED VERSION

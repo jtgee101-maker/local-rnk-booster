@@ -1,8 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import { withDenoErrorHandler } from '../utils/errorHandler';
-import { BatchProcessor } from '../utils/batchProcessor.ts';
-import { PerformanceMonitor } from '../utils/performanceMonitor.ts';
-import { RateLimiter } from '../utils/rateLimiter.ts';
+import { BatchProcessor } from '../utils/batchProcessor';
+import { PerformanceMonitor } from '../utils/performanceMonitor';
+import { RateLimiter } from '../utils/rateLimiter';
 
 /**
  * Email Campaign Manager - 200X OPTIMIZED VERSION

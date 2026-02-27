@@ -14,7 +14,7 @@
  * - Dynamic content injection
  */
 
-import { EmailData } from './providerManager.ts';
+import { EmailData } from './providerManager';
 
 // Template cache for compiled templates
 const templateCache = new Map<string, CompiledTemplate>();
