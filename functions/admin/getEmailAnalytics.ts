@@ -26,7 +26,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
 
     // Filter by date range
     const filteredLogs = allLogs.filter(log => {
-      const logDate = new Date(log.created_date);
+      const logDate = new Date(log.created_date as string);
       return logDate >= start && logDate <= end;
     });
 
@@ -52,7 +52,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     // Group by date for daily summary
     const dailySummary: Record<string, { sent: number; opened: number; clicked: number; failed: number; bounced: number }> = {};
     typedLogs.forEach(log => {
-      const date = new Date(log.created_date).toISOString().split('T')[0];
+      const date = new Date(log.created_date as string).toISOString().split('T')[0];
       if (!dailySummary[date]) {
         dailySummary[date] = { sent: 0, opened: 0, clicked: 0, failed: 0, bounced: 0 };
       }

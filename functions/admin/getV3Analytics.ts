@@ -62,12 +62,12 @@ Deno.serve(withDenoErrorHandler(async (req) => {
 
     // Filter leads by date range (V3 leads have pain_point)
     const currentLeads = allLeads.filter(l => {
-      const date = new Date(l.created_date);
+      const date = new Date(l.created_date as string);
       return l.pain_point && date >= startDate && date <= now;
     });
 
     const previousLeads = allLeads.filter(l => {
-      const date = new Date(l.created_date);
+      const date = new Date(l.created_date as string);
       return l.pain_point && date >= previousPeriodStart && date < startDate;
     });
 
@@ -122,7 +122,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     const sessionMetrics = sessionIds.map(sessionId => {
       const sessionEvents = currentPeriodEvents
         .filter(e => e.session_id === sessionId)
-        .sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
+        .sort((a, b) => new Date(a.created_date as string).getTime() - new Date(b.created_date as string).getTime());
       
       if (sessionEvents.length === 0) return null;
 
@@ -227,14 +227,14 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       }));
 
     // ========== BUSINESS CATEGORY DISTRIBUTION ==========
-    const categoryDist = {};
+    const categoryDist: Record<string, number> = {};
     currentLeads.forEach(lead => {
-      const cat = lead.business_category || 'unknown';
+      const cat = (lead.business_category as string) || 'unknown';
       categoryDist[cat] = (categoryDist[cat] || 0) + 1;
     });
 
     const categoryBreakdown = Object.entries(categoryDist)
-      .sort((a, b) => b[1] - a[1])
+      .sort((a, b) => (b[1] as number) - (a[1] as number))
       .map(([category, count]) => ({
         category,
         count,
@@ -249,7 +249,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       }));
 
     // ========== DAILY BREAKDOWN ==========
-    const dailyStats = {};
+    const dailyStats: Record<string, { starts: number; completions: number; redirects: number; leads: number }> = {};
     for (let i = 0; i < days; i++) {
       const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
       const dateStr = date.toISOString().split('T')[0];
@@ -257,7 +257,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     }
 
     currentPeriodEvents.forEach(e => {
-      const dateStr = new Date(e.created_date).toISOString().split('T')[0];
+      const dateStr = new Date(e.created_date as string).toISOString().split('T')[0];
       if (dailyStats[dateStr]) {
         if (e.event_name === 'quizv3_started') dailyStats[dateStr].starts++;
         if (e.event_name === 'quizv3_completed') dailyStats[dateStr].completions++;
@@ -266,7 +266,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     });
 
     currentLeads.forEach(l => {
-      const dateStr = new Date(l.created_date).toISOString().split('T')[0];
+      const dateStr = new Date(l.created_date as string).toISOString().split('T')[0];
       if (dailyStats[dateStr]) dailyStats[dateStr].leads++;
     });
 
@@ -283,7 +283,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     };
 
     currentLeads.forEach(lead => {
-      const score = lead.health_score || 0;
+      const score = (lead.health_score as number) || 0;
       if (score <= 25) healthScoreBuckets.critical++;
       else if (score <= 50) healthScoreBuckets.poor++;
       else if (score <= 75) healthScoreBuckets.fair++;

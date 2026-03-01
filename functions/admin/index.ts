@@ -6,26 +6,10 @@
 
 // Error Tracking
 export {
-  logError,
-  configureErrorTracking,
-  withErrorTracking,
-  trackPromiseRejection,
-  errorBoundary,
-  getErrorStats,
-  clearOldErrors,
-  ErrorSeverity,
-  ErrorCategory,
+  logErrorOptimized as logError,
 } from './logError';
 
 // Alert System
 export {
   sendAlert,
-  checkErrorRate,
-  checkApiHealth,
-  acknowledgeAlert,
-  resolveAlert,
-  getAlertHistory,
-  AlertChannel,
-  AlertSeverity,
-  AlertStatus,
 } from './sendAlert';

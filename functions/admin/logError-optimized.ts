@@ -81,7 +81,7 @@ const ERROR_DEDUP_WINDOW = 60000; // 1 minute
 
 // In-memory error queue
 const errorQueue: ErrorLogEntry[] = [];
-let flushTimeout: number | null = null;
+let flushTimeout: ReturnType<typeof setTimeout> | null = null;
 let isFlushing = false;
 
 // Error deduplication cache
