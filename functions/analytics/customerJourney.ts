@@ -83,7 +83,7 @@ async function getLeadJourney(base44, leadId) {
       status: e.status,
       opened: e.open_count > 0
     }))
-  ].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+  ].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 
   return {
     success: true,
@@ -158,7 +158,7 @@ async function getJourneysInRange(base44, startDate, endDate) {
       const firstOrder = completedOrders[0];
       const leadCreated = new Date(lead.created_date);
       const orderCreated = new Date(firstOrder.created_date);
-      timeToConversion = Math.round((orderCreated - leadCreated) / (1000 * 60 * 60)); // hours
+      timeToConversion = Math.round((orderCreated.getTime() - leadCreated.getTime()) / (1000 * 60 * 60)); // hours
     }
 
     journeys.push({

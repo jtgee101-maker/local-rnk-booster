@@ -14,7 +14,17 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       return Response.json({ error: 'Admin access required' }, { status: 403 });
     }
 
-    const readinessCheck = {
+    const readinessCheck: {
+      timestamp: string;
+      overallStatus: string;
+      checks: Array<Record<string, unknown>>;
+      blockers: Array<Record<string, unknown>>;
+      warnings: Array<Record<string, unknown>>;
+      recommendations: Array<Record<string, unknown>>;
+      recommendation?: string;
+      canDeploy?: boolean;
+      summary?: Record<string, unknown>;
+    } = {
       timestamp: new Date().toISOString(),
       overallStatus: 'ready-with-warnings',
       checks: [],

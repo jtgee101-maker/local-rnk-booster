@@ -42,12 +42,12 @@ Deno.serve(withDenoErrorHandler(async (req) => {
 
     // Update link stats
     const now = new Date().toISOString();
-    const updates = {
+    const updates: { clicks: number; last_click_date: string; first_click_date?: string } = {
       clicks: (link.clicks || 0) + 1,
       last_click_date: now
     };
 
-    if (!link.first_click_date) {
+    if (!(link as { first_click_date?: string }).first_click_date) {
       updates.first_click_date = now;
     }
 

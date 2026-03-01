@@ -18,7 +18,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       performance: await validatePerformance()
     };
 
-    const allPassed = Object.values(checks).every(c => c.status === 'passed');
+    const allPassed = Object.values(checks).every(c => (c as { status: string }).status === 'passed');
 
     return Response.json({
       status: allPassed ? 'deployment_ready' : 'issues_found',
@@ -26,9 +26,9 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       checks,
       summary: {
         total_checks: Object.keys(checks).length,
-        passed: Object.values(checks).filter(c => c.status === 'passed').length,
-        failed: Object.values(checks).filter(c => c.status === 'failed').length,
-        warnings: Object.values(checks).filter(c => c.status === 'warning').length
+        passed: Object.values(checks).filter(c => (c as { status: string }).status === 'passed').length,
+        failed: Object.values(checks).filter(c => (c as { status: string }).status === 'failed').length,
+        warnings: Object.values(checks).filter(c => (c as { status: string }).status === 'warning').length
       }
     });
 

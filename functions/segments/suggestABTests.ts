@@ -14,17 +14,22 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
+    interface Order { total_amount?: number; }
+    interface Lead { id?: string; }
+    interface Segment { id?: string; name?: string; member_count?: number; conversion_rate?: number; type?: string; is_active?: boolean; criteria?: Record<string, unknown> }
+    interface ABTest { id?: string; status?: string; }
+
     // Analyze current performance
     const [orders, leads, currentTests, segments] = await Promise.all([
-      base44.asServiceRole.entities.Order.filter({}, '-created_date', 500),
-      base44.asServiceRole.entities.Lead.filter({}, '-created_date', 500),
-      base44.asServiceRole.entities.ABTest.filter({ status: 'active' }, 'created_date', 50),
-      base44.asServiceRole.entities.Segment.filter({ is_active: true }, '-member_count', 20)
+      base44.asServiceRole.entities.Order.filter({}, '-created_date', 500) as Promise<Order[]>,
+      base44.asServiceRole.entities.Lead.filter({}, '-created_date', 500) as Promise<Lead[]>,
+      base44.asServiceRole.entities.ABTest.filter({ status: 'active' }, 'created_date', 50) as Promise<ABTest[]>,
+      base44.asServiceRole.entities.Segment.filter({ is_active: true }, '-member_count', 20) as Promise<Segment[]>
     ]);
 
     const conversionRate = leads.length > 0 ? (orders.length / leads.length) * 100 : 0;
     const avgOrderValue = orders.length > 0 
-      ? orders.reduce((sum, o) => sum + (o.total_amount || 0), 0) / orders.length 
+      ? orders.reduce((sum, o) => sum + ((o as Order).total_amount || 0), 0) / orders.length 
       : 99;
 
     // Generate test suggestions
@@ -93,11 +98,11 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     }
 
     // Suggestion 3: Pricing page optimization
-    const pricingPageViews = await base44.asServiceRole.entities.ConversionEvent.filter({
+    const pricingPageViews = await (base44.asServiceRole.entities.ConversionEvent.filter as unknown as (filter: Record<string, string>, sort: string, limit: number) => Promise<Array<Record<string, unknown>>>)({
       event_name: 'pricing_page_viewed'
     }, 'created_date', 1000);
 
-    const pricingConversions = await base44.asServiceRole.entities.ConversionEvent.filter({
+    const pricingConversions = await (base44.asServiceRole.entities.ConversionEvent.filter as unknown as (filter: Record<string, string>, sort: string, limit: number) => Promise<Array<Record<string, unknown>>>)({
       event_name: 'checkout_initiated'
     }, 'created_date', 1000);
 
@@ -133,12 +138,14 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       });
     }
 
+    interface EmailLog { open_count?: number; }
+
     // Suggestion 4: Email subject line test (if email open rates are low)
-    const recentEmails = await base44.asServiceRole.entities.EmailLog.filter({
+    const recentEmails = await (base44.asServiceRole.entities.EmailLog.filter as unknown as (filter: Record<string, unknown>, sort: string, limit: number) => Promise<EmailLog[]>)({
       created_date: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString() }
     }, 'created_date', 500);
 
-    const emailsOpened = recentEmails.filter(e => e.open_count > 0);
+    const emailsOpened = recentEmails.filter((e: EmailLog) => (e.open_count || 0) > 0);
     const emailOpenRate = recentEmails.length > 0 
       ? (emailsOpened.length / recentEmails.length) * 100 
       : 0;
@@ -179,7 +186,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     }
 
     // Suggestion 5: Mobile optimization test
-    const mobileEvents = await base44.asServiceRole.entities.ConversionEvent.filter({
+    const mobileEvents = await (base44.asServiceRole.entities.ConversionEvent.filter as unknown as (filter: Record<string, string>, sort: string, limit: number) => Promise<Array<Record<string, unknown>>>)({
       'properties.device_type': 'mobile'
     }, 'created_date', 500);
 

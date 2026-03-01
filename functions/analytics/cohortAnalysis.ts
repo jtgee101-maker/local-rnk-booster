@@ -100,7 +100,7 @@ async function getMonthlyCohortsOptimized(base44, months, pageSize) {
     const cacheKey = `monthly_cohorts_${months}_${pageSize}_${new Date().toISOString().slice(0, 10)}`;
     
     // 200X: Check UltraCache first
-    const cached = cohortResultCache.get(cacheKey);
+    const cached = cohortResultCache.get(cacheKey) as Record<string, unknown> | null;
     if (cached) {
       performanceMonitor.record('cohort_cache_hit', 1);
       return { ...cached, _source: 'cache' };
@@ -128,7 +128,7 @@ async function getMonthlyCohortsOptimized(base44, months, pageSize) {
       // OPTIMIZATION 1: Paginated lead fetching instead of limit 1000
       const leads = await fetchLeadsPaginated(base44, startDate, endDate, pageSize);
       
-      if (leads.length === 0) {
+      if ((leads as { length: number }).length === 0) {
         const emptyCohort = {
           cohort: cohortDate.toISOString().slice(0, 7),
           total_leads: 0,
@@ -145,7 +145,7 @@ async function getMonthlyCohortsOptimized(base44, months, pageSize) {
       }
 
       // OPTIMIZATION 2: Batch order lookup instead of N+1
-      const leadIds = leads.map(l => l.id);
+      const leadIds = (leads as { id: string }[]).map(l => l.id);
       const orders = await fetchOrdersBatch(base44, leadIds);
 
       // OPTIMIZATION 3: Efficient calculations with early returns
@@ -478,15 +478,15 @@ async function getSourceCohortsOptimized(base44, pageSize) {
   // Calculate cohorts
   const cohorts = [];
   for (const [source, leadIdSet] of Object.entries(sourceGroups)) {
-    const leadIds = Array.from(leadIdSet);
+    const leadIds = Array.from(leadIdSet as Set<string>);
     
     // Batch fetch orders
     const orders = await fetchOrdersBatch(base44, leadIds);
     
     // Fetch leads for health scores (batched)
-    const leads = await fetchLeadsByIdsBatch(base44, leadIds);
+    const leadsData = await fetchLeadsByIdsBatch(base44, leadIds);
 
-    const metrics = calculateMetricsOptimized(leads, orders);
+    const metrics = calculateMetricsOptimized(leadsData, orders);
 
     cohorts.push({ source, ...metrics });
   }

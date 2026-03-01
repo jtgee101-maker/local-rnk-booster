@@ -1,5 +1,16 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest, Base44Client } from 'npm:@base44/sdk@0.8.6';
 import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
+
+interface Order {
+  total_amount?: number;
+  created_date?: string;
+}
+
+interface Lead {
+  id?: string;
+  health_score?: number;
+  business_name?: string;
+}
 
 /**
  * Revenue Forecasting
@@ -23,10 +34,10 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       base44.asServiceRole.entities.Order.filter({
         status: 'completed',
         created_date: { $gte: ninetyDaysAgo }
-      }),
+      }) as Promise<Order[]>,
       base44.asServiceRole.entities.Lead.filter({
         created_date: { $gte: ninetyDaysAgo }
-      })
+      }) as Promise<Lead[]>
     ]);
 
     // Calculate historical metrics
@@ -37,7 +48,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     // Get current pipeline
     const pipelineLeads = await base44.asServiceRole.entities.Lead.filter({
       status: { $in: ['new', 'contacted', 'qualified'] }
-    });
+    }) as Lead[];
 
     // Predict conversions by lead quality
     const predictions = [];
@@ -74,10 +85,10 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString();
 
-    const recentOrders = orders.filter(o => new Date(o.created_date) >= new Date(thirtyDaysAgo));
-    const previousOrders = orders.filter(o => 
-      new Date(o.created_date) >= new Date(sixtyDaysAgo) && 
-      new Date(o.created_date) < new Date(thirtyDaysAgo)
+    const recentOrders = orders.filter((o: Order) => new Date(o.created_date || 0) >= new Date(thirtyDaysAgo));
+    const previousOrders = orders.filter((o: Order) => 
+      new Date(o.created_date || 0) >= new Date(sixtyDaysAgo) && 
+      new Date(o.created_date || 0) < new Date(thirtyDaysAgo)
     );
 
     const recentRevenue = recentOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0);

@@ -62,7 +62,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     
     const leadTrend = previousLeads.length > 0
       ? (((recentLeads.length - previousLeads.length) / previousLeads.length) * 100).toFixed(1)
-      : 0;
+      : '0';
 
     return Response.json({
       success: true,
@@ -87,7 +87,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
           failed_24h: failedEmails.length,
           success_rate: recentEmails.length + failedEmails.length > 0
             ? ((recentEmails.length / (recentEmails.length + failedEmails.length)) * 100).toFixed(1)
-            : 100
+            : '100'
         },
         active: {
           ab_tests: activeTests.length,

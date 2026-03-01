@@ -26,7 +26,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     const riskFactors = [];
 
     // Factor 1: Order Age (older orders = higher risk)
-    const daysSinceOrder = (Date.now() - new Date(order.created_date).getTime()) / (1000 * 60 * 60 * 24);
+    const daysSinceOrder = (Date.now() - new Date(order.created_date as string).getTime()) / (1000 * 60 * 60 * 24);
     if (daysSinceOrder > 90) {
       churnScore += 30;
       riskFactors.push({ factor: 'No recent activity (90+ days)', impact: 'high' });
@@ -42,13 +42,13 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     });
 
     const openRate = emailLogs.length > 0
-      ? emailLogs.filter(e => e.open_count > 0).length / emailLogs.length
+      ? emailLogs.filter((e: { open_count?: number }) => (e.open_count || 0) > 0).length / emailLogs.length
       : 0;
 
-    if (openRate < 0.1 && emailLogs.length > 3) {
+    if ((openRate as number) < 0.1 && emailLogs.length > 3) {
       churnScore += 25;
       riskFactors.push({ factor: 'Very low email engagement (<10%)', impact: 'high' });
-    } else if (openRate < 0.3) {
+    } else if ((openRate as number) < 0.3) {
       churnScore += 15;
       riskFactors.push({ factor: 'Low email engagement (<30%)', impact: 'medium' });
     }

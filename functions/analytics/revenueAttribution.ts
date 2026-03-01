@@ -166,8 +166,20 @@ async function attributeBySource(base44: Base44Client, orders: Order[]) {
   }));
 }
 
-async function attributeByVariant(base44, orders) {
-  const attribution = {};
+interface ABTestEvent {
+  test_id?: string;
+  variant_id?: string;
+}
+
+interface VariantAttribution {
+  test_id?: string;
+  variant_id?: string;
+  orders: number;
+  revenue: number;
+}
+
+async function attributeByVariant(base44: Base44Client, orders: Order[]) {
+  const attribution: Record<string, VariantAttribution> = {};
 
   for (const order of orders) {
     if (!order.lead_id) continue;
@@ -176,7 +188,7 @@ async function attributeByVariant(base44, orders) {
     const abEvents = await base44.asServiceRole.entities.ABTestEvent.filter({
       lead_id: order.lead_id,
       event_type: 'view'
-    }, 'created_date', 100);
+    }, 'created_date', 100) as ABTestEvent[];
 
     if (abEvents.length === 0) continue;
 
@@ -206,13 +218,19 @@ async function attributeByVariant(base44, orders) {
   }));
 }
 
-async function attributeByCategory(base44, orders) {
-  const attribution = {};
+interface CategoryAttribution {
+  orders: number;
+  revenue: number;
+  leads: Set<string>;
+}
+
+async function attributeByCategory(base44: Base44Client, orders: Order[]) {
+  const attribution: Record<string, CategoryAttribution> = {};
 
   for (const order of orders) {
     if (!order.lead_id) continue;
 
-    const lead = await base44.asServiceRole.entities.Lead.get(order.lead_id);
+    const lead = await base44.asServiceRole.entities.Lead.get(order.lead_id) as Lead;
     const category = lead?.business_category || 'unknown';
 
     if (!attribution[category]) {

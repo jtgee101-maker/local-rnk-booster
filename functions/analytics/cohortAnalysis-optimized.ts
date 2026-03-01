@@ -384,15 +384,15 @@ async function getSourceCohortsOptimized(base44, pageSize) {
   // Calculate cohorts
   const cohorts = [];
   for (const [source, leadIdSet] of Object.entries(sourceGroups)) {
-    const leadIds = Array.from(leadIdSet);
+    const leadIds = Array.from(leadIdSet as Set<string>);
     
     // Batch fetch orders
     const orders = await fetchOrdersBatch(base44, leadIds);
     
     // Fetch leads for health scores (batched)
-    const leads = await fetchLeadsByIdsBatch(base44, leadIds);
+    const leadsData = await fetchLeadsByIdsBatch(base44, leadIds);
 
-    const metrics = calculateMetricsOptimized(leads, orders);
+    const metrics = calculateMetricsOptimized(leadsData, orders);
 
     cohorts.push({ source, ...metrics });
   }
