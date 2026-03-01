@@ -93,6 +93,9 @@ Deno.serve(withDenoErrorHandler(async (req: Request): Promise<Response> => {
     // 200X: Parallel batch loading with smaller limits
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
+    // Helper type for filter method with 3 args
+    type FilterMethod<T> = (filter: Record<string, unknown>, sort: string, limit: number) => Promise<T[]>;
+
     const [
       orders,
       leads,
@@ -104,56 +107,56 @@ Deno.serve(withDenoErrorHandler(async (req: Request): Promise<Response> => {
       mobileEvents
     ] = await Promise.all([
       // Core metrics - optimized limits
-      base44.asServiceRole.entities.Order.filter(
+      (base44.asServiceRole.entities.Order.filter as FilterMethod<Order>)(
         {},
         '-created_date',
         QUERY_LIMITS.ORDERS
-      ) as Promise<Order[]>,
+      ),
       
-      base44.asServiceRole.entities.Lead.filter(
+      (base44.asServiceRole.entities.Lead.filter as FilterMethod<Lead>)(
         {},
         '-created_date',
         QUERY_LIMITS.LEADS
-      ) as Promise<Lead[]>,
+      ),
       
-      base44.asServiceRole.entities.ABTest.filter(
+      (base44.asServiceRole.entities.ABTest.filter as FilterMethod<ABTest>)(
         { status: 'active' },
         'created_date',
         QUERY_LIMITS.TESTS
-      ) as Promise<ABTest[]>,
+      ),
       
-      base44.asServiceRole.entities.Segment.filter(
+      (base44.asServiceRole.entities.Segment.filter as FilterMethod<Segment>)(
         { is_active: true },
         '-member_count',
         QUERY_LIMITS.SEGMENTS
-      ) as Promise<Segment[]>,
+      ),
       
       // Conversion events - optimized
-      base44.asServiceRole.entities.ConversionEvent.filter(
+      (base44.asServiceRole.entities.ConversionEvent.filter as FilterMethod<ConversionEvent>)(
         { event_name: 'pricing_page_viewed' },
         'created_date',
         QUERY_LIMITS.EVENTS
-      ) as Promise<ConversionEvent[]>,
+      ),
       
-      base44.asServiceRole.entities.ConversionEvent.filter(
+      (base44.asServiceRole.entities.ConversionEvent.filter as FilterMethod<ConversionEvent>)(
         { event_name: 'checkout_initiated' },
         'created_date',
         QUERY_LIMITS.EVENTS
-      ) as Promise<ConversionEvent[]>,
+      ),
       
       // Email analytics - optimized with date filter
-      base44.asServiceRole.entities.EmailLog.filter(
+      (base44.asServiceRole.entities.EmailLog.filter as FilterMethod<EmailLog>)(
         { created_date: { $gte: thirtyDaysAgo } },
         'created_date',
         QUERY_LIMITS.EMAILS
-      ) as Promise<EmailLog[]>,
+      ),
       
       // Mobile events - optimized
-      base44.asServiceRole.entities.ConversionEvent.filter(
+      (base44.asServiceRole.entities.ConversionEvent.filter as FilterMethod<ConversionEvent>)(
         { 'properties.device_type': 'mobile' },
         'created_date',
         QUERY_LIMITS.EVENTS
-      ) as Promise<ConversionEvent[]>
+      )
     ]);
 
     // Calculate metrics

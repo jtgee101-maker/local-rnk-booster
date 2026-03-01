@@ -70,9 +70,15 @@ async function analyzeSegmentSendTimes(base44, segment) {
     metadata: { lead_id: { $in: leadIds } }
   }, 'created_date', 1000);
 
-  const timeSlotPerformance = {};
+  interface TimeSlotStats {
+    sent: number;
+    opened: number;
+    time_to_open_avg: number[];
+  }
+
+  const timeSlotPerformance: Record<string, TimeSlotStats> = {};
   
-  for (const email of emails) {
+  for (const email of emails as Array<{ first_opened_at?: string; created_date: string }>) {
     if (!email.first_opened_at) continue;
 
     const sentTime = new Date(email.created_date);
@@ -92,7 +98,7 @@ async function analyzeSegmentSendTimes(base44, segment) {
     timeSlotPerformance[timeSlot].sent++;
     timeSlotPerformance[timeSlot].opened++;
     
-    const timeToOpen = (openedTime - sentTime) / (1000 * 60); // minutes
+    const timeToOpen = (openedTime.getTime() - sentTime.getTime()) / (1000 * 60); // minutes
     timeSlotPerformance[timeSlot].time_to_open_avg.push(timeToOpen);
   }
 
@@ -101,7 +107,7 @@ async function analyzeSegmentSendTimes(base44, segment) {
   for (const [timeSlot, stats] of Object.entries(timeSlotPerformance)) {
     const openRate = stats.sent > 0 ? (stats.opened / stats.sent) * 100 : 0;
     const avgTimeToOpen = stats.time_to_open_avg.length > 0
-      ? stats.time_to_open_avg.reduce((a, b) => a + b, 0) / stats.time_to_open_avg.length
+      ? stats.time_to_open_avg.reduce((a: number, b: number) => a + b, 0) / stats.time_to_open_avg.length
       : 0;
 
     analysis.push({

@@ -222,12 +222,12 @@ async function checkNAPConsistency(businessData) {
     score: consistencyScore,
     grade: getScoreGrade(consistencyScore),
     totalDirectories: directories.length,
-    consistentListings: consistentListings.length,
+    consistentListingsCount: consistentListings.length,
     inconsistentListings: consistentListings.filter(l => l.status === 'inconsistent').length,
-    missingListings: missingListings.length,
+    missingListingsCount: missingListings.length,
     inconsistencies,
     consistentListings: consistentListings.slice(0, 20),
-    missingListings: missingListings.filter(m => m.priority !== 'low'),
+    highPriorityMissingListings: missingListings.filter(m => m.priority !== 'low'),
     recommendations: generateNAPRecommendations(inconsistencies, missingListings)
   };
 }
@@ -474,7 +474,7 @@ function calculateReviewVelocity(reviews) {
   const oldestTime = new Date(oldest.time ? oldest.time * 1000 : oldest.createdAt || Date.now());
   const newestTime = new Date(newest.time ? newest.time * 1000 : newest.createdAt || Date.now());
   
-  const monthsDiff = (newestTime - oldestTime) / (1000 * 60 * 60 * 24 * 30);
+  const monthsDiff = (newestTime.getTime() - oldestTime.getTime()) / (1000 * 60 * 60 * 24 * 30);
   
   return monthsDiff > 0 ? Math.round(reviews.length / monthsDiff) : reviews.length;
 }
@@ -582,10 +582,10 @@ async function analyzePhotoOptimization(businessData) {
   };
 }
 
-function calculateCategoryBalance(distribution) {
-  const values = Object.values(distribution);
-  const avg = values.reduce((a, b) => a + b, 0) / values.length;
-  const variance = values.reduce((sum, v) => sum + Math.pow(v - avg, 2), 0) / values.length;
+function calculateCategoryBalance(distribution: Record<string, number>) {
+  const values = Object.values(distribution) as number[];
+  const avg = values.reduce((a: number, b: number) => a + b, 0) / values.length;
+  const variance = values.reduce((sum: number, v: number) => sum + Math.pow(v - avg, 2), 0) / values.length;
   const balanceScore = Math.max(0, 100 - (variance * 2));
   
   return Math.round(balanceScore);
