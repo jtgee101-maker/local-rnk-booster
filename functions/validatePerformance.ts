@@ -14,12 +14,21 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       return Response.json({ error: 'Admin access required' }, { status: 403 });
     }
 
-    const performanceReport = {
+    const performanceReport: {
+      timestamp: string;
+      categories: {
+        lazyLoading: { checked: number; implemented: number; details: Array<Record<string, unknown>> };
+        caching: { checked: number; implemented: number; details: Array<Record<string, unknown>> };
+        bundleSize: { checked: number; issues: Array<Record<string, unknown>>; details?: Array<Record<string, unknown>> };
+        optimization: { checked: number; implemented: number; details: Array<Record<string, unknown>> };
+      };
+      summary?: Record<string, unknown>;
+    } = {
       timestamp: new Date().toISOString(),
       categories: {
         lazyLoading: { checked: 0, implemented: 0, details: [] },
         caching: { checked: 0, implemented: 0, details: [] },
-        bundleSize: { checked: 0, issues: [] },
+        bundleSize: { checked: 0, issues: [], details: [] },
         optimization: { checked: 0, implemented: 0, details: [] }
       }
     };

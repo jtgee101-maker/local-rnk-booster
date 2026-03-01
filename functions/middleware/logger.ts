@@ -9,7 +9,7 @@ export enum LogLevel {
 }
 
 // Log entry interface
-interface LogEntry {
+export interface LogEntry {
   timestamp: string;
   level: LogLevel;
   requestId: string;

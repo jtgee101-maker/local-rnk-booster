@@ -3,7 +3,25 @@
  * Logs errors to ErrorLog entity for admin monitoring
  */
 
-export const logError = async (base44, errorDetails) => {
+interface ErrorDetails {
+  type?: string;
+  severity?: string;
+  message?: string;
+  stackTrace?: string;
+  metadata?: Record<string, unknown>;
+}
+
+interface Base44Client {
+  asServiceRole: {
+    entities: {
+      ErrorLog: {
+        create: (data: Record<string, unknown>) => Promise<void>;
+      };
+    };
+  };
+}
+
+export const logError = async (base44: Base44Client, errorDetails: ErrorDetails) => {
   try {
     await base44.asServiceRole.entities.ErrorLog.create({
       error_type: errorDetails.type || 'system_error',
@@ -18,7 +36,13 @@ export const logError = async (base44, errorDetails) => {
   }
 };
 
-export const handleFunctionError = (error, context = {}) => {
+interface ErrorContext {
+  functionName?: string;
+  additionalContext?: Record<string, unknown>;
+  errorType?: string;
+}
+
+export const handleFunctionError = (error: { message: string; stack?: string }, context: ErrorContext = {}) => {
   const errorLog = {
     timestamp: new Date().toISOString(),
     function: context.functionName || 'unknown',

@@ -41,8 +41,9 @@ export {
 } from './auth';
 
 // Security Headers & CORS
+import { securityMiddleware } from './security';
 export {
-  securityMiddleware,
+  securityMiddleware as exportedSecurityMiddleware,
   applySecurityHeaders,
   addCORSHeaders,
   secureResponse,
@@ -103,7 +104,7 @@ export async function applyAllMiddleware(
     const { validateRequest } = await import('./validation');
     const validationResult = await validateRequest(req, options.validationOptions);
     if (!validationResult.success) {
-      return { success: false, response: validationResult.response };
+      return { success: false, response: (validationResult as { response: Response }).response };
     }
     validatedData = validationResult.data;
   }
@@ -114,7 +115,7 @@ export async function applyAllMiddleware(
     const { authenticate } = await import('./auth');
     const authResult = await authenticate(req);
     if (!authResult.success) {
-      return { success: false, response: authResult.response };
+      return { success: false, response: (authResult as { response: Response }).response };
     }
     authContext = authResult.user;
 
