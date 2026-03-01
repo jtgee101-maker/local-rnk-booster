@@ -1,6 +1,16 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
 
+interface Lead {
+  health_score?: number;
+  business_category?: string;
+  timeline?: string;
+  email?: string;
+  phone?: string;
+  gmb_url?: string;
+  id?: string;
+}
+
 Deno.serve(withDenoErrorHandler(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -17,7 +27,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       return Response.json({ error: 'lead_id is required' }, { status: 400 });
     }
 
-    const lead = await base44.asServiceRole.entities.Lead.get(lead_id);
+    const lead = await base44.asServiceRole.entities.Lead.get(lead_id) as Lead;
     if (!lead) {
       return Response.json({ error: 'Lead not found' }, { status: 404 });
     }

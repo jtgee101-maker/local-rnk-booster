@@ -1,6 +1,19 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
 
+interface CampaignLink {
+  id: string;
+  campaign_id: string;
+  short_code: string;
+  full_url: string;
+  clicks?: number;
+  first_click_date?: string;
+}
+
+interface Campaign {
+  total_clicks?: number;
+}
+
 Deno.serve(withDenoErrorHandler(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -13,7 +26,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     // Find the campaign link
     const links = await base44.asServiceRole.entities.CampaignLink.filter({
       short_code
-    });
+    }) as CampaignLink[];
 
     if (links.length === 0) {
       return Response.json({ error: 'Link not found' }, { status: 404 });
@@ -48,11 +61,11 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     // Update campaign stats
     const campaigns = await base44.asServiceRole.entities.Campaign.filter({
       id: link.campaign_id
-    });
+    }) as Campaign[];
 
     if (campaigns.length > 0) {
       await base44.asServiceRole.entities.Campaign.update(link.campaign_id, {
-        total_clicks: (campaigns[0].total_clicks || 0) + 1
+        total_clicks: ((campaigns[0] as Campaign).total_clicks || 0) + 1
       });
     }
 
