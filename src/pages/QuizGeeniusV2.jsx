@@ -22,14 +22,16 @@ import ContactInfoStep from '@/components/quiz/ContactInfoStep';
 import ProcessingStepEnhanced from '@/components/quiz/ProcessingStepEnhanced';
 import { TrendingUp, TrendingDown, MapPin, Sparkles, Users, Calculator, Target } from 'lucide-react';
 
-// Import Foxy V2 components
-import FoxyHealthScore from '@/components/foxyv2/FoxyHealthScore';
-import RevenueLeakCalculator from '@/components/foxyv2/RevenueLeakCalculator';
-import GeoHeatmapDisplay from '@/components/foxyv2/GeoHeatmapDisplay';
-import AIVisibilityReport from '@/components/foxyv2/AIVisibilityReport';
-import CompetitorComparison from '@/components/foxyv2/CompetitorComparison';
-import ActionRoadmap from '@/components/foxyv2/ActionRoadmap';
-import InteractiveROICalculator from '@/components/foxyv2/InteractiveROICalculator';
+// Import Foxy V2 components (lazy loaded for better bundle splitting)
+import {
+  FoxyHealthScore,
+  RevenueLeakCalculator,
+  GeoHeatmapDisplay,
+  AIVisibilityReport,
+  CompetitorComparison,
+  ActionRoadmap,
+  InteractiveROICalculator,
+} from '@/components/foxyv2';
 import AuditSummaryCards from '@/components/foxyv2/AuditSummaryCards';
 import ExpandableAuditSection from '@/components/foxyv2/ExpandableAuditSection';
 

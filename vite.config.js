@@ -111,12 +111,23 @@ export default defineConfig({
           'vendor-query': ['@tanstack/react-query'],
           // Heavy libraries - lazy loaded
           'vendor-3d': ['three'],
-          'vendor-maps': ['react-leaflet', 'leaflet'],
           // jspdf removed from client bundle - moved to server-side
+        },
+        // Ensure dynamic imports create separate chunks
+        chunkFileNames: (chunkInfo) => {
+          if (chunkInfo.name?.includes('foxyv2')) {
+            return 'assets/foxyv2-[name]-[hash].js';
+          }
+          if (chunkInfo.name?.includes('RevenueAttribution')) {
+            return 'assets/charts-[name]-[hash].js';
+          }
+          return 'assets/[name]-[hash].js';
         },
       },
     },
     // Chunk size warning limit (in KB)
     chunkSizeWarningLimit: 1000,
+    // Enable source maps for better debugging
+    sourcemap: false,
   },
 });

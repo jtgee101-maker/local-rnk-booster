@@ -12,7 +12,7 @@ import {
   ArrowUpRight, ArrowDownRight, Download, Mail, UserPlus, Send 
 } from 'lucide-react';
 import CustomerJourneyView from '@/components/admin/CustomerJourneyView';
-import RevenueAttributionChart from '@/components/admin/RevenueAttributionChart';
+import RevenueAttributionChart from '@/components/admin/RevenueAttributionChartWrapper';
 import CohortTable from '@/components/admin/CohortTable';
 import FunnelVisualization from '@/components/admin/FunnelVisualization';
 import ROIDashboard from '@/components/admin/ROIDashboard';
