@@ -55,14 +55,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     }
 
     // Note: In production, this would use Base44's create_automation API
-    // For now, we'll log the request and return success
-    console.log('Creating automation:', {
-      name,
-      automation_type,
-      function_name,
-      description,
-      is_active
-    });
+    // Automation creation request processed
 
     const automationId = `auto_${Date.now()}`;
 

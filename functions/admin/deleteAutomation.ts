@@ -19,7 +19,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       }, { status: 400 });
     }
 
-    console.log('Deleting automation:', automation_id);
+    // Automation deletion processed
 
     return Response.json({
       success: true,

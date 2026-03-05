@@ -271,9 +271,7 @@ async function processSmallBroadcast(base44, config) {
         retryAttempts: 3,
         retryDelay: 1000,
         onProgress: (completed, total) => {
-          if (completed % 50 === 0) {
-            console.log(`Broadcast progress: ${completed}/${total} processed`);
-          }
+          // Progress tracking available in results
         }
       }
     );

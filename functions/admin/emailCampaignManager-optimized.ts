@@ -246,10 +246,7 @@ async function processSmallBroadcast(base44, config) {
     processed += leads.length;
     cursor = leads[leads.length - 1]?.id;
 
-    // Log progress every 500
-    if (processed % 500 === 0) {
-      console.log(`Broadcast progress: ${processed} processed, ${sent} sent, ${failed} failed`);
-    }
+    // Progress tracking in processed count
   }
 
   return Response.json({

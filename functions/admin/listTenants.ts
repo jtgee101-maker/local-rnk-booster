@@ -109,7 +109,10 @@ async function listTenantsHandler(request: ListTenantsRequest) {
         }) || 0;
 
         // Get monthly revenue
-        const revenue = await base44.db.collections.orders?.aggregate?.([
+        interface RevenueResult {
+          total?: number;
+        }
+        const revenueResults = await base44.db.collections.orders?.aggregate?.([
           {
             $match: {
               tenantId: tenant._id?.toString?.() || tenant.id,
@@ -118,7 +121,8 @@ async function listTenantsHandler(request: ListTenantsRequest) {
             }
           },
           { $group: { _id: null, total: { $sum: '$amount' } } }
-        ]).then(r => r[0]?.total || 0) || 0;
+        ]) as RevenueResult[] | undefined;
+        const revenue = revenueResults?.[0]?.total || 0;
 
         return {
           id: tenant._id?.toString?.() || tenant.id,
@@ -152,12 +156,18 @@ async function listTenantsHandler(request: ListTenantsRequest) {
     );
 
     // Calculate aggregate stats
-    const stats = {
+    const stats: {
+      total: number;
+      active: number;
+      suspended: number;
+      pending: number;
+      totalMrr: number;
+    } = {
       total: totalCount,
       active: await base44.db.collections.tenants?.count?.({ status: 'active' }) || 0,
       suspended: await base44.db.collections.tenants?.count?.({ status: 'suspended' }) || 0,
       pending: await base44.db.collections.tenants?.count?.({ status: 'pending' }) || 0,
-      totalMrr: tenantsWithStats.reduce((sum, t) => sum + (t.status === 'active' ? t.mrr : 0), 0)
+      totalMrr: tenantsWithStats.reduce((sum: number, t: { status: string; mrr: number }) => sum + (t.status === 'active' ? t.mrr : 0), 0)
     };
 
     return {

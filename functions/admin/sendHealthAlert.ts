@@ -88,7 +88,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     `;
 
     // Send email
-    await base44.integrations.Core.SendEmail({
+    await base44.asServiceRole.integrations.Core.SendEmail({
       to: adminEmail,
       subject: `${isTest ? '[TEST] ' : ''}🚨 Health Check ${healthCheckData.overall_status === 'critical' ? 'CRITICAL' : 'WARNING'}`,
       body: emailBody,

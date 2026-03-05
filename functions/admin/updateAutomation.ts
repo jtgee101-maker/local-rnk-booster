@@ -28,7 +28,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       }
     }
 
-    console.log('Updating automation:', automation_id, updates);
+    // Automation update processed
 
     return Response.json({
       success: true,

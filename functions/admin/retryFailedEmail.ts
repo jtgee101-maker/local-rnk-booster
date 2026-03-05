@@ -1,6 +1,19 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
 
+// Type definition for EmailLog
+interface EmailLog {
+  id: string;
+  status: string;
+  resend_count?: number;
+  to: string;
+  from?: string;
+  subject: string;
+  metadata?: {
+    body?: string;
+  };
+}
+
 Deno.serve(withDenoErrorHandler(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -17,7 +30,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       return Response.json({ error: 'email_log_id is required' }, { status: 400 });
     }
 
-    const emailLog = await base44.asServiceRole.entities.EmailLog.get(email_log_id);
+    const emailLog = await base44.asServiceRole.entities.EmailLog.get(email_log_id) as EmailLog | null;
 
     if (!emailLog) {
       return Response.json({ error: 'Email log not found' }, { status: 404 });
@@ -31,10 +44,11 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     }
 
     // Prevent excessive retries
-    if (emailLog.resend_count >= 3) {
+    const currentResendCount = emailLog.resend_count || 0;
+    if (currentResendCount >= 3) {
       return Response.json({ 
         error: 'Maximum retry attempts reached (3)',
-        resend_count: emailLog.resend_count
+        resend_count: currentResendCount
       }, { status: 400 });
     }
 
@@ -47,10 +61,11 @@ Deno.serve(withDenoErrorHandler(async (req) => {
         body: emailLog.metadata?.body || 'Email content not available'
       });
 
+      const newResendCount = currentResendCount + 1;
       // Update email log
       await base44.asServiceRole.entities.EmailLog.update(email_log_id, {
         status: 'sent',
-        resend_count: (emailLog.resend_count || 0) + 1,
+        resend_count: newResendCount,
         last_resent_at: new Date().toISOString(),
         error_message: null
       });
@@ -58,14 +73,15 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       return Response.json({
         success: true,
         message: 'Email resent successfully',
-        resend_count: (emailLog.resend_count || 0) + 1
+        resend_count: newResendCount
       });
 
-    } catch (sendError) {
+    } catch (sendError: unknown) {
+      const errorMessage = sendError instanceof Error ? sendError.message : 'Unknown error';
       await base44.asServiceRole.entities.EmailLog.update(email_log_id, {
-        resend_count: (emailLog.resend_count || 0) + 1,
+        resend_count: currentResendCount + 1,
         last_resent_at: new Date().toISOString(),
-        error_message: sendError.message
+        error_message: errorMessage
       });
 
       throw sendError;

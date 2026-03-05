@@ -3,7 +3,73 @@
  */
 
 import { withErrorHandler, FunctionError, successResponse } from '../utils/errorHandler';
-async function updateUserHandler(request) {
+
+// Type definitions
+interface User {
+  id?: string;
+  _id?: string;
+  name?: string;
+  email?: string;
+  role?: string;
+  status?: string;
+  company?: string;
+  emailVerified?: boolean;
+  passwordHash?: string;
+}
+
+interface RequestUser {
+  id?: string;
+  _id?: string;
+  role: string;
+  name?: string;
+}
+
+interface UpdateData {
+  updatedAt: Date;
+  updatedBy: string | undefined;
+  name?: string;
+  email?: string;
+  role?: string;
+  status?: string;
+  company?: string;
+  emailVerified?: boolean;
+  passwordHash?: string;
+  passwordChangedAt?: Date;
+  tempPassword?: boolean;
+}
+
+interface UpdateUserRequest {
+  user?: RequestUser;
+  data?: {
+    id?: string;
+    name?: string;
+    email?: string;
+    role?: string;
+    status?: string;
+    company?: string;
+    password?: string;
+    emailVerified?: boolean;
+  };
+  base44?: {
+    db: {
+      collections: {
+        users?: {
+          findOne?: (query: Record<string, unknown>) => Promise<User | null>;
+          updateOne?: (filter: Record<string, unknown>, update: Record<string, unknown>) => Promise<{ modifiedCount?: number; acknowledged?: boolean }>;
+        };
+        adminLogs?: {
+          insertOne?: (data: Record<string, unknown>) => Promise<unknown>;
+        };
+      };
+    };
+    emails: {
+      send: (data: { to: string; template: string; data: Record<string, unknown> }) => Promise<unknown>;
+    };
+  };
+}
+
+async function updateUserHandler(request: UpdateUserRequest) {
+  const base44 = request.base44;
   try {
     // Verify admin access
     const currentUser = request.user;
@@ -77,7 +143,7 @@ async function updateUserHandler(request) {
     }
 
     // Build update object
-    const updateData = {
+    const updateData: UpdateData = {
       updatedAt: new Date(),
       updatedBy: currentUserId
     };
@@ -130,7 +196,7 @@ async function updateUserHandler(request) {
       details: { 
         changes: Object.keys(updateData).filter(k => !['updatedAt', 'updatedBy'].includes(k))
       }
-    });
+    }, base44);
 
     // Send notification email if status changed
     if (status && status !== existingUser.status) {
@@ -165,11 +231,19 @@ async function updateUserHandler(request) {
 }
 
 // Helper functions
-async function hashPassword(password) {
+async function hashPassword(password: string): Promise<string> {
   return `hashed_${password}`;
 }
 
-async function logAdminAction({ adminId, action, targetId, targetType, details }) {
+interface AdminActionParams {
+  adminId?: string;
+  action: string;
+  targetId: string;
+  targetType: string;
+  details: Record<string, unknown>;
+}
+
+async function logAdminAction({ adminId, action, targetId, targetType, details }: AdminActionParams, base44: NonNullable<UpdateUserRequest['base44']>) {
   try {
     await base44.db.collections.adminLogs?.insertOne?.({
       adminId,

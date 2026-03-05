@@ -121,13 +121,11 @@ class IndexMigration {
             if (options.dropExisting) {
               if (!options.dryRun) {
                 await collection.dropIndex(indexDef.name);
-                console.log(`Dropped existing index: ${indexDef.name}`);
-              } else {
-                console.log(`[DRY RUN] Would drop index: ${indexDef.name}`);
               }
+              // Index dropped (or would be dropped in dry-run)
             } else {
               result.indexesSkipped.push(indexDef.name);
-              console.log(`Index already exists, skipping: ${indexDef.name}`);
+              // Index already exists, skipping
               continue;
             }
           }
@@ -140,15 +138,11 @@ class IndexMigration {
           };
 
           if (options.dryRun) {
-            console.log(`[DRY RUN] Would create index: ${indexDef.name}`, {
-              keys: indexDef.keys,
-              options: indexOptions
-            });
+            // Would create index in dry-run mode
             result.indexesCreated.push(indexDef.name);
           } else {
             // Create the index
             await collection.createIndex(indexDef.keys, indexOptions);
-            console.log(`Created index: ${indexDef.name}`);
             result.indexesCreated.push(indexDef.name);
           }
         } catch (error) {

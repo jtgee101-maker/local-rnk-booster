@@ -19,7 +19,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       }, { status: 400 });
     }
 
-    console.log('Toggling automation:', automation_id);
+    // Automation toggle processed
 
     return Response.json({
       success: true,

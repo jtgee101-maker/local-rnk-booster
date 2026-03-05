@@ -7,6 +7,7 @@ import { withErrorHandler, FunctionError, successResponse } from '../utils/error
 interface Tenant {
   id?: string;
   _id?: { toString(): string };
+  name?: string;
   status?: string;
   statusHistory?: Array<{
     from: string;
@@ -30,6 +31,7 @@ interface UpdateTenantStatusRequest {
     role: string;
     id?: string;
     _id?: { toString(): string };
+    name?: string;
   };
   data?: {
     id?: string;
@@ -44,7 +46,11 @@ interface UpdateTenantStatusRequest {
         updateOne?: (filter: Record<string, unknown>, update: Record<string, unknown>) => Promise<{ modifiedCount?: number; acknowledged?: boolean }>;
         updateMany?: (filter: Record<string, unknown>, update: Record<string, unknown>) => Promise<unknown>;
         create?: <T = Record<string, unknown>>(data: T) => Promise<T>;
+        insertOne?: (data: Record<string, unknown>) => Promise<unknown>;
       }>;
+    };
+    emails: {
+      send: (data: { to: string; template: string; data: Record<string, unknown> }) => Promise<unknown>;
     };
   };
 }
@@ -182,12 +188,12 @@ async function updateTenantStatusHandler(request: UpdateTenantStatusRequest) {
         to: status,
         reason
       }
-    });
+    }, base44);
 
     // Notify tenant owner
-    if (notifyOwner && existingTenant.owner?.email) {
+    if (notifyOwner && existingTenant.ownerEmail) {
       try {
-        const templates = {
+        const templates: Record<string, string> = {
           active: 'tenant-activated',
           suspended: 'tenant-suspended',
           cancelled: 'tenant-cancelled',
@@ -195,11 +201,11 @@ async function updateTenantStatusHandler(request: UpdateTenantStatusRequest) {
         };
 
         await base44.emails.send({
-          to: existingTenant.owner.email,
-          template: templates[status],
+          to: existingTenant.ownerEmail,
+          template: templates[status] || 'tenant-status-change',
           data: {
-            tenantName: existingTenant.name,
-            ownerName: existingTenant.owner.name,
+            tenantName: (existingTenant as unknown as Record<string, string>).name || 'Unknown',
+            ownerName: 'Owner',
             reason: reason || 'No reason provided',
             adminName: currentUser.name || 'Admin',
             supportUrl: `${process.env.APP_URL}/support`
@@ -230,7 +236,15 @@ async function updateTenantStatusHandler(request: UpdateTenantStatusRequest) {
   }
 }
 
-async function logAdminAction({ adminId, action, targetId, targetType, details }) {
+interface AdminActionParams {
+  adminId?: string;
+  action: string;
+  targetId: string;
+  targetType: string;
+  details: Record<string, unknown>;
+}
+
+async function logAdminAction({ adminId, action, targetId, targetType, details }: AdminActionParams, base44: NonNullable<UpdateTenantStatusRequest['base44']>) {
   try {
     await base44.db.collections.adminLogs?.insertOne?.({
       adminId,

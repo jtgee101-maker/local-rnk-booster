@@ -180,7 +180,7 @@ async function sendSmsAlert(
     //   });
     // }
     
-    console.log('[SMS ALERT]', { recipients, message });
+    // SMS alert logging placeholder (Twilio integration pending)
     return { success: true };
   } catch (error) {
     return { success: false, error: (error as Error).message };
@@ -360,8 +360,8 @@ export async function sendAlert(
           recipients: fullAlert.recipients,
           status: fullAlert.status,
           metadata: fullAlert.metadata,
-        });
-        alertId = result._id;
+        }) as { _id?: string; id?: string };
+        alertId = result._id || result.id;
       } catch (dbError) {
         console.error('Failed to store alert:', dbError);
       }
@@ -537,32 +537,35 @@ export async function getAlertHistory(
     if (options.severity) filter.severity = options.severity;
     if (options.type) filter.type = options.type;
     
-    const alerts = await base44.asServiceRole.entities.Alert.filter(filter, {
-      sort: { field: 'created_at', direction: 'desc' },
-      limit: options.limit || 100,
-      offset: options.offset || 0,
-    });
+    const alerts = await base44.asServiceRole.entities.Alert.filter(filter) as Array<Record<string, unknown>>;
+    const sortedAlerts = alerts
+      .sort((a, b) => {
+        const aDate = new Date(a.created_at as string).getTime();
+        const bDate = new Date(b.created_at as string).getTime();
+        return bDate - aDate;
+      })
+      .slice(options.offset || 0, (options.offset || 0) + (options.limit || 100));
     
     // Get total count
-    const allAlerts = await base44.asServiceRole.entities.Alert.filter(filter);
+    const allAlerts = alerts;
     
     return {
-      alerts: alerts.map(a => ({
-        id: a._id,
-        type: a.type,
-        severity: a.severity,
-        title: a.title,
-        message: a.message,
-        details: a.details,
-        channels: a.channels,
-        recipients: a.recipients,
-        status: a.status,
-        sentAt: a.sent_at,
-        acknowledgedAt: a.acknowledged_at,
-        acknowledgedBy: a.acknowledged_by,
-        resolvedAt: a.resolved_at,
-        errorCount: a.error_count,
-        metadata: a.metadata,
+      alerts: sortedAlerts.map((a: Record<string, unknown>) => ({
+        id: String(a._id || a.id || ''),
+        type: String(a.type || ''),
+        severity: a.severity as AlertSeverity,
+        title: String(a.title || ''),
+        message: String(a.message || ''),
+        details: a.details as Record<string, unknown> | undefined,
+        channels: a.channels as AlertChannel[],
+        recipients: a.recipients as string[],
+        status: a.status as AlertStatus,
+        sentAt: String(a.sent_at || ''),
+        acknowledgedAt: String(a.acknowledged_at || ''),
+        acknowledgedBy: String(a.acknowledged_by || ''),
+        resolvedAt: String(a.resolved_at || ''),
+        errorCount: Number(a.error_count || 0),
+        metadata: a.metadata as Record<string, unknown> | undefined,
       })),
       total: allAlerts.length,
     };

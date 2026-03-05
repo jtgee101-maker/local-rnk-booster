@@ -1,6 +1,12 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
 
+// Type definition for Lead update data
+interface LeadUpdateData {
+  status?: string;
+  admin_notes?: string;
+}
+
 Deno.serve(withDenoErrorHandler(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -16,14 +22,15 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       return Response.json({ error: 'Lead ID required' }, { status: 400 });
     }
 
-    const updateData = {};
+    const updateData: LeadUpdateData = {};
     if (status) updateData.status = status;
     if (notes) updateData.admin_notes = notes;
 
     const updatedLead = await base44.asServiceRole.entities.Lead.update(leadId, updateData);
 
     return Response.json({ success: true, lead: updatedLead });
-  } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return Response.json({ error: errorMessage }, { status: 500 });
   }
 }));
