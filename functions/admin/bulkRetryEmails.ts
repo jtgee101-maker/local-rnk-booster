@@ -1,7 +1,6 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-Deno.serve(withDenoErrorHandler(async (req) => {
+Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
@@ -10,9 +9,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    const body = await req.json();
-    const { status_filter = 'failed', max_retries = 3, hours_ago = 24 } = body;
-
+    const { status_filter = 'failed', max_retries = 3, hours_ago = 24 } = await req.json();
     const cutoffDate = new Date(Date.now() - hours_ago * 3600000).toISOString();
 
     const failedEmails = await base44.asServiceRole.entities.EmailLog.filter({
@@ -20,9 +17,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       created_date: { $gte: cutoffDate }
     });
 
-    const eligibleEmails = failedEmails.filter(email => 
-      (email.resend_count || 0) < max_retries
-    );
+    const eligibleEmails = failedEmails.filter(e => (e.resend_count || 0) < max_retries);
 
     if (eligibleEmails.length === 0) {
       return Response.json({
@@ -53,13 +48,12 @@ Deno.serve(withDenoErrorHandler(async (req) => {
         });
 
         successCount++;
-      } catch (error) {
+      } catch (err) {
         await base44.asServiceRole.entities.EmailLog.update(emailLog.id, {
           resend_count: (emailLog.resend_count || 0) + 1,
           last_resent_at: new Date().toISOString(),
-          error_message: error.message
+          error_message: err.message
         });
-
         failCount++;
       }
 
@@ -77,21 +71,6 @@ Deno.serve(withDenoErrorHandler(async (req) => {
 
   } catch (error) {
     console.error('Bulk retry error:', error);
-    
-    try {
-      const base44 = createClientFromRequest(req);
-      await base44.asServiceRole.entities.ErrorLog.create({
-        error_type: 'email_failure',
-        severity: 'high',
-        message: 'Failed to bulk retry emails',
-        stack_trace: error.stack || error.message,
-        metadata: { endpoint: 'bulkRetryEmails' }
-      });
-    } catch {}
-
-    return Response.json({ 
-      error: 'Failed to bulk retry emails',
-      details: error.message 
-    }, { status: 500 });
+    return Response.json({ error: error.message }, { status: 500 });
   }
 });

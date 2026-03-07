@@ -1,7 +1,6 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-Deno.serve(withDenoErrorHandler(async (req) => {
+Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
@@ -11,10 +10,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     }
 
     const { leadId, status, notes } = await req.json();
-
-    if (!leadId) {
-      return Response.json({ error: 'Lead ID required' }, { status: 400 });
-    }
+    if (!leadId) return Response.json({ error: 'Lead ID required' }, { status: 400 });
 
     const updateData = {};
     if (status) updateData.status = status;

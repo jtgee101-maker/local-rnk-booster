@@ -1,7 +1,6 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-Deno.serve(withDenoErrorHandler(async (req) => {
+Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
@@ -22,7 +21,6 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       logs = await base44.asServiceRole.entities.EmailLog.list('-created_date', limit);
     }
 
-    // Calculate stats
     const total = logs.length;
     const sent = logs.filter(l => l.status === 'sent').length;
     const failed = logs.filter(l => l.status === 'failed').length;
@@ -32,11 +30,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     return Response.json({
       logs,
       stats: {
-        total,
-        sent,
-        failed,
-        bounced,
-        opened,
+        total, sent, failed, bounced, opened,
         deliveryRate: total > 0 ? ((sent / total) * 100).toFixed(1) : 0,
         openRate: sent > 0 ? ((opened / sent) * 100).toFixed(1) : 0
       }
