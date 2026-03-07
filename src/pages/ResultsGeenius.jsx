@@ -260,10 +260,16 @@ export default function ResultsGeenius() {
                   exit={{ opacity: 0 }}
                   className="space-y-8"
                 >
+                  {/* Urgency Banner */}
+                  <UrgencyBanner healthScore={healthScore} businessName={lead.business_name} onContinue={handleContinue} />
+
                   <VideoAskEmbed leadId={lead.id} />
 
                   {/* Case Studies */}
-                  <CaseStudiesShowcase />
+                  <CaseStudiesShowcase onViewPathways={handleContinue} />
+
+                  {/* Final sticky CTA */}
+                  <FinalCTA onContinue={handleContinue} healthScore={healthScore} />
                 </motion.div>
               )}
             </AnimatePresence>
