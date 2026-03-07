@@ -82,7 +82,7 @@ Deno.serve(async (req) => {
           }
         }
 
-        // Send order confirmation (fire and forget)
+        // Send order confirmation + trigger onboarding chain (fire and forget)
         if (customerEmail) {
           base44.asServiceRole.functions.invoke('sendOrderConfirmation', {
             email: customerEmail,
@@ -90,6 +90,16 @@ Deno.serve(async (req) => {
             orderAmount: orderData.total_amount,
             productName: metadata.plan_name || metadata.upsell_name
           }).catch(e => console.error('Order confirmation email failed:', e));
+
+          // Trigger full onboarding chain (welcome email + initializeOnboarding + action plan + metrics)
+          const leadId = metadata.lead_id || (customerEmail
+            ? await base44.asServiceRole.entities.Lead.filter({ email: customerEmail }).then(r => r[0]?.id).catch(() => null)
+            : null);
+
+          if (leadId) {
+            base44.asServiceRole.functions.invoke('nurture/closedDealWelcome', { lead_id: leadId })
+              .catch(e => console.error('closedDealWelcome failed:', e));
+          }
         }
 
         console.log('✅ checkout.session.completed processed:', session.id);
