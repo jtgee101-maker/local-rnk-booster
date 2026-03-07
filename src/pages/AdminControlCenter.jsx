@@ -1037,6 +1037,7 @@ export default function AdminControlCenter() {
     { value: 'automations', icon: Repeat, label: 'Automations', color: 'orange' },
     { value: 'emails', icon: Mail, label: 'Emails', color: 'red' },
     { value: 'geenius-emails', icon: Mail, label: 'GeeNius Emails', color: 'pink' },
+    { value: 'ai-email-campaigns', icon: Sparkles, label: 'AI Campaigns', color: 'violet' },
     { value: 'email-flows', icon: Zap, label: 'Email Flows Demo', color: 'purple' },
     { value: 'security', icon: Shield, label: 'Security', color: 'red' },
     { value: 'nurture', icon: Activity, label: 'Nurture', color: 'teal' },
@@ -1293,6 +1294,12 @@ export default function AdminControlCenter() {
               <TabsContent value="geenius-emails" className="mt-0">
                 <Suspense fallback={<TabLoader />}>
                   <GeeniusEmailAutomationControl />
+                </Suspense>
+              </TabsContent>
+
+              <TabsContent value="ai-email-campaigns" className="mt-0">
+                <Suspense fallback={<TabLoader />}>
+                  <EmailAutomationPanel />
                 </Suspense>
               </TabsContent>
 
