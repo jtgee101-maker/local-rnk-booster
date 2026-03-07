@@ -359,13 +359,42 @@ export default function GodModeDashboard() {
           </TabsList>
 
           <TabsContent value="tenants" className="mt-0 space-y-6">
+            {/* KPI Cards — real revenue & conversion data */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {stats.map((stat, idx) => (
-                <div key={idx} className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
-                  <p className="text-2xl font-bold" style={{ color: stat.color }}>{stat.value}</p>
-                  <p className="text-sm text-gray-500">{stat.label}</p>
-                </div>
-              ))}
+              <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
+                <p className="text-xs text-gray-500 mb-1">MRR (This Month)</p>
+                <p className="text-2xl font-bold text-[#c8ff00]">
+                  {kpiStats ? `$${Number(kpiStats.monthRevenue).toLocaleString()}` : '—'}
+                </p>
+                {kpiStats && <p className="text-xs text-gray-500 mt-1">{kpiStats.revenueChange} vs last mo</p>}
+              </div>
+              <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
+                <p className="text-xs text-gray-500 mb-1">Total Revenue</p>
+                <p className="text-2xl font-bold text-[#00F2FF]">
+                  {kpiStats ? `$${Number(kpiStats.totalRevenue).toLocaleString()}` : '—'}
+                </p>
+                {kpiStats && <p className="text-xs text-gray-500 mt-1">{kpiStats.completedOrders} orders</p>}
+              </div>
+              <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
+                <p className="text-xs text-gray-500 mb-1">Leads This Month</p>
+                <p className="text-2xl font-bold text-emerald-400">
+                  {kpiStats ? kpiStats.leadsThisMonth : '—'}
+                </p>
+                {kpiStats && <p className="text-xs text-gray-500 mt-1">{kpiStats.leadsChange} vs last mo</p>}
+              </div>
+              <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
+                <p className="text-xs text-gray-500 mb-1">Conversion Rate</p>
+                <p className="text-2xl font-bold text-purple-400">
+                  {kpiStats ? kpiStats.conversionRate : '—'}
+                </p>
+                {kpiStats && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    {kpiStats.criticalErrors > 0
+                      ? <span className="text-red-400">{kpiStats.criticalErrors} critical errors</span>
+                      : <span className="text-emerald-400">No critical errors</span>}
+                  </p>
+                )}
+              </div>
             </div>
             
             <div className="flex flex-col md:flex-row gap-4">
