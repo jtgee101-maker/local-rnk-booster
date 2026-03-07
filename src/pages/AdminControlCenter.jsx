@@ -20,6 +20,7 @@ import {
   Activity, TrendingDown, CheckCircle2, Clock,
   Loader2, ChevronDown, ChevronUp, ExternalLink, Sparkles, FileText
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 // Lazy load components
 const AdminMetrics = lazy(() => import('@/components/admin/AdminMetrics'));
@@ -195,8 +196,8 @@ function FunnelModeSwitcher() {
     }
     
     if (mode === currentMode) {
-      alert('This mode is already active');
-      return;
+    toast.info('This mode is already active');
+    return;
     }
     
     setIsSwitching(true);
@@ -225,11 +226,11 @@ function FunnelModeSwitcher() {
       }).catch(() => {});
       
       // Success feedback
-      alert(`✓ Successfully switched to ${mode === 'v2' ? 'Quiz V2 (Stripe)' : mode === 'v3' ? 'Quiz V3 (Affiliate)' : 'QuizGeenius (3-Pathway)'}`);
+      toast.success(`Switched to ${mode === 'v2' ? 'Quiz V2 (Stripe)' : mode === 'v3' ? 'Quiz V3 (Affiliate)' : 'QuizGeenius (3-Pathway)'}`);
       
     } catch (error) {
       console.error('Error switching mode:', error);
-      alert('Failed to switch funnel mode. Please try again.');
+      toast.error('Failed to switch funnel mode. Please try again.');
       
       // Log error
       await base44.entities.ErrorLog.create({
@@ -248,14 +249,14 @@ function FunnelModeSwitcher() {
   const updateAffiliateLink = async () => {
     // Validate URL
     if (!affiliateLink || affiliateLink.trim() === '') {
-      alert('Affiliate link cannot be empty');
+      toast.error('Affiliate link cannot be empty');
       return;
     }
     
     try {
       new URL(affiliateLink);
     } catch (e) {
-      alert('Please enter a valid URL (must start with http:// or https://)');
+      toast.error('Please enter a valid URL (must start with http:// or https://)');
       return;
     }
     
@@ -277,11 +278,11 @@ function FunnelModeSwitcher() {
       
       setIsEditingLink(false);
       await base44.analytics.track({ eventName: 'affiliate_link_updated', properties: { url: affiliateLink.trim() } }).catch(() => {});
-      alert('✓ Affiliate link updated successfully');
+      toast.success('Affiliate link updated successfully');
       
     } catch (error) {
       console.error('Error updating affiliate link:', error);
-      alert('Failed to update affiliate link. Please try again.');
+      toast.error('Failed to update affiliate link. Please try again.');
       
       await base44.entities.ErrorLog.create({
         error_type: 'system_error',
@@ -296,14 +297,13 @@ function FunnelModeSwitcher() {
   const updateBridgeTimer = async () => {
     const seconds = parseInt(bridgeTimer);
     
-    // Validate input
     if (isNaN(seconds)) {
-      alert('Please enter a valid number');
+      toast.error('Please enter a valid number');
       return;
     }
     
     if (seconds < 1 || seconds > 10) {
-      alert('Timer must be between 1-10 seconds');
+      toast.error('Timer must be between 1-10 seconds');
       return;
     }
 
@@ -325,11 +325,11 @@ function FunnelModeSwitcher() {
       
       setIsEditingTimer(false);
       await base44.analytics.track({ eventName: 'bridge_timer_updated', properties: { seconds } }).catch(() => {});
-      alert(`✓ Bridge timer set to ${seconds} second${seconds !== 1 ? 's' : ''}`);
+      toast.success(`Bridge timer set to ${seconds} second${seconds !== 1 ? 's' : ''}`);
       
     } catch (error) {
       console.error('Error updating timer:', error);
-      alert('Failed to update bridge timer. Please try again.');
+      toast.error('Failed to update bridge timer. Please try again.');
       
       await base44.entities.ErrorLog.create({
         error_type: 'system_error',
@@ -408,11 +408,11 @@ function FunnelModeSwitcher() {
         console.warn('Analytics tracking failed:', trackError);
       }
       
-      alert('✓ GeeNius pathways updated successfully');
+      toast.success('GeeNius pathways updated successfully');
       
     } catch (error) {
       console.error('Error updating geenius pathways:', error);
-      alert(`Failed to update GeeNius pathways: ${error.message}`);
+      toast.error(`Failed to update GeeNius pathways: ${error.message}`);
       
       try {
         await base44.entities.ErrorLog.create({
