@@ -1,12 +1,43 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-/**
- * Orchestrates all GeeNius email workflows based on lead/order events.
- * Wired via entity automations:
- *   - Lead create → sends audit_submitted + schedules 2h + 12h nudges
- *   - Lead update → checks for pathway selection in admin_notes
- *   - Order create → sends post_purchase_day1
- */
+const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+const VERIFIED_FROM = 'LocalRank.ai <noreply@updates.localrnk.com>';
+
+const UNSUBSCRIBE_FOOTER = (email) => `
+  <div style="text-align:center;margin-top:32px;padding-top:20px;border-top:1px solid #e5e7eb;">
+    <p style="color:#9ca3af;font-size:12px;margin:0;">
+      <a href="https://localrank.ai/unsubscribe?email=${encodeURIComponent(email || '')}" style="color:#9ca3af;text-decoration:underline;">Unsubscribe</a>
+      &nbsp;·&nbsp;
+      <a href="mailto:support@localrank.ai" style="color:#9ca3af;text-decoration:underline;">Contact Support</a>
+    </p>
+  </div>`;
+
+async function sendEmail(base44, lead, sequenceKey, subject, html) {
+  if (!RESEND_API_KEY) throw new Error('RESEND_API_KEY not configured');
+
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      from: VERIFIED_FROM,
+      to: lead.email,
+      subject,
+      html,
+      tags: [{ name: 'sequence', value: sequenceKey }, { name: 'funnel', value: 'geenius' }]
+    })
+  });
+
+  if (!res.ok) throw new Error(`Resend ${res.status}: ${await res.text()}`);
+  const data = await res.json();
+
+  base44.asServiceRole.entities.EmailLog.create({
+    to: lead.email, from: VERIFIED_FROM, subject,
+    type: 'nurture', status: 'sent',
+    metadata: { lead_id: lead.id, sequence_key: sequenceKey, resend_id: data.id, funnel: 'geenius' }
+  }).catch(() => {});
+
+  return data.id;
+}
 
 Deno.serve(async (req) => {
   try {
