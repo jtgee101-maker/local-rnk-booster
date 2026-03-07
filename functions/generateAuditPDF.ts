@@ -1,8 +1,7 @@
 import { jsPDF } from 'npm:jspdf@4.0.0';
-import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-Deno.serve(withDenoErrorHandler(async (req) => {
+Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
