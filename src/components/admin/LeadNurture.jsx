@@ -99,7 +99,7 @@ export default function LeadNurture() {
           <Table>
             <TableHeader>
               <TableRow className="border-gray-700">
-                <TableHead className="text-gray-400">Email</TableHead>
+                <TableHead className="text-gray-400">Business / Email</TableHead>
                 <TableHead className="text-gray-400">Sequence</TableHead>
                 <TableHead className="text-gray-400">Progress</TableHead>
                 <TableHead className="text-gray-400">Status</TableHead>
