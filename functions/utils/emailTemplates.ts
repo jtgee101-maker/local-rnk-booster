@@ -3,19 +3,6 @@
  * Centralizes all email HTML generation for consistency and maintainability
  */
 
-const BASE_URL = 'https://localrnk.com';
-
-/**
- * Returns a 1x1 tracking pixel <img> tag that fires the trackEmailOpen function.
- * Pass the resend email ID after send so we can correlate opens to EmailLog records.
- * Usage: append getTrackingPixel(resendId) just before the closing </div> of any email.
- */
-export const getTrackingPixel = (resendId) => {
-  if (!resendId) return '';
-  const trackUrl = `${BASE_URL}/api/functions/nurture/trackEmailOpen?resend_id=${encodeURIComponent(resendId)}&t=${Date.now()}`;
-  return `<img src="${trackUrl}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0;opacity:0;" />`;
-};
-
 export const getEmailStyles = () => ({
   container: 'font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0f; color: #fff; padding: 40px 20px;',
   wrapper: 'background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border: 1px solid #333; border-radius: 16px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);',
