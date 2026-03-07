@@ -354,13 +354,12 @@ export default function QuizGeenius() {
         }
       }).catch(() => {});
       
-      // Show user-friendly error
-      alert('Unable to complete your audit. Please refresh and try again, or contact support if the issue persists.');
-      
-      // Redirect back to start
-      setTimeout(() => {
-        window.location.href = createPageUrl('QuizGeenius');
-      }, 2000);
+      // Show user-friendly error without losing state
+      const { toast } = await import('sonner');
+      toast.error('Unable to submit your audit. Please try again.', {
+        description: 'Your answers have been saved. Click the button below to retry.',
+        duration: 8000
+      });
     }
   };
 
@@ -394,9 +393,15 @@ export default function QuizGeenius() {
     // 4. Engagement (max 12)
     const engagement = 0; // Frontend doesn't have engagement data
     
-    // 5. Penalties (always deduct 8-23 pts)
-    const competitivePenalty = Math.round(5 + Math.random() * 10);
-    const freshnessPenalty = Math.round(3 + Math.random() * 8);
+    // 5. Penalties - deterministic based on place_id/email hash so same business always gets same score
+    const hashSeed = (str) => {
+      let h = 0;
+      for (let i = 0; i < str.length; i++) { h = (Math.imul(31, h) + str.charCodeAt(i)) | 0; }
+      return Math.abs(h);
+    };
+    const seed = hashSeed((data.place_id || data.email || 'default') + (data.business_name || ''));
+    const competitivePenalty = 5 + (seed % 11); // 5-15, deterministic
+    const freshnessPenalty = 3 + ((seed >> 4) % 9); // 3-11, deterministic
     
     // Final Score
     const rawScore = 15 + reviewAuth + visualAuth + completeness + engagement;
