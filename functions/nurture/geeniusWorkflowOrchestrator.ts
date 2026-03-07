@@ -93,14 +93,15 @@ Deno.serve(async (req) => {
         }
 
         if (sequence_key) {
-          base44.asServiceRole.functions.invoke('nurture/geeniusEmailSequences', {
-            lead_id: lead.id || lead_id,
-            sequence_key
-          }).catch(e => console.error(`${sequence_key} send failed:`, e));
+          const leadObj = { id: lead.id || lead_id, email: lead.email, business_name: lead.business_name, health_score: lead.health_score };
+
+          // Re-invoke processScheduledEmails handles these via LeadNurture records
+          // Schedule immediately (0h delay) for the pathway confirmation
+          await scheduleEmail(base44, leadObj, sequence_key, 0);
 
           // Schedule abandoned checkout follow-ups
-          await scheduleEmail(base44, { id: lead.id || lead_id, email: lead.email }, 'checkout_abandoned_1h', 1);
-          await scheduleEmail(base44, { id: lead.id || lead_id, email: lead.email }, 'checkout_abandoned_24h', 24);
+          await scheduleEmail(base44, leadObj, 'checkout_abandoned_1h', 1);
+          await scheduleEmail(base44, leadObj, 'checkout_abandoned_24h', 24);
         }
       }
 
