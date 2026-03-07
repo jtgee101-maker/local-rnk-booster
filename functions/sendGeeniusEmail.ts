@@ -1,7 +1,17 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-Deno.serve(withDenoErrorHandler(async (req) => {
+const VERIFIED_FROM = 'GeeNiusPath Team <noreply@updates.localrnk.com>';
+const UNSUBSCRIBE_FOOTER = `
+  <div style="text-align: center; margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(147, 51, 234, 0.2);">
+    <p style="color: #6b7280; font-size: 12px; margin: 0 0 8px 0;">Questions? Reply to this email or contact <a href="mailto:support@localrank.ai" style="color: #9333ea;">support@localrank.ai</a></p>
+    <p style="color: #6b7280; font-size: 12px; margin: 0;">© ${new Date().getFullYear()} GeeNiusPath. All rights reserved.</p>
+    <p style="color: #6b7280; font-size: 11px; margin: 8px 0 0 0;">
+      <a href="https://localrank.ai/unsubscribe?email={{email}}" style="color: #6b7280; text-decoration: underline;">Unsubscribe</a>
+    </p>
+  </div>
+`;
+
+Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const { leadData, sessionId, utmParams = {}, campaignData = {}, behaviorData = {} } = await req.json();
@@ -15,7 +25,6 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       throw new Error('RESEND_API_KEY not configured');
     }
 
-    // Get production domain
     let productionDomain = 'https://localrank.ai';
     try {
       const domainConfig = await base44.asServiceRole.entities.AppConfig.filter({ 
@@ -29,8 +38,8 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     }
 
     const bridgeUrl = `${productionDomain}/BridgeGeenius?lead_id=${leadData.id}`;
+    const unsubscribeFooter = UNSUBSCRIBE_FOOTER.replace('{{email}}', encodeURIComponent(leadData.email));
 
-    // Email template
     const emailBody = `
       <!DOCTYPE html>
       <html>
@@ -38,16 +47,16 @@ Deno.serve(withDenoErrorHandler(async (req) => {
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
-      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: linear-gradient(135deg, #0a0a0f 0%, #1a0a2e 100%);">
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #0a0a0f;">
         <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
           <div style="text-align: center; margin-bottom: 40px;">
-            <div style="background: linear-gradient(135deg, #9333ea 0%, #ec4899 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 36px; font-weight: bold; margin-bottom: 10px;">
+            <div style="font-size: 36px; font-weight: bold; margin-bottom: 10px; color: #9333ea;">
               ✨ GeeNiusPath
             </div>
             <p style="color: #9ca3af; font-size: 16px; margin: 0;">Your Exclusive Business Growth Pathways</p>
           </div>
 
-          <div style="background: rgba(31, 41, 55, 0.8); border: 1px solid rgba(147, 51, 234, 0.3); border-radius: 16px; padding: 32px; backdrop-filter: blur(10px);">
+          <div style="background: #1f2937; border: 1px solid rgba(147, 51, 234, 0.3); border-radius: 16px; padding: 32px;">
             <h1 style="color: #ffffff; font-size: 24px; margin: 0 0 16px 0; font-weight: bold;">
               Hi ${leadData.business_name ? leadData.business_name + ' Team' : 'there'}! 👋
             </h1>
@@ -57,7 +66,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
             </p>
 
             ${leadData.health_score ? `
-            <div style="background: linear-gradient(135deg, rgba(147, 51, 234, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%); border: 1px solid rgba(147, 51, 234, 0.3); border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: center;">
+            <div style="background: rgba(147, 51, 234, 0.15); border: 1px solid rgba(147, 51, 234, 0.3); border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: center;">
               <div style="color: #9ca3af; font-size: 14px; margin-bottom: 8px;">Your GMB Health Score</div>
               <div style="color: #ffffff; font-size: 48px; font-weight: bold; margin-bottom: 8px;">${leadData.health_score}/100</div>
               <div style="color: #d1d5db; font-size: 14px;">
@@ -72,16 +81,8 @@ Deno.serve(withDenoErrorHandler(async (req) => {
             <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
               <h3 style="color: #ff6b6b; margin: 0 0 16px 0; font-size: 18px;">🚨 Critical Issues Found:</h3>
               ${leadData.critical_issues.slice(0, 3).map(issue => {
-                const issueObj = typeof issue === 'string' ? { issue } : issue;
-                return `
-                  <div style="margin: 12px 0; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px;">
-                    <div style="color: #fff; font-weight: bold; margin-bottom: 6px;">
-                      ${issueObj.tier ? `<span style="color: #ff6b6b;">[${issueObj.tier}]</span> ` : ''}${issueObj.issue}
-                    </div>
-                    ${issueObj.impact ? `<div style="color: #d1d5db; font-size: 13px; margin: 4px 0;">💥 ${issueObj.impact}</div>` : ''}
-                    ${issueObj.revenue_loss ? `<div style="color: #ff6b6b; font-size: 14px; font-weight: bold; margin: 4px 0;">💸 ${issueObj.revenue_loss}</div>` : ''}
-                  </div>
-                `;
+                const text = typeof issue === 'string' ? issue : (issue.issue || JSON.stringify(issue));
+                return `<div style="margin: 8px 0; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; color: #f3f4f6; font-size: 14px;">${text}</div>`;
               }).join('')}
             </div>
             ` : ''}
@@ -103,7 +104,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
             </div>
 
             <div style="text-align: center; margin: 32px 0;">
-              <a href="${bridgeUrl}" style="display: inline-block; background: linear-gradient(135deg, #9333ea 0%, #ec4899 100%); color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 12px; font-weight: bold; font-size: 16px; box-shadow: 0 10px 25px rgba(147, 51, 234, 0.3);">
+              <a href="${bridgeUrl}" style="display: inline-block; background: linear-gradient(135deg, #9333ea 0%, #ec4899 100%); color: #ffffff; text-decoration: none; padding: 16px 32px; border-radius: 12px; font-weight: bold; font-size: 16px;">
                 View My Pathways →
               </a>
             </div>
@@ -119,18 +120,14 @@ Deno.serve(withDenoErrorHandler(async (req) => {
             </div>
           </div>
 
-          <div style="text-align: center; margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(147, 51, 234, 0.2);">
-            <p style="color: #6b7280; font-size: 14px; margin: 0 0 8px 0;">Questions? We're here to help!</p>
-            <p style="color: #6b7280; font-size: 12px; margin: 0;">© ${new Date().getFullYear()} GeeNiusPath. All rights reserved.</p>
-          </div>
+          ${unsubscribeFooter}
         </div>
       </body>
       </html>
     `;
 
-    console.log('Sending via Resend HTTP API directly...', { to: leadData.email });
+    console.log('Sending GeeNius email to:', leadData.email);
     
-    // Call Resend API directly via HTTP - BYPASS npm library
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -138,7 +135,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'GeeNiusPath Team <noreply@updates.localrnk.com>',
+        from: VERIFIED_FROM,
         to: leadData.email,
         subject: `✨ ${leadData.business_name || 'Your'} - Choose Your Exclusive Pathway`,
         html: emailBody
@@ -146,11 +143,21 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     });
 
     const result = await response.json();
-    console.log('Resend HTTP response:', result);
+    console.log('Resend response:', result);
 
     if (!response.ok) {
       throw new Error(`Resend API error: ${result.message || response.statusText}`);
     }
+
+    // Log email (fire and forget)
+    base44.asServiceRole.entities.EmailLog.create({
+      to: leadData.email,
+      from: VERIFIED_FROM,
+      subject: `✨ ${leadData.business_name || 'Your'} - Choose Your Exclusive Pathway`,
+      type: 'welcome',
+      status: 'sent',
+      metadata: { lead_id: leadData.id, resend_id: result.id, funnel: 'geenius', session_id: sessionId }
+    }).catch(() => {});
 
     console.log('✅ GeeNiusEmail sent successfully:', result.id);
 
@@ -158,19 +165,11 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       success: true, 
       email: leadData.email,
       bridge_url: bridgeUrl,
-      messageId: result.id,
-      tracking: {
-        session_id: sessionId,
-        utm: utmParams,
-        campaign: campaignData
-      }
+      messageId: result.id
     });
 
   } catch (error) {
     console.error('SendGeeniusEmail error:', error);
-    return Response.json({ 
-      error: error.message,
-      success: false 
-    }, { status: 500 });
+    return Response.json({ error: error.message, success: false }, { status: 500 });
   }
 });
