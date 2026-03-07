@@ -742,82 +742,10 @@ function FunnelModeSwitcher() {
                   </p>
                 </div>
 
-                {/* GeeNius Pathways Configuration */}
-                <div className="p-4 rounded-xl border border-purple-500/30 bg-purple-500/5">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-purple-400" />
-                      <h4 className="text-sm font-semibold text-white">GeeNius Pathway URLs</h4>
-                    </div>
-                    <Button
-                      onClick={() => setIsEditingGeenius(!isEditingGeenius)}
-                      variant="ghost"
-                      size="sm"
-                      className="text-purple-400 hover:text-purple-300"
-                    >
-                      {isEditingGeenius ? 'Cancel' : 'Edit'}
-                    </Button>
-                  </div>
-                  
-                  {isEditingGeenius ? (
-                    <div className="space-y-3">
-                      <div>
-                        <label className="text-xs text-gray-400 mb-1 block">Pathway #1: Gov Tech Grant</label>
-                        <Input
-                          value={geeniusPathways.pathway1_url}
-                          onChange={(e) => setGeeniusPathways({...geeniusPathways, pathway1_url: e.target.value})}
-                          className="bg-gray-900 border-purple-500/30 text-white font-mono text-sm"
-                          placeholder="https://..."
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs text-gray-400 mb-1 block">Pathway #2: Done For You</label>
-                        <Input
-                          value={geeniusPathways.pathway2_url}
-                          onChange={(e) => setGeeniusPathways({...geeniusPathways, pathway2_url: e.target.value})}
-                          className="bg-gray-900 border-purple-500/30 text-white font-mono text-sm"
-                          placeholder="https://..."
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs text-gray-400 mb-1 block">Pathway #3: DIY Checkout</label>
-                        <Input
-                          value={geeniusPathways.pathway3_checkout_url}
-                          onChange={(e) => setGeeniusPathways({...geeniusPathways, pathway3_checkout_url: e.target.value})}
-                          className="bg-gray-900 border-purple-500/30 text-white font-mono text-sm"
-                          placeholder="https://buy.stripe.com/..."
-                        />
-                      </div>
-                      <Button
-                        onClick={updateGeeniusPathways}
-                        className="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold"
-                        size="sm"
-                      >
-                        <CheckCircle2 className="w-4 h-4 mr-2" />
-                        Save Pathways
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <div className="p-2 bg-gray-900/50 rounded">
-                        <div className="text-xs text-gray-400 mb-1">Pathway #1</div>
-                        <div className="font-mono text-xs text-purple-400 break-all">{geeniusPathways.pathway1_url}</div>
-                      </div>
-                      <div className="p-2 bg-gray-900/50 rounded">
-                        <div className="text-xs text-gray-400 mb-1">Pathway #2</div>
-                        <div className="font-mono text-xs text-purple-400 break-all">{geeniusPathways.pathway2_url}</div>
-                      </div>
-                      <div className="p-2 bg-gray-900/50 rounded">
-                        <div className="text-xs text-gray-400 mb-1">Pathway #3</div>
-                        <div className="font-mono text-xs text-purple-400 break-all">{geeniusPathways.pathway3_checkout_url}</div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
+                </motion.div>
+                )}
 
-            {/* GeeNius Specific Controls */}
+                {/* GeeNius Specific Controls */}
             {currentMode === 'geenius' && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
