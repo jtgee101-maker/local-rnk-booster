@@ -237,6 +237,7 @@ export default function GodModeDashboard() {
   const [tenants, setTenants] = useState(MOCK_TENANTS);
   const [loading, setLoading] = useState(true);
   const [useRealData, setUseRealData] = useState(false);
+  const [kpiStats, setKpiStats] = useState(null);
 
   const handleManageTenant = (tenant) => {
     setSelectedTenantId(tenant.id);
