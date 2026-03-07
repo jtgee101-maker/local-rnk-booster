@@ -278,12 +278,7 @@ export default function GodModeDashboard() {
     return matchesSearch && matchesStatus;
   });
 
-  const stats = [
-    { label: 'Total Tenants', value: tenants.length, color: '#00F2FF' },
-    { label: 'Active', value: tenants.filter(t => t.status === 'active').length, color: '#10b981' },
-    { label: 'Pending', value: tenants.filter(t => t.status === 'pending').length, color: '#f59e0b' },
-    { label: 'Suspended', value: tenants.filter(t => t.status === 'suspended').length, color: '#ef4444' }
-  ];
+
 
   return (
     <div className="min-h-screen bg-black text-white">
