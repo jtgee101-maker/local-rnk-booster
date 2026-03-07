@@ -93,10 +93,24 @@ export default function BridgeGeenius() {
     init();
   }, []);
 
+  const PATHWAY_MAP = {
+    'govtech_grant': 'grant',
+    'done_for_you': 'dfy',
+    'diy_software': 'diy'
+  };
+
   const trackPathwayClick = async (pathway, url) => {
     const timeOnBridge = Math.round((Date.now() - viewStartTime) / 1000);
     
     try {
+      // Write selected_pathway to lead record so orchestrator can reliably detect it
+      if (lead?.id) {
+        await base44.entities.Lead.update(lead.id, {
+          selected_pathway: PATHWAY_MAP[pathway] || pathway,
+          pathway_selected_at: new Date().toISOString()
+        });
+      }
+
       await base44.entities.ConversionEvent.create({
         funnel_version: 'geenius',
         event_name: `pathway_${pathway}_clicked`,
