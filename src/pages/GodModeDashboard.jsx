@@ -245,26 +245,30 @@ export default function GodModeDashboard() {
   };
 
   useEffect(() => {
-    const fetchTenants = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await base44.entities?.Tenant?.list({
-          sort: { field: 'created_at', direction: 'desc' }
-        });
-        
-        if (response && response.length > 0) {
-          setTenants(response);
+        const [tenantsRes, statsRes] = await Promise.allSettled([
+          base44.entities?.Tenant?.list({ sort: { field: 'created_at', direction: 'desc' } }),
+          base44.functions.invoke('admin/getDashboardStats', {})
+        ]);
+
+        if (tenantsRes.status === 'fulfilled' && tenantsRes.value?.length > 0) {
+          setTenants(tenantsRes.value);
           setUseRealData(true);
         }
+        if (statsRes.status === 'fulfilled' && statsRes.value?.data) {
+          setKpiStats(statsRes.value.data);
+        }
       } catch (error) {
-        console.log('Using mock data - entities not deployed yet');
+        console.log('Using mock data:', error.message);
         setUseRealData(false);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTenants();
+    fetchData();
   }, []);
 
   const filteredTenants = tenants.filter(tenant => {
