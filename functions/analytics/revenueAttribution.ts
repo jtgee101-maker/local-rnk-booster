@@ -1,11 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 /**
  * Revenue Attribution
  * Track which sources, campaigns, AB variants generate revenue
  */
-Deno.serve(withDenoErrorHandler(async (req) => {
+Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
@@ -176,7 +176,8 @@ async function attributeByCategory(base44, orders) {
   for (const order of orders) {
     if (!order.lead_id) continue;
 
-    const lead = await base44.asServiceRole.entities.Lead.get(order.lead_id);
+    const leads = await base44.asServiceRole.entities.Lead.filter({ id: order.lead_id });
+    const lead = leads[0];
     const category = lead?.business_category || 'unknown';
 
     if (!attribution[category]) {
