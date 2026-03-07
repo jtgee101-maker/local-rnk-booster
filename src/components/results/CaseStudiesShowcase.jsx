@@ -202,6 +202,16 @@ export default function CaseStudiesShowcase() {
         <p className="text-gray-300 mb-6 max-w-xl mx-auto">
           These businesses aren't special — they just took action. Your competitors are growing right now. Don't get left behind.
         </p>
+        {onViewPathways && (
+          <motion.button
+            onClick={onViewPathways}
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            className="inline-flex items-center gap-3 px-10 py-4 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-lg transition-all shadow-lg shadow-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/50 active:scale-95"
+          >
+            View My Pathways →
+          </motion.button>
+        )}
       </motion.div>
     </div>
   );
