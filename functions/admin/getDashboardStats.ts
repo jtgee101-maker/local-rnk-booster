@@ -46,6 +46,20 @@ Deno.serve(async (req) => {
 
     const recentLeads = leads.filter(l => l.created_date >= oneDayAgo).length;
 
+    // Bridge pathway split
+    const totalBridgeViews = bridgeViews.length;
+    const grantClicks = pathwayClicks.filter(e => e.event_name === 'pathway_govtech_grant_clicked').length;
+    const dfyClicks = pathwayClicks.filter(e => e.event_name === 'pathway_done_for_you_clicked').length;
+    const diyClicks = pathwayClicks.filter(e => e.event_name === 'pathway_diy_software_clicked').length;
+    const totalPathwayClicks = grantClicks + dfyClicks + diyClicks;
+    const bridgeCTR = totalBridgeViews > 0 ? ((totalPathwayClicks / totalBridgeViews) * 100).toFixed(1) : '0';
+
+    // This-month pathway breakdown
+    const thisMonthPathways = pathwayClicks.filter(e => e.created_date >= monthStart);
+    const grantClicksMonth = thisMonthPathways.filter(e => e.event_name === 'pathway_govtech_grant_clicked').length;
+    const dfyClicksMonth = thisMonthPathways.filter(e => e.event_name === 'pathway_done_for_you_clicked').length;
+    const diyClicksMonth = thisMonthPathways.filter(e => e.event_name === 'pathway_diy_software_clicked').length;
+
     return Response.json({
       totalLeads: leads.length,
       leadsThisMonth: thisMonthLeads,
