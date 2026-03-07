@@ -1,12 +1,10 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { adminUpsellNotificationTemplate } from './utils/emailTemplates.js';
-import { logError, handleFunctionError } from './utils/errorLogging.js';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-Deno.serve(withDenoErrorHandler(async (req) => {
+Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const payload = await req.json();
-    
+
     let orderData;
     if (payload.orderData) {
       orderData = payload.orderData;
@@ -19,17 +17,28 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     // Get admin email from AppSettings
     let adminEmail = 'jtgee101@gmail.com';
     try {
-      const settings = await base44.asServiceRole.entities.AppSettings.filter({
-        setting_key: 'admin_email'
-      });
-      if (settings && settings.length > 0 && settings[0].setting_value?.email) {
+      const settings = await base44.asServiceRole.entities.AppSettings.filter({ setting_key: 'admin_email' });
+      if (settings?.[0]?.setting_value?.email) {
         adminEmail = settings[0].setting_value.email;
       }
-    } catch (settingsError) {
-      console.warn('Could not load admin email from AppSettings, using default:', settingsError.message);
+    } catch (e) {
+      console.warn('Could not load admin email from AppSettings');
     }
 
-    const emailBody = adminUpsellNotificationTemplate(orderData);
+    const emailBody = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #c8ff00; background: #0a0a0f; padding: 20px; border-radius: 8px;">💰 New Upsell Conversion</h2>
+        <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-top: 16px;">
+          <p><strong>Email:</strong> ${orderData.email || 'N/A'}</p>
+          <p><strong>Amount:</strong> $${orderData.total_amount || '0'}</p>
+          <p><strong>Order ID:</strong> ${orderData.id || 'N/A'}</p>
+          <p><strong>Time:</strong> ${new Date().toISOString()}</p>
+        </div>
+        <div style="margin-top: 20px; text-align: center;">
+          <a href="https://localrank.ai/AdminControlCenter" style="background: #c8ff00; color: #0a0a0f; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">View in Admin →</a>
+        </div>
+      </div>
+    `;
 
     await base44.asServiceRole.integrations.Core.SendEmail({
       to: adminEmail,
@@ -40,19 +49,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
 
     return Response.json({ success: true, notifiedEmail: adminEmail });
   } catch (error) {
-    const errorInfo = handleFunctionError(error, {
-      functionName: 'sendAdminUpsellNotification',
-      errorType: 'email_failure'
-    });
-
-    await logError(createClientFromRequest(req), {
-      type: 'email_failure',
-      severity: 'high',
-      message: `Failed to send admin upsell notification: ${error.message}`,
-      stackTrace: error.stack,
-      metadata: { function: 'sendAdminUpsellNotification', errorId: errorInfo.logId }
-    }).catch(() => {});
-
-    return Response.json({ error: error.message, errorId: errorInfo.logId }, { status: 500 });
+    console.error('Error sending admin upsell notification:', error);
+    return Response.json({ error: error.message }, { status: 500 });
   }
 });

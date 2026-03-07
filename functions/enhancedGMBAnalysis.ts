@@ -1,33 +1,20 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
-import { logError } from './utils/errorLogging.js';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 /**
  * Enhanced GMB Analysis Function
- * Uses AI agents to provide deep, personalized analysis of GMB performance
- * More robust scoring and comprehensive email insights
  */
-
-Deno.serve(withDenoErrorHandler(async (req) => {
+Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const payload = await req.json();
-    const { leadData } = payload;
+    const { leadData } = await req.json();
 
     if (!leadData) {
       return Response.json({ error: 'Lead data required' }, { status: 400 });
     }
 
-    // Enhanced score calculation with more granular weighting
     const enhancedScore = calculateEnhancedScore(leadData);
-    
-    // AI-powered competitive analysis
     const competitiveInsights = await generateCompetitiveAnalysis(leadData);
-    
-    // Generate AI-enhanced recommendations using agent
     const aiRecommendations = await generateAIRecommendations(leadData, competitiveInsights);
-    
-    // Calculate detailed revenue impact
     const revenueImpact = calculateRevenueImpact(leadData, enhancedScore);
 
     return Response.json({
@@ -41,14 +28,6 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       }
     });
   } catch (error) {
-    await logError(createClientFromRequest(req), {
-      type: 'integration_error',
-      severity: 'high',
-      message: `Enhanced GMB analysis failed: ${error.message}`,
-      stackTrace: error.stack,
-      metadata: { function: 'enhancedGMBAnalysis' }
-    }).catch(() => {});
-
     return Response.json({ error: error.message }, { status: 500 });
   }
 });

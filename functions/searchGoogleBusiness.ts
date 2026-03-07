@@ -1,15 +1,11 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
-
 function sanitizeInput(input) {
   if (typeof input !== 'string') return '';
   // Remove any potentially dangerous characters but keep spaces, letters, numbers, and common punctuation
   return input.trim().slice(0, 200).replace(/[<>{}[\]\\]/g, '');
 }
 
-Deno.serve(withDenoErrorHandler(async (req) => {
+Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
     const body = await req.json();
     const searchQuery = sanitizeInput(body.searchQuery);
 
