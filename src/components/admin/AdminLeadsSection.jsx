@@ -361,6 +361,12 @@ export default function AdminLeadsSection({ expanded = false }) {
                   <TableHead className="text-gray-300 font-semibold">Category</TableHead>
                   <TableHead className="text-gray-300 font-semibold">Score</TableHead>
                   <TableHead className="text-gray-300 font-semibold">Status</TableHead>
+                  <TableHead className="text-gray-300 font-semibold">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4" />
+                      Nurture
+                    </div>
+                  </TableHead>
                   {expanded && (
                     <TableHead className="text-gray-300 font-semibold">
                       <div className="flex items-center gap-2">
