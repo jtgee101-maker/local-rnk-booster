@@ -1,7 +1,10 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-Deno.serve(withDenoErrorHandler(async (req) => {
+/**
+ * Auto-segment all leads into dynamic segments based on criteria.
+ * Admin-only.
+ */
+Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
@@ -10,79 +13,39 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    const allLeads = await base44.asServiceRole.entities.Lead.list();
-    const segments = await base44.asServiceRole.entities.Segment.list();
+    const [allLeads, segments] = await Promise.all([
+      base44.asServiceRole.entities.Lead.list('-created_date', 1000),
+      base44.asServiceRole.entities.Segment.list()
+    ]);
 
+    const dynamicSegments = segments.filter(s => s.type === 'dynamic' && s.is_active !== false);
     const segmentUpdates = [];
 
-    for (const segment of segments.filter(s => s.type === 'dynamic' && s.is_active)) {
+    for (const segment of dynamicSegments) {
       const criteria = segment.criteria || {};
-      const matchingLeads = [];
+      const matchingLeads = allLeads.filter(lead => {
+        if (criteria.min_health_score && (lead.health_score || 0) < criteria.min_health_score) return false;
+        if (criteria.max_health_score && (lead.health_score || 0) > criteria.max_health_score) return false;
+        if (criteria.status && !criteria.status.includes(lead.status)) return false;
+        if (criteria.business_category && !criteria.business_category.includes(lead.business_category)) return false;
+        if (criteria.timeline && !criteria.timeline.includes(lead.timeline)) return false;
+        if (criteria.min_lead_score && (lead.lead_score || 0) < criteria.min_lead_score) return false;
+        return true;
+      }).map(l => l.id);
 
-      for (const lead of allLeads) {
-        let matches = true;
-
-        // Check each criterion
-        if (criteria.min_health_score && lead.health_score < criteria.min_health_score) {
-          matches = false;
-        }
-        if (criteria.max_health_score && lead.health_score > criteria.max_health_score) {
-          matches = false;
-        }
-        if (criteria.status && !criteria.status.includes(lead.status)) {
-          matches = false;
-        }
-        if (criteria.business_category && !criteria.business_category.includes(lead.business_category)) {
-          matches = false;
-        }
-        if (criteria.timeline && !criteria.timeline.includes(lead.timeline)) {
-          matches = false;
-        }
-        if (criteria.min_lead_score && (!lead.lead_score || lead.lead_score < criteria.min_lead_score)) {
-          matches = false;
-        }
-
-        if (matches) {
-          matchingLeads.push(lead.id);
-        }
-      }
-
-      // Update segment
       await base44.asServiceRole.entities.Segment.update(segment.id, {
         lead_ids: matchingLeads,
         member_count: matchingLeads.length,
         last_updated: new Date().toISOString()
       });
 
-      segmentUpdates.push({
-        segment_name: segment.name,
-        member_count: matchingLeads.length
-      });
+      segmentUpdates.push({ segment_name: segment.name, member_count: matchingLeads.length });
     }
 
-    return Response.json({
-      success: true,
-      segments_updated: segmentUpdates.length,
-      updates: segmentUpdates
-    });
+    return Response.json({ success: true, segments_updated: segmentUpdates.length, updates: segmentUpdates });
 
   } catch (error) {
-    console.error('Auto segment leads error:', error);
-    
-    try {
-      const base44 = createClientFromRequest(req);
-      await base44.asServiceRole.entities.ErrorLog.create({
-        error_type: 'system_error',
-        severity: 'medium',
-        message: 'Failed to auto-segment leads',
-        stack_trace: error.stack || error.message,
-        metadata: { endpoint: 'autoSegmentLeads' }
-      });
-    } catch {}
-
-    return Response.json({ 
-      error: 'Failed to auto-segment leads',
-      details: error.message 
-    }, { status: 500 });
+    console.error('autoSegmentLeads error:', error);
+    return Response.json({ error: error.message }, { status: 500 });
   }
 });

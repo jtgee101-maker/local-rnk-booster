@@ -1,7 +1,10 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-Deno.serve(withDenoErrorHandler(async (req) => {
+/**
+ * Calculate a lead quality score (0-100) and grade.
+ * Admin-only. Updates the lead record with score + grade.
+ */
+Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
@@ -10,111 +13,62 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    const body = await req.json();
-    const { lead_id } = body;
+    const { lead_id } = await req.json();
+    if (!lead_id) return Response.json({ error: 'lead_id is required' }, { status: 400 });
 
-    if (!lead_id) {
-      return Response.json({ error: 'lead_id is required' }, { status: 400 });
-    }
-
-    const lead = await base44.asServiceRole.entities.Lead.get(lead_id);
-    if (!lead) {
-      return Response.json({ error: 'Lead not found' }, { status: 404 });
-    }
+    const leads = await base44.asServiceRole.entities.Lead.filter({ id: lead_id });
+    const lead = leads[0];
+    if (!lead) return Response.json({ error: 'Lead not found' }, { status: 404 });
 
     let score = 0;
     const factors = [];
 
-    // Health Score Factor (0-30 points)
+    // Health Score (0-30 pts)
     if (lead.health_score !== undefined) {
-      const healthPoints = Math.round((lead.health_score / 100) * 30);
-      score += healthPoints;
-      factors.push({ factor: 'GMB Health Score', points: healthPoints, max: 30 });
+      const pts = Math.round((lead.health_score / 100) * 30);
+      score += pts;
+      factors.push({ factor: 'GMB Health Score', points: pts, max: 30 });
     }
 
-    // Business Category (0-15 points)
+    // Business Category (0-15 pts)
     const highValueCategories = ['medical', 'professional', 'home_services'];
-    if (highValueCategories.includes(lead.business_category)) {
-      score += 15;
-      factors.push({ factor: 'High-Value Category', points: 15, max: 15 });
-    } else if (lead.business_category) {
-      score += 8;
-      factors.push({ factor: 'Standard Category', points: 8, max: 15 });
-    }
+    const categoryPts = highValueCategories.includes(lead.business_category) ? 15 : lead.business_category ? 8 : 0;
+    score += categoryPts;
+    if (categoryPts > 0) factors.push({ factor: 'Business Category', points: categoryPts, max: 15 });
 
-    // Timeline Urgency (0-20 points)
-    const timelinePoints = {
-      urgent: 20,
-      '30_days': 15,
-      '60_days': 10,
-      planning: 5
-    };
-    const timelineScore = timelinePoints[lead.timeline] || 0;
-    score += timelineScore;
-    factors.push({ factor: 'Timeline Urgency', points: timelineScore, max: 20 });
+    // Timeline Urgency (0-20 pts)
+    const timelinePts = { urgent: 20, '30_days': 15, '60_days': 10, planning: 5 }[lead.timeline] || 0;
+    score += timelinePts;
+    factors.push({ factor: 'Timeline Urgency', points: timelinePts, max: 20 });
 
-    // Reviews & Rating (0-15 points)
+    // Reviews & Rating (0-15 pts)
     if (lead.gmb_rating && lead.gmb_reviews_count) {
-      const ratingPoints = Math.round((lead.gmb_rating / 5) * 10);
-      const reviewPoints = lead.gmb_reviews_count > 50 ? 5 : lead.gmb_reviews_count > 20 ? 3 : 1;
-      const reviewScore = ratingPoints + reviewPoints;
+      const ratingPts = Math.round((lead.gmb_rating / 5) * 10);
+      const reviewPts = lead.gmb_reviews_count > 50 ? 5 : lead.gmb_reviews_count > 20 ? 3 : 1;
+      const reviewScore = ratingPts + reviewPts;
       score += reviewScore;
       factors.push({ factor: 'Reviews & Rating', points: reviewScore, max: 15 });
     }
 
-    // Engagement (0-20 points)
-    const userBehavior = await base44.asServiceRole.entities.UserBehavior.filter({ 
-      email: lead.email 
-    });
-    
-    if (userBehavior.length > 0) {
-      const behavior = userBehavior[0];
-      const engagementScore = Math.min(20, Math.round((behavior.engagement_score || 0) / 5));
-      score += engagementScore;
-      factors.push({ factor: 'User Engagement', points: engagementScore, max: 20 });
-    }
+    // Engagement from UserBehavior (0-20 pts)
+    try {
+      const behaviors = await base44.asServiceRole.entities.UserBehavior.filter({ email: lead.email });
+      if (behaviors.length > 0) {
+        const engagementPts = Math.min(20, Math.round((behaviors[0].engagement_score || 0) / 5));
+        score += engagementPts;
+        factors.push({ factor: 'User Engagement', points: engagementPts, max: 20 });
+      }
+    } catch (_) { /* UserBehavior optional */ }
 
-    // Normalize to 0-100
     score = Math.min(100, score);
+    const grade = score >= 80 ? 'A' : score >= 60 ? 'B' : score >= 40 ? 'C' : 'D';
 
-    // Determine grade
-    let grade = 'D';
-    if (score >= 80) grade = 'A';
-    else if (score >= 60) grade = 'B';
-    else if (score >= 40) grade = 'C';
+    await base44.asServiceRole.entities.Lead.update(lead_id, { lead_score: score, lead_grade: grade });
 
-    // Update lead with score
-    await base44.asServiceRole.entities.Lead.update(lead_id, {
-      lead_score: score,
-      lead_grade: grade,
-      score_calculated_at: new Date().toISOString()
-    });
-
-    return Response.json({
-      success: true,
-      lead_id,
-      score,
-      grade,
-      factors
-    });
+    return Response.json({ success: true, lead_id, score, grade, factors });
 
   } catch (error) {
-    console.error('Calculate lead score error:', error);
-    
-    try {
-      const base44 = createClientFromRequest(req);
-      await base44.asServiceRole.entities.ErrorLog.create({
-        error_type: 'system_error',
-        severity: 'medium',
-        message: 'Failed to calculate lead score',
-        stack_trace: error.stack || error.message,
-        metadata: { endpoint: 'calculateLeadScore' }
-      });
-    } catch {}
-
-    return Response.json({ 
-      error: 'Failed to calculate lead score',
-      details: error.message 
-    }, { status: 500 });
+    console.error('calculateLeadScore error:', error);
+    return Response.json({ error: error.message }, { status: 500 });
   }
 });
