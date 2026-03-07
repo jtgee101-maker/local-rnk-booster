@@ -72,6 +72,16 @@ Deno.serve(async (req) => {
       convertedLeads,
       criticalErrors,
       recentLeads,
+      bridge: {
+        totalViews: totalBridgeViews,
+        totalClicks: totalPathwayClicks,
+        ctr: `${bridgeCTR}%`,
+        pathways: {
+          grant: { total: grantClicks, thisMonth: grantClicksMonth, pct: totalPathwayClicks > 0 ? ((grantClicks / totalPathwayClicks) * 100).toFixed(1) : '0' },
+          dfy:   { total: dfyClicks,   thisMonth: dfyClicksMonth,   pct: totalPathwayClicks > 0 ? ((dfyClicks   / totalPathwayClicks) * 100).toFixed(1) : '0' },
+          diy:   { total: diyClicks,   thisMonth: diyClicksMonth,   pct: totalPathwayClicks > 0 ? ((diyClicks   / totalPathwayClicks) * 100).toFixed(1) : '0' }
+        }
+      },
       lastUpdated: new Date().toISOString()
     });
 
