@@ -1,7 +1,6 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-Deno.serve(withDenoErrorHandler(async (req) => {
+Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
@@ -10,22 +9,17 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    const body = await req.json();
-    const { order_id } = body;
+    const { order_id } = await req.json();
+    if (!order_id) return Response.json({ error: 'order_id is required' }, { status: 400 });
 
-    if (!order_id) {
-      return Response.json({ error: 'order_id is required' }, { status: 400 });
-    }
-
-    const order = await base44.asServiceRole.entities.Order.get(order_id);
-    if (!order) {
-      return Response.json({ error: 'Order not found' }, { status: 404 });
-    }
+    const orders = await base44.asServiceRole.entities.Order.filter({ id: order_id });
+    const order = orders[0];
+    if (!order) return Response.json({ error: 'Order not found' }, { status: 404 });
 
     let churnScore = 0;
     const riskFactors = [];
 
-    // Factor 1: Order Age (older orders = higher risk)
+    // Factor 1: Order Age
     const daysSinceOrder = (Date.now() - new Date(order.created_date).getTime()) / (1000 * 60 * 60 * 24);
     if (daysSinceOrder > 90) {
       churnScore += 30;
@@ -41,10 +35,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       created_date: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString() }
     });
 
-    const openRate = emailLogs.length > 0
-      ? emailLogs.filter(e => e.open_count > 0).length / emailLogs.length
-      : 0;
-
+    const openRate = emailLogs.length > 0 ? emailLogs.filter(e => e.open_count > 0).length / emailLogs.length : 0;
     if (openRate < 0.1 && emailLogs.length > 3) {
       churnScore += 25;
       riskFactors.push({ factor: 'Very low email engagement (<10%)', impact: 'high' });
@@ -53,7 +44,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       riskFactors.push({ factor: 'Low email engagement (<30%)', impact: 'medium' });
     }
 
-    // Factor 3: Order Value (lower value = higher churn risk)
+    // Factor 3: Order Value
     if (order.total_amount < 100) {
       churnScore += 15;
       riskFactors.push({ factor: 'Low order value (<$100)', impact: 'medium' });
@@ -64,7 +55,6 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       'metadata.order_id': order_id,
       severity: { $in: ['high', 'critical'] }
     });
-
     if (errorLogs.length > 0) {
       churnScore += 20;
       riskFactors.push({ factor: `${errorLogs.length} support issue(s)`, impact: 'high' });
@@ -76,14 +66,8 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       riskFactors.push({ factor: 'Order was refunded', impact: 'critical' });
     }
 
-    // Normalize to 0-100
     churnScore = Math.min(100, churnScore);
-
-    // Determine risk level
-    let riskLevel = 'low';
-    if (churnScore >= 70) riskLevel = 'critical';
-    else if (churnScore >= 50) riskLevel = 'high';
-    else if (churnScore >= 30) riskLevel = 'medium';
+    const riskLevel = churnScore >= 70 ? 'critical' : churnScore >= 50 ? 'high' : churnScore >= 30 ? 'medium' : 'low';
 
     return Response.json({
       success: true,
@@ -92,28 +76,13 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       churn_score: churnScore,
       risk_level: riskLevel,
       risk_factors: riskFactors,
-      recommendations: churnScore >= 50 
+      recommendations: churnScore >= 50
         ? ['Send re-engagement email', 'Offer exclusive discount', 'Schedule check-in call']
         : ['Continue normal nurture sequence']
     });
 
   } catch (error) {
     console.error('Predict churn error:', error);
-    
-    try {
-      const base44 = createClientFromRequest(req);
-      await base44.asServiceRole.entities.ErrorLog.create({
-        error_type: 'system_error',
-        severity: 'medium',
-        message: 'Failed to predict churn risk',
-        stack_trace: error.stack || error.message,
-        metadata: { endpoint: 'predictChurnRisk' }
-      });
-    } catch {}
-
-    return Response.json({ 
-      error: 'Failed to predict churn risk',
-      details: error.message 
-    }, { status: 500 });
+    return Response.json({ error: error.message }, { status: 500 });
   }
 });
