@@ -45,12 +45,17 @@ export default function AIInsightsCard({ leadId }) {
         lead_id: leadId,
         report_type: 'weekly'
       });
+
+      if (response.data?.error) {
+        toast.error(response.data.message || response.data.error);
+        return;
+      }
       
       toast.success('AI insights generated!');
       loadLatestInsight();
     } catch (error) {
       console.error('Error generating insights:', error);
-      toast.error(error.message || 'Failed to generate insights');
+      toast.error('Need at least 2 metric snapshots to generate insights');
     } finally {
       setGenerating(false);
     }
