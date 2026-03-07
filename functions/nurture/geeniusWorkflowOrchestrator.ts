@@ -140,7 +140,9 @@ Deno.serve(async (req) => {
 
 async function scheduleEmail(base44, lead, sequence_key, delay_hours) {
   try {
-    const next_email_date = new Date(Date.now() + delay_hours * 60 * 60 * 1000).toISOString();
+    // For 0h delay, set 1 minute in the future so processScheduledEmails picks it up immediately
+    const delayMs = delay_hours > 0 ? delay_hours * 60 * 60 * 1000 : 60 * 1000;
+    const next_email_date = new Date(Date.now() + delayMs).toISOString();
 
     const existing = await base44.asServiceRole.entities.LeadNurture.filter({
       lead_id: lead.id,
