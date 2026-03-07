@@ -7,6 +7,8 @@ import HealthScoreReveal from '@/components/results/HealthScoreReveal';
 import GuidedInsights from '@/components/results/GuidedInsights';
 import VideoAskEmbed from '@/components/results/VideoAskEmbed';
 import CaseStudiesShowcase from '@/components/results/CaseStudiesShowcase';
+import UrgencyBanner from '@/components/results/UrgencyBanner';
+import FinalCTA from '@/components/results/FinalCTA';
 
 export default function ResultsGeenius() {
   const [lead, setLead] = useState(null);
