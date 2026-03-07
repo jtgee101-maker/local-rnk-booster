@@ -447,6 +447,36 @@ export default function AdminLeadsSection({ expanded = false }) {
                             </Button>
                           </div>
                         </TableCell>
+                        <TableCell onClick={(e) => e.stopPropagation()}>
+                          {(() => {
+                            const stage = getNurtureStage(lead.id);
+                            if (!stage) return <span className="text-gray-600 text-xs">—</span>;
+                            return (
+                              <div className="space-y-1 min-w-[110px]">
+                                <div className="flex items-center justify-between gap-1">
+                                  <span className="text-xs text-gray-300 truncate max-w-[80px]" title={stage.seqLabel}>
+                                    {stage.seqLabel}
+                                  </span>
+                                  <span className="text-xs text-[#c8ff00] font-semibold whitespace-nowrap">
+                                    {stage.step}/{stage.total}
+                                  </span>
+                                </div>
+                                <div className="w-full bg-gray-700 rounded-full h-1.5">
+                                  <div
+                                    className="bg-[#c8ff00] h-1.5 rounded-full transition-all"
+                                    style={{ width: `${stage.pct}%` }}
+                                  />
+                                </div>
+                                {stage.nextDate && (
+                                  <div className="text-xs text-gray-500 flex items-center gap-1">
+                                    <Clock className="w-3 h-3" />
+                                    {new Date(stage.nextDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })()}
+                        </TableCell>
                         {expanded && (
                           <TableCell className="text-gray-400 text-sm">
                             {new Date(lead.created_date).toLocaleDateString('en-US', {
