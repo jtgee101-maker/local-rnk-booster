@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, Download, TrendingUp, Users, Mail, 
   Building2, Calendar, RefreshCw, AlertCircle,
-  CheckCircle2, Clock, XCircle, Loader2, Target
+  CheckCircle2, Clock, XCircle, Loader2, Target, Zap
 } from 'lucide-react';
 import EnhancedLeadDetailModal from './EnhancedLeadDetailModal';
 import ActionPlanViewer from './ActionPlanViewer';
@@ -31,6 +31,20 @@ export default function AdminLeadsSection({ expanded = false }) {
     staleTime: 20000,
     gcTime: 180000,
   });
+
+  const { data: nurtures = [] } = useQuery({
+    queryKey: ['admin-nurtures-map'],
+    queryFn: () => base44.entities.LeadNurture.filter({ status: 'active' }, '-updated_date', 500),
+    staleTime: 30000,
+  });
+
+  // Build a quick lookup: lead_id -> active nurture record
+  const nurtureByLeadId = React.useMemo(() => {
+    return nurtures.reduce((acc, n) => {
+      if (n.lead_id && !acc[n.lead_id]) acc[n.lead_id] = n;
+      return acc;
+    }, {});
+  }, [nurtures]);
 
   // Filter logic
   const filteredLeads = leads.filter(lead => {
