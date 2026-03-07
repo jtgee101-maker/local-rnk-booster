@@ -54,15 +54,22 @@ Deno.serve(async (req) => {
       const lead = data || (lead_id ? await base44.asServiceRole.entities.Lead.filter({ id: lead_id }).then(r => r[0]) : null);
 
       if (lead && lead.email) {
-        // Send immediate confirmation (fire and forget)
-        base44.asServiceRole.functions.invoke('nurture/geeniusEmailSequences', {
-          lead_id: lead.id || lead_id,
-          sequence_key: 'audit_submitted'
-        }).catch(e => console.error('audit_submitted send failed:', e));
+        const leadObj = { id: lead.id || lead_id, email: lead.email, business_name: lead.business_name, health_score: lead.health_score };
+
+        // Send immediate confirmation inline (avoids service-role 403)
+        sendEmail(base44, leadObj, 'audit_submitted',
+          'Your GMB Audit is Being Analyzed ✅',
+          `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;">
+            <h2 style="color:#7c3aed;">Thank you, ${leadObj.business_name || 'there'}!</h2>
+            <p>We've received your audit for <strong>${leadObj.business_name}</strong>. Our AI is analyzing your Google My Business profile now.</p>
+            <p style="margin:24px 0;"><a href="https://localrank.ai/ResultsGeenius?lead_id=${leadObj.id}" style="background:#7c3aed;color:#fff;padding:14px 28px;text-decoration:none;border-radius:6px;font-weight:bold;display:inline-block;">View Your Results →</a></p>
+            ${UNSUBSCRIBE_FOOTER(leadObj.email)}
+          </div>`
+        ).catch(e => console.error('audit_submitted send failed:', e.message));
 
         // Schedule follow-up nudges
-        await scheduleEmail(base44, { id: lead.id || lead_id, email: lead.email }, 'pathway_selection_nudge_2h', 2);
-        await scheduleEmail(base44, { id: lead.id || lead_id, email: lead.email }, 'pathway_selection_urgent_12h', 12);
+        await scheduleEmail(base44, leadObj, 'pathway_selection_nudge_2h', 2);
+        await scheduleEmail(base44, leadObj, 'pathway_selection_urgent_12h', 12);
       }
 
       return Response.json({ success: true, event: 'lead_created_workflow_started', lead_id });
