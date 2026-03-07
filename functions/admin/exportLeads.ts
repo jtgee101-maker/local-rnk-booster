@@ -1,7 +1,6 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-Deno.serve(withDenoErrorHandler(async (req) => {
+Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
@@ -12,8 +11,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
 
     const leads = await base44.asServiceRole.entities.Lead.list('-created_date', 10000);
 
-    // Convert to CSV
-    const headers = ['ID', 'Business Name', 'Email', 'Phone', 'Category', 'Pain Point', 'Timeline', 'Health Score', 'Rating', 'Reviews', 'Created Date'];
+    const headers = ['ID', 'Business Name', 'Email', 'Phone', 'Category', 'Pain Point', 'Timeline', 'Health Score', 'Lead Score', 'Lead Grade', 'Rating', 'Reviews', 'Status', 'Created Date'];
     const rows = leads.map(lead => [
       lead.id,
       lead.business_name || '',
@@ -23,12 +21,15 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       lead.pain_point || '',
       lead.timeline || '',
       lead.health_score || '',
+      lead.lead_score || '',
+      lead.lead_grade || '',
       lead.gmb_rating || '',
       lead.gmb_reviews_count || '',
+      lead.status || '',
       new Date(lead.created_date).toISOString()
     ]);
 
-    const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+    const csv = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
 
     return new Response(csv, {
       status: 200,

@@ -1,11 +1,10 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 /**
  * Re-engagement Campaign for Inactive Leads
  * 30, 60, 90 day sequences
  */
-Deno.serve(withDenoErrorHandler(async (req) => {
+Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const { daysSince = 30 } = await req.json();

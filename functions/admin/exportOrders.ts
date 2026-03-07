@@ -1,7 +1,6 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-Deno.serve(withDenoErrorHandler(async (req) => {
+Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
@@ -12,7 +11,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
 
     const orders = await base44.asServiceRole.entities.Order.list('-created_date', 10000);
 
-    const headers = ['ID', 'Email', 'Product', 'Total Amount', 'Status', 'Stripe Session ID', 'Created Date'];
+    const headers = ['ID', 'Email', 'Product', 'Total Amount', 'Status', 'Stripe Session ID', 'Stripe Payment Intent', 'Refund ID', 'Refund Amount', 'Created Date'];
     const rows = orders.map(order => [
       order.id,
       order.email,
@@ -20,10 +19,13 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       order.total_amount || 0,
       order.status,
       order.stripe_session_id || '',
+      order.stripe_payment_intent || '',
+      order.refund_id || '',
+      order.refund_amount || '',
       new Date(order.created_date).toISOString()
     ]);
 
-    const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+    const csv = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
 
     return new Response(csv, {
       status: 200,

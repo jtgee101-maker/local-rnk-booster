@@ -1,9 +1,7 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError } from './utils/errorHandler';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 import Stripe from 'npm:stripe';
-import { isStripeTestMode, mockRefund } from './utils/stripeTestRelay.js';
 
-Deno.serve(withDenoErrorHandler(async (req) => {
+Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
@@ -13,48 +11,38 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     }
 
     const { orderId, amount, reason } = await req.json();
+    if (!orderId) return Response.json({ error: 'Order ID required' }, { status: 400 });
 
-    if (!orderId) {
-      return Response.json({ error: 'Order ID required' }, { status: 400 });
-    }
-
-    // Get order
-    const order = await base44.asServiceRole.entities.Order.filter({ id: orderId });
-    if (!order || order.length === 0) {
+    const orders = await base44.asServiceRole.entities.Order.filter({ id: orderId });
+    if (!orders || orders.length === 0) {
       return Response.json({ error: 'Order not found' }, { status: 404 });
     }
 
-    const orderData = order[0];
+    const orderData = orders[0];
+    const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
+    const isTestMode = !stripeKey || stripeKey.startsWith('sk_test_');
 
-    // TEST MODE RELAY
-    const isTestMode = isStripeTestMode();
     let refundData;
 
     if (isTestMode) {
-      // MOCK REFUND - No Stripe API calls
-      refundData = mockRefund(orderId, amount || orderData.total_amount);
+      // Mock refund - no Stripe API call needed
+      refundData = {
+        id: `re_test_${Date.now()}`,
+        amount: amount || orderData.total_amount,
+        status: 'succeeded',
+        test_mode: true
+      };
+      console.log(`[TEST MODE] Mock refund for order ${orderId}, amount: ${refundData.amount}`);
     } else {
-      // PRODUCTION MODE - Real Stripe API call
-      const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
-      const stripe = new Stripe(stripeKey, {
-        apiVersion: '2023-10-16',
-      });
-
+      const stripe = new Stripe(stripeKey, { apiVersion: '2023-10-16' });
       const refund = await stripe.refunds.create({
         payment_intent: orderData.stripe_payment_intent,
         amount: amount ? Math.round(amount * 100) : undefined,
         reason: reason || 'requested_by_customer'
       });
-
-      refundData = {
-        id: refund.id,
-        amount: refund.amount / 100,
-        status: refund.status,
-        test_mode: false
-      };
+      refundData = { id: refund.id, amount: refund.amount / 100, status: refund.status, test_mode: false };
     }
 
-    // Update order status
     await base44.asServiceRole.entities.Order.update(orderId, {
       status: 'refunded',
       refund_id: refundData.id,
@@ -62,11 +50,10 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       refund_date: new Date().toISOString()
     });
 
-    return Response.json({ 
-      success: true, 
-      refund: refundData
-    });
+    return Response.json({ success: true, refund: refundData });
+
   } catch (error) {
+    console.error('processRefund error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
