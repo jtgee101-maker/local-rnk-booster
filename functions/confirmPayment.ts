@@ -1,21 +1,16 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
-import Stripe from 'npm:stripe@17.5.0';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-Deno.serve(withDenoErrorHandler(async (req) => {
+Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    
     const { paymentIntentId, leadData, planData, orderBumpAccepted } = await req.json();
 
-    if (!paymentIntentId) {
-      return Response.json({ error: 'Payment intent ID required' }, { status: 400 });
-    }
+    if (!paymentIntentId) return Response.json({ error: 'Payment intent ID required' }, { status: 400 });
 
-    // MOCK MODE - SIMULATE SUCCESSFUL PAYMENT
+    // MOCK MODE - simulate successful payment
     const mockAmount = (planData?.price || 99) + (orderBumpAccepted ? 49 : 0);
-    
-    const orderData = {
+
+    const createdOrder = await base44.asServiceRole.entities.Order.create({
       lead_id: leadData?.id || null,
       email: leadData?.email,
       stripe_payment_intent: paymentIntentId,
@@ -25,16 +20,9 @@ Deno.serve(withDenoErrorHandler(async (req) => {
         product: planData?.product || 'GMB Optimization & Audit',
         price: planData?.price || 99
       },
-      order_bumps: orderBumpAccepted ? [{
-        product: '5 Geo-Tagged Photos',
-        price: 49,
-        selected: true
-      }] : []
-    };
+      order_bumps: orderBumpAccepted ? [{ product: '5 Geo-Tagged Photos', price: 49, selected: true }] : []
+    });
 
-    const createdOrder = await base44.asServiceRole.entities.Order.create(orderData);
-
-    // Send order confirmation email
     try {
       await base44.asServiceRole.functions.invoke('sendOrderConfirmation', {
         email: leadData?.email,
@@ -46,10 +34,7 @@ Deno.serve(withDenoErrorHandler(async (req) => {
       console.error('Failed to send confirmation email:', emailError);
     }
 
-    return Response.json({ 
-      success: true,
-      orderId: createdOrder.id 
-    });
+    return Response.json({ success: true, orderId: createdOrder.id });
   } catch (error) {
     console.error('Payment confirmation error:', error);
     return Response.json({ error: error.message }, { status: 500 });
