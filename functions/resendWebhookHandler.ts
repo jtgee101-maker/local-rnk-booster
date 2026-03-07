@@ -1,18 +1,25 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { withDenoErrorHandler, FunctionError } from '../utils/errorHandler';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-Deno.serve(withDenoErrorHandler(async (req) => {
+const STATUS_MAP = {
+  'email.sent': 'sent',
+  'email.delivered': 'sent',
+  'email.delivery_delayed': 'sent',
+  'email.bounced': 'bounced',
+  'email.complained': 'bounced',
+  'email.opened': 'opened',
+  'email.clicked': 'opened'
+};
+
+Deno.serve(async (req) => {
   try {
-    // Only accept POST
     if (req.method !== 'POST') {
       return Response.json({ error: 'POST only' }, { status: 405 });
     }
 
-    // Validate webhook signature
+    const webhookSecret = Deno.env.get('RESEND_WEBHOOK_SECRET');
     const signature = req.headers.get('svix-signature');
     const timestamp = req.headers.get('svix-timestamp');
     const msgId = req.headers.get('svix-msg-id');
-    const webhookSecret = Deno.env.get('RESEND_WEBHOOK_SECRET');
 
     if (!signature || !timestamp || !msgId || !webhookSecret) {
       console.warn('Missing webhook headers');
@@ -23,103 +30,78 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     const bodyText = await req.text();
     const payload = JSON.parse(bodyText);
 
-    // Verify signature: svix-id.timestamp.signature
+    // Verify Svix HMAC signature
     const signedContent = `${msgId}.${timestamp}.${bodyText}`;
     const encoder = new TextEncoder();
-    const signatureBytes = encoder.encode(signature.split(' ')[1]);
+    const secretBytes = encoder.encode(webhookSecret);
     const contentBytes = encoder.encode(signedContent);
-    const keyBytes = encoder.encode(webhookSecret);
 
-    const key = await crypto.subtle.importKey('raw', keyBytes, { name: 'HMAC', hash: 'SHA-256' }, false, ['verify']);
-    const isValid = await crypto.subtle.verify('HMAC', key, signatureBytes, contentBytes);
+    const key = await crypto.subtle.importKey('raw', secretBytes, { name: 'HMAC', hash: 'SHA-256' }, false, ['verify']);
+    const sigPart = signature.split(',').map(s => s.trim()).find(s => s.startsWith('v1,'))?.replace('v1,', '') || signature.split(' ')[1] || '';
+    const sigBytes = Uint8Array.from(atob(sigPart), c => c.charCodeAt(0));
+    const isValid = await crypto.subtle.verify('HMAC', key, sigBytes, contentBytes);
 
     if (!isValid) {
       console.warn('Invalid webhook signature');
       return Response.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
-    console.log('=== RESEND WEBHOOK EVENT ===');
-    console.log('Event Type:', payload.type);
-    console.log('Full Payload:', JSON.stringify(payload, null, 2));
-
-    // Log webhook event
+    const eventType = payload.type;
     const resendEmailId = payload.data?.email_id;
-    // Try matching on resend_id (used by geenius sequences) or legacy message_id
-    const existingLogs = await base44.asServiceRole.entities.EmailLog.filter({ 
-      metadata: { resend_id: resendEmailId } 
-    }).catch(() => []);
-    const fallbackLogs = existingLogs.length === 0
-      ? await base44.asServiceRole.entities.EmailLog.filter({ metadata: { message_id: resendEmailId } }).catch(() => [])
-      : [];
-    const matchedLogs = [...existingLogs, ...fallbackLogs];
 
-    const openCount = payload.type === 'email.opened' ? 1 : undefined;
+    console.log(`Resend webhook: ${eventType} | id: ${resendEmailId}`);
 
-    await Promise.resolve(matchedLogs).then(async logs => {
-      if (logs.length > 0) {
-        const log = logs[0];
-        const updateData = {
-          status: mapEventToStatus(payload.type),
-          metadata: {
-            ...log.metadata,
-            webhook_event: payload.type,
-            webhook_received_at: new Date().toISOString(),
-            resend_event_timestamp: payload.created_at
-          }
-        };
-        if (payload.type === 'email.opened') {
-          updateData.open_count = (log.open_count || 0) + 1;
-          if (!log.first_opened_at) updateData.first_opened_at = new Date().toISOString();
+    // Match EmailLog by resend_id (primary) or message_id (legacy)
+    let matchedLog = null;
+    const byResendId = await base44.asServiceRole.entities.EmailLog.filter({ metadata: { resend_id: resendEmailId } }).catch(() => []);
+    if (byResendId.length > 0) {
+      matchedLog = byResendId[0];
+    } else {
+      const byMsgId = await base44.asServiceRole.entities.EmailLog.filter({ metadata: { message_id: resendEmailId } }).catch(() => []);
+      if (byMsgId.length > 0) matchedLog = byMsgId[0];
+    }
+
+    if (matchedLog) {
+      const update = {
+        status: STATUS_MAP[eventType] || matchedLog.status,
+        metadata: {
+          ...matchedLog.metadata,
+          last_webhook_event: eventType,
+          last_webhook_at: new Date().toISOString()
         }
-        if (payload.type === 'email.clicked') {
-          updateData.click_count = (log.click_count || 0) + 1;
-          if (!log.first_clicked_at) updateData.first_clicked_at = new Date().toISOString();
-        }
-        await base44.asServiceRole.entities.EmailLog.update(log.id, updateData)
-          .catch(err => console.error('Failed to update log:', err));
-      } else {
-        // Create new log for webhook event
-        await base44.asServiceRole.entities.EmailLog.create({
-          to: payload.data?.to || 'unknown',
-          from: 'Resend Webhook',
-          subject: `Webhook: ${payload.type}`,
-          type: 'webhook_event',
-          status: mapEventToStatus(payload.type),
-          metadata: {
-            message_id: payload.data?.email_id,
-            event_type: payload.type,
-            webhook_received_at: new Date().toISOString(),
-            full_event: payload
-          }
-        }).catch(err => console.error('Failed to create log:', err));
+      };
+
+      if (eventType === 'email.opened') {
+        update.open_count = (matchedLog.open_count || 0) + 1;
+        if (!matchedLog.first_opened_at) update.first_opened_at = new Date().toISOString();
       }
-    }).catch(err => console.error('Filter error:', err));
+      if (eventType === 'email.clicked') {
+        update.click_count = (matchedLog.click_count || 0) + 1;
+        if (!matchedLog.first_clicked_at) update.first_clicked_at = new Date().toISOString();
+      }
+      if (eventType === 'email.bounced') {
+        update.bounce_type = 'hard';
+        update.bounced_at = new Date().toISOString();
+      }
 
-    console.log('✅ Webhook event logged');
+      await base44.asServiceRole.entities.EmailLog.update(matchedLog.id, update).catch(console.error);
+      console.log(`Updated EmailLog ${matchedLog.id} for event ${eventType}`);
+    } else {
+      // No matching log — create a record for visibility
+      await base44.asServiceRole.entities.EmailLog.create({
+        to: payload.data?.to?.[0] || payload.data?.to || 'unknown',
+        from: 'resend-webhook',
+        subject: `[webhook] ${eventType}`,
+        type: 'other',
+        status: STATUS_MAP[eventType] || 'sent',
+        metadata: { resend_id: resendEmailId, event_type: eventType, webhook_received_at: new Date().toISOString() }
+      }).catch(console.error);
+    }
 
-    return Response.json({ 
-      success: true,
-      received: payload.type,
-      messageId: payload.data?.email_id
-    });
+    return Response.json({ success: true, received: eventType, resend_id: resendEmailId });
 
   } catch (error) {
-    console.error('Webhook handler error:', error);
-    return Response.json({
-      error: error.message
-    }, { status: 500 });
+    console.error('resendWebhookHandler error:', error);
+    return Response.json({ error: error.message }, { status: 500 });
   }
 });
-
-function mapEventToStatus(eventType) {
-  const mapping = {
-    'email.sent': 'sent',
-    'email.delivered': 'delivered',
-    'email.delivery_delayed': 'delayed',
-    'email.bounced': 'bounced',
-    'email.complained': 'complained',
-    'email.opened': 'opened',
-    'email.clicked': 'clicked'
-  };
-  return mapping[eventType] || 'webhook_received';
-}
