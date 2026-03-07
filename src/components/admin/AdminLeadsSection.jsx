@@ -380,16 +380,16 @@ export default function AdminLeadsSection({ expanded = false }) {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={expanded ? 6 : 5} className="text-center py-12">
+                    <TableCell colSpan={expanded ? 7 : 6} className="text-center py-12">
                       <div className="flex flex-col items-center gap-3">
                         <Loader2 className="w-6 h-6 text-[#c8ff00] animate-spin" />
                         <p className="text-sm text-gray-400">Loading leads...</p>
                       </div>
                     </TableCell>
-                  </TableRow>
-                ) : filteredLeads.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={expanded ? 6 : 5} className="text-center py-12">
+                    </TableRow>
+                    ) : filteredLeads.length === 0 ? (
+                    <TableRow>
+                    <TableCell colSpan={expanded ? 7 : 6} className="text-center py-12">
                       <div className="flex flex-col items-center gap-3">
                         <AlertCircle className="w-8 h-8 text-gray-600" />
                         <p className="text-sm text-gray-400">No leads found</p>
