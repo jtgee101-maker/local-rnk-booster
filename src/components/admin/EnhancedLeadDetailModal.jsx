@@ -410,8 +410,24 @@ export default function EnhancedLeadDetailModal({ lead, open, onClose, onUpdate 
                 </Button>
                 <Button 
                   variant="outline"
-                  className="w-full"
-                  onClick={() => toast.info('Feature coming soon')}
+                  className="w-full border-gray-700 text-gray-300"
+                  onClick={async () => {
+                    try {
+                      await base44.entities.LeadNurture.create({
+                        lead_id: lead.id,
+                        email: lead.email,
+                        sequence_name: 'geenius_follow_up',
+                        current_step: 0,
+                        total_steps: 5,
+                        status: 'active',
+                        next_email_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+                        emails_sent: 0
+                      });
+                      toast.success(`${lead.business_name} added to nurture sequence`);
+                    } catch (e) {
+                      toast.error('Failed to add to nurture sequence');
+                    }
+                  }}
                 >
                   <MessageSquare className="w-4 h-4 mr-2" />
                   Add to Nurture Sequence
