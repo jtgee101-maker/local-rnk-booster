@@ -29,6 +29,7 @@ const AdminOrdersSection = lazy(() => import('@/components/admin/AdminOrdersSect
 const AdminAutomations = lazy(() => import('@/components/admin/AdminAutomations'));
 const AdminSettings = lazy(() => import('@/components/admin/AdminSettings'));
 const EmailRetryManager = lazy(() => import('@/components/admin/EmailRetryManager'));
+const EmailAutomationPanel = lazy(() => import('@/components/admin/EmailAutomationPanel'));
 const SecurityStatusCard = lazy(() => import('@/components/admin/SecurityStatusCard'));
 const AdminSecurityAudit = lazy(() => import('@/components/admin/AdminSecurityAudit'));
 const UserManagement = lazy(() => import('@/components/admin/UserManagement'));
