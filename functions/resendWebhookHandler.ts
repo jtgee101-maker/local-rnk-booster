@@ -43,20 +43,40 @@ Deno.serve(withDenoErrorHandler(async (req) => {
     console.log('Full Payload:', JSON.stringify(payload, null, 2));
 
     // Log webhook event
-    await base44.asServiceRole.entities.EmailLog.filter({ 
-      metadata: { message_id: payload.data?.email_id } 
-    }).then(async logs => {
+    const resendEmailId = payload.data?.email_id;
+    // Try matching on resend_id (used by geenius sequences) or legacy message_id
+    const existingLogs = await base44.asServiceRole.entities.EmailLog.filter({ 
+      metadata: { resend_id: resendEmailId } 
+    }).catch(() => []);
+    const fallbackLogs = existingLogs.length === 0
+      ? await base44.asServiceRole.entities.EmailLog.filter({ metadata: { message_id: resendEmailId } }).catch(() => [])
+      : [];
+    const matchedLogs = [...existingLogs, ...fallbackLogs];
+
+    const openCount = payload.type === 'email.opened' ? 1 : undefined;
+
+    await Promise.resolve(matchedLogs).then(async logs => {
       if (logs.length > 0) {
-        // Update existing log with webhook data
-        await base44.asServiceRole.entities.EmailLog.update(logs[0].id, {
+        const log = logs[0];
+        const updateData = {
           status: mapEventToStatus(payload.type),
           metadata: {
-            ...logs[0].metadata,
+            ...log.metadata,
             webhook_event: payload.type,
             webhook_received_at: new Date().toISOString(),
             resend_event_timestamp: payload.created_at
           }
-        }).catch(err => console.error('Failed to update log:', err));
+        };
+        if (payload.type === 'email.opened') {
+          updateData.open_count = (log.open_count || 0) + 1;
+          if (!log.first_opened_at) updateData.first_opened_at = new Date().toISOString();
+        }
+        if (payload.type === 'email.clicked') {
+          updateData.click_count = (log.click_count || 0) + 1;
+          if (!log.first_clicked_at) updateData.first_clicked_at = new Date().toISOString();
+        }
+        await base44.asServiceRole.entities.EmailLog.update(log.id, updateData)
+          .catch(err => console.error('Failed to update log:', err));
       } else {
         // Create new log for webhook event
         await base44.asServiceRole.entities.EmailLog.create({
