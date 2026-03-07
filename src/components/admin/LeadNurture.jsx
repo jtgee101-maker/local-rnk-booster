@@ -17,6 +17,17 @@ export default function LeadNurture() {
     refetchInterval: 60000
   });
 
+  const { data: leads = [] } = useQuery({
+    queryKey: ['leads-for-nurture'],
+    queryFn: () => base44.entities.Lead.list('-created_date', 500),
+    staleTime: 60000,
+  });
+
+  const leadById = React.useMemo(() => 
+    leads.reduce((acc, l) => { acc[l.id] = l; return acc; }, {}),
+    [leads]
+  );
+
   const activeNurtures = nurtures.filter(n => n.status === 'active');
   const completedNurtures = nurtures.filter(n => n.status === 'completed');
   const convertedNurtures = nurtures.filter(n => n.status === 'converted');
