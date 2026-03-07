@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
-  TrendingUp, Target, ArrowRight, Calendar, Users, BookOpen
+  TrendingUp, Target, ArrowRight, Calendar, Users, BookOpen, ExternalLink
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import OnboardingProgressCard from '../components/dashboard/OnboardingProgressCard';
@@ -189,7 +189,7 @@ export default function ClientDashboard() {
                 Your 90-Day Action Plan
               </CardTitle>
               <CardDescription className="text-gray-400">
-                {actionPlan.ai_analysis.summary}
+                {actionPlan.ai_analysis?.summary || 'Your personalized optimization roadmap'}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -198,7 +198,7 @@ export default function ClientDashboard() {
                 <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
                   <h4 className="font-semibold text-[#c8ff00] mb-3">Week 1-4: Foundation</h4>
                   <ul className="space-y-2 text-sm text-gray-300">
-                    {actionPlan.roadmap.week_1_4.map((item, i) => (
+                    {(actionPlan.roadmap?.week_1_4 || []).map((item, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <ArrowRight className="w-4 h-4 text-[#c8ff00] mt-0.5 flex-shrink-0" />
                         <span>{item}</span>
@@ -210,7 +210,7 @@ export default function ClientDashboard() {
                 <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
                   <h4 className="font-semibold text-purple-400 mb-3">Week 5-8: Growth</h4>
                   <ul className="space-y-2 text-sm text-gray-300">
-                    {actionPlan.roadmap.week_5_8.map((item, i) => (
+                    {(actionPlan.roadmap?.week_5_8 || []).map((item, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <ArrowRight className="w-4 h-4 text-purple-400 mt-0.5 flex-shrink-0" />
                         <span>{item}</span>
@@ -222,7 +222,7 @@ export default function ClientDashboard() {
                 <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700">
                   <h4 className="font-semibold text-green-400 mb-3">Week 9-12: Optimization</h4>
                   <ul className="space-y-2 text-sm text-gray-300">
-                    {actionPlan.roadmap.week_9_12.map((item, i) => (
+                    {(actionPlan.roadmap?.week_9_12 || []).map((item, i) => (
                       <li key={i} className="flex items-start gap-2">
                         <ArrowRight className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
                         <span>{item}</span>
@@ -273,7 +273,11 @@ export default function ClientDashboard() {
               <Calendar className="w-10 h-10 text-[#c8ff00] mx-auto mb-3" />
               <h3 className="font-semibold text-white mb-2">Schedule Call</h3>
               <p className="text-sm text-gray-400 mb-4">Book time with your account manager</p>
-              <Button className="w-full bg-[#c8ff00] text-black hover:bg-[#a8dd00]">
+              <Button 
+                className="w-full bg-[#c8ff00] text-black hover:bg-[#a8dd00]"
+                onClick={() => window.open('https://calendly.com/localrank-ai', '_blank')}
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
                 Schedule Now
               </Button>
             </CardContent>
@@ -284,8 +288,12 @@ export default function ClientDashboard() {
               <Users className="w-10 h-10 text-purple-400 mx-auto mb-3" />
               <h3 className="font-semibold text-white mb-2">Contact Support</h3>
               <p className="text-sm text-gray-400 mb-4">Get help from your team</p>
-              <Button className="w-full bg-purple-500 text-white hover:bg-purple-600">
-                Open Chat
+              <Button 
+                className="w-full bg-purple-500 text-white hover:bg-purple-600"
+                onClick={() => window.open('mailto:support@localrank.ai', '_blank')}
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Email Support
               </Button>
             </CardContent>
           </Card>
@@ -295,8 +303,12 @@ export default function ClientDashboard() {
               <BookOpen className="w-10 h-10 text-green-400 mx-auto mb-3" />
               <h3 className="font-semibold text-white mb-2">Training Library</h3>
               <p className="text-sm text-gray-400 mb-4">Access guides and resources</p>
-              <Button className="w-full bg-green-500 text-white hover:bg-green-600">
-                Learn More
+              <Button 
+                className="w-full bg-green-500 text-white hover:bg-green-600"
+                onClick={() => window.open('https://localrank.ai/DocsHome', '_blank')}
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                View Resources
               </Button>
             </CardContent>
           </Card>

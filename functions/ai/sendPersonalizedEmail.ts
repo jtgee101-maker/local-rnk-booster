@@ -17,7 +17,9 @@ Deno.serve(async (req) => {
       lead_id,
       email_type = 'welcome',
       template_id,
-      custom_instructions
+      custom_instructions,
+      precomposed_subject,
+      precomposed_body
     } = await req.json();
 
     if (!lead_id) {
@@ -34,8 +36,13 @@ Deno.serve(async (req) => {
 
     let emailContent;
 
-    // Use template or generate new
-    if (template_id) {
+    // Use precomposed content if provided (from AIEmailComposer)
+    if (precomposed_subject && precomposed_body) {
+      emailContent = {
+        subject_line: precomposed_subject,
+        body: precomposed_body
+      };
+    } else if (template_id) {
       const templates = await base44.asServiceRole.entities.EmailTemplate.filter({ id: template_id });
       const template = templates[0];
       

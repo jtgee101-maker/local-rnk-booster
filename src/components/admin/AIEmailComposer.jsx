@@ -51,7 +51,9 @@ export default function AIEmailComposer({ leadId, onClose }) {
 
       await base44.functions.invoke('ai/sendPersonalizedEmail', {
         lead_id: leadId,
-        email_type: emailType
+        email_type: emailType,
+        precomposed_subject: generatedEmail.subject_line,
+        precomposed_body: generatedEmail.body
       });
 
       toast.success('Email sent successfully!');
