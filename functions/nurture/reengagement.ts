@@ -71,11 +71,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    return Response.json({ 
-      success: true,
-      targetLeads: leads.length,
-      sent 
-    });
+    return Response.json({ success: true, targetLeads: leads.length, sent });
   } catch (error) {
     console.error('Reengagement error:', error);
     return Response.json({ error: error.message }, { status: 500 });
