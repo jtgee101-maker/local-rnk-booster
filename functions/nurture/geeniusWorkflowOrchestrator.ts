@@ -80,16 +80,25 @@ Deno.serve(async (req) => {
       const lead_id = event.entity_id || data?.id;
       const lead = data || (lead_id ? await base44.asServiceRole.entities.Lead.filter({ id: lead_id }).then(r => r[0]) : null);
 
-      if (lead && lead.email && lead.admin_notes) {
-        const notes = lead.admin_notes.toLowerCase();
+      if (lead && lead.email) {
         let sequence_key = null;
 
-        if (notes.includes('pathway 1') || notes.includes('grant')) {
-          sequence_key = 'grant_pathway_selected';
-        } else if (notes.includes('pathway 2') || notes.includes('done for you') || notes.includes('dfy')) {
-          sequence_key = 'dfy_pathway_selected';
-        } else if (notes.includes('pathway 3') || notes.includes('diy')) {
-          sequence_key = 'diy_pathway_selected';
+        // Primary: structured selected_pathway field (set by BridgeGeenius UI)
+        if (lead.selected_pathway) {
+          const pathwayMap = { grant: 'grant_pathway_selected', dfy: 'dfy_pathway_selected', diy: 'diy_pathway_selected' };
+          sequence_key = pathwayMap[lead.selected_pathway] || null;
+        }
+
+        // Fallback: legacy admin_notes text detection
+        if (!sequence_key && lead.admin_notes) {
+          const notes = lead.admin_notes.toLowerCase();
+          if (notes.includes('pathway 1') || notes.includes('grant')) {
+            sequence_key = 'grant_pathway_selected';
+          } else if (notes.includes('pathway 2') || notes.includes('done for you') || notes.includes('dfy')) {
+            sequence_key = 'dfy_pathway_selected';
+          } else if (notes.includes('pathway 3') || notes.includes('diy')) {
+            sequence_key = 'diy_pathway_selected';
+          }
         }
 
         if (sequence_key) {
