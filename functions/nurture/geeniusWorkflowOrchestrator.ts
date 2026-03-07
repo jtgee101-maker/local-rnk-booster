@@ -117,10 +117,8 @@ Deno.serve(async (req) => {
         const lead = leads[0];
 
         if (lead) {
-          base44.asServiceRole.functions.invoke('nurture/geeniusEmailSequences', {
-            lead_id: lead.id,
-            sequence_key: 'post_purchase_day1'
-          }).catch(e => console.error('post_purchase_day1 send failed:', e));
+          const leadObj = { id: lead.id, email: lead.email, business_name: lead.business_name, health_score: lead.health_score };
+          await scheduleEmail(base44, leadObj, 'post_purchase_day1', 0);
         }
       }
 
