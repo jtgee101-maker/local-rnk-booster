@@ -111,9 +111,16 @@ export default function LeadNurture() {
               {nurtures.slice(0, 50).map((nurture) => (
                 <TableRow key={nurture.id} className="border-gray-700">
                   <TableCell className="text-white">
-                    <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-gray-500" />
-                      {nurture.email}
+                    <div className="flex flex-col gap-0.5">
+                      {nurture.lead_id && leadById[nurture.lead_id]?.business_name && (
+                        <span className="font-semibold text-white text-sm">
+                          {leadById[nurture.lead_id].business_name}
+                        </span>
+                      )}
+                      <div className="flex items-center gap-2 text-gray-400 text-xs">
+                        <Mail className="w-3 h-3 text-gray-500" />
+                        {nurture.email}
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell className="text-gray-300">{nurture.sequence_name}</TableCell>
