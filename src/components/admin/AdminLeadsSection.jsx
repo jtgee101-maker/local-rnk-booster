@@ -121,6 +121,18 @@ export default function AdminLeadsSection({ expanded = false }) {
     }
   };
 
+  const getNurtureStage = (leadId) => {
+    const n = nurtureByLeadId[leadId];
+    if (!n) return null;
+    const step = n.current_step || 0;
+    const total = n.total_steps || 1;
+    const pct = Math.round((step / total) * 100);
+    const seqLabel = n.sequence_name
+      ? n.sequence_name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()).slice(0, 20)
+      : 'Nurture';
+    return { step, total, pct, seqLabel, nextDate: n.next_email_date };
+  };
+
   const getScoreColor = (score) => {
     if (score >= 70) return 'bg-green-500/20 text-green-400 border-green-500/30';
     if (score >= 40) return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
