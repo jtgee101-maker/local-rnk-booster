@@ -18,10 +18,12 @@ Deno.serve(async (req) => {
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
-    const [leads, orders, errorLogs] = await Promise.all([
+    const [leads, orders, errorLogs, bridgeViews, pathwayClicks] = await Promise.all([
       base44.asServiceRole.entities.Lead.list('-created_date', 5000),
       base44.asServiceRole.entities.Order.list('-created_date', 5000),
-      base44.asServiceRole.entities.ErrorLog.filter({ created_date: { $gte: oneHourAgo } }, '-created_date', 100)
+      base44.asServiceRole.entities.ErrorLog.filter({ created_date: { $gte: oneHourAgo } }, '-created_date', 100),
+      base44.asServiceRole.entities.ConversionEvent.filter({ funnel_version: 'geenius', event_name: 'bridge_viewed' }, '-created_date', 5000),
+      base44.asServiceRole.entities.ConversionEvent.filter({ funnel_version: 'geenius', event_name: { $in: ['pathway_govtech_grant_clicked', 'pathway_done_for_you_clicked', 'pathway_diy_software_clicked'] } }, '-created_date', 5000)
     ]);
 
     const completedOrders = orders.filter(o => o.status === 'completed');
