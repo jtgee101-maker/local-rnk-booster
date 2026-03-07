@@ -87,7 +87,7 @@ const caseStudies = [
   }
 ];
 
-export default function CaseStudiesShowcase() {
+export default function CaseStudiesShowcase({ onViewPathways }) {
   const calculateGrowth = (before, after) => {
     if (!before || !after) return null;
     const growth = ((after - before) / before) * 100;
