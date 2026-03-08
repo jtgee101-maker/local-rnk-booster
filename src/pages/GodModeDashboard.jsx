@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import BridgePathwaySplit from '@/components/admin/BridgePathwaySplit';
+import PathwayConversionDashboard from '@/components/admin/PathwayConversionDashboard';
+import PathwayNurtureConfig from '@/components/admin/PathwayNurtureConfig';
 import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
