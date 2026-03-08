@@ -158,7 +158,7 @@ export default function ResultsGeenius() {
     );
   }
 
-  if (!lead) {
+  if (!lead && !loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#1a0a2e] to-[#0a0a0f] flex items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent" />
@@ -167,9 +167,19 @@ export default function ResultsGeenius() {
           animate={{ opacity: 1, y: 0 }}
           className="relative z-10 text-center px-4 max-w-md"
         >
-          <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-2">Lead Not Found</h1>
-          <p className="text-gray-400 mb-6">Unable to load your report. Please start the audit again.</p>
+          <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-6" />
+          <h1 className="text-2xl font-bold text-white mb-3">We couldn't locate your audit results.</h1>
+          <p className="text-gray-400 mb-8">
+            {error === 'not_found'
+              ? 'This audit link may have expired or the record was not found. Start a fresh audit to get your results.'
+              : 'Something went wrong loading your report. Please try again.'}
+          </p>
+          <button
+            onClick={() => window.location.href = createPageUrl('QuizGeenius')}
+            className="inline-flex items-center gap-2 px-8 py-4 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold text-lg transition-colors"
+          >
+            Start New Audit
+          </button>
         </motion.div>
       </div>
     );
