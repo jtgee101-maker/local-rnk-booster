@@ -30,7 +30,7 @@ const PATHWAYS = [
     defaultSequence: [
       { day: 0, subject: '🔧 Your Done-For-You onboarding has started', tag: 'welcome' },
       { day: 3, subject: 'Meet your verified GMB provider', tag: 'intro' },
-      { day: 7, subject: 'First milestone: Here's what we've accomplished', tag: 'update' },
+      { day: 7, subject: "First milestone: Here's what we've accomplished", tag: 'update' },
       { day: 21, subject: 'Your 3-week DFY progress report', tag: 'report' },
     ],
   },
