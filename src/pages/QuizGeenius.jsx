@@ -488,22 +488,7 @@ export default function QuizGeenius() {
         </div>
       </div>
 
-      {/* Cookie Consent Tracker */}
-      <CookieConsentTracker
-        sessionId={sessionId}
-        onConsent={async (consent) => {
-          try {
-            const behaviors = await base44.entities.UserBehavior.filter({ session_id: sessionId });
-            if (behaviors.length > 0) {
-              await base44.entities.UserBehavior.update(behaviors[0].id, {
-                consent_given: consent
-              });
-            }
-          } catch (err) {
-            console.error('Consent tracking failed:', err);
-          }
-        }}
-      />
+
 
       {/* Quiz Steps */}
       <div className="relative z-10 px-4 pb-12 sm:pb-16">
