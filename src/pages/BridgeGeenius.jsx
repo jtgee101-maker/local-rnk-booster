@@ -74,12 +74,28 @@ export default function BridgeGeenius() {
           }
         }
 
-        const settings = await base44.entities.AppSettings.filter({ 
-          setting_key: 'geenius_pathways' 
+        const settings = await base44.entities.AppSettings.filter({
+          setting_key: 'geenius_pathways'
         });
-        
+
         if (settings.length > 0) {
-          setPathwaySettings(settings[0].setting_value);
+          const urls = settings[0].setting_value;
+          const allValid =
+            urls?.pathway1_url?.startsWith('https://') &&
+            urls?.pathway2_url?.startsWith('https://') &&
+            urls?.pathway3_checkout_url?.startsWith('https://') &&
+            !urls.pathway1_url.includes('example.com') &&
+            !urls.pathway2_url.includes('example.com') &&
+            !urls.pathway3_checkout_url.includes('example.com');
+
+          if (allValid) {
+            setPathwaySettings(urls);
+            setUrlsConfigured(true);
+          } else {
+            setUrlsConfigured(false);
+          }
+        } else {
+          setUrlsConfigured(false);
         }
       } catch (error) {
         console.error('Init error:', error);
