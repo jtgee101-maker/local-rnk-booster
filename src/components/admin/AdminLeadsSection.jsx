@@ -173,13 +173,15 @@ export default function AdminLeadsSection({ expanded = false }) {
 
   return (
     <>
-      <Suspense fallback={null}>
-        <LeadIntelligencePanel
-          lead={intelligenceLead}
-          open={intelligenceOpen}
-          onClose={() => { setIntelligenceOpen(false); setIntelligenceLead(null); }}
-        />
-      </Suspense>
+      {intelligenceOpen && intelligenceLead && (
+        <Suspense fallback={null}>
+          <LeadIntelligencePanel
+            lead={intelligenceLead}
+            open={intelligenceOpen}
+            onClose={() => { setIntelligenceOpen(false); setIntelligenceLead(null); }}
+          />
+        </Suspense>
+      )}
 
       <EnhancedLeadDetailModal
         lead={selectedLead}

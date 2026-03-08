@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  Loader2, Linkedin, Building2, MapPin, AlertTriangle,
+  Loader2, Link2, Building2, MapPin, AlertTriangle,
   Flame, Target, Zap, RefreshCw, ExternalLink
 } from 'lucide-react';
 import { toast } from 'sonner';
