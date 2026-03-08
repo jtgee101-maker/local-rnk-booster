@@ -38,6 +38,13 @@ Deno.serve(async (req) => {
 
     if (!adminEmail) {
       console.warn('Admin email not configured in AppSettings - skipping admin notification');
+      // Surface as discoverable low-severity error so admin can find and fix it
+      base44.asServiceRole.entities.ErrorLog.create({
+        error_type: 'system_error',
+        severity: 'low',
+        message: 'Admin lead notification skipped: admin_email not set in AppSettings (add setting_key="admin_email" with setting_value.email)',
+        metadata: { lead_id: leadData?.id, lead_email: leadData?.email }
+      }).catch(() => {});
       return Response.json({ success: false, reason: 'Admin email not configured' });
     }
 

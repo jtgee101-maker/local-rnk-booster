@@ -54,7 +54,6 @@ import AdminAuditPlan from './pages/AdminAuditPlan';
 import AdminControlCenter from './pages/AdminControlCenter';
 import AdminJobs from './pages/AdminJobs';
 import AdminSystem from './pages/AdminSystem';
-import adminDeprecated from './pages/Admin_DEPRECATED';
 import AnalyticsVerification from './pages/AnalyticsVerification';
 import AutoBodyLanding from './pages/AutoBodyLanding';
 import AutoRepairLanding from './pages/AutoRepairLanding';
@@ -148,7 +147,6 @@ export const PAGES = {
     "AdminControlCenter": AdminControlCenter,
     "AdminJobs": AdminJobs,
     "AdminSystem": AdminSystem,
-    "Admin_DEPRECATED": adminDeprecated,
     "AnalyticsVerification": AnalyticsVerification,
     "AutoBodyLanding": AutoBodyLanding,
     "AutoRepairLanding": AutoRepairLanding,

@@ -225,15 +225,29 @@ export default function QuizGeenius() {
       const healthScore = calculateRobustHealthScore(completeData);
       const criticalIssues = generateRobustCriticalIssues(completeData);
 
-      // Create lead FIRST - this is critical path
-      const lead = await base44.entities.Lead.create({
-        ...completeData,
-        health_score: healthScore,
-        critical_issues: criticalIssues,
-        status: 'new',
-        last_quiz_date: new Date().toISOString(),
-        quiz_submission_count: 1
-      });
+      // Create or update lead — dedup by email to prevent double records on refresh
+      let lead;
+      const existingLeads = await base44.entities.Lead.filter({ email: completeData.email }, '-created_date', 1).catch(() => []);
+      if (existingLeads.length > 0 && existingLeads[0].health_score > 0) {
+        // Fully processed lead already exists — update rather than duplicate
+        await base44.entities.Lead.update(existingLeads[0].id, {
+          ...completeData,
+          health_score: healthScore,
+          critical_issues: criticalIssues,
+          last_quiz_date: new Date().toISOString(),
+          quiz_submission_count: (existingLeads[0].quiz_submission_count || 1) + 1
+        }).catch(() => {});
+        lead = { ...existingLeads[0], health_score: healthScore, critical_issues: criticalIssues };
+      } else {
+        lead = await base44.entities.Lead.create({
+          ...completeData,
+          health_score: healthScore,
+          critical_issues: criticalIssues,
+          status: 'new',
+          last_quiz_date: new Date().toISOString(),
+          quiz_submission_count: 1
+        });
+      }
 
       // Track completion (fire and forget - don't block)
       base44.entities.ConversionEvent.create({
