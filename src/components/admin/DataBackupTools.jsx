@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { base44 } from '@/api/base44Client';
-import { Download, Database, Calendar, CheckCircle } from 'lucide-react';
+import { Download, Database, Calendar, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function DataBackupTools() {
@@ -121,7 +121,7 @@ export default function DataBackupTools() {
       <CardContent className="space-y-4">
         {lastBackup && (
           <div className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-green-400" />
+            <CheckCircle2 className="w-4 h-4 text-green-400" />
             <span className="text-green-400 text-sm">
               Last backup: {lastBackup.toLocaleString()}
             </span>

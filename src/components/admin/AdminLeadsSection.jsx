@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import EnhancedLeadDetailModal from './EnhancedLeadDetailModal';
 import ActionPlanViewer from './ActionPlanViewer';
-import LeadIntelligencePanel from './LeadIntelligencePanel';
+const LeadIntelligencePanel = lazy(() => import('./LeadIntelligencePanel'));
 
 export default function AdminLeadsSection({ expanded = false }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -173,11 +173,13 @@ export default function AdminLeadsSection({ expanded = false }) {
 
   return (
     <>
-      <LeadIntelligencePanel
-        lead={intelligenceLead}
-        open={intelligenceOpen}
-        onClose={() => { setIntelligenceOpen(false); setIntelligenceLead(null); }}
-      />
+      <Suspense fallback={null}>
+        <LeadIntelligencePanel
+          lead={intelligenceLead}
+          open={intelligenceOpen}
+          onClose={() => { setIntelligenceOpen(false); setIntelligenceLead(null); }}
+        />
+      </Suspense>
 
       <EnhancedLeadDetailModal
         lead={selectedLead}
