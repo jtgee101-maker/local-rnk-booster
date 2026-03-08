@@ -447,7 +447,7 @@ export default function BridgeGeenius() {
                         </div>
                         <div className="text-sm font-semibold text-green-300 mt-3">$199/month</div>
                         <Button
-                          onClick={() => trackPathwayClick('diy_software', pathwaySettings.pathway3_checkout_url)}
+                          onClick={() => trackPathwayClick('diy_software', getPathwayUrl('pathway3_checkout_url'))}
                           className="w-full bg-green-600 hover:bg-green-500 text-white font-semibold py-5 mt-4 text-sm"
                         >
                           Start DIY License
