@@ -18,7 +18,7 @@ import {
   BarChart3, Users, DollarSign, TrendingUp, AlertCircle, Mail, Bug, Repeat,
   Settings, Eye, Shield, Lock, Target, Brain, Zap,
   Activity, TrendingDown, CheckCircle2, Clock,
-  Loader2, ChevronDown, ChevronUp, ExternalLink, Sparkles, FileText
+  Loader2, ChevronDown, ChevronUp, ExternalLink, Sparkles, FileText, UserCheck
 } from 'lucide-react';
 import { toast } from 'sonner';
 
