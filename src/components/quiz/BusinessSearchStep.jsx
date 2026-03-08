@@ -68,9 +68,6 @@ export default function BusinessSearchStep({ onNext, onBack, initialData }) {
     }
   }, [isSearching]);
   
-  // Debounced search for better performance
-  const debouncedSearch = useDebounce(performSearch, 800);
-
   const handleSearch = (e) => {
     e.preventDefault();
     base44.analytics.track({ 
