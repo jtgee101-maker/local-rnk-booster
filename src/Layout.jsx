@@ -50,7 +50,7 @@ export default function Layout({ children, currentPageName }) {
   const showNav = !noNavPages.includes(currentPageName);
 
   // Check if current page is admin-only
-  const adminPages = ['GodModeDashboard', 'AdminControlCenter', 'ProductionChecklist', 'SecurityAudit', 'DataCleanup', 'StripeSetupGuide', 'FinalLaunchChecklist', 'FeatureFlags', 'TenantManager', 'SystemHealth', 'APILogs', 'AdminSystem', 'AdminJobs', 'ChaosTestDashboard'];
+  const adminPages = ['GodModeDashboard', 'AdminControlCenter', 'ProductionChecklist', 'SecurityAudit', 'DataCleanup', 'StripeSetupGuide', 'FinalLaunchChecklist', 'FeatureFlags', 'TenantManager', 'SystemHealth', 'APILogs', 'AdminSystem', 'AdminJobs', 'ChaosTestDashboard', 'LaunchCommandCenter'];
   const isAdminPage = adminPages.includes(currentPageName);
 
   useEffect(() => {
@@ -117,6 +117,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Data Cleanup', path: createPageUrl('DataCleanup') },
     { name: 'Stripe Setup', path: createPageUrl('StripeSetupGuide') },
     { name: 'Final Launch', path: createPageUrl('FinalLaunchChecklist') },
+    { name: '🚀 Launch Center', path: createPageUrl('LaunchCommandCenter') },
     { name: '🧨 Chaos Tests', path: createPageUrl('ChaosTestDashboard') }
   ];
 
