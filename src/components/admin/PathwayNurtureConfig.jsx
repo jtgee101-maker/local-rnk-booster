@@ -45,7 +45,7 @@ const PATHWAYS = [
       { day: 0, subject: '🎓 Welcome to your DIY Software License', tag: 'welcome' },
       { day: 1, subject: 'Your quick-start guide is ready', tag: 'onboarding' },
       { day: 5, subject: 'Have you completed Step 1? (Most users miss this)', tag: 'engagement' },
-      { day: 14, subject: 'Upgrade to DFY? Here's what you're missing', tag: 'upsell' },
+      { day: 14, subject: "Upgrade to DFY? Here's what you're missing", tag: 'upsell' },
     ],
   },
 ];
