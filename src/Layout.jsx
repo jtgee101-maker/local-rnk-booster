@@ -52,6 +52,7 @@ export default function Layout({ children, currentPageName }) {
   // Check if current page is admin-only
   const adminPages = ['GodModeDashboard', 'AdminControlCenter', 'ProductionChecklist', 'SecurityAudit', 'DataCleanup', 'StripeSetupGuide', 'FinalLaunchChecklist', 'FeatureFlags', 'TenantManager', 'SystemHealth', 'APILogs', 'AdminSystem', 'AdminJobs', 'ChaosTestDashboard', 'LaunchCommandCenter'];
   const isAdminPage = adminPages.includes(currentPageName);
+  const isAdminAuthPage = ['AdminLogin', 'AdminAuthCallback'].includes(currentPageName);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -139,10 +140,18 @@ export default function Layout({ children, currentPageName }) {
 
   const navItems = getNavItems();
 
-  // Redirect non-admins from admin pages
+  // Redirect non-admins from admin pages, or check session
   useEffect(() => {
-    if (!loading && isAdminPage && !isAdmin) {
-      window.location.href = createPageUrl('QuizGeenius');
+    if (!loading) {
+      if (isAdminPage && !isAdmin) {
+        // Check if there's an active admin session
+        const sessionToken = localStorage.getItem('admin_session_token');
+        const sessionExpires = localStorage.getItem('admin_session_expires');
+        
+        if (!sessionToken || new Date(sessionExpires) < new Date()) {
+          window.location.href = createPageUrl('AdminLogin');
+        }
+      }
     }
   }, [loading, isAdmin, isAdminPage]);
 
