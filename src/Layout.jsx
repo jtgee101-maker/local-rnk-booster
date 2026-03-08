@@ -116,7 +116,8 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Security Audit', path: createPageUrl('SecurityAudit') },
     { name: 'Data Cleanup', path: createPageUrl('DataCleanup') },
     { name: 'Stripe Setup', path: createPageUrl('StripeSetupGuide') },
-    { name: 'Final Launch', path: createPageUrl('FinalLaunchChecklist') }
+    { name: 'Final Launch', path: createPageUrl('FinalLaunchChecklist') },
+    { name: '🧨 Chaos Tests', path: createPageUrl('ChaosTestDashboard') }
   ];
 
   const systemTools = [
