@@ -1,15 +1,10 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, MapPin, Star, Building2, Loader2, CheckCircle } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-// Inline utilities to avoid external dependency issues
-const sessionCache = {
-  get(key) { try { const raw = sessionStorage.getItem(`perf_cache_${key}`); if (!raw) return null; const { value, expires } = JSON.parse(raw); if (expires && Date.now() > expires) { sessionStorage.removeItem(`perf_cache_${key}`); return null; } return value; } catch { return null; } },
-  set(key, value, ttlMs = 5 * 60 * 1000) { try { sessionStorage.setItem(`perf_cache_${key}`, JSON.stringify({ value, expires: Date.now() + ttlMs })); } catch {} },
-};
-function useDebounce(fn, delay) { const timerRef = useRef(null); return useCallback((...args) => { if (timerRef.current) clearTimeout(timerRef.current); timerRef.current = setTimeout(() => fn(...args), delay); }, [fn, delay]); }
+import { useDebounce, sessionCache } from '@/components/utils/performanceHooks';
 import { businessDataSchema, validateInput } from '@/components/utils/validation';
 
 export default function BusinessSearchStep({ onNext, onBack, initialData }) {
