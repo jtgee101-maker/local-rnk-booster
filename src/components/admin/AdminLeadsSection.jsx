@@ -433,9 +433,22 @@ export default function AdminLeadsSection({ expanded = false }) {
                           )}
                         </TableCell>
                         <TableCell>
-                          <Badge className={`${getScoreColor(lead.health_score)} border font-semibold`}>
-                            {lead.health_score || 0}/100
-                          </Badge>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <Badge className={`${getScoreColor(lead.health_score)} border font-semibold`}>
+                              {lead.health_score || 0}
+                            </Badge>
+                            {lead.lead_grade && (
+                              <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30 border text-xs font-bold">
+                                {lead.lead_grade}
+                              </Badge>
+                            )}
+                            {lead.enrichment_status === 'enriched' && (
+                              <span title="Enriched" className="text-green-400 text-xs">✦</span>
+                            )}
+                            {lead.is_disposable_email && (
+                              <span title="Disposable email" className="text-red-400 text-xs">⚠</span>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2 flex-wrap">
