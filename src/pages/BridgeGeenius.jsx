@@ -335,7 +335,7 @@ export default function BridgeGeenius() {
                 </div>
 
                 <Button
-                  onClick={() => trackPathwayClick('govtech_grant', pathwaySettings.pathway1_url)}
+                  onClick={() => trackPathwayClick('govtech_grant', getPathwayUrl('pathway1_url'))}
                   className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-7 text-lg shadow-lg hover:shadow-xl transition-all duration-300 group/btn"
                 >
                   Check My Eligibility Now
