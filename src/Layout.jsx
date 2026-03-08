@@ -50,7 +50,7 @@ export default function Layout({ children, currentPageName }) {
   const showNav = !noNavPages.includes(currentPageName);
 
   // Check if current page is admin-only
-  const adminPages = ['GodModeDashboard', 'AdminControlCenter', 'ProductionChecklist', 'SecurityAudit', 'DataCleanup', 'StripeSetupGuide', 'FinalLaunchChecklist', 'FeatureFlags', 'TenantManager', 'SystemHealth', 'APILogs'];
+  const adminPages = ['GodModeDashboard', 'AdminControlCenter', 'ProductionChecklist', 'SecurityAudit', 'DataCleanup', 'StripeSetupGuide', 'FinalLaunchChecklist', 'FeatureFlags', 'TenantManager', 'SystemHealth', 'APILogs', 'AdminSystem', 'AdminJobs'];
   const isAdminPage = adminPages.includes(currentPageName);
 
   useEffect(() => {
@@ -123,7 +123,9 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Feature Flags', path: createPageUrl('FeatureFlags') },
     { name: 'Tenant Manager', path: createPageUrl('TenantManager') },
     { name: 'System Health', path: createPageUrl('SystemHealth') },
-    { name: 'API Logs', path: createPageUrl('APILogs') }
+    { name: 'API Logs', path: createPageUrl('APILogs') },
+    { name: 'System Monitor', path: createPageUrl('AdminSystem') },
+    { name: 'Job Queue', path: createPageUrl('AdminJobs') }
   ];
 
   // Determine which nav to show
