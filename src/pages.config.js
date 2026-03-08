@@ -129,6 +129,8 @@ import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import UserJourneyTest from './pages/UserJourneyTest';
 import V2Start from './pages/V2Start';
+import AdminLogin from './pages/AdminLogin';
+import AdminAuthCallback from './pages/AdminAuthCallback';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminTenants from './pages/AdminTenants';
 import AdminUsers from './pages/AdminUsers';
@@ -137,8 +139,6 @@ import Monitoring from './pages/Monitoring';
 import EnterpriseMode from './pages/EnterpriseMode';
 import GrowthMode from './pages/GrowthMode';
 import QuickStartWizard from './pages/QuickStartWizard';
-import AdminLogin from './pages/AdminLogin';
-import AdminAuthCallback from './pages/AdminAuthCallback';
 import __Layout from './Layout.jsx';
 
 
@@ -225,6 +225,8 @@ export const PAGES = {
     "Upsell1": Upsell1,
     "UserJourneyTest": UserJourneyTest,
     "V2Start": V2Start,
+    "AdminLogin": AdminLogin,
+    "AdminAuthCallback": AdminAuthCallback,
     "AdminDashboard": AdminDashboard,
     "AdminTenants": AdminTenants,
     "AdminUsers": AdminUsers,
@@ -233,8 +235,6 @@ export const PAGES = {
     "EnterpriseMode": EnterpriseMode,
     "GrowthMode": GrowthMode,
     "QuickStartWizard": QuickStartWizard,
-    "AdminLogin": AdminLogin,
-    "AdminAuthCallback": AdminAuthCallback,
 }
 
 export const pagesConfig = {

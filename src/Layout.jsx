@@ -50,6 +50,7 @@ export default function Layout({ children, currentPageName }) {
   const showNav = !noNavPages.includes(currentPageName);
 
   // Check if current page is admin-only
+  // Admin pages - all protected routes must be listed here
   const adminPages = ['GodModeDashboard', 'AdminControlCenter', 'ProductionChecklist', 'SecurityAudit', 'DataCleanup', 'StripeSetupGuide', 'FinalLaunchChecklist', 'FeatureFlags', 'TenantManager', 'SystemHealth', 'APILogs', 'AdminSystem', 'AdminJobs', 'ChaosTestDashboard', 'LaunchCommandCenter'];
   const isAdminPage = adminPages.includes(currentPageName);
   const isAdminAuthPage = ['AdminLogin', 'AdminAuthCallback'].includes(currentPageName);
