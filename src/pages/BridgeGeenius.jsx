@@ -112,6 +112,8 @@ export default function BridgeGeenius() {
     'diy_software': 'diy'
   };
 
+  const getPathwayUrl = (key) => pathwaySettings?.[key] || null;
+
   const trackPathwayClick = async (pathway, url) => {
     const timeOnBridge = Math.round((Date.now() - viewStartTime) / 1000);
     
