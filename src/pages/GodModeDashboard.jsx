@@ -348,6 +348,20 @@ export default function GodModeDashboard() {
               Resources
             </TabsTrigger>
             <TabsTrigger 
+              value="pathways"
+              className="data-[state=active]:bg-[#00F2FF]/20 data-[state=active]:text-[#00F2FF]"
+            >
+              <TrendingUp className="w-4 h-4 mr-2" />
+              Pathways
+            </TabsTrigger>
+            <TabsTrigger 
+              value="nurture"
+              className="data-[state=active]:bg-[#00F2FF]/20 data-[state=active]:text-[#00F2FF]"
+            >
+              <Activity className="w-4 h-4 mr-2" />
+              Nurture
+            </TabsTrigger>
+            <TabsTrigger 
               value="settings"
               className="data-[state=active]:bg-[#00F2FF]/20 data-[state=active]:text-[#00F2FF]"
             >
