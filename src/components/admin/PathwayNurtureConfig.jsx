@@ -15,7 +15,7 @@ const PATHWAYS = [
     border: 'border-purple-500/30',
     defaultSequence: [
       { day: 0,  subject: '🏛️ Your Gov Tech Grant eligibility is being reviewed', tag: 'welcome' },
-      { day: 2,  subject: 'Here's what happens next with your grant application', tag: 'followup' },
+      { day: 2,  subject: "Here's what happens next with your grant application", tag: 'followup' },
       { day: 7,  subject: 'Quick update on your GeeNius grant status', tag: 'nurture' },
       { day: 14, subject: 'Final step to lock in your free infrastructure upgrade', tag: 'urgency' },
     ],
