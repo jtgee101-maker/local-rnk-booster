@@ -1,68 +1,60 @@
-import { useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
-// Debounce for performance-heavy operations
-export const useDebounce = (callback, delay) => {
-  const timeoutRef = useRef(null);
-  
-  return useCallback((...args) => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => callback(...args), delay);
-  }, [callback, delay]);
-};
+/**
+ * useDebounce - delays calling a function until after wait ms have elapsed
+ */
+export function useDebounce(fn, delay) {
+  const timerRef = useRef(null);
 
-// Device performance detection
-export const getDevicePerformance = () => {
-  if (typeof navigator === 'undefined') return 'high';
-  const memory = navigator.deviceMemory || 8;
-  const cores = navigator.hardwareConcurrency || 4;
-  
-  if (memory < 4 || cores < 4) return 'low';
-  if (memory < 8 || cores < 8) return 'medium';
-  return 'high';
-};
+  const debouncedFn = useCallback((...args) => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      fn(...args);
+    }, delay);
+  }, [fn, delay]);
 
-// Connection speed detection
-export const useConnectionSpeed = () => {
-  if (typeof navigator === 'undefined' || !navigator.connection) {
-    return '4g';
-  }
-  return navigator.connection.effectiveType || '4g';
-};
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
-// Prefetch resources
-export const prefetchResources = (urls) => {
-  if (typeof window === 'undefined') return;
-  urls.forEach(url => {
-    const link = document.createElement('link');
-    link.rel = 'prefetch';
-    link.href = url;
-    document.head.appendChild(link);
-  });
-};
+  return debouncedFn;
+}
 
-// Session cache helpers
-const CACHE_PREFIX = 'lr_';
-const CACHE_DURATION = 30 * 60 * 1000;
-
+/**
+ * sessionCache - simple in-memory + sessionStorage cache
+ */
 export const sessionCache = {
-  set: (key, value) => {
+  get(key) {
     try {
-      const item = { value, expires: Date.now() + CACHE_DURATION };
-      sessionStorage.setItem(CACHE_PREFIX + key, JSON.stringify(item));
-    } catch (e) {}
-  },
-  get: (key) => {
-    try {
-      const item = sessionStorage.getItem(CACHE_PREFIX + key);
-      if (!item) return null;
-      const parsed = JSON.parse(item);
-      if (Date.now() > parsed.expires) {
-        sessionStorage.removeItem(CACHE_PREFIX + key);
+      const raw = sessionStorage.getItem(`perf_cache_${key}`);
+      if (!raw) return null;
+      const { value, expires } = JSON.parse(raw);
+      if (expires && Date.now() > expires) {
+        sessionStorage.removeItem(`perf_cache_${key}`);
         return null;
       }
-      return parsed.value;
-    } catch (e) {
+      return value;
+    } catch {
       return null;
     }
+  },
+  set(key, value, ttlMs = 5 * 60 * 1000) {
+    try {
+      sessionStorage.setItem(`perf_cache_${key}`, JSON.stringify({
+        value,
+        expires: Date.now() + ttlMs
+      }));
+    } catch {
+      // sessionStorage full or unavailable — silently ignore
+    }
+  },
+  remove(key) {
+    try {
+      sessionStorage.removeItem(`perf_cache_${key}`);
+    } catch {}
   }
 };
+
+export default { useDebounce, sessionCache };
