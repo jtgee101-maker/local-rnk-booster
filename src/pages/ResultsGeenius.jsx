@@ -64,16 +64,16 @@ export default function ResultsGeenius() {
         });
 
         // Update user behavior
-        if (behaviors.length > 0) {
-          await base44.entities.UserBehavior.update(behaviors[0].id, {
-            pages_viewed: [...(behaviors[0].pages_viewed || []), 'ResultsGeenius'],
+        if (latestBehavior) {
+          await base44.entities.UserBehavior.update(latestBehavior.id, {
+            pages_viewed: [...(latestBehavior.pages_viewed || []), 'ResultsGeenius'],
             interactions: [
-              ...(behaviors[0].interactions || []),
+              ...(latestBehavior.interactions || []),
               {
                 type: 'results_viewed',
                 timestamp: Date.now(),
                 lead_id: leadId,
-                health_score: leads[0].health_score
+                health_score: foundLead.health_score
               }
             ]
           });
