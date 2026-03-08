@@ -93,11 +93,7 @@ export default function ResultsGeenius() {
 
       } catch (error) {
         console.error('ResultsGeenius init error:', error);
-        
-        // Delay redirect to show error state briefly
-        setTimeout(() => {
-          window.location.href = createPageUrl('QuizGeenius');
-        }, 1500);
+        setError('init_failed');
       } finally {
         setLoading(false);
       }
