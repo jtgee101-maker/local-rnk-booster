@@ -192,11 +192,11 @@ export default function BusinessSearchStep({ onNext, onBack, initialData }) {
     >
       <div className="text-center mb-8 md:mb-10">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="inline-flex items-center gap-2 bg-[#c8ff00]/10 border border-[#c8ff00]/30 rounded-full px-4 py-2 mb-4"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="inline-flex items-center gap-2 bg-[#c8ff00]/10 border border-[#c8ff00]/30 rounded-full px-4 py-2 mb-4"
         >
-          <span className="text-xs text-[#c8ff00] font-semibold">FINAL STEP</span>
+        <span className="text-xs text-[#c8ff00] font-semibold">ALMOST DONE — STEP 5 OF 7</span>
         </motion.div>
         <h2 className="text-xl md:text-3xl lg:text-4xl font-bold text-white mb-3 leading-tight px-2">
           Find Your Business on <span className="text-[#c8ff00]">Google Maps</span>

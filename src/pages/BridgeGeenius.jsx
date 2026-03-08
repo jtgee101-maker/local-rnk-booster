@@ -16,11 +16,8 @@ export default function BridgeGeenius() {
   const [sessionId, setSessionId] = useState(null);
   const [viewStartTime] = useState(Date.now());
   const [expandedAlt, setExpandedAlt] = useState(null);
-  const [pathwaySettings, setPathwaySettings] = useState({
-    pathway1_url: 'https://example.com/govtech-grant',
-    pathway2_url: 'https://example.com/done-for-you',
-    pathway3_checkout_url: 'https://buy.stripe.com/test_example'
-  });
+  const [pathwaySettings, setPathwaySettings] = useState(null);
+  const [urlsConfigured, setUrlsConfigured] = useState(false);
 
   useEffect(() => {
     const init = async () => {
