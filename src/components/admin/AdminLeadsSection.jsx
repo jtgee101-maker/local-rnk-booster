@@ -11,10 +11,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, Download, TrendingUp, Users, Mail, 
   Building2, Calendar, RefreshCw, AlertCircle,
-  CheckCircle2, Clock, XCircle, Loader2, Target, Zap
+  CheckCircle2, Clock, XCircle, Loader2, Target, Zap, Brain, Flame
 } from 'lucide-react';
 import EnhancedLeadDetailModal from './EnhancedLeadDetailModal';
 import ActionPlanViewer from './ActionPlanViewer';
+import LeadIntelligencePanel from './LeadIntelligencePanel';
 
 export default function AdminLeadsSection({ expanded = false }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,6 +25,8 @@ export default function AdminLeadsSection({ expanded = false }) {
   const [selectedLead, setSelectedLead] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [actionPlanLeadId, setActionPlanLeadId] = useState(null);
+  const [intelligenceLead, setIntelligenceLead] = useState(null);
+  const [intelligenceOpen, setIntelligenceOpen] = useState(false);
   
   const { data: leads = [], isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['admin-leads-section', expanded],
@@ -170,6 +173,12 @@ export default function AdminLeadsSection({ expanded = false }) {
 
   return (
     <>
+      <LeadIntelligencePanel
+        lead={intelligenceLead}
+        open={intelligenceOpen}
+        onClose={() => { setIntelligenceOpen(false); setIntelligenceLead(null); }}
+      />
+
       <EnhancedLeadDetailModal
         lead={selectedLead}
         open={modalOpen}
@@ -429,15 +438,32 @@ export default function AdminLeadsSection({ expanded = false }) {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <Badge className={`${getStatusColor(lead.status)} border gap-1`}>
                               {getStatusIcon(lead.status)}
                               {lead.status || 'new'}
                             </Badge>
+                            {(lead.lead_score >= 75) && (
+                              <Flame className="w-3.5 h-3.5 text-red-400 flex-shrink-0" title="Hot lead" />
+                            )}
                             <Button
                               size="sm"
                               variant="ghost"
                               className="h-7 px-2"
+                              title="Intelligence Panel"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setIntelligenceLead(lead);
+                                setIntelligenceOpen(true);
+                              }}
+                            >
+                              <Brain className="w-4 h-4 text-purple-400" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 px-2"
+                              title="Action Plan"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setActionPlanLeadId(lead.id);
