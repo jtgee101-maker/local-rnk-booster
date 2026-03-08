@@ -462,6 +462,18 @@ export default function GodModeDashboard() {
             </div>
           </TabsContent>
 
+          <TabsContent value="pathways" className="mt-0">
+            <div className="bg-[#0a0a0a]/80 backdrop-blur-xl border border-gray-800/50 rounded-2xl p-6">
+              <PathwayConversionDashboard />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="nurture" className="mt-0">
+            <div className="bg-[#0a0a0a]/80 backdrop-blur-xl border border-gray-800/50 rounded-2xl p-6">
+              <PathwayNurtureConfig />
+            </div>
+          </TabsContent>
+
           <TabsContent value="resources" className="mt-0">
             <div className="bg-[#0a0a0a]/80 backdrop-blur-xl border border-gray-800/50 rounded-2xl p-8">
               <h2 className="text-2xl font-bold text-white mb-6">Resource Limits</h2>
