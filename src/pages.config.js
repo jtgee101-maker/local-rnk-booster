@@ -136,7 +136,6 @@ import Monitoring from './pages/Monitoring';
 import EnterpriseMode from './pages/EnterpriseMode';
 import GrowthMode from './pages/GrowthMode';
 import QuickStartWizard from './pages/QuickStartWizard';
-import adminDeprecated from './pages/Admin_DEPRECATED';
 import __Layout from './Layout.jsx';
 
 
@@ -230,7 +229,6 @@ export const PAGES = {
     "EnterpriseMode": EnterpriseMode,
     "GrowthMode": GrowthMode,
     "QuickStartWizard": QuickStartWizard,
-    "Admin_DEPRECATED": adminDeprecated,
 }
 
 export const pagesConfig = {
