@@ -242,7 +242,7 @@ export default function LeadIntelligencePanel({ lead, open, onClose }) {
                     {lead.enrichment_data?.linkedin_url && (
                       <a href={lead.enrichment_data.linkedin_url} target="_blank" rel="noopener noreferrer"
                         className="flex items-center gap-1.5 text-blue-400 hover:text-blue-300 text-xs">
-                        <Linkedin className="w-3.5 h-3.5" />LinkedIn Profile <ExternalLink className="w-3 h-3" />
+                        <Link2 className="w-3.5 h-3.5" />LinkedIn Profile <ExternalLink className="w-3 h-3" />
                       </a>
                     )}
                     {profile.headline && (
