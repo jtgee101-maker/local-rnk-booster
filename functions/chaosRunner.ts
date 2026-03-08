@@ -378,11 +378,14 @@ Deno.serve(async (req) => {
       return Response.json({ error: `Unknown suite: "${suite}". Valid: ${Object.keys(suiteMap).join(', ')}` }, { status: 400 });
     }
 
-    const results = {};
-    for (const s of toRun) {
-      console.log(`[CHAOS] Running suite: ${s}`);
-      results[s] = await suiteMap[s]();
-    }
+    console.log(`[CHAOS] Running ${toRun.length} suite(s) in parallel: ${toRun.join(', ')}`);
+    const entries = await Promise.all(
+      toRun.map(async (s) => {
+        const tests = await suiteMap[s]();
+        return [s, tests];
+      })
+    );
+    const results = Object.fromEntries(entries);
 
     const allTests = Object.values(results).flat();
     const passed = allTests.filter(t => t.status === 'pass').length;
