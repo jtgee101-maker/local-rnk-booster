@@ -122,7 +122,7 @@ export default function ResultsGeenius() {
       });
 
       // Update user behavior
-      const behaviors = await base44.entities.UserBehavior.filter({ session_id: sessionId });
+      const behaviors = await base44.entities.UserBehavior.filter({ session_id: sessionId }, '-created_date', 1);
       if (behaviors.length > 0) {
         await base44.entities.UserBehavior.update(behaviors[0].id, {
           interactions: [
