@@ -4,8 +4,31 @@ import {
   Activity, TrendingUp, Shield, Users, Zap, RefreshCw,
   CheckCircle, AlertTriangle, XCircle, Mail, Database,
   BarChart3, ArrowRight, Clock, Target, Globe, Smartphone,
-  Lock, Layers, ChevronUp, ChevronDown, Minus
+  Lock, Layers, ChevronUp, ChevronDown, Minus, Wrench
 } from 'lucide-react';
+
+function SeedSettingsButton() {
+  const [status, setStatus] = React.useState(null);
+  const run = async () => {
+    setStatus('running');
+    const res = await base44.functions.invoke('admin/seedRequiredSettings', {});
+    setStatus(res.data?.summary?.created > 0 ? 'seeded' : 'ok');
+  };
+  return (
+    <button
+      onClick={run}
+      disabled={status === 'running'}
+      className={`flex items-center gap-1 px-2 py-1 rounded border text-xs transition-colors ${
+        status === 'seeded' ? 'border-yellow-500/50 text-yellow-400' :
+        status === 'ok' ? 'border-green-500/50 text-green-400' :
+        'border-gray-700 text-gray-500 hover:text-[#c8ff00] hover:border-[#c8ff00]/40'
+      }`}
+    >
+      <Wrench className="w-3 h-3" />
+      {status === 'running' ? 'Checking…' : status === 'seeded' ? 'Settings seeded ⚠ update placeholders' : status === 'ok' ? 'Settings OK' : 'Seed Required Settings'}
+    </button>
+  );
+}
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
