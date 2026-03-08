@@ -355,7 +355,6 @@ export default function QuizGeenius() {
       }).catch(() => {});
       
       // Show user-friendly error without losing state
-      const { toast } = await import('sonner');
       toast.error('Unable to submit your audit. Please try again.', {
         description: 'Your answers have been saved. Click the button below to retry.',
         duration: 8000
