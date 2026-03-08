@@ -50,7 +50,7 @@ export default function Layout({ children, currentPageName }) {
   const showNav = !noNavPages.includes(currentPageName);
 
   // Check if current page is admin-only
-  const adminPages = ['GodModeDashboard', 'AdminControlCenter', 'ProductionChecklist', 'SecurityAudit', 'DataCleanup', 'StripeSetupGuide', 'FinalLaunchChecklist', 'FeatureFlags', 'TenantManager', 'SystemHealth', 'APILogs', 'AdminSystem', 'AdminJobs'];
+  const adminPages = ['GodModeDashboard', 'AdminControlCenter', 'ProductionChecklist', 'SecurityAudit', 'DataCleanup', 'StripeSetupGuide', 'FinalLaunchChecklist', 'FeatureFlags', 'TenantManager', 'SystemHealth', 'APILogs', 'AdminSystem', 'AdminJobs', 'ChaosTestDashboard'];
   const isAdminPage = adminPages.includes(currentPageName);
 
   useEffect(() => {

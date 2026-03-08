@@ -125,18 +125,36 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Business details service unavailable', code: 'MAPS_API_KEY_MISSING' }, { status: 500 });
     }
 
-    const detailsResponse = await fetch(`https://places.googleapis.com/v1/places/${placeId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Goog-Api-Key': apiKey,
-        'X-Goog-FieldMask': 'displayName,formattedAddress,nationalPhoneNumber,websiteUri,rating,userRatingCount,reviews,photos,regularOpeningHours,types,location,editorialSummary,businessStatus,primaryType'
+    // ── Fetch with 8-second timeout to prevent indefinite hangs ──────────────
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    let detailsResponse;
+    try {
+      detailsResponse = await fetch(`https://places.googleapis.com/v1/places/${placeId}`, {
+        method: 'GET',
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': apiKey,
+          'X-Goog-FieldMask': 'displayName,formattedAddress,nationalPhoneNumber,websiteUri,rating,userRatingCount,reviews,photos,regularOpeningHours,types,location,editorialSummary,businessStatus,primaryType'
+        }
+      });
+    } catch (fetchErr) {
+      clearTimeout(timeoutId);
+      if (fetchErr.name === 'AbortError') {
+        console.warn(`[TIMEOUT] Google Places details timed out for place_id=${placeId}`);
+        return Response.json({ error: 'Business lookup timed out. Please try again.', code: 'TIMEOUT' }, { status: 504 });
       }
-    });
+      throw fetchErr;
+    }
+    clearTimeout(timeoutId);
 
     if (!detailsResponse.ok) {
-      console.error('Google Places API HTTP error:', detailsResponse.status);
-      return Response.json({ error: 'Unable to load business details', code: 'MAPS_HTTP_ERROR' }, { status: 502 });
+      const gStatus = detailsResponse.status;
+      const code = gStatus === 429 ? 'QUOTA_EXCEEDED' : 'MAPS_HTTP_ERROR';
+      const errMsg = gStatus === 429 ? 'Google API quota exceeded. Please try again later.' : 'Unable to load business details';
+      console.error(`Google Places API HTTP error: ${gStatus} for place_id=${placeId}`);
+      return Response.json({ error: errMsg, code }, { status: 502 });
     }
 
     const detailsData = await detailsResponse.json();

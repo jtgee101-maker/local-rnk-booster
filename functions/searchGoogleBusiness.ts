@@ -113,19 +113,37 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Search service temporarily unavailable.', code: 'MAPS_API_KEY_MISSING' }, { status: 500 });
     }
 
-    const searchResponse = await fetch('https://places.googleapis.com/v1/places:searchText', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Goog-Api-Key': apiKey,
-        'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.types,places.location'
-      },
-      body: JSON.stringify({ textQuery: searchQuery, maxResultCount: 5 })
-    });
+    // ── Fetch with 8-second timeout to prevent indefinite hangs ──────────────
+    const searchController = new AbortController();
+    const searchTimeoutId = setTimeout(() => searchController.abort(), 8000);
+    let searchResponse;
+    try {
+      searchResponse = await fetch('https://places.googleapis.com/v1/places:searchText', {
+        method: 'POST',
+        signal: searchController.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': apiKey,
+          'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.types,places.location'
+        },
+        body: JSON.stringify({ textQuery: searchQuery, maxResultCount: 5 })
+      });
+    } catch (fetchErr) {
+      clearTimeout(searchTimeoutId);
+      if (fetchErr.name === 'AbortError') {
+        console.warn(`[TIMEOUT] Google Places search timed out for query="${searchQuery}"`);
+        return Response.json({ error: 'Search timed out. Please try again.', code: 'TIMEOUT' }, { status: 504 });
+      }
+      throw fetchErr;
+    }
+    clearTimeout(searchTimeoutId);
 
     if (!searchResponse.ok) {
-      console.error('Google Places API HTTP error:', searchResponse.status);
-      return Response.json({ error: 'Search service temporarily unavailable', code: 'MAPS_HTTP_ERROR' }, { status: 502 });
+      const gStatus = searchResponse.status;
+      const code = gStatus === 429 ? 'QUOTA_EXCEEDED' : 'MAPS_HTTP_ERROR';
+      const errMsg = gStatus === 429 ? 'Google API quota exceeded. Please try again later.' : 'Search service temporarily unavailable';
+      console.error(`Google Places API HTTP error: ${gStatus}`);
+      return Response.json({ error: errMsg, code }, { status: 502 });
     }
 
     const searchData = await searchResponse.json();
