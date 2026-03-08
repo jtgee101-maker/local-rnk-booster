@@ -463,8 +463,8 @@ export default function LaunchCommandCenter() {
           </Card>
         )}
 
-        {/* Footer links */}
-        <div className="mt-6 flex flex-wrap gap-4 text-xs text-gray-600">
+        {/* Footer links + seed action */}
+        <div className="mt-6 flex flex-wrap gap-4 text-xs text-gray-600 items-center">
           {[
             { label: '→ Chaos Tests', page: 'ChaosTestDashboard' },
             { label: '→ Admin Control Center', page: 'AdminControlCenter' },
@@ -473,6 +473,7 @@ export default function LaunchCommandCenter() {
           ].map(l => (
             <a key={l.page} href={createPageUrl(l.page)} className="hover:text-[#c8ff00] transition-colors">{l.label}</a>
           ))}
+          <SeedSettingsButton />
         </div>
 
       </div>
