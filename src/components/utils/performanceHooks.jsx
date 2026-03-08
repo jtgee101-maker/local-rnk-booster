@@ -57,4 +57,21 @@ export const sessionCache = {
   }
 };
 
-export default { useDebounce, sessionCache };
+/**
+ * prefetchResources - prefetches a list of URLs in the background
+ */
+export function prefetchResources(urls = []) {
+  if (typeof window === 'undefined') return;
+  urls.forEach((url) => {
+    try {
+      const link = document.createElement('link');
+      link.rel = 'prefetch';
+      link.href = url;
+      document.head.appendChild(link);
+    } catch {
+      // silently ignore
+    }
+  });
+}
+
+export default { useDebounce, sessionCache, prefetchResources };
