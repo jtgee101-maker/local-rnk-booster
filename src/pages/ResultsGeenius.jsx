@@ -43,13 +43,17 @@ export default function ResultsGeenius() {
 
         setLead(foundLead);
 
-        // Get session from behavior tracking (sort newest first)
-        const behaviors = await base44.entities.UserBehavior.filter({ email: foundLead.email }, '-created_date', 5);
-        const latestBehavior = behaviors.length > 0 ? behaviors[0] : null;
-        const userSessionId = latestBehavior ? latestBehavior.session_id : `results_${Date.now()}`;
+        // Get session from behavior tracking — non-blocking
+        let latestBehavior = null;
+        let userSessionId = `results_${Date.now()}`;
+        try {
+          const behaviors = await base44.entities.UserBehavior.filter({ email: foundLead.email }, '-created_date', 5);
+          latestBehavior = behaviors.length > 0 ? behaviors[0] : null;
+          if (latestBehavior) userSessionId = latestBehavior.session_id;
+        } catch {}
         setSessionId(userSessionId);
 
-        // Track results view
+        // Track results view — fire and forget, never block render
         base44.entities.ConversionEvent.create({
           funnel_version: 'geenius',
           event_name: 'results_viewed',
