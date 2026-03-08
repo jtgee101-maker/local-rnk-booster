@@ -18,7 +18,7 @@ import {
   BarChart3, Users, DollarSign, TrendingUp, AlertCircle, Mail, Bug, Repeat,
   Settings, Eye, Shield, Lock, Target, Brain, Zap,
   Activity, TrendingDown, CheckCircle2, Clock,
-  Loader2, ChevronDown, ChevronUp, ExternalLink, Sparkles, FileText, UserCheck
+  Loader2, ChevronDown, ChevronUp, ExternalLink, Sparkles, FileText, UserCheck, MapPin
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -84,6 +84,7 @@ const GeeniusEmailAutomationControl = lazy(() => import('@/components/admin/Geen
 const EmailFlowDemoPanel = lazy(() => import('@/components/admin/EmailFlowDemoPanel'));
 const LeadEnrichmentPanel = lazy(() => import('@/components/admin/LeadEnrichmentPanel'));
 const FunnelJourneyDashboard = lazy(() => import('@/components/admin/FunnelJourneyDashboard'));
+const LocationVariantManager = lazy(() => import('@/components/admin/LocationVariantManager'));
 
 // Modern loading component with skeleton
 const TabLoader = () => (
@@ -982,6 +983,7 @@ export default function AdminControlCenter() {
     { value: 'users', icon: Lock, label: 'Users', color: 'violet' },
     { value: 'settings', icon: Settings, label: 'Settings', color: 'slate' },
     { value: 'enrichment', icon: UserCheck, label: 'Enrichment', color: 'cyan' },
+    { value: 'location-variants', icon: MapPin, label: 'Location Content', color: 'teal' },
     { value: 'funnel-journey', icon: TrendingDown, label: 'Funnel Map', color: 'violet' },
     { value: 'testing', icon: CheckCircle2, label: 'Testing & QA', color: 'green' },
   ];
@@ -1318,6 +1320,12 @@ export default function AdminControlCenter() {
               <TabsContent value="enrichment" className="mt-0">
                 <Suspense fallback={<TabLoader />}>
                   <LeadEnrichmentPanel />
+                </Suspense>
+              </TabsContent>
+
+              <TabsContent value="location-variants" className="mt-0">
+                <Suspense fallback={<TabLoader />}>
+                  <LocationVariantManager />
                 </Suspense>
               </TabsContent>
 
