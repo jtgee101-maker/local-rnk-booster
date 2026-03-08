@@ -50,18 +50,18 @@ export default function ResultsGeenius() {
         setSessionId(userSessionId);
 
         // Track results view
-        await base44.entities.ConversionEvent.create({
+        base44.entities.ConversionEvent.create({
           funnel_version: 'geenius',
           event_name: 'results_viewed',
           lead_id: leadId,
           session_id: userSessionId,
           properties: {
-            business_name: leads[0].business_name,
-            health_score: leads[0].health_score,
-            email: leads[0].email,
-            phone: leads[0].phone
+            business_name: foundLead.business_name,
+            health_score: foundLead.health_score,
+            email: foundLead.email,
+            phone: foundLead.phone
           }
-        });
+        }).catch(() => {});
 
         // Update user behavior
         if (latestBehavior) {
@@ -83,7 +83,7 @@ export default function ResultsGeenius() {
           eventName: 'geenius_results_viewed',
           properties: {
             lead_id: leadId,
-            health_score: leads[0].health_score
+            health_score: foundLead.health_score
           }
         });
         
