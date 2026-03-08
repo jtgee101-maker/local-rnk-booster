@@ -4,8 +4,8 @@ import { Progress } from '@/components/ui/progress';
 import { Sparkles } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 import GeeniusErrorBoundary from '@/components/geenius/GeeniusErrorBoundary';
-import CookieConsentTracker from '@/components/tracking/CookieConsentTracker';
 
 // Import quiz step components
 import CategoryStep from '@/components/quiz/CategoryStep';
