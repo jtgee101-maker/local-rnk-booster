@@ -16,6 +16,7 @@ export default function ResultsGeenius() {
   const [sessionId, setSessionId] = useState(null);
   const [viewStartTime] = useState(Date.now());
   const [revealStage, setRevealStage] = useState('score'); // 'score', 'insights', 'videoask'
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const init = async () => {
