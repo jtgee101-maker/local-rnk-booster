@@ -6,7 +6,12 @@ import { ArrowLeft, Target, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import { ABTestProvider } from '@/components/abtest/ABTestProvider';
-import { prefetchResources, sessionCache } from '@/components/utils/performanceHooks';
+// Inline utilities to avoid external dependency issues
+const sessionCache = {
+  get(key) { try { const raw = sessionStorage.getItem(`perf_cache_${key}`); if (!raw) return null; const { value, expires } = JSON.parse(raw); if (expires && Date.now() > expires) { sessionStorage.removeItem(`perf_cache_${key}`); return null; } return value; } catch { return null; } },
+  set(key, value, ttlMs = 5 * 60 * 1000) { try { sessionStorage.setItem(`perf_cache_${key}`, JSON.stringify({ value, expires: Date.now() + ttlMs })); } catch {} },
+};
+function prefetchResources(urls = []) { if (typeof window === 'undefined') return; urls.forEach(url => { try { const link = document.createElement('link'); link.rel = 'prefetch'; link.href = url; document.head.appendChild(link); } catch {} }); }
 
 // Import critical first-view components directly (no lazy loading)
 import ProgressBar from '@/components/quiz/ProgressBar';
