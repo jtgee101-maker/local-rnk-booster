@@ -1315,6 +1315,18 @@ export default function AdminControlCenter() {
                 </Suspense>
               </TabsContent>
 
+              <TabsContent value="enrichment" className="mt-0">
+                <Suspense fallback={<TabLoader />}>
+                  <LeadEnrichmentPanel />
+                </Suspense>
+              </TabsContent>
+
+              <TabsContent value="funnel-journey" className="mt-0">
+                <Suspense fallback={<TabLoader />}>
+                  <FunnelJourneyDashboard />
+                </Suspense>
+              </TabsContent>
+
               <TabsContent value="testing" className="space-y-6 mt-0">
                 <Suspense fallback={<TabLoader />}>
                   <ProductionReadinessChecklist />
