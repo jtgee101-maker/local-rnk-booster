@@ -54,12 +54,14 @@ import AdminAuditPlan from './pages/AdminAuditPlan';
 import AdminControlCenter from './pages/AdminControlCenter';
 import AdminJobs from './pages/AdminJobs';
 import AdminSystem from './pages/AdminSystem';
+import adminDeprecated from './pages/Admin_DEPRECATED';
 import AnalyticsVerification from './pages/AnalyticsVerification';
 import AutoBodyLanding from './pages/AutoBodyLanding';
 import AutoRepairLanding from './pages/AutoRepairLanding';
 import BridgeGeenius from './pages/BridgeGeenius';
 import BridgeV3 from './pages/BridgeV3';
 import CampaignTesting from './pages/CampaignTesting';
+import ChaosTestDashboard from './pages/ChaosTestDashboard';
 import Checkout from './pages/Checkout';
 import CheckoutV2 from './pages/CheckoutV2';
 import ChiropractorLanding from './pages/ChiropractorLanding';
@@ -89,6 +91,7 @@ import HVACLanding from './pages/HVACLanding';
 import HandymanLanding from './pages/HandymanLanding';
 import Home from './pages/Home';
 import LandscapingLanding from './pages/LandscapingLanding';
+import LaunchCommandCenter from './pages/LaunchCommandCenter';
 import LawnCareLanding from './pages/LawnCareLanding';
 import LegalLanding from './pages/LegalLanding';
 import MoltBotDemo from './pages/MoltBotDemo';
@@ -126,9 +129,6 @@ import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import UserJourneyTest from './pages/UserJourneyTest';
 import V2Start from './pages/V2Start';
-import ChaosTestDashboard from './pages/ChaosTestDashboard';
-import LaunchCommandCenter from './pages/LaunchCommandCenter';
-import adminDeprecated from './pages/Admin_DEPRECATED';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminTenants from './pages/AdminTenants';
 import AdminUsers from './pages/AdminUsers';
@@ -148,12 +148,14 @@ export const PAGES = {
     "AdminControlCenter": AdminControlCenter,
     "AdminJobs": AdminJobs,
     "AdminSystem": AdminSystem,
+    "Admin_DEPRECATED": adminDeprecated,
     "AnalyticsVerification": AnalyticsVerification,
     "AutoBodyLanding": AutoBodyLanding,
     "AutoRepairLanding": AutoRepairLanding,
     "BridgeGeenius": BridgeGeenius,
     "BridgeV3": BridgeV3,
     "CampaignTesting": CampaignTesting,
+    "ChaosTestDashboard": ChaosTestDashboard,
     "Checkout": Checkout,
     "CheckoutV2": CheckoutV2,
     "ChiropractorLanding": ChiropractorLanding,
@@ -183,6 +185,7 @@ export const PAGES = {
     "HandymanLanding": HandymanLanding,
     "Home": Home,
     "LandscapingLanding": LandscapingLanding,
+    "LaunchCommandCenter": LaunchCommandCenter,
     "LawnCareLanding": LawnCareLanding,
     "LegalLanding": LegalLanding,
     "MoltBotDemo": MoltBotDemo,
@@ -220,9 +223,6 @@ export const PAGES = {
     "Upsell1": Upsell1,
     "UserJourneyTest": UserJourneyTest,
     "V2Start": V2Start,
-    "ChaosTestDashboard": ChaosTestDashboard,
-    "LaunchCommandCenter": LaunchCommandCenter,
-    "Admin_DEPRECATED": adminDeprecated,
     "AdminDashboard": AdminDashboard,
     "AdminTenants": AdminTenants,
     "AdminUsers": AdminUsers,

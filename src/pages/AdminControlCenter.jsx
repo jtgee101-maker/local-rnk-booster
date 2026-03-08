@@ -82,6 +82,8 @@ const EndToEndFlowTest = lazy(() => import('@/components/admin/EndToEndFlowTest'
 const SecurityComplianceTest = lazy(() => import('@/components/admin/SecurityComplianceTest'));
 const GeeniusEmailAutomationControl = lazy(() => import('@/components/admin/GeeniusEmailAutomationControl'));
 const EmailFlowDemoPanel = lazy(() => import('@/components/admin/EmailFlowDemoPanel'));
+const LeadEnrichmentPanel = lazy(() => import('@/components/admin/LeadEnrichmentPanel'));
+const FunnelJourneyDashboard = lazy(() => import('@/components/admin/FunnelJourneyDashboard'));
 
 // Modern loading component with skeleton
 const TabLoader = () => (
