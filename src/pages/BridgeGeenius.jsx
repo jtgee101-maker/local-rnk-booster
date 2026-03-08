@@ -395,7 +395,7 @@ export default function BridgeGeenius() {
                           </div>
                         </div>
                         <Button
-                          onClick={() => trackPathwayClick('done_for_you', pathwaySettings.pathway2_url)}
+                          onClick={() => trackPathwayClick('done_for_you', getPathwayUrl('pathway2_url'))}
                           className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-5 mt-4 text-sm"
                         >
                           Get Verified Provider
