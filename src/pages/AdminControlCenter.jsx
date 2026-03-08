@@ -981,6 +981,8 @@ export default function AdminControlCenter() {
     { value: 'reports', icon: FileText, label: 'Reports', color: 'blue' },
     { value: 'users', icon: Lock, label: 'Users', color: 'violet' },
     { value: 'settings', icon: Settings, label: 'Settings', color: 'slate' },
+    { value: 'enrichment', icon: UserCheck, label: 'Enrichment', color: 'cyan' },
+    { value: 'funnel-journey', icon: TrendingDown, label: 'Funnel Map', color: 'violet' },
     { value: 'testing', icon: CheckCircle2, label: 'Testing & QA', color: 'green' },
   ];
 
