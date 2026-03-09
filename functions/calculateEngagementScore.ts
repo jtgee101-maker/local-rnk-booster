@@ -46,12 +46,11 @@ Deno.serve(async (req) => {
     // SCORE 1: Business Health Score — read from GMB audit, do NOT recalculate
     const business_health_score = Math.round(lead.health_score || 0);
 
-    // Fetch engagement signals in parallel
-    const [allEmailLogs, conversionEvents] = await Promise.all([
-      base44.asServiceRole.entities.EmailLog.list('-created_date', 500),
+    // Fetch engagement signals in parallel — indexed filter, no memory scan
+    const [leadEmailLogs, conversionEvents] = await Promise.all([
+      base44.asServiceRole.entities.EmailLog.filter({ 'metadata.lead_id': lead_id }, '-created_date', 50).catch(() => []),
       base44.asServiceRole.entities.ConversionEvent.filter({ lead_id }).catch(() => [])
     ]);
-    const leadEmailLogs = allEmailLogs.filter(l => l.metadata?.lead_id === lead_id);
 
     // SCORE 2: Engagement Intent Score
     let rawEngagement = 0;
@@ -138,10 +137,11 @@ Deno.serve(async (req) => {
       await base44.asServiceRole.entities.LeadEngagementScore.create(scoreData);
     }
 
-    // Update Lead quick-access fields only (do not overwrite health_score)
+    // Update Lead quick-access fields AND engagement_score (do not overwrite health_score)
     await base44.asServiceRole.entities.Lead.update(lead_id, {
       lead_score: lead_priority_score,
-      lead_grade: grade
+      lead_grade: grade,
+      engagement_score: engagement_intent_score
     });
 
     return Response.json({

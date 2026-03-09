@@ -141,16 +141,17 @@ export default function Layout({ children, currentPageName }) {
 
   const navItems = getNavItems();
 
-  // Redirect non-admins from admin pages — check cookie
+  // Redirect non-admins from admin pages — check localStorage session
   useEffect(() => {
     if (!loading) {
       if (isAdminPage && !isAdmin) {
-        const cookieToken = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('admin_session='))
-          ?.split('=')[1];
+        const sessionToken = localStorage.getItem('admin_session_token');
+        const sessionExpires = localStorage.getItem('admin_session_expires');
+        const isValid = sessionToken && sessionExpires && new Date(sessionExpires) > new Date();
 
-        if (!cookieToken) {
+        if (!isValid) {
+          localStorage.removeItem('admin_session_token');
+          localStorage.removeItem('admin_session_expires');
           window.location.href = createPageUrl('AdminLogin');
         }
       }
