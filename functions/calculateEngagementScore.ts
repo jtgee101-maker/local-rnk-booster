@@ -137,10 +137,8 @@ Deno.serve(async (req) => {
       await base44.asServiceRole.entities.LeadEngagementScore.create(scoreData);
     }
 
-    // Update Lead quick-access fields AND engagement_score (do not overwrite health_score)
+    // ONLY write engagement_score to Lead — lead_score/lead_grade are owned by scoring/calculateLeadScore
     await base44.asServiceRole.entities.Lead.update(lead_id, {
-      lead_score: lead_priority_score,
-      lead_grade: grade,
       engagement_score: engagement_intent_score
     });
 
