@@ -140,6 +140,7 @@ import Monitoring from './pages/Monitoring';
 import EnterpriseMode from './pages/EnterpriseMode';
 import GrowthMode from './pages/GrowthMode';
 import QuickStartWizard from './pages/QuickStartWizard';
+import CityNicheLanding from './pages/CityNicheLanding';
 import __Layout from './Layout.jsx';
 
 
@@ -237,6 +238,7 @@ export const PAGES = {
     "EnterpriseMode": EnterpriseMode,
     "GrowthMode": GrowthMode,
     "QuickStartWizard": QuickStartWizard,
+    "CityNicheLanding": CityNicheLanding,
 }
 
 export const pagesConfig = {
