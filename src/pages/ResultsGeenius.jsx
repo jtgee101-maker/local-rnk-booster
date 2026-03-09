@@ -262,7 +262,7 @@ export default function ResultsGeenius() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  <GuidedInsights
+                  <VisualAuditReport
                     healthScore={healthScore}
                     criticalIssues={criticalIssues}
                     lead={lead}
