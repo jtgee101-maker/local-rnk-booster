@@ -34,10 +34,18 @@ export default function FinalCTA({ onContinue, healthScore }) {
           whileTap={{ scale: 0.97 }}
           className="w-full sm:w-auto flex items-center justify-center gap-3 px-10 py-5 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-lg shadow-2xl shadow-purple-500/40 transition-all active:scale-95"
         >
-          View My Growth Pathways
+          See Your Recommended Growth Plan
           <motion.span animate={{ x: [0, 5, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
             <ArrowRight className="w-5 h-5" />
           </motion.span>
+        </motion.button>
+        <motion.button
+          onClick={onContinue}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+          className="w-full sm:w-auto flex items-center justify-center px-8 py-4 rounded-full border border-purple-500/50 text-purple-300 hover:bg-purple-500/10 font-semibold text-base transition-all"
+        >
+          Book a Strategy Call
         </motion.button>
       </div>
 

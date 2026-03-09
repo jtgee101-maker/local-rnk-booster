@@ -5,11 +5,11 @@ import { createPageUrl } from '@/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import HealthScoreReveal from '@/components/results/HealthScoreReveal';
 import GuidedInsights from '@/components/results/GuidedInsights';
-import VisualAuditReport from '@/components/results/VisualAuditReport';
 import VideoAskEmbed from '@/components/results/VideoAskEmbed';
 import CaseStudiesShowcase from '@/components/results/CaseStudiesShowcase';
 import UrgencyBanner from '@/components/results/UrgencyBanner';
 import FinalCTA from '@/components/results/FinalCTA';
+import VisualAuditReport from '@/components/results/VisualAuditReport';
 
 export default function ResultsGeenius() {
   const [lead, setLead] = useState(null);
@@ -262,7 +262,7 @@ export default function ResultsGeenius() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  <VisualAuditReport
+                  <GuidedInsights
                     healthScore={healthScore}
                     criticalIssues={criticalIssues}
                     lead={lead}
