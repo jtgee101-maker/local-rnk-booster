@@ -51,8 +51,11 @@ import ABTestDashboard from './pages/ABTestDashboard';
 import APILogs from './pages/APILogs';
 import Admin from './pages/Admin';
 import AdminAuditPlan from './pages/AdminAuditPlan';
+import AdminAuthCallback from './pages/AdminAuthCallback';
 import AdminControlCenter from './pages/AdminControlCenter';
 import AdminJobs from './pages/AdminJobs';
+import AdminLogin from './pages/AdminLogin';
+import AdminLogout from './pages/AdminLogout';
 import AdminSystem from './pages/AdminSystem';
 import adminDeprecated from './pages/Admin_DEPRECATED';
 import AnalyticsVerification from './pages/AnalyticsVerification';
@@ -129,9 +132,6 @@ import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import UserJourneyTest from './pages/UserJourneyTest';
 import V2Start from './pages/V2Start';
-import AdminLogin from './pages/AdminLogin';
-import AdminAuthCallback from './pages/AdminAuthCallback';
-import AdminLogout from './pages/AdminLogout';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminTenants from './pages/AdminTenants';
 import AdminUsers from './pages/AdminUsers';
@@ -148,8 +148,11 @@ export const PAGES = {
     "APILogs": APILogs,
     "Admin": Admin,
     "AdminAuditPlan": AdminAuditPlan,
+    "AdminAuthCallback": AdminAuthCallback,
     "AdminControlCenter": AdminControlCenter,
     "AdminJobs": AdminJobs,
+    "AdminLogin": AdminLogin,
+    "AdminLogout": AdminLogout,
     "AdminSystem": AdminSystem,
     "Admin_DEPRECATED": adminDeprecated,
     "AnalyticsVerification": AnalyticsVerification,
@@ -226,9 +229,6 @@ export const PAGES = {
     "Upsell1": Upsell1,
     "UserJourneyTest": UserJourneyTest,
     "V2Start": V2Start,
-    "AdminLogin": AdminLogin,
-    "AdminAuthCallback": AdminAuthCallback,
-    "AdminLogout": AdminLogout,
     "AdminDashboard": AdminDashboard,
     "AdminTenants": AdminTenants,
     "AdminUsers": AdminUsers,

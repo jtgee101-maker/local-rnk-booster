@@ -12,14 +12,11 @@ export default function AdminLogout() {
 
   const logout = async () => {
     try {
-      // Get session token from cookie
-      const sessionToken = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('admin_session='))
-        ?.split('=')[1];
+      // Get session token from localStorage (where AdminAuthCallback stores it)
+      const sessionToken = localStorage.getItem('admin_session_token');
 
       if (sessionToken) {
-        // Call backend logout
+        // Revoke session in DB
         await base44.functions.invoke('auth/adminLogout', {
           session_token: sessionToken
         });

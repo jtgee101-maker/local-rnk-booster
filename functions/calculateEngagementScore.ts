@@ -21,7 +21,7 @@ function calcGrade(score) {
  * Score 3: lead_priority_score    — 40% health + 60% engagement (composite for routing)
  * 
  * Saves to LeadEngagementScore entity.
- * Also updates Lead.lead_score / lead_grade for quick access in list views.
+ * Also updates Lead.engagement_score only — Lead.lead_score/lead_grade are owned by scoring/calculateLeadScore.
  */
 Deno.serve(async (req) => {
   try {
