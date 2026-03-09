@@ -66,6 +66,14 @@ export default function QuizGeenius() {
         campaign_id: params.get('cid'),
         affiliate_code: params.get('aff')
       };
+
+      // Track referral visit — fire and forget
+      if (campaign.ref) {
+        base44.analytics.track({
+          eventName: 'referral_visit',
+          properties: { referral_code: campaign.ref, session_id: sessionId }
+        });
+      }
       
       if (!mounted) return;
       setUtmParams(utm);
@@ -245,8 +253,17 @@ export default function QuizGeenius() {
           critical_issues: criticalIssues,
           status: 'new',
           last_quiz_date: new Date().toISOString(),
-          quiz_submission_count: 1
+          quiz_submission_count: 1,
+          referral_code: campaignData.ref || null
         });
+
+        // Attribute referral lead — fire and forget
+        if (campaignData.ref) {
+          base44.analytics.track({
+            eventName: 'referral_lead_created',
+            properties: { referral_code: campaignData.ref, lead_id: lead.id }
+          });
+        }
       }
 
       // Track completion (fire and forget - don't block)

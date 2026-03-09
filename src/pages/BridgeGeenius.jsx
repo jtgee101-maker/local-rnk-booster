@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import GeeniusFAQ from '@/components/geenius/GeeniusFAQ';
+import ReferralCTA from '@/components/referrals/ReferralCTA';
 
 export default function BridgeGeenius() {
   const [lead, setLead] = useState(null);
@@ -460,6 +461,11 @@ export default function BridgeGeenius() {
               </div>
             </div>
           </div>
+
+          {/* Referral CTA */}
+          {lead?.email && (
+            <ReferralCTA email={lead.email} businessName={lead.business_name} context="bridge" />
+          )}
 
           {/* FAQ Section */}
           <GeeniusFAQ />

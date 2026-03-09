@@ -10,6 +10,7 @@ import CaseStudiesShowcase from '@/components/results/CaseStudiesShowcase';
 import UrgencyBanner from '@/components/results/UrgencyBanner';
 import FinalCTA from '@/components/results/FinalCTA';
 import VisualAuditReport from '@/components/results/VisualAuditReport';
+import ReferralCTA from '@/components/referrals/ReferralCTA';
 
 export default function ResultsGeenius() {
   const [lead, setLead] = useState(null);
@@ -289,6 +290,11 @@ export default function ResultsGeenius() {
 
                   {/* Case Studies */}
                   <CaseStudiesShowcase onViewPathways={handleContinue} />
+
+                  {/* Referral CTA */}
+                  {lead?.email && (
+                    <ReferralCTA email={lead.email} businessName={lead.business_name} context="results" />
+                  )}
 
                   {/* Final sticky CTA */}
                   <FinalCTA onContinue={handleContinue} healthScore={healthScore} />

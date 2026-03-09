@@ -68,6 +68,7 @@ import ChaosTestDashboard from './pages/ChaosTestDashboard';
 import Checkout from './pages/Checkout';
 import CheckoutV2 from './pages/CheckoutV2';
 import ChiropractorLanding from './pages/ChiropractorLanding';
+import CityNicheLanding from './pages/CityNicheLanding';
 import ClientDashboard from './pages/ClientDashboard';
 import ContractorsLanding from './pages/ContractorsLanding';
 import CustomDomainGuide from './pages/CustomDomainGuide';
@@ -119,6 +120,7 @@ import RestaurantsLanding from './pages/RestaurantsLanding';
 import ResultsGeenius from './pages/ResultsGeenius';
 import Roadmap from './pages/Roadmap';
 import RoofersLanding from './pages/RoofersLanding';
+import SEOAuditIndex from './pages/SEOAuditIndex';
 import SecurityAudit from './pages/SecurityAudit';
 import Settings from './pages/Settings';
 import StripeSetupGuide from './pages/StripeSetupGuide';
@@ -132,8 +134,6 @@ import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import UserJourneyTest from './pages/UserJourneyTest';
 import V2Start from './pages/V2Start';
-import CityNicheLanding from './pages/CityNicheLanding';
-import SEOAuditIndex from './pages/SEOAuditIndex';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminTenants from './pages/AdminTenants';
 import AdminUsers from './pages/AdminUsers';
@@ -167,6 +167,7 @@ export const PAGES = {
     "Checkout": Checkout,
     "CheckoutV2": CheckoutV2,
     "ChiropractorLanding": ChiropractorLanding,
+    "CityNicheLanding": CityNicheLanding,
     "ClientDashboard": ClientDashboard,
     "ContractorsLanding": ContractorsLanding,
     "CustomDomainGuide": CustomDomainGuide,
@@ -218,6 +219,7 @@ export const PAGES = {
     "ResultsGeenius": ResultsGeenius,
     "Roadmap": Roadmap,
     "RoofersLanding": RoofersLanding,
+    "SEOAuditIndex": SEOAuditIndex,
     "SecurityAudit": SecurityAudit,
     "Settings": Settings,
     "StripeSetupGuide": StripeSetupGuide,
@@ -231,8 +233,6 @@ export const PAGES = {
     "Upsell1": Upsell1,
     "UserJourneyTest": UserJourneyTest,
     "V2Start": V2Start,
-    "CityNicheLanding": CityNicheLanding,
-    "SEOAuditIndex": SEOAuditIndex,
     "AdminDashboard": AdminDashboard,
     "AdminTenants": AdminTenants,
     "AdminUsers": AdminUsers,
