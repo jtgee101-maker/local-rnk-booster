@@ -96,7 +96,7 @@ export default function ReferralDashboard() {
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {[
           { label: 'Total Referred', value: referrals.length, icon: Users, color: 'purple' },
-          { label: 'Link Clicks', value: totalClicks, icon: MousePointer, color: 'blue' },
+          { label: 'Referred Leads', value: totalClicks, icon: MousePointer, color: 'blue' },
           { label: 'Converted', value: converted, icon: TrendingUp, color: 'green' },
           { label: 'Total Earned', value: `$${totalEarned}`, icon: DollarSign, color: 'yellow' },
           { label: 'Conversion Rate', value: `${successRate}%`, icon: Sparkles, color: 'pink' }
