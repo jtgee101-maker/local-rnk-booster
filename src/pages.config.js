@@ -53,14 +53,18 @@ import Admin from './pages/Admin';
 import AdminAuditPlan from './pages/AdminAuditPlan';
 import AdminAuthCallback from './pages/AdminAuthCallback';
 import AdminControlCenter from './pages/AdminControlCenter';
+import AdminDashboard from './pages/AdminDashboard';
 import AdminJobs from './pages/AdminJobs';
 import AdminLogin from './pages/AdminLogin';
 import AdminLogout from './pages/AdminLogout';
 import AdminSystem from './pages/AdminSystem';
+import AdminTenants from './pages/AdminTenants';
+import AdminUsers from './pages/AdminUsers';
 import adminDeprecated from './pages/Admin_DEPRECATED';
 import AnalyticsVerification from './pages/AnalyticsVerification';
 import AutoBodyLanding from './pages/AutoBodyLanding';
 import AutoRepairLanding from './pages/AutoRepairLanding';
+import BrandEditor from './pages/BrandEditor';
 import BridgeGeenius from './pages/BridgeGeenius';
 import BridgeV3 from './pages/BridgeV3';
 import CampaignTesting from './pages/CampaignTesting';
@@ -80,6 +84,7 @@ import DocsHome from './pages/DocsHome';
 import DomainConfigGuide from './pages/DomainConfigGuide';
 import DomainSetup from './pages/DomainSetup';
 import ElectriciansLanding from './pages/ElectriciansLanding';
+import EnterpriseMode from './pages/EnterpriseMode';
 import Error403 from './pages/Error403';
 import Error404 from './pages/Error404';
 import Error500 from './pages/Error500';
@@ -90,6 +95,7 @@ import FoxyAuditLanding from './pages/FoxyAuditLanding';
 import GettingStarted from './pages/GettingStarted';
 import GodModeDashboard from './pages/GodModeDashboard';
 import godmodedashboardTest from './pages/GodModeDashboard.test';
+import GrowthMode from './pages/GrowthMode';
 import GuideQuizGeenius from './pages/GuideQuizGeenius';
 import HVACLanding from './pages/HVACLanding';
 import HandymanLanding from './pages/HandymanLanding';
@@ -99,6 +105,7 @@ import LaunchCommandCenter from './pages/LaunchCommandCenter';
 import LawnCareLanding from './pages/LawnCareLanding';
 import LegalLanding from './pages/LegalLanding';
 import MoltBotDemo from './pages/MoltBotDemo';
+import Monitoring from './pages/Monitoring';
 import PlumbersLanding from './pages/PlumbersLanding';
 import PowerWashingLanding from './pages/PowerWashingLanding';
 import PreDeploymentAudit from './pages/PreDeploymentAudit';
@@ -109,6 +116,8 @@ import ProductionChecklist from './pages/ProductionChecklist';
 import ProductionFinalChecklist from './pages/ProductionFinalChecklist';
 import ProductionLaunchChecklist from './pages/ProductionLaunchChecklist';
 import ProductionReadinessCheck from './pages/ProductionReadinessCheck';
+import ProgrammaticAnalytics from './pages/ProgrammaticAnalytics';
+import QuickStartWizard from './pages/QuickStartWizard';
 import Quiz from './pages/Quiz';
 import QuizGeenius from './pages/QuizGeenius';
 import QuizGeeniusV2 from './pages/QuizGeeniusV2';
@@ -134,19 +143,6 @@ import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import UserJourneyTest from './pages/UserJourneyTest';
 import V2Start from './pages/V2Start';
-import ProgrammaticAnalytics from './pages/ProgrammaticAnalytics';
-import AdminDashboard from './pages/AdminDashboard';
-import AdminTenants from './pages/AdminTenants';
-import AdminUsers from './pages/AdminUsers';
-import BrandEditor from './pages/BrandEditor';
-import Monitoring from './pages/Monitoring';
-import EnterpriseMode from './pages/EnterpriseMode';
-import GrowthMode from './pages/GrowthMode';
-import QuickStartWizard from './pages/QuickStartWizard';
-import GrowthMode from './pages/GrowthMode';
-import QuickStartWizard from './pages/QuickStartWizard';
-import EnterpriseMode from './pages/EnterpriseMode';
-import Monitoring from './pages/Monitoring';
 import __Layout from './Layout.jsx';
 
 
@@ -157,14 +153,18 @@ export const PAGES = {
     "AdminAuditPlan": AdminAuditPlan,
     "AdminAuthCallback": AdminAuthCallback,
     "AdminControlCenter": AdminControlCenter,
+    "AdminDashboard": AdminDashboard,
     "AdminJobs": AdminJobs,
     "AdminLogin": AdminLogin,
     "AdminLogout": AdminLogout,
     "AdminSystem": AdminSystem,
+    "AdminTenants": AdminTenants,
+    "AdminUsers": AdminUsers,
     "Admin_DEPRECATED": adminDeprecated,
     "AnalyticsVerification": AnalyticsVerification,
     "AutoBodyLanding": AutoBodyLanding,
     "AutoRepairLanding": AutoRepairLanding,
+    "BrandEditor": BrandEditor,
     "BridgeGeenius": BridgeGeenius,
     "BridgeV3": BridgeV3,
     "CampaignTesting": CampaignTesting,
@@ -184,6 +184,7 @@ export const PAGES = {
     "DomainConfigGuide": DomainConfigGuide,
     "DomainSetup": DomainSetup,
     "ElectriciansLanding": ElectriciansLanding,
+    "EnterpriseMode": EnterpriseMode,
     "Error403": Error403,
     "Error404": Error404,
     "Error500": Error500,
@@ -194,6 +195,7 @@ export const PAGES = {
     "GettingStarted": GettingStarted,
     "GodModeDashboard": GodModeDashboard,
     "GodModeDashboard.test": godmodedashboardTest,
+    "GrowthMode": GrowthMode,
     "GuideQuizGeenius": GuideQuizGeenius,
     "HVACLanding": HVACLanding,
     "HandymanLanding": HandymanLanding,
@@ -203,6 +205,7 @@ export const PAGES = {
     "LawnCareLanding": LawnCareLanding,
     "LegalLanding": LegalLanding,
     "MoltBotDemo": MoltBotDemo,
+    "Monitoring": Monitoring,
     "PlumbersLanding": PlumbersLanding,
     "PowerWashingLanding": PowerWashingLanding,
     "PreDeploymentAudit": PreDeploymentAudit,
@@ -213,6 +216,8 @@ export const PAGES = {
     "ProductionFinalChecklist": ProductionFinalChecklist,
     "ProductionLaunchChecklist": ProductionLaunchChecklist,
     "ProductionReadinessCheck": ProductionReadinessCheck,
+    "ProgrammaticAnalytics": ProgrammaticAnalytics,
+    "QuickStartWizard": QuickStartWizard,
     "Quiz": Quiz,
     "QuizGeenius": QuizGeenius,
     "QuizGeeniusV2": QuizGeeniusV2,
@@ -238,19 +243,6 @@ export const PAGES = {
     "Upsell1": Upsell1,
     "UserJourneyTest": UserJourneyTest,
     "V2Start": V2Start,
-    "ProgrammaticAnalytics": ProgrammaticAnalytics,
-    "AdminDashboard": AdminDashboard,
-    "AdminTenants": AdminTenants,
-    "AdminUsers": AdminUsers,
-    "BrandEditor": BrandEditor,
-    "Monitoring": Monitoring,
-    "EnterpriseMode": EnterpriseMode,
-    "GrowthMode": GrowthMode,
-    "QuickStartWizard": QuickStartWizard,
-    "GrowthMode": GrowthMode,
-    "QuickStartWizard": QuickStartWizard,
-    "EnterpriseMode": EnterpriseMode,
-    "Monitoring": Monitoring,
 }
 
 export const pagesConfig = {

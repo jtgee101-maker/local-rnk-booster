@@ -307,24 +307,10 @@ export default function QuizGeenius() {
         })
         .catch(err => console.error('Behavior tracking failed:', err));
 
-      // Send emails in background (don't await - fire and forget)
-      Promise.all([
-        base44.functions.invoke('sendGeeniusEmail', {
-          leadData: lead,
-          sessionId: sessionId,
-          utmParams: utmParams,
-          campaignData: campaignData,
-          behaviorData: {
-            time_on_page: totalTime,
-            scroll_depth: scrollDepth,
-            click_count: clickCount
-          }
-        }).catch(err => console.error('Lead email failed:', err)),
-        
-        base44.functions.invoke('notifyAdminNewLead', {
-          leadData: lead
-        }).catch(err => console.error('Admin notification failed:', err))
-      ]).catch(() => console.warn('Some emails failed'));
+      // Notify admin only — lead welcome email is handled by geeniusWorkflowOrchestrator entity automation
+      base44.functions.invoke('notifyAdminNewLead', {
+        leadData: lead
+      }).catch(err => console.error('Admin notification failed:', err));
 
       // Background analytics (fire and forget)
       try {
