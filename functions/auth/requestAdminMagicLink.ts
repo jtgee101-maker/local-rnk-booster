@@ -1,81 +1,113 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
-import crypto from 'node:crypto';
+import { Resend } from 'npm:resend@3.2.0';
 
-const ADMIN_ALLOWLIST = (Deno.env.get('ADMIN_ALLOWLIST') || 'jtgee101@gmail.com').split(',').map(e => e.trim().toLowerCase());
-const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
-const ADMIN_MAGIC_LINK_FROM_EMAIL = Deno.env.get('ADMIN_MAGIC_LINK_FROM_EMAIL') || 'admin@localrank.ai';
-const APP_BASE_URL = Deno.env.get('APP_BASE_URL') || 'https://localrank.ai';
-
-function generateSecureToken() {
-  return crypto.randomBytes(32).toString('base64url');
-}
-
-function hashToken(token) {
-  return crypto.createHash('sha256').update(token).digest('hex');
-}
+const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
 function normalizeEmail(email) {
-  return email.trim().toLowerCase();
+  return email.toLowerCase().trim();
+}
+
+function isAllowlisted(email) {
+  const allowlist = (Deno.env.get('ADMIN_ALLOWLIST') || '').split(',').map(e => e.trim().toLowerCase());
+  return allowlist.includes(email);
 }
 
 async function getClientIP(req) {
-  const forwarded = req.headers.get('x-forwarded-for');
-  return forwarded ? forwarded.split(',')[0].trim() : req.headers.get('cf-connecting-ip') || 'unknown';
+  return req.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+         req.headers.get('x-real-ip') ||
+         'unknown';
 }
 
-async function isRateLimited(base44, email, ip) {
-  const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
-  
-  const emailAttempts = await base44.asServiceRole.entities.AdminAuthAuditLog.filter({
-    email: email,
-    event_type: 'magic_link_requested',
-    created_date: { $gte: fifteenMinutesAgo.toISOString() }
-  });
-  
-  if (emailAttempts.length >= 3) return true;
-  
-  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-  const ipAttempts = await base44.asServiceRole.entities.AdminAuthAuditLog.filter({
-    ip: ip,
-    event_type: 'magic_link_requested',
-    created_date: { $gte: oneHourAgo.toISOString() }
-  });
-  
-  return ipAttempts.length >= 10;
+function generateSecureToken() {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
-async function sendMagicLinkEmail(email, magicLink) {
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-      'User-Agent': 'LocalRank-Admin/1.0'
-    },
-    body: JSON.stringify({
-      from: ADMIN_MAGIC_LINK_FROM_EMAIL,
-      to: email,
-      subject: 'Your secure admin sign-in link',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px;">
-          <h2>Admin Sign-In</h2>
-          <p>Use the secure link below to sign in to the Admin Control Center.</p>
-          <p><a href="${magicLink}" style="background-color: #c8ff00; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">Sign in to Admin Control Center</a></p>
-          <p style="color: #666; font-size: 12px;">
-            This link expires in 10 minutes and can only be used once.<br/>
-            If you did not request this, you can safely ignore this email.
-          </p>
-        </div>
-      `,
-      text: `Use this secure one-time link to sign in to the Admin Control Center:\n\n${magicLink}\n\nThis link expires in 10 minutes and can only be used once.\n\nIf you did not request this, ignore this email.`
-    })
+async function sha256Hash(str) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function checkRateLimit(base44, email, ip) {
+  const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+
+  const emailLogs = await base44.asServiceRole.entities.AdminAuthAuditLog.filter({
+    email,
+    event_type: { $in: ['magic_link_requested', 'magic_link_sent'] },
+    created_date: { $gte: fifteenMinsAgo }
   });
 
-  if (!response.ok) {
-    throw new Error(`Resend API error: ${response.status}`);
-  }
+  if (emailLogs.length >= 3) return { limited: true, reason: 'email' };
 
-  return response.json();
+  const ipLogs = await base44.asServiceRole.entities.AdminAuthAuditLog.filter({
+    ip,
+    event_type: { $in: ['magic_link_requested', 'magic_link_sent'] },
+    created_date: { $gte: oneHourAgo }
+  });
+
+  if (ipLogs.length >= 10) return { limited: true, reason: 'ip' };
+
+  return { limited: false };
+}
+
+async function sendMagicLinkEmail(email, url) {
+  const htmlBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 500px; margin: 0 auto; padding: 20px; }
+    .header { text-align: center; margin-bottom: 30px; }
+    .button { display: inline-block; background: #0a0a0f; color: #c8ff00; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; }
+    .footer { color: #666; font-size: 12px; margin-top: 30px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Secure Admin Sign-In</h1>
+    </div>
+    <p>Hi,</p>
+    <p>Use the secure link below to sign in to the Admin Control Center.</p>
+    <p style="text-align: center; margin: 30px 0;">
+      <a href="${url}" class="button">Sign in to Admin Control Center</a>
+    </p>
+    <p><strong>Important:</strong></p>
+    <ul>
+      <li>This link expires in 10 minutes</li>
+      <li>It can only be used once</li>
+      <li>Do not forward this email</li>
+    </ul>
+    <p>If you did not request this, you can safely ignore this email.</p>
+    <div class="footer">
+      <p>— Security System</p>
+    </div>
+  </div>
+</body>
+</html>
+  `.trim();
+
+  const textBody = `Use this secure one-time link to sign in to the Admin Control Center:
+
+${url}
+
+This link expires in 10 minutes and can only be used once.
+
+If you did not request this, ignore this email.`;
+
+  return resend.emails.send({
+    from: Deno.env.get('ADMIN_MAGIC_LINK_FROM_EMAIL') || 'admin@localrank.ai',
+    to: email,
+    subject: 'Your secure admin sign-in link',
+    html: htmlBody,
+    text: textBody
+  });
 }
 
 Deno.serve(async (req) => {
@@ -85,91 +117,101 @@ Deno.serve(async (req) => {
 
   try {
     const base44 = createClientFromRequest(req);
-    const clientIP = await getClientIP(req);
-    const userAgent = req.headers.get('user-agent') || 'unknown';
-    
     const body = await req.json();
     const email = normalizeEmail(body.email || '');
+    const ip = await getClientIP(req);
+    const userAgent = req.headers.get('user-agent') || 'unknown';
 
     if (!email || !email.includes('@')) {
       return new Response(JSON.stringify({
         success: true,
         message: 'If that email is authorized, a secure sign-in link has been sent.'
-      }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+      }), { status: 200 });
     }
 
-    const isAllowlisted = ADMIN_ALLOWLIST.includes(email);
-
-    // Log the request
+    // Log request
     await base44.asServiceRole.entities.AdminAuthAuditLog.create({
-      email: email,
+      email,
       event_type: 'magic_link_requested',
-      ip: clientIP,
+      ip,
       user_agent: userAgent
     });
 
-    // Always return generic success to prevent email enumeration
-    if (!isAllowlisted) {
+    // Check allowlist
+    if (!isAllowlisted(email)) {
       return new Response(JSON.stringify({
         success: true,
         message: 'If that email is authorized, a secure sign-in link has been sent.'
-      }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+      }), { status: 200 });
     }
 
-    // Rate limit check
-    if (await isRateLimited(base44, email, clientIP)) {
+    // Check rate limit
+    const rateLimit = await checkRateLimit(base44, email, ip);
+    if (rateLimit.limited) {
       await base44.asServiceRole.entities.AdminAuthAuditLog.create({
-        email: email,
+        email,
         event_type: 'magic_link_rate_limited',
-        ip: clientIP,
+        ip,
         user_agent: userAgent,
-        metadata: { reason: 'too_many_requests' }
+        metadata: { reason: rateLimit.reason }
       });
-
       return new Response(JSON.stringify({
         success: true,
         message: 'If that email is authorized, a secure sign-in link has been sent.'
-      }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+      }), { status: 200 });
     }
 
     // Generate token
     const rawToken = generateSecureToken();
-    const tokenHash = hashToken(rawToken);
-    const nonce = crypto.randomBytes(16).toString('hex');
+    const tokenHash = await sha256Hash(rawToken);
+    const nonce = generateSecureToken();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
     // Store token
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
     await base44.asServiceRole.entities.AdminMagicLinkToken.create({
-      email: email,
+      email,
       token_hash: tokenHash,
-      nonce: nonce,
-      expires_at: expiresAt.toISOString(),
+      nonce,
+      expires_at: expiresAt,
       used: false,
       revoked: false,
-      requested_ip: clientIP,
+      requested_ip: ip,
       requested_user_agent: userAgent
     });
 
     // Build callback URL
-    const magicLink = `${APP_BASE_URL}/admin-auth/callback?token=${rawToken}`;
+    const appBaseUrl = Deno.env.get('APP_BASE_URL') || 'https://localrank.ai';
+    const callbackUrl = `${appBaseUrl}/admin-auth/callback?token=${rawToken}`;
 
     // Send email
-    await sendMagicLinkEmail(email, magicLink);
-
-    await base44.asServiceRole.entities.AdminAuthAuditLog.create({
-      email: email,
-      event_type: 'magic_link_sent',
-      ip: clientIP,
-      user_agent: userAgent
-    });
+    try {
+      await sendMagicLinkEmail(email, callbackUrl);
+      await base44.asServiceRole.entities.AdminAuthAuditLog.create({
+        email,
+        event_type: 'magic_link_sent',
+        ip,
+        user_agent: userAgent
+      });
+    } catch (sendError) {
+      console.error('Email send failed:', sendError);
+      await base44.asServiceRole.entities.AdminAuthAuditLog.create({
+        email,
+        event_type: 'magic_link_send_failed',
+        ip,
+        user_agent: userAgent,
+        metadata: { error: sendError.message }
+      });
+    }
 
     return new Response(JSON.stringify({
       success: true,
       message: 'If that email is authorized, a secure sign-in link has been sent.'
-    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
-
+    }), { status: 200 });
   } catch (error) {
-    console.error('Error in requestAdminMagicLink:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), { status: 500 });
+    console.error('Request magic link error:', error);
+    return new Response(JSON.stringify({
+      success: true,
+      message: 'If that email is authorized, a secure sign-in link has been sent.'
+    }), { status: 200 });
   }
 });

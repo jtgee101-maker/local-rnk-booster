@@ -1,20 +1,28 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
-import crypto from 'node:crypto';
 
-const ADMIN_ALLOWLIST = (Deno.env.get('ADMIN_ALLOWLIST') || 'jtgee101@gmail.com').split(',').map(e => e.trim().toLowerCase());
-const ADMIN_SESSION_TTL_HOURS = parseInt(Deno.env.get('ADMIN_SESSION_TTL_HOURS') || '12');
-
-function hashToken(token) {
-  return crypto.createHash('sha256').update(token).digest('hex');
+function isAllowlisted(email) {
+  const allowlist = (Deno.env.get('ADMIN_ALLOWLIST') || '').split(',').map(e => e.trim().toLowerCase());
+  return allowlist.includes(email.toLowerCase());
 }
 
-function generateSecureSessionToken() {
-  return crypto.randomBytes(32).toString('base64url');
+function generateSecureToken() {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+async function sha256Hash(str) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 async function getClientIP(req) {
-  const forwarded = req.headers.get('x-forwarded-for');
-  return forwarded ? forwarded.split(',')[0].trim() : req.headers.get('cf-connecting-ip') || 'unknown';
+  return req.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+         req.headers.get('x-real-ip') ||
+         'unknown';
 }
 
 Deno.serve(async (req) => {
@@ -24,24 +32,19 @@ Deno.serve(async (req) => {
 
   try {
     const base44 = createClientFromRequest(req);
-    const clientIP = await getClientIP(req);
-    const userAgent = req.headers.get('user-agent') || 'unknown';
-
     const body = await req.json();
     const rawToken = body.token || '';
+    const ip = await getClientIP(req);
+    const userAgent = req.headers.get('user-agent') || 'unknown';
 
     if (!rawToken) {
-      return new Response(JSON.stringify({
-        success: false,
-        reason: 'invalid',
-        message: 'Invalid or missing token.'
-      }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ status: 'invalid' }), { status: 400 });
     }
 
-    // Hash incoming token
-    const tokenHash = hashToken(rawToken);
+    // Hash the incoming token
+    const tokenHash = await sha256Hash(rawToken);
 
-    // Find token record
+    // Find token record by hash
     const tokenRecords = await base44.asServiceRole.entities.AdminMagicLinkToken.filter({
       token_hash: tokenHash
     });
@@ -50,137 +53,98 @@ Deno.serve(async (req) => {
       await base44.asServiceRole.entities.AdminAuthAuditLog.create({
         email: 'unknown',
         event_type: 'magic_link_invalid',
-        ip: clientIP,
+        ip,
         user_agent: userAgent,
         metadata: { reason: 'token_not_found' }
       });
-
-      return new Response(JSON.stringify({
-        success: false,
-        reason: 'invalid',
-        message: 'This sign-in link is invalid or has already been used.'
-      }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ status: 'invalid' }), { status: 400 });
     }
 
-    const tokenRecord = tokenRecords[0];
-    const email = tokenRecord.email;
+    const token = tokenRecords[0];
 
-    // Check if already used
-    if (tokenRecord.used) {
+    // Check if used or revoked
+    if (token.used || token.revoked) {
       await base44.asServiceRole.entities.AdminAuthAuditLog.create({
-        email: email,
+        email: token.email,
         event_type: 'magic_link_invalid',
-        ip: clientIP,
+        ip,
         user_agent: userAgent,
-        metadata: { reason: 'already_used' }
+        metadata: { reason: token.used ? 'already_used' : 'revoked' }
       });
-
-      return new Response(JSON.stringify({
-        success: false,
-        reason: 'invalid',
-        message: 'This sign-in link has already been used.'
-      }), { status: 400, headers: { 'Content-Type': 'application/json' } });
-    }
-
-    // Check if revoked
-    if (tokenRecord.revoked) {
-      await base44.asServiceRole.entities.AdminAuthAuditLog.create({
-        email: email,
-        event_type: 'magic_link_invalid',
-        ip: clientIP,
-        user_agent: userAgent,
-        metadata: { reason: 'revoked' }
-      });
-
-      return new Response(JSON.stringify({
-        success: false,
-        reason: 'invalid',
-        message: 'This sign-in link is no longer valid.'
-      }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ status: 'invalid' }), { status: 400 });
     }
 
     // Check if expired
-    if (new Date(tokenRecord.expires_at) < new Date()) {
+    if (new Date(token.expires_at) < new Date()) {
       await base44.asServiceRole.entities.AdminAuthAuditLog.create({
-        email: email,
+        email: token.email,
         event_type: 'magic_link_expired',
-        ip: clientIP,
+        ip,
         user_agent: userAgent
       });
-
-      return new Response(JSON.stringify({
-        success: false,
-        reason: 'expired',
-        message: 'This sign-in link has expired. Please request a new one.'
-      }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ status: 'expired' }), { status: 400 });
     }
 
-    // Check allowlist
-    if (!ADMIN_ALLOWLIST.includes(email)) {
+    // Re-check allowlist
+    if (!isAllowlisted(token.email)) {
       await base44.asServiceRole.entities.AdminAuthAuditLog.create({
-        email: email,
+        email: token.email,
         event_type: 'magic_link_invalid',
-        ip: clientIP,
+        ip,
         user_agent: userAgent,
         metadata: { reason: 'not_allowlisted' }
       });
-
-      return new Response(JSON.stringify({
-        success: false,
-        reason: 'invalid',
-        message: 'This email is not authorized for admin access.'
-      }), { status: 403, headers: { 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ status: 'invalid' }), { status: 400 });
     }
 
     // Mark token as used
-    await base44.asServiceRole.entities.AdminMagicLinkToken.update(tokenRecord.id, {
+    await base44.asServiceRole.entities.AdminMagicLinkToken.update(token.id, {
       used: true,
       used_at: new Date().toISOString(),
-      consumed_ip: clientIP,
+      consumed_ip: ip,
       consumed_user_agent: userAgent
     });
 
-    // Create admin session
-    const rawSessionToken = generateSecureSessionToken();
-    const sessionTokenHash = hashToken(rawSessionToken);
-    const expiresAt = new Date(Date.now() + ADMIN_SESSION_TTL_HOURS * 60 * 60 * 1000);
+    // Create session token
+    const rawSessionToken = generateSecureToken();
+    const sessionTokenHash = await sha256Hash(rawSessionToken);
+    const sessionTTLHours = parseInt(Deno.env.get('ADMIN_SESSION_TTL_HOURS') || '12');
+    const expiresAt = new Date(Date.now() + sessionTTLHours * 60 * 60 * 1000).toISOString();
 
+    // Store session
     const session = await base44.asServiceRole.entities.AdminSession.create({
-      email: email,
+      email: token.email,
       session_token_hash: sessionTokenHash,
-      expires_at: expiresAt.toISOString(),
+      expires_at: expiresAt,
       revoked: false,
-      created_ip: clientIP,
+      created_ip: ip,
       created_user_agent: userAgent,
       last_seen_at: new Date().toISOString()
     });
 
     // Log success
     await base44.asServiceRole.entities.AdminAuthAuditLog.create({
-      email: email,
+      email: token.email,
       event_type: 'magic_link_verified',
-      ip: clientIP,
+      ip,
       user_agent: userAgent
     });
 
     await base44.asServiceRole.entities.AdminAuthAuditLog.create({
-      email: email,
+      email: token.email,
       event_type: 'admin_login_success',
-      ip: clientIP,
+      ip,
       user_agent: userAgent
     });
 
     return new Response(JSON.stringify({
-      success: true,
-      session_id: session.id,
+      status: 'success',
       session_token: rawSessionToken,
-      email: email,
-      expires_at: expiresAt.toISOString(),
-      redirect: '/LaunchCommandCenter'
-    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
-
+      session_id: session.id,
+      expires_at: expiresAt
+    }), { status: 200 });
   } catch (error) {
-    console.error('Error in verifyAdminMagicLink:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), { status: 500 });
+    console.error('Verify magic link error:', error);
+    return new Response(JSON.stringify({ status: 'error' }), { status: 500 });
   }
 });
