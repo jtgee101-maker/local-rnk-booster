@@ -142,6 +142,9 @@ Deno.serve(async (req) => {
       engagement_score: engagement_intent_score
     });
 
+    // Trigger hot lead notification check (fire-and-forget)
+    base44.asServiceRole.functions.invoke('notifyAdminHotLead', { lead_id }).catch(e => console.warn('hot lead check skipped:', e.message));
+
     return Response.json({
       success: true,
       lead_id,

@@ -132,6 +132,8 @@ import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import UserJourneyTest from './pages/UserJourneyTest';
 import V2Start from './pages/V2Start';
+import CityNicheLanding from './pages/CityNicheLanding';
+import SEOAuditIndex from './pages/SEOAuditIndex';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminTenants from './pages/AdminTenants';
 import AdminUsers from './pages/AdminUsers';
@@ -140,8 +142,6 @@ import Monitoring from './pages/Monitoring';
 import EnterpriseMode from './pages/EnterpriseMode';
 import GrowthMode from './pages/GrowthMode';
 import QuickStartWizard from './pages/QuickStartWizard';
-import CityNicheLanding from './pages/CityNicheLanding';
-import SEOAuditIndex from './pages/SEOAuditIndex';
 import __Layout from './Layout.jsx';
 
 
@@ -231,6 +231,8 @@ export const PAGES = {
     "Upsell1": Upsell1,
     "UserJourneyTest": UserJourneyTest,
     "V2Start": V2Start,
+    "CityNicheLanding": CityNicheLanding,
+    "SEOAuditIndex": SEOAuditIndex,
     "AdminDashboard": AdminDashboard,
     "AdminTenants": AdminTenants,
     "AdminUsers": AdminUsers,
@@ -239,8 +241,6 @@ export const PAGES = {
     "EnterpriseMode": EnterpriseMode,
     "GrowthMode": GrowthMode,
     "QuickStartWizard": QuickStartWizard,
-    "CityNicheLanding": CityNicheLanding,
-    "SEOAuditIndex": SEOAuditIndex,
 }
 
 export const pagesConfig = {

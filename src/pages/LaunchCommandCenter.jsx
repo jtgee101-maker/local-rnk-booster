@@ -4,16 +4,37 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertCircle, CheckCircle2, Clock, Rocket, AlertTriangle, Settings, Zap, Shield, Database, Mail } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Clock, Rocket, AlertTriangle, Settings, Zap, Shield, Database, Mail, Flame } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function LaunchCommandCenter() {
   const [checks, setChecks] = useState({});
   const [loading, setLoading] = useState(true);
   const [deploying, setDeploying] = useState(false);
+  const [hotLeads, setHotLeads] = useState([]);
+  const [hotLeadsLoading, setHotLeadsLoading] = useState(false);
 
   useEffect(() => {
     runPreLaunchChecks();
+  }, []);
+
+  useEffect(() => {
+    const loadHotLeads = async () => {
+      setHotLeadsLoading(true);
+      try {
+        const leads = await base44.entities.Lead.list('-updated_date', 50);
+        const hot = leads
+          .filter(l => (l.lead_score || 0) >= 75)
+          .sort((a, b) => (b.lead_score || 0) - (a.lead_score || 0))
+          .slice(0, 15);
+        setHotLeads(hot);
+      } catch (e) {
+        console.error('Error loading hot leads:', e);
+      } finally {
+        setHotLeadsLoading(false);
+      }
+    };
+    loadHotLeads();
   }, []);
 
   const runPreLaunchChecks = async () => {
@@ -167,6 +188,15 @@ export default function LaunchCommandCenter() {
               <CheckCircle2 className="w-4 h-4" />
               Final Checks
             </TabsTrigger>
+            <TabsTrigger value="hotleads" className="gap-2">
+              <Flame className="w-4 h-4 text-orange-400" />
+              Hot Leads
+              {hotLeads.length > 0 && (
+                <span className="bg-orange-500 text-white text-xs rounded-full px-1.5 py-0.5 ml-1 leading-none">
+                  {hotLeads.length}
+                </span>
+              )}
+            </TabsTrigger>
           </TabsList>
 
           {/* System Checks */}
@@ -296,6 +326,67 @@ export default function LaunchCommandCenter() {
                 <p>• All systems: Operational</p>
                 <p>• Est. downtime: 0-2 minutes</p>
                 <p>• Rollback plan: Available</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Hot Leads */}
+          <TabsContent value="hotleads" className="space-y-4">
+            <Card className="bg-slate-800 border-slate-700">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Flame className="w-5 h-5 text-orange-400" />
+                  Hot Leads
+                  <Badge className="bg-orange-500/20 text-orange-400 ml-1">{hotLeads.length} active</Badge>
+                </CardTitle>
+                <CardDescription>
+                  Leads with score ≥ 75 — respond within 5 min for 9× conversion rate
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {hotLeadsLoading ? (
+                  <div className="text-gray-400 text-center py-10">
+                    <Clock className="w-6 h-6 animate-spin mx-auto mb-2 opacity-50" />
+                    Loading hot leads...
+                  </div>
+                ) : hotLeads.length === 0 ? (
+                  <div className="text-gray-500 text-center py-10">
+                    <Flame className="w-8 h-8 mx-auto mb-3 opacity-20" />
+                    <p>No hot leads yet</p>
+                    <p className="text-xs mt-1">Leads appear here when lead_score ≥ 75</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {hotLeads.map(lead => (
+                      <div key={lead.id} className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg border border-slate-700 hover:border-orange-500/40 transition-colors">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-white font-medium truncate">{lead.business_name || lead.email}</p>
+                          <p className="text-sm text-gray-400 truncate">{lead.address || lead.email}</p>
+                          {lead.phone && <p className="text-xs text-gray-500 mt-0.5">{lead.phone}</p>}
+                        </div>
+                        <div className="flex items-center gap-5 ml-4 flex-shrink-0">
+                          <div className="text-center">
+                            <p className="text-[#c8ff00] font-bold text-xl leading-none">{lead.lead_score || 0}</p>
+                            <p className="text-xs text-gray-500 mt-1">Score</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-orange-400 font-bold text-xl leading-none">{lead.engagement_score || 0}</p>
+                            <p className="text-xs text-gray-500 mt-1">Engage</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-white font-bold text-lg leading-none">{lead.lead_grade || '—'}</p>
+                            <p className="text-xs text-gray-500 mt-1">Grade</p>
+                          </div>
+                          <Badge className={lead.hot_lead_notified
+                            ? 'bg-green-500/20 text-green-400 whitespace-nowrap'
+                            : 'bg-red-500/20 text-red-400 whitespace-nowrap'}>
+                            {lead.hot_lead_notified ? '✓ Notified' : '⚡ Pending'}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
