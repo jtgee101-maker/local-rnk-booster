@@ -24,8 +24,12 @@ Deno.serve(async (req) => {
     } else if (filter_status) {
       leadsToScore = await base44.asServiceRole.entities.Lead.filter({ status: filter_status });
     } else {
-      const allLeads = await base44.asServiceRole.entities.Lead.list('-created_date', 500);
-      leadsToScore = allLeads.filter(l => !l.lead_score);
+      // Filtered fetch — only unscored leads, hard cap at 100. No full-table scan.
+      leadsToScore = await base44.asServiceRole.entities.Lead.filter(
+        { lead_score: null },
+        '-created_date',
+        100
+      );
     }
 
     let processed = 0;
