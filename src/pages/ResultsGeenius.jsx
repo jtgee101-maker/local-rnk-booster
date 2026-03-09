@@ -5,6 +5,7 @@ import { createPageUrl } from '@/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import HealthScoreReveal from '@/components/results/HealthScoreReveal';
 import GuidedInsights from '@/components/results/GuidedInsights';
+import VisualAuditReport from '@/components/results/VisualAuditReport';
 import VideoAskEmbed from '@/components/results/VideoAskEmbed';
 import CaseStudiesShowcase from '@/components/results/CaseStudiesShowcase';
 import UrgencyBanner from '@/components/results/UrgencyBanner';
