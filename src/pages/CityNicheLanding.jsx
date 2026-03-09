@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
-import { AlertTriangle, CheckCircle, ArrowRight, Zap, MapPin } from 'lucide-react';
+import { AlertTriangle, ArrowRight, Zap, MapPin, LayoutGrid } from 'lucide-react';
 
 const INDUSTRY_CONFIG = {
   hvac: {
@@ -75,6 +75,13 @@ export default function CityNicheLanding() {
 
   useEffect(() => {
     document.title = `Free ${config.label} SEO Audit for ${city} Businesses | LocalRank.ai`;
+
+    // Track page view
+    base44.entities.ConversionEvent.create({
+      funnel_version: 'geenius',
+      event_name: 'programmatic_landing_view',
+      properties: { city: cityRaw || 'unknown', industry: industryKey || 'unknown', landing_slug: `${cityRaw}-${industryKey}` }
+    }).catch(() => {});
 
     if (!cityRaw || !industryRaw) return;
     base44.entities.LocationContentVariant.filter({ industry: industryKey, location_value: city, is_active: true })
@@ -253,6 +260,18 @@ export default function CityNicheLanding() {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* Internal linking — back to hub */}
+      <section style={{ padding: '24px 20px', borderTop: `1px solid ${BG_BORDER}`, textAlign: 'center' }}>
+        <a
+          href={createPageUrl('SEOAuditIndex')}
+          style={{ color: '#6b7280', fontSize: 13, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+          onMouseEnter={e => e.currentTarget.style.color = BRAND_GREEN}
+          onMouseLeave={e => e.currentTarget.style.color = '#6b7280'}
+        >
+          <LayoutGrid size={14} /> Browse all city & industry audits
+        </a>
       </section>
 
       {/* Final CTA */}

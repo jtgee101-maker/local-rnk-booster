@@ -83,7 +83,7 @@ export default function SEOAuditIndex() {
             {CITIES.length} cities × {INDUSTRIES.length} industries = {CITIES.length * INDUSTRIES.length} targeted pages
           </p>
 
-          {INDUSTRIES.slice(0, 3).map(({ key, label, icon }) => (
+          {INDUSTRIES.map(({ key, label, icon }) => (
             <div key={key} style={{ marginBottom: 48 }}>
               <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span>{icon}</span> {label} SEO Audits
@@ -105,7 +105,7 @@ export default function SEOAuditIndex() {
           ))}
 
           <div style={{ textAlign: 'center', marginTop: 20 }}>
-            <p style={{ color: '#6b7280', fontSize: 14 }}>+ {INDUSTRIES.slice(3).length} more industries available — start your audit to find your city</p>
+            <p style={{ color: '#6b7280', fontSize: 14 }}>{CITIES.length} cities × {INDUSTRIES.length} industries = {CITIES.length * INDUSTRIES.length} targeted audit pages</p>
           </div>
         </div>
       </section>
