@@ -109,7 +109,7 @@ Deno.serve(async (req) => {
     // Create session token
     const rawSessionToken = generateSecureToken();
     const sessionTokenHash = await sha256Hash(rawSessionToken);
-    const sessionTTLHours = parseInt(Deno.env.get('ADMIN_SESSION_TTL_HOURS') || '12');
+    const sessionTTLHours = 12;
     const expiresAt = new Date(Date.now() + sessionTTLHours * 60 * 60 * 1000).toISOString();
 
     // Store session
