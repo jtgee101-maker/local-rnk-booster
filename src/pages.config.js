@@ -144,6 +144,9 @@ import EnterpriseMode from './pages/EnterpriseMode';
 import GrowthMode from './pages/GrowthMode';
 import QuickStartWizard from './pages/QuickStartWizard';
 import GrowthMode from './pages/GrowthMode';
+import QuickStartWizard from './pages/QuickStartWizard';
+import EnterpriseMode from './pages/EnterpriseMode';
+import Monitoring from './pages/Monitoring';
 import __Layout from './Layout.jsx';
 
 
@@ -245,6 +248,9 @@ export const PAGES = {
     "GrowthMode": GrowthMode,
     "QuickStartWizard": QuickStartWizard,
     "GrowthMode": GrowthMode,
+    "QuickStartWizard": QuickStartWizard,
+    "EnterpriseMode": EnterpriseMode,
+    "Monitoring": Monitoring,
 }
 
 export const pagesConfig = {
