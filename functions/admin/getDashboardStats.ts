@@ -13,17 +13,19 @@ Deno.serve(async (req) => {
     }
 
     const now = new Date();
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
     const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
+    // Only fetch last 30 days data — avoids full-table scans at scale
     const [leads, orders, errorLogs, bridgeViews, pathwayClicks] = await Promise.all([
-      base44.asServiceRole.entities.Lead.list('-created_date', 5000),
-      base44.asServiceRole.entities.Order.list('-created_date', 5000),
+      base44.asServiceRole.entities.Lead.filter({ created_date: { $gte: thirtyDaysAgo } }, '-created_date', 200),
+      base44.asServiceRole.entities.Order.filter({ created_date: { $gte: thirtyDaysAgo } }, '-created_date', 200),
       base44.asServiceRole.entities.ErrorLog.filter({ created_date: { $gte: oneHourAgo } }, '-created_date', 100),
-      base44.asServiceRole.entities.ConversionEvent.filter({ funnel_version: 'geenius', event_name: 'bridge_viewed' }, '-created_date', 5000),
-      base44.asServiceRole.entities.ConversionEvent.filter({ funnel_version: 'geenius', event_name: { $in: ['pathway_govtech_grant_clicked', 'pathway_done_for_you_clicked', 'pathway_diy_software_clicked'] } }, '-created_date', 5000)
+      base44.asServiceRole.entities.ConversionEvent.filter({ funnel_version: 'geenius', event_name: 'bridge_viewed', created_date: { $gte: thirtyDaysAgo } }, '-created_date', 500),
+      base44.asServiceRole.entities.ConversionEvent.filter({ funnel_version: 'geenius', event_name: { $in: ['pathway_govtech_grant_clicked', 'pathway_done_for_you_clicked', 'pathway_diy_software_clicked'] }, created_date: { $gte: thirtyDaysAgo } }, '-created_date', 500)
     ]);
 
     const completedOrders = orders.filter(o => o.status === 'completed');

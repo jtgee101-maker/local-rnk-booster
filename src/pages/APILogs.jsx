@@ -1,415 +1,272 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Download, Trash2, RefreshCw, Eye, Filter, ChevronDown, AlertCircle, CheckCircle2, Clock, Eye as EyeIcon } from 'lucide-react';
+import { Search, Download, RefreshCw, ChevronDown, AlertCircle, CheckCircle2, Clock, Shield } from 'lucide-react';
 import { toast } from 'sonner';
+import { format } from 'date-fns';
 
 export default function APILogs() {
-  const [logs, setLogs] = useState([]);
-  const [filteredLogs, setFilteredLogs] = useState([]);
+  const [errorLogs, setErrorLogs] = useState([]);
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [emailLogs, setEmailLogs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [methodFilter, setMethodFilter] = useState('all');
-  const [selectedLog, setSelectedLog] = useState(null);
-  const [expandedLog, setExpandedLog] = useState(null);
+  const [search, setSearch] = useState('');
+  const [severityFilter, setSeverityFilter] = useState('all');
+  const [expanded, setExpanded] = useState(null);
+  const [tab, setTab] = useState('errors');
 
   useEffect(() => {
-    loadLogs();
-    const interval = setInterval(loadLogs, 5000);
-    return () => clearInterval(interval);
+    loadAll();
   }, []);
 
-  useEffect(() => {
-    filterLogs();
-  }, [logs, searchTerm, statusFilter, methodFilter]);
-
-  const loadLogs = async () => {
+  const loadAll = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      // Simulate fetching logs
-      const mockLogs = Array.from({ length: 25 }, (_, i) => ({
-        id: `log-${Date.now()}-${i}`,
-        timestamp: new Date(Date.now() - Math.random() * 3600000).toISOString(),
-        method: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'][Math.floor(Math.random() * 5)],
-        endpoint: [
-          '/api/leads/list',
-          '/api/orders/create',
-          '/api/users/update',
-          '/api/analytics/metrics',
-          '/api/admin/health',
-          '/api/emails/send',
-          '/api/settings/get',
-          '/api/campaigns/stats'
-        ][Math.floor(Math.random() * 8)],
-        statusCode: [200, 201, 400, 401, 403, 404, 500][Math.floor(Math.random() * 7)],
-        duration: Math.floor(Math.random() * 5000 + 10),
-        requestSize: Math.floor(Math.random() * 50000),
-        responseSize: Math.floor(Math.random() * 100000),
-        ip: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`,
-        userAgent: 'Mozilla/5.0 (Admin Dashboard)',
-        error: Math.random() > 0.85 ? 'Internal Server Error' : null,
-        userId: `user-${Math.floor(Math.random() * 1000)}`,
-        requestBody: JSON.stringify({ test: 'data' }),
-        responseBody: JSON.stringify({ status: 'ok' })
-      })).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-      setLogs(mockLogs);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error loading logs:', error);
+      const [errors, audit, emails] = await Promise.all([
+        base44.entities.ErrorLog.list('-created_date', 100),
+        base44.entities.AdminAuthAuditLog.list('-created_date', 100),
+        base44.entities.EmailLog.list('-created_date', 100)
+      ]);
+      setErrorLogs(errors || []);
+      setAuditLogs(audit || []);
+      setEmailLogs(emails || []);
+    } catch (err) {
       toast.error('Failed to load logs');
-      setLoading(false);
     }
+    setLoading(false);
   };
 
-  const filterLogs = () => {
-    let filtered = logs;
+  const filteredErrors = errorLogs.filter(e => {
+    const matchSearch = !search || e.message?.toLowerCase().includes(search.toLowerCase()) || e.error_type?.toLowerCase().includes(search.toLowerCase());
+    const matchSev = severityFilter === 'all' || e.severity === severityFilter;
+    return matchSearch && matchSev;
+  });
 
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(log =>
-        log.endpoint.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.ip.includes(searchTerm) ||
-        log.userId.includes(searchTerm)
-      );
-    }
+  const filteredAudit = auditLogs.filter(e =>
+    !search || e.email?.includes(search) || e.event_type?.includes(search)
+  );
 
-    // Status filter
-    if (statusFilter !== 'all') {
-      if (statusFilter === 'success') {
-        filtered = filtered.filter(log => log.statusCode >= 200 && log.statusCode < 300);
-      } else if (statusFilter === 'client-error') {
-        filtered = filtered.filter(log => log.statusCode >= 400 && log.statusCode < 500);
-      } else if (statusFilter === 'server-error') {
-        filtered = filtered.filter(log => log.statusCode >= 500);
-      }
-    }
+  const filteredEmails = emailLogs.filter(e =>
+    !search || e.to?.includes(search) || e.subject?.toLowerCase().includes(search.toLowerCase())
+  );
 
-    // Method filter
-    if (methodFilter !== 'all') {
-      filtered = filtered.filter(log => log.method === methodFilter);
-    }
-
-    setFilteredLogs(filtered);
+  const severityBadge = (sev) => {
+    const map = { critical: 'bg-red-100 text-red-800', high: 'bg-orange-100 text-orange-800', medium: 'bg-yellow-100 text-yellow-800', low: 'bg-gray-100 text-gray-700' };
+    return map[sev] || map.low;
   };
 
-  const handleExport = () => {
-    const csv = [
-      ['Timestamp', 'Method', 'Endpoint', 'Status', 'Duration (ms)', 'IP', 'User ID'],
-      ...filteredLogs.map(log => [
-        new Date(log.timestamp).toLocaleString(),
-        log.method,
-        log.endpoint,
-        log.statusCode,
-        log.duration,
-        log.ip,
-        log.userId
-      ])
-    ].map(row => row.join(',')).join('\n');
+  const emailStatusBadge = (status) => {
+    const map = { sent: 'bg-green-100 text-green-800', failed: 'bg-red-100 text-red-800', bounced: 'bg-orange-100 text-orange-800', opened: 'bg-blue-100 text-blue-800' };
+    return map[status] || 'bg-gray-100 text-gray-700';
+  };
 
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
+  const exportCSV = (rows, name) => {
+    const csv = [Object.keys(rows[0] || {}).join(','), ...rows.map(r => Object.values(r).map(v => JSON.stringify(v ?? '')).join(','))].join('\n');
     const a = document.createElement('a');
-    a.href = url;
-    a.download = `api-logs-${new Date().toISOString().split('T')[0]}.csv`;
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    a.download = `${name}-${format(new Date(), 'yyyy-MM-dd')}.csv`;
     a.click();
-    toast.success('Logs exported successfully');
-  };
-
-  const handleClearLogs = async () => {
-    if (window.confirm('Are you sure you want to clear all logs? This cannot be undone.')) {
-      setLogs([]);
-      setFilteredLogs([]);
-      toast.success('Logs cleared');
-    }
-  };
-
-  const getStatusColor = (statusCode) => {
-    if (statusCode >= 200 && statusCode < 300) return 'bg-green-100 text-green-800';
-    if (statusCode >= 400 && statusCode < 500) return 'bg-yellow-100 text-yellow-800';
-    return 'bg-red-100 text-red-800';
-  };
-
-  const getStatusIcon = (statusCode) => {
-    if (statusCode >= 200 && statusCode < 300) return <CheckCircle2 className="w-4 h-4" />;
-    return <AlertCircle className="w-4 h-4" />;
-  };
-
-  const getMethodColor = (method) => {
-    const colors = {
-      GET: 'bg-blue-100 text-blue-800',
-      POST: 'bg-green-100 text-green-800',
-      PUT: 'bg-yellow-100 text-yellow-800',
-      DELETE: 'bg-red-100 text-red-800',
-      PATCH: 'bg-purple-100 text-purple-800'
-    };
-    return colors[method] || 'bg-gray-100 text-gray-800';
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">API Logs</h1>
-            <p className="text-gray-600 mt-1">Monitor and analyze system API requests</p>
+            <h1 className="text-3xl font-bold text-gray-900">System Logs</h1>
+            <p className="text-gray-500 text-sm mt-1">Real-time error, auth, and email logs</p>
           </div>
-          <div className="flex gap-2">
-            <Button
-              onClick={loadLogs}
-              variant="outline"
-              disabled={loading}
-              className="gap-2"
-            >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
-            <Button
-              onClick={handleExport}
-              variant="outline"
-              className="gap-2"
-            >
-              <Download className="w-4 h-4" />
-              Export
-            </Button>
-          </div>
+          <Button onClick={loadAll} variant="outline" disabled={loading} className="gap-2">
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        </div>
+
+        {/* Summary Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card><CardContent className="pt-5">
+            <p className="text-xs text-gray-500">Total Errors</p>
+            <p className="text-2xl font-bold text-red-600">{errorLogs.length}</p>
+            <p className="text-xs text-gray-400">{errorLogs.filter(e => e.severity === 'critical' && !e.resolved).length} critical unresolved</p>
+          </CardContent></Card>
+          <Card><CardContent className="pt-5">
+            <p className="text-xs text-gray-500">Auth Events</p>
+            <p className="text-2xl font-bold text-blue-600">{auditLogs.length}</p>
+            <p className="text-xs text-gray-400">{auditLogs.filter(e => e.event_type === 'admin_login_success').length} successful logins</p>
+          </CardContent></Card>
+          <Card><CardContent className="pt-5">
+            <p className="text-xs text-gray-500">Emails Sent</p>
+            <p className="text-2xl font-bold text-green-600">{emailLogs.filter(e => e.status === 'sent' || e.status === 'opened').length}</p>
+            <p className="text-xs text-gray-400">{emailLogs.filter(e => e.status === 'bounced').length} bounced</p>
+          </CardContent></Card>
+          <Card><CardContent className="pt-5">
+            <p className="text-xs text-gray-500">Email Open Rate</p>
+            <p className="text-2xl font-bold text-purple-600">
+              {emailLogs.length > 0 ? ((emailLogs.filter(e => e.status === 'opened' || e.open_count > 0).length / emailLogs.length) * 100).toFixed(0) : 0}%
+            </p>
+            <p className="text-xs text-gray-400">{emailLogs.filter(e => e.open_count > 0).length} opened</p>
+          </CardContent></Card>
         </div>
 
         {/* Filters */}
-        <Card>
-          <CardContent className="pt-6 space-y-4">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <label className="text-sm text-gray-600 block mb-2">Search</label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-                  <Input
-                    placeholder="Search endpoint, IP, or user ID..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-
-              <div className="w-full md:w-48">
-                <label className="text-sm text-gray-600 block mb-2">Status</label>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status Codes</SelectItem>
-                    <SelectItem value="success">2xx Success</SelectItem>
-                    <SelectItem value="client-error">4xx Client Error</SelectItem>
-                    <SelectItem value="server-error">5xx Server Error</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="w-full md:w-40">
-                <label className="text-sm text-gray-600 block mb-2">Method</label>
-                <Select value={methodFilter} onValueChange={setMethodFilter}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Methods</SelectItem>
-                    <SelectItem value="GET">GET</SelectItem>
-                    <SelectItem value="POST">POST</SelectItem>
-                    <SelectItem value="PUT">PUT</SelectItem>
-                    <SelectItem value="DELETE">DELETE</SelectItem>
-                    <SelectItem value="PATCH">PATCH</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="text-sm text-gray-600">
-              Showing {filteredLogs.length} of {logs.length} logs
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Logs Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Requests</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
-              </div>
-            ) : filteredLogs.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
-                <AlertCircle className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>No logs found</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 font-semibold text-gray-600">Timestamp</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-600">Method</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-600">Endpoint</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-600">Status</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-600">Duration</th>
-                      <th className="text-left py-3 px-4 font-semibold text-gray-600">IP</th>
-                      <th className="text-center py-3 px-4 font-semibold text-gray-600">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredLogs.map(log => (
-                      <React.Fragment key={log.id}>
-                        <tr className="border-b border-gray-200 hover:bg-gray-50 transition">
-                          <td className="py-3 px-4 text-gray-700">
-                            {new Date(log.timestamp).toLocaleTimeString()}
-                          </td>
-                          <td className="py-3 px-4">
-                            <Badge className={getMethodColor(log.method)}>
-                              {log.method}
-                            </Badge>
-                          </td>
-                          <td className="py-3 px-4 text-gray-700 font-mono text-xs">
-                            {log.endpoint}
-                          </td>
-                          <td className="py-3 px-4">
-                            <Badge className={getStatusColor(log.statusCode)}>
-                              <span className="flex items-center gap-1">
-                                {getStatusIcon(log.statusCode)}
-                                {log.statusCode}
-                              </span>
-                            </Badge>
-                          </td>
-                          <td className="py-3 px-4 text-gray-700">
-                            {log.duration}ms
-                          </td>
-                          <td className="py-3 px-4 text-gray-700 font-mono text-xs">
-                            {log.ip}
-                          </td>
-                          <td className="py-3 px-4 text-center">
-                            <button
-                              onClick={() => setExpandedLog(expandedLog === log.id ? null : log.id)}
-                              className="text-blue-600 hover:text-blue-800 transition"
-                            >
-                              <ChevronDown className={`w-4 h-4 transition ${expandedLog === log.id ? 'rotate-180' : ''}`} />
-                            </button>
-                          </td>
-                        </tr>
-                        {expandedLog === log.id && (
-                          <tr className="bg-gray-50 border-b border-gray-200">
-                            <td colSpan="7" className="py-4 px-4">
-                              <div className="space-y-4">
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                  <div>
-                                    <p className="text-gray-600 text-xs">User ID</p>
-                                    <p className="text-gray-900 font-mono text-sm">{log.userId}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-gray-600 text-xs">Request Size</p>
-                                    <p className="text-gray-900 font-mono text-sm">{(log.requestSize / 1024).toFixed(2)} KB</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-gray-600 text-xs">Response Size</p>
-                                    <p className="text-gray-900 font-mono text-sm">{(log.responseSize / 1024).toFixed(2)} KB</p>
-                                  </div>
-                                </div>
-
-                                {log.error && (
-                                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                                    <p className="text-red-800 text-sm font-mono">{log.error}</p>
-                                  </div>
-                                )}
-
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div>
-                                    <p className="text-gray-600 text-xs mb-1">Request Body</p>
-                                    <pre className="bg-gray-900 text-gray-100 p-2 rounded text-xs overflow-auto max-h-32">
-                                      {JSON.stringify(JSON.parse(log.requestBody), null, 2)}
-                                    </pre>
-                                  </div>
-                                  <div>
-                                    <p className="text-gray-600 text-xs mb-1">Response Body</p>
-                                    <pre className="bg-gray-900 text-gray-100 p-2 rounded text-xs overflow-auto max-h-32">
-                                      {JSON.stringify(JSON.parse(log.responseBody), null, 2)}
-                                    </pre>
-                                  </div>
-                                </div>
-                              </div>
-                            </td>
-                          </tr>
-                        )}
-                      </React.Fragment>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-gray-600 text-sm">Total Requests</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{logs.length}</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-gray-600 text-sm">Success Rate</p>
-              <p className="text-3xl font-bold text-green-600 mt-2">
-                {logs.length > 0 ? ((logs.filter(l => l.statusCode >= 200 && l.statusCode < 300).length / logs.length) * 100).toFixed(1) : 0}%
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-gray-600 text-sm">Avg Response Time</p>
-              <p className="text-3xl font-bold text-blue-600 mt-2">
-                {logs.length > 0 ? (logs.reduce((sum, l) => sum + l.duration, 0) / logs.length).toFixed(0) : 0}ms
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-gray-600 text-sm">Errors</p>
-              <p className="text-3xl font-bold text-red-600 mt-2">
-                {logs.filter(l => l.statusCode >= 400).length}
-              </p>
-            </CardContent>
-          </Card>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+            <Input placeholder="Search logs..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+          </div>
+          {tab === 'errors' && (
+            <Select value={severityFilter} onValueChange={setSeverityFilter}>
+              <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Severities</SelectItem>
+                <SelectItem value="critical">Critical</SelectItem>
+                <SelectItem value="high">High</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="low">Low</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
-        {/* Danger Zone */}
-        <Card className="border-red-200 bg-red-50">
-          <CardHeader>
-            <CardTitle className="text-red-900">Danger Zone</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button
-              onClick={handleClearLogs}
-              variant="destructive"
-              className="gap-2"
-            >
-              <Trash2 className="w-4 h-4" />
-              Clear All Logs
-            </Button>
-          </CardContent>
-        </Card>
+        {/* Tabs */}
+        <Tabs value={tab} onValueChange={setTab}>
+          <TabsList>
+            <TabsTrigger value="errors">Errors ({filteredErrors.length})</TabsTrigger>
+            <TabsTrigger value="auth">Auth Audit ({filteredAudit.length})</TabsTrigger>
+            <TabsTrigger value="email">Email Logs ({filteredEmails.length})</TabsTrigger>
+          </TabsList>
+
+          {/* Error Logs */}
+          <TabsContent value="errors">
+            <Card>
+              <CardHeader className="flex-row items-center justify-between">
+                <CardTitle className="text-base">Error Logs</CardTitle>
+                <Button size="sm" variant="outline" onClick={() => exportCSV(filteredErrors, 'error-logs')} className="gap-1">
+                  <Download className="w-3 h-3" /> Export
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {loading ? <div className="text-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400 mx-auto" /></div>
+                : filteredErrors.length === 0 ? <p className="text-center text-gray-400 py-8">No errors found</p>
+                : (
+                  <div className="space-y-2">
+                    {filteredErrors.map(log => (
+                      <div key={log.id} className="border rounded-lg overflow-hidden">
+                        <div
+                          className="flex items-center gap-3 p-3 cursor-pointer hover:bg-gray-50"
+                          onClick={() => setExpanded(expanded === log.id ? null : log.id)}
+                        >
+                          <Badge className={severityBadge(log.severity)}>{log.severity || 'unknown'}</Badge>
+                          <span className="text-sm font-medium text-gray-800 flex-1 truncate">{log.message || log.error_type}</span>
+                          <span className="text-xs text-gray-400">{log.created_date ? format(new Date(log.created_date), 'MMM d HH:mm') : ''}</span>
+                          <ChevronDown className={`w-4 h-4 text-gray-400 transition ${expanded === log.id ? 'rotate-180' : ''}`} />
+                        </div>
+                        {expanded === log.id && (
+                          <div className="border-t bg-gray-50 p-3 text-xs space-y-2">
+                            <div className="grid grid-cols-2 gap-2">
+                              <div><span className="text-gray-500">Type:</span> <span className="font-mono">{log.error_type}</span></div>
+                              <div><span className="text-gray-500">Resolved:</span> <span>{log.resolved ? '✅' : '❌'}</span></div>
+                            </div>
+                            {log.metadata && (
+                              <pre className="bg-gray-900 text-gray-100 p-2 rounded overflow-auto max-h-32 text-xs">
+                                {JSON.stringify(log.metadata, null, 2)}
+                              </pre>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Auth Audit */}
+          <TabsContent value="auth">
+            <Card>
+              <CardHeader className="flex-row items-center justify-between">
+                <CardTitle className="text-base flex items-center gap-2"><Shield className="w-4 h-4" /> Auth Audit Log</CardTitle>
+                <Button size="sm" variant="outline" onClick={() => exportCSV(filteredAudit, 'auth-audit')} className="gap-1">
+                  <Download className="w-3 h-3" /> Export
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {loading ? <div className="text-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400 mx-auto" /></div>
+                : filteredAudit.length === 0 ? <p className="text-center text-gray-400 py-8">No auth events found</p>
+                : (
+                  <table className="w-full text-sm">
+                    <thead><tr className="border-b text-left">
+                      <th className="py-2 px-3 text-gray-500 font-medium">Event</th>
+                      <th className="py-2 px-3 text-gray-500 font-medium">Email</th>
+                      <th className="py-2 px-3 text-gray-500 font-medium">IP</th>
+                      <th className="py-2 px-3 text-gray-500 font-medium">Time</th>
+                    </tr></thead>
+                    <tbody>
+                      {filteredAudit.map(log => (
+                        <tr key={log.id} className="border-b hover:bg-gray-50">
+                          <td className="py-2 px-3">
+                            <span className={`text-xs font-mono px-2 py-0.5 rounded ${log.event_type?.includes('success') ? 'bg-green-100 text-green-800' : log.event_type?.includes('failed') || log.event_type?.includes('invalid') ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-700'}`}>
+                              {log.event_type}
+                            </span>
+                          </td>
+                          <td className="py-2 px-3 text-gray-700">{log.email}</td>
+                          <td className="py-2 px-3 text-gray-500 font-mono text-xs">{log.ip}</td>
+                          <td className="py-2 px-3 text-gray-400 text-xs">{log.created_date ? format(new Date(log.created_date), 'MMM d HH:mm:ss') : ''}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Email Logs */}
+          <TabsContent value="email">
+            <Card>
+              <CardHeader className="flex-row items-center justify-between">
+                <CardTitle className="text-base">Email Logs</CardTitle>
+                <Button size="sm" variant="outline" onClick={() => exportCSV(filteredEmails, 'email-logs')} className="gap-1">
+                  <Download className="w-3 h-3" /> Export
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {loading ? <div className="text-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400 mx-auto" /></div>
+                : filteredEmails.length === 0 ? <p className="text-center text-gray-400 py-8">No email logs found</p>
+                : (
+                  <table className="w-full text-sm">
+                    <thead><tr className="border-b text-left">
+                      <th className="py-2 px-3 text-gray-500 font-medium">To</th>
+                      <th className="py-2 px-3 text-gray-500 font-medium">Subject</th>
+                      <th className="py-2 px-3 text-gray-500 font-medium">Type</th>
+                      <th className="py-2 px-3 text-gray-500 font-medium">Status</th>
+                      <th className="py-2 px-3 text-gray-500 font-medium">Opens</th>
+                      <th className="py-2 px-3 text-gray-500 font-medium">Time</th>
+                    </tr></thead>
+                    <tbody>
+                      {filteredEmails.map(log => (
+                        <tr key={log.id} className="border-b hover:bg-gray-50">
+                          <td className="py-2 px-3 text-gray-700 text-xs">{log.to}</td>
+                          <td className="py-2 px-3 text-gray-700 text-xs max-w-48 truncate">{log.subject}</td>
+                          <td className="py-2 px-3"><span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">{log.type}</span></td>
+                          <td className="py-2 px-3"><Badge className={emailStatusBadge(log.status)}>{log.status}</Badge></td>
+                          <td className="py-2 px-3 text-gray-500 text-xs">{log.open_count || 0}</td>
+                          <td className="py-2 px-3 text-gray-400 text-xs">{log.created_date ? format(new Date(log.created_date), 'MMM d HH:mm') : ''}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
