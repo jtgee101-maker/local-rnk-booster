@@ -1,7 +1,10 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 function isAllowlisted(email) {
-  const allowlist = (Deno.env.get('ADMIN_ALLOWLIST') || '').split(',').map(e => e.trim().toLowerCase());
+  const envList = Deno.env.get('ADMIN_ALLOWLIST');
+  const allowlist = envList
+    ? envList.split(',').map(e => e.trim().toLowerCase())
+    : ['jtgee101@gmail.com'];
   return allowlist.includes(email.toLowerCase());
 }
 
