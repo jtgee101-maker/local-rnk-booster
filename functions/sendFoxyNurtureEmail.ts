@@ -5,6 +5,11 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const { nurtureId } = await req.json();
 
+    if (!nurtureId) {
+      console.warn('sendFoxyNurtureEmail called without nurtureId — skipping');
+      return Response.json({ skipped: true, reason: 'nurtureId is required' }, { status: 400 });
+    }
+
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
     if (!RESEND_API_KEY) {
       throw new Error('RESEND_API_KEY not configured');
