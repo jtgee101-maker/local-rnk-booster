@@ -177,10 +177,14 @@ Deno.serve(async (req) => {
     }
 
     // ── Mark lead as notified (prevents future duplicate alerts) ──────────────
-    await base44.asServiceRole.entities.Lead.update(lead.id, {
-      hot_lead_notified: true,
-      hot_lead_notified_at: sentAt
-    });
+    try {
+      await base44.asServiceRole.entities.Lead.update(lead.id, {
+        hot_lead_notified: true,
+        hot_lead_notified_at: sentAt
+      });
+    } catch (e) {
+      console.warn('Could not mark lead as notified (may be synthetic test):', e.message);
+    }
 
     // ── Log the alert ─────────────────────────────────────────────────────────
     await base44.asServiceRole.entities.EmailLog.create({
