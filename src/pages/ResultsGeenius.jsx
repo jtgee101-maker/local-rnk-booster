@@ -282,6 +282,9 @@ export default function ResultsGeenius() {
                   {/* Urgency Banner */}
                   <UrgencyBanner healthScore={healthScore} businessName={lead.business_name} onContinue={handleContinue} />
 
+                  {/* Visual Audit Report — conversion-focused upgrade */}
+                  <VisualAuditReport lead={lead} onContinue={handleContinue} />
+
                   <VideoAskEmbed leadId={lead.id} />
 
                   {/* Case Studies */}
