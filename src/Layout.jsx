@@ -129,7 +129,8 @@ export default function Layout({ children, currentPageName }) {
     { name: 'System Health', path: createPageUrl('SystemHealth') },
     { name: 'API Logs', path: createPageUrl('APILogs') },
     { name: 'System Monitor', path: createPageUrl('AdminSystem') },
-    { name: 'Job Queue', path: createPageUrl('AdminJobs') }
+    { name: 'Job Queue', path: createPageUrl('AdminJobs') },
+    { name: 'Programmatic Analytics', path: createPageUrl('ProgrammaticAnalytics') }
   ];
 
   // Determine which nav to show
