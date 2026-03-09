@@ -37,11 +37,11 @@ export default function AdminAuthCallback() {
       const result = response.data;
 
       if (result.status === 'success') {
-        // Set session cookie via backend (server-side HttpOnly)
-        await base44.functions.invoke('auth/setAdminSession', {
-          session_token: result.session_token,
-          expires_at: result.expires_at
-        });
+        // Store session in localStorage — Base44's function proxy strips Set-Cookie headers
+        // so server-side HttpOnly is not possible via functions.invoke(). Security is
+        // enforced server-side: all admin functions verify user.role === 'admin'.
+        localStorage.setItem('admin_session_token', result.session_token);
+        localStorage.setItem('admin_session_expires', result.expires_at);
 
         setStatus('success');
         setMessage('Sign-in successful! Redirecting...');

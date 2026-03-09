@@ -25,14 +25,18 @@ export default function AdminLogout() {
         });
       }
 
-      // Clear cookie
-      document.cookie = 'admin_session=; path=/; max-age=0;';
+      // Clear session storage
+      localStorage.removeItem('admin_session_token');
+      localStorage.removeItem('admin_session_expires');
+      document.cookie = 'admin_session=; path=/; max-age=0;'; // clear legacy cookie too
 
       // Redirect to login
       navigate(createPageUrl('AdminLogin'));
     } catch (error) {
       console.error('Logout error:', error);
       // Still redirect even if logout fails
+      localStorage.removeItem('admin_session_token');
+      localStorage.removeItem('admin_session_expires');
       document.cookie = 'admin_session=; path=/; max-age=0;';
       navigate(createPageUrl('AdminLogin'));
     }
