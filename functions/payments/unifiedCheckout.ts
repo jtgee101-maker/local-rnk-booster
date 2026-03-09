@@ -24,8 +24,17 @@ import { GeeniusPayGateway } from './geeniuspay/checkout.ts';
 import { NMIGateway } from './nmi/checkout.ts';
 import { PayraGateway } from './payra/checkout.ts';
 import { AuthorizeGateway } from './authorize/checkout.ts';
-import { CryptoGateway } from './crypto/checkout.ts';
-import { PayPalGateway } from './paypal/checkout.ts';
+import { CryptoProcessingGateway as CryptoGateway } from './cryptoprocessing/checkout.ts';
+
+// PayPal stub — not yet implemented
+class PayPalGateway {
+  async initialize() {}
+  async createCheckout(request) {
+    return { success: false, status: 'failed', gateway: 'paypal', amount: request.amount, currency: request.currency, error: { code: 'NOT_IMPLEMENTED', message: 'PayPal gateway not yet configured', retryable: false } };
+  }
+  async getPaymentStatus() { return { success: false, status: 'failed', gateway: 'paypal', amount: 0, currency: 'USD' }; }
+  async processRefund() { return { success: false, amount: 0, status: 'failed' }; }
+}
 
 // Gateway instances
 const gateways: Record<PaymentGateway, any> = {
