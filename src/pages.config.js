@@ -141,6 +141,7 @@ import EnterpriseMode from './pages/EnterpriseMode';
 import GrowthMode from './pages/GrowthMode';
 import QuickStartWizard from './pages/QuickStartWizard';
 import CityNicheLanding from './pages/CityNicheLanding';
+import SEOAuditIndex from './pages/SEOAuditIndex';
 import __Layout from './Layout.jsx';
 
 
@@ -239,6 +240,7 @@ export const PAGES = {
     "GrowthMode": GrowthMode,
     "QuickStartWizard": QuickStartWizard,
     "CityNicheLanding": CityNicheLanding,
+    "SEOAuditIndex": SEOAuditIndex,
 }
 
 export const pagesConfig = {
