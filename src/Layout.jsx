@@ -141,15 +141,16 @@ export default function Layout({ children, currentPageName }) {
 
   const navItems = getNavItems();
 
-  // Redirect non-admins from admin pages, or check session
+  // Redirect non-admins from admin pages — check cookie
   useEffect(() => {
     if (!loading) {
       if (isAdminPage && !isAdmin) {
-        // Check if there's an active admin session
-        const sessionToken = localStorage.getItem('admin_session_token');
-        const sessionExpires = localStorage.getItem('admin_session_expires');
-        
-        if (!sessionToken || new Date(sessionExpires) < new Date()) {
+        const cookieToken = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('admin_session='))
+          ?.split('=')[1];
+
+        if (!cookieToken) {
           window.location.href = createPageUrl('AdminLogin');
         }
       }

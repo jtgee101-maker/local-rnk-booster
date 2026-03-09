@@ -33,9 +33,12 @@ Deno.serve(async (req) => {
     if (!leads.length) return Response.json({ error: 'Lead not found' }, { status: 404 });
     const lead = leads[0];
 
-    // Fetch email logs for this lead (filter by metadata.lead_id in memory)
-    const allEmailLogs = await base44.asServiceRole.entities.EmailLog.list('-created_date', 500);
-    const emailLogs = allEmailLogs.filter(log => log.metadata?.lead_id === lead_id);
+    // Fetch email logs for this lead using indexed filter
+    const emailLogs = await base44.asServiceRole.entities.EmailLog.filter(
+      { 'metadata.lead_id': lead_id },
+      '-created_date',
+      50
+    );
 
     const baseScore = lead.health_score || 50;
     let engagementBoost = 0;
@@ -68,18 +71,16 @@ Deno.serve(async (req) => {
     if (lead.selected_pathway === 'dfy' || lead.selected_pathway === 'grant') engagementBoost += 5;
 
     const finalScore = Math.min(100, Math.max(0, Math.round(baseScore + engagementBoost)));
-    const grade = calcGrade(finalScore);
 
+    // Only write engagement_score — do NOT overwrite lead_score/lead_grade (owned by scoring/calculateLeadScore)
     await base44.asServiceRole.entities.Lead.update(lead_id, {
-      lead_score: finalScore,
-      lead_grade: grade
+      engagement_score: finalScore
     });
 
     return Response.json({
       success: true,
       lead_id,
-      score: finalScore,
-      grade,
+      engagement_score: finalScore,
       boost_applied: engagementBoost,
       emails_analyzed: emailLogs.length
     });

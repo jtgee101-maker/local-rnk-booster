@@ -37,12 +37,11 @@ export default function AdminAuthCallback() {
       const result = response.data;
 
       if (result.status === 'success') {
-        // Store session token in secure cookie
-        const sessionToken = result.session_token;
-        const expiresAt = new Date(result.expires_at);
-
-        // Set cookie
-        document.cookie = `admin_session=${sessionToken}; path=/; max-age=43200; secure; samesite=lax; httponly`;
+        // Set session cookie via backend (server-side HttpOnly)
+        await base44.functions.invoke('auth/setAdminSession', {
+          session_token: result.session_token,
+          expires_at: result.expires_at
+        });
 
         setStatus('success');
         setMessage('Sign-in successful! Redirecting...');
