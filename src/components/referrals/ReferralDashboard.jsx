@@ -100,15 +100,15 @@ export default function ReferralDashboard() {
           { label: 'Converted', value: converted, icon: TrendingUp, color: 'green' },
           { label: 'Total Earned', value: `$${totalEarned}`, icon: DollarSign, color: 'yellow' },
           { label: 'Conversion Rate', value: `${successRate}%`, icon: Sparkles, color: 'pink' }
-        ].map(({ label, value, icon: Icon, color }) => (
-          <Card key={label} className={`bg-gradient-to-br from-${color}-900/30 to-${color}-700/10 border-${color}-500/30`}>
+        ].map(({ label, value, icon: StatIcon, color }) => (
+          <Card key={label} className="bg-gray-900/60 border-gray-800">
             <CardContent className="pt-5 pb-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className={`text-xs text-${color}-300 mb-1`}>{label}</div>
+                  <div className="text-xs text-gray-400 mb-1">{label}</div>
                   <div className="text-2xl font-bold text-white">{value}</div>
                 </div>
-                <Icon className={`w-8 h-8 text-${color}-400`} />
+                <StatIcon className="w-8 h-8 text-gray-600" />
               </div>
             </CardContent>
           </Card>
