@@ -692,7 +692,7 @@ export default function DynamicFunnelAnalytics() {
       {/* Footer */}
       <div className="text-center text-xs text-gray-500">
         <Calendar className="w-3 h-3 inline mr-1" />
-        Data generated at {new Date(analytics.generatedAt || Date.now()).toLocaleString()} • 
+        Data generated at {new Date(analytics?.generatedAt || Date.now()).toLocaleString()} • 
         {sessions.uniqueSessions?.toLocaleString() || '0'} unique sessions analyzed
       </div>
     </div>
