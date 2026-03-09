@@ -105,7 +105,7 @@ This link expires in 10 minutes and can only be used once.
 If you did not request this, ignore this email.`;
 
   return resend.emails.send({
-    from: Deno.env.get('ADMIN_MAGIC_LINK_FROM_EMAIL') || 'admin@localrank.ai',
+    from: Deno.env.get('ADMIN_MAGIC_LINK_FROM_EMAIL') || 'onboarding@resend.dev',
     to: email,
     subject: 'Your secure admin sign-in link',
     html: htmlBody,
@@ -182,9 +182,8 @@ Deno.serve(async (req) => {
       requested_user_agent: userAgent
     });
 
-    // Build callback URL - auto-detect from request origin if env not set
-    const origin = req.headers.get('origin') || req.headers.get('referer')?.split('/').slice(0, 3).join('/') || '';
-    const appBaseUrl = Deno.env.get('APP_BASE_URL') || origin || 'https://localrank.ai';
+    // Build callback URL
+    const appBaseUrl = Deno.env.get('APP_BASE_URL') || `https://${req.headers.get('host') || 'localrank.ai'}`;
     const callbackUrl = `${appBaseUrl}/admin-auth/callback?token=${rawToken}`;
 
     // Send email
