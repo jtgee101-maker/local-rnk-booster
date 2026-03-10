@@ -7,7 +7,7 @@
 /**
  * Base Payment Processor Interface
  */
-class PaymentProcessor {
+export class PaymentProcessor {
   constructor(config) {
     this.type = config.type;
     this.credentials = config.credentials;
