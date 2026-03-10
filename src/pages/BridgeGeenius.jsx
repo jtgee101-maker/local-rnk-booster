@@ -18,7 +18,7 @@ export default function BridgeGeenius() {
   const [viewStartTime] = useState(Date.now());
   const [expandedAlt, setExpandedAlt] = useState(null);
   const [pathwaySettings, setPathwaySettings] = useState(null);
-  const [urlsConfigured, setUrlsConfigured] = useState(false);
+  const [pathwayValid, setPathwayValid] = useState({ p1: false, p2: false, p3: false });
 
   useEffect(() => {
     const init = async () => {
