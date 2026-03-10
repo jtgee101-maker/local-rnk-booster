@@ -252,6 +252,7 @@ export default function QuizGeenius() {
           health_score: healthScore,
           critical_issues: criticalIssues,
           status: 'new',
+          workflow_type: 'geenius_quiz',
           last_quiz_date: new Date().toISOString(),
           quiz_submission_count: 1,
           referral_code: campaignData.ref || null
