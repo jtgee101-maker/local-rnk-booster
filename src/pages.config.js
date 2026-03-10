@@ -60,6 +60,7 @@ import AdminLogout from './pages/AdminLogout';
 import AdminSystem from './pages/AdminSystem';
 import AdminTenants from './pages/AdminTenants';
 import AdminUsers from './pages/AdminUsers';
+import AdminWorkflowConsole from './pages/AdminWorkflowConsole';
 import adminDeprecated from './pages/Admin_DEPRECATED';
 import AnalyticsVerification from './pages/AnalyticsVerification';
 import AutoBodyLanding from './pages/AutoBodyLanding';
@@ -143,7 +144,6 @@ import Upsell from './pages/Upsell';
 import Upsell1 from './pages/Upsell1';
 import UserJourneyTest from './pages/UserJourneyTest';
 import V2Start from './pages/V2Start';
-import AdminWorkflowConsole from './pages/AdminWorkflowConsole';
 import __Layout from './Layout.jsx';
 
 
@@ -161,6 +161,7 @@ export const PAGES = {
     "AdminSystem": AdminSystem,
     "AdminTenants": AdminTenants,
     "AdminUsers": AdminUsers,
+    "AdminWorkflowConsole": AdminWorkflowConsole,
     "Admin_DEPRECATED": adminDeprecated,
     "AnalyticsVerification": AnalyticsVerification,
     "AutoBodyLanding": AutoBodyLanding,
@@ -244,7 +245,6 @@ export const PAGES = {
     "Upsell1": Upsell1,
     "UserJourneyTest": UserJourneyTest,
     "V2Start": V2Start,
-    "AdminWorkflowConsole": AdminWorkflowConsole,
 }
 
 export const pagesConfig = {

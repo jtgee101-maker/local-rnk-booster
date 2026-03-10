@@ -81,22 +81,15 @@ export default function BridgeGeenius() {
 
         if (settings.length > 0) {
           const urls = settings[0].setting_value;
-          const allValid =
-            urls?.pathway1_url?.startsWith('https://') &&
-            urls?.pathway2_url?.startsWith('https://') &&
-            urls?.pathway3_checkout_url?.startsWith('https://') &&
-            !urls.pathway1_url.includes('example.com') &&
-            !urls.pathway2_url.includes('example.com') &&
-            !urls.pathway3_checkout_url.includes('example.com');
-
-          if (allValid) {
-            setPathwaySettings(urls);
-            setUrlsConfigured(true);
-          } else {
-            setUrlsConfigured(false);
-          }
+          const isValid = (url) => url?.startsWith('https://') && !url.includes('example.com');
+          setPathwaySettings(urls);
+          setPathwayValid({
+            p1: isValid(urls?.pathway1_url),
+            p2: isValid(urls?.pathway2_url),
+            p3: isValid(urls?.pathway3_checkout_url)
+          });
         } else {
-          setUrlsConfigured(false);
+          setPathwayValid({ p1: false, p2: false, p3: false });
         }
       } catch (error) {
         console.error('Init error:', error);
@@ -192,7 +185,9 @@ export default function BridgeGeenius() {
     );
   }
 
-  if (!urlsConfigured) {
+  const anyPathwayConfigured = pathwayValid.p1 || pathwayValid.p2 || pathwayValid.p3;
+
+  if (!anyPathwayConfigured) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#0a0a0f] via-[#1a0a2e] to-[#0a0a0f] flex items-center justify-center px-4">
         <div className="text-center max-w-md">
@@ -252,6 +247,7 @@ export default function BridgeGeenius() {
           </div>
 
           {/* Hero Gov Tech Grant */}
+          {pathwayValid.p1 && (
           <div className="relative">
             {/* Glow effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-purple-600/20 rounded-3xl blur-2xl -z-10" />
@@ -349,6 +345,7 @@ export default function BridgeGeenius() {
               </CardContent>
             </Card>
           </div>
+          )}
 
           {/* Alternative Pathways */}
           <div className="space-y-4">
@@ -358,6 +355,7 @@ export default function BridgeGeenius() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Done For You */}
+              {pathwayValid.p2 && (
               <div className="group">
                 <button
                   onClick={() => setExpandedAlt(expandedAlt === 'dfy' ? null : 'dfy')}
@@ -407,8 +405,10 @@ export default function BridgeGeenius() {
                   </Card>
                 </button>
               </div>
+              )}
 
               {/* DIY Software */}
+              {pathwayValid.p3 && (
               <div className="group">
                 <button
                   onClick={() => setExpandedAlt(expandedAlt === 'diy' ? null : 'diy')}
@@ -459,6 +459,7 @@ export default function BridgeGeenius() {
                   </Card>
                 </button>
               </div>
+              )}
             </div>
           </div>
 
