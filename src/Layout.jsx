@@ -120,7 +120,8 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Stripe Setup', path: createPageUrl('StripeSetupGuide') },
     { name: 'Final Launch', path: createPageUrl('FinalLaunchChecklist') },
     { name: '🚀 Launch Center', path: createPageUrl('LaunchCommandCenter') },
-    { name: '🧨 Chaos Tests', path: createPageUrl('ChaosTestDashboard') }
+    { name: '🧨 Chaos Tests', path: createPageUrl('ChaosTestDashboard') },
+    { name: '⚙️ Workflow Console', path: createPageUrl('AdminWorkflowConsole') }
   ];
 
   const systemTools = [
