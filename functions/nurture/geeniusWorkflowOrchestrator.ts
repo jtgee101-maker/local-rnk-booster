@@ -12,8 +12,27 @@ const UNSUBSCRIBE_FOOTER = (email) => `
     </p>
   </div>`;
 
+async function isDuplicateEmail(base44, leadId, sequenceKey) {
+  try {
+    const logs = await base44.asServiceRole.entities.EmailLog.filter({
+      'metadata.lead_id': leadId,
+      'metadata.sequence_key': sequenceKey
+    }, '-created_date', 1);
+    return logs.length > 0;
+  } catch (_) {
+    return false; // fail open — better to send than to silently block
+  }
+}
+
 async function sendEmail(base44, lead, sequenceKey, subject, html) {
   if (!RESEND_API_KEY) throw new Error('RESEND_API_KEY not configured');
+
+  // Global dedup: skip if this exact sequence was already sent to this lead
+  const alreadySent = await isDuplicateEmail(base44, lead.id, sequenceKey);
+  if (alreadySent) {
+    console.log(`[DEDUP] Skipping ${sequenceKey} for lead ${lead.id} — already sent`);
+    return null;
+  }
 
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
