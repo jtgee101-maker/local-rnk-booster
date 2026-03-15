@@ -95,6 +95,15 @@ Deno.serve(async (req) => {
       lead_id = body.event.entity_id;
       email = body.data?.email;
       currentStatus = body.data?.enrichment_status;
+
+      // If payload_too_large or email missing, fetch the lead directly
+      if (lead_id && !email) {
+        const leads = await base44.asServiceRole.entities.Lead.filter({ id: lead_id }).catch(() => []);
+        if (leads.length > 0) {
+          email = leads[0].email;
+          currentStatus = leads[0].enrichment_status;
+        }
+      }
     } else {
       lead_id = body.lead_id;
       email = body.email;

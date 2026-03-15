@@ -85,7 +85,7 @@ const FALLBACK_TEMPLATES = {
     html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;">
       <h2 style="color:#7c3aed;">Still thinking, ${l.business_name || 'there'}?</h2>
       <p>Your spot is still reserved. Complete your order now before it expires.</p>
-      <p style="margin:24px 0;"><a href="https://localrank.ai/Checkout" style="background:#7c3aed;color:#fff;padding:14px 28px;text-decoration:none;border-radius:6px;font-weight:bold;display:inline-block;">Complete My Order →</a></p>
+      <p style="margin:24px 0;"><a href="https://localrank.ai/BridgeGeenius?lead_id=${l.id}" style="background:#7c3aed;color:#fff;padding:14px 28px;text-decoration:none;border-radius:6px;font-weight:bold;display:inline-block;">Complete My Order →</a></p>
       ${UNSUBSCRIBE_FOOTER(l.email)}</div>`
   }),
   checkout_abandoned_24h: (l) => ({
@@ -93,7 +93,7 @@ const FALLBACK_TEMPLATES = {
     html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;">
       <h2 style="color:#dc2626;">This is your final reminder, ${l.business_name || 'there'}</h2>
       <p>Your exclusive discount and reserved spot expire today. Don't let competitors take your ranking.</p>
-      <p style="margin:24px 0;"><a href="https://localrank.ai/Checkout" style="background:#dc2626;color:#fff;padding:14px 28px;text-decoration:none;border-radius:6px;font-weight:bold;display:inline-block;">Claim My Discount →</a></p>
+      <p style="margin:24px 0;"><a href="https://localrank.ai/BridgeGeenius?lead_id=${l.id}" style="background:#dc2626;color:#fff;padding:14px 28px;text-decoration:none;border-radius:6px;font-weight:bold;display:inline-block;">Claim My Discount →</a></p>
       ${UNSUBSCRIBE_FOOTER(l.email)}</div>`
   }),
   post_purchase_day1: (l) => ({
@@ -282,30 +282,45 @@ Deno.serve(async (req) => {
   }
 });
 
-// ── Schedule helper ────────────────────────────────────────────────────────────
+// ── Schedule helper — dedup via EmailLog (already-sent check) + existence check ─
 async function scheduleEmail(base44, lead, sequence_key, delay_hours) {
   try {
     const delayMs = delay_hours > 0 ? delay_hours * 60 * 60 * 1000 : 60 * 1000;
     const next_email_date = new Date(Date.now() + delayMs).toISOString();
+    const seq_name = `geenius_${sequence_key}`;
 
+    // Check if already sent via EmailLog (strongest dedup signal)
+    const sentLogs = await base44.asServiceRole.entities.EmailLog.filter({
+      template_key: sequence_key,
+      'metadata.lead_id': lead.id
+    }, '-created_date', 1).catch(() => []);
+    if (sentLogs.length > 0) {
+      console.log(`[DEDUP-LOG] ${sequence_key} already sent to lead ${lead.id} — skipping`);
+      return true;
+    }
+
+    // Check if a nurture record already exists (active or completed)
     const existing = await base44.asServiceRole.entities.LeadNurture.filter({
       lead_id: lead.id,
-      sequence_name: `geenius_${sequence_key}`
-    });
+      sequence_name: seq_name
+    }).catch(() => []);
 
-    if (existing.length === 0) {
-      await base44.asServiceRole.entities.LeadNurture.create({
-        lead_id: lead.id,
-        email: lead.email,
-        sequence_name: `geenius_${sequence_key}`,
-        current_step: 0,
-        total_steps: 1,
-        status: 'active',
-        next_email_date,
-        emails_sent: 0
-      });
-      console.log(`Scheduled ${sequence_key} for lead ${lead.id} at ${next_email_date}`);
+    if (existing.length > 0) {
+      console.log(`[DEDUP-NURTURE] ${seq_name} already exists for lead ${lead.id} — skipping`);
+      return true;
     }
+
+    await base44.asServiceRole.entities.LeadNurture.create({
+      lead_id: lead.id,
+      email: lead.email,
+      sequence_name: seq_name,
+      current_step: 0,
+      total_steps: 1,
+      status: 'active',
+      next_email_date,
+      emails_sent: 0
+    });
+    console.log(`Scheduled ${sequence_key} for lead ${lead.id} at ${next_email_date}`);
     return true;
   } catch (error) {
     console.error(`Failed to schedule ${sequence_key}:`, error);
