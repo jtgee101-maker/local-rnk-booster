@@ -97,7 +97,7 @@ export default function AdminActivityLog() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs text-gray-300 border-gray-600">
                       {getActionLabel(activity.type)}
                     </Badge>
                     <span className="text-xs text-gray-500">
