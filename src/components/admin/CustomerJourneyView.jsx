@@ -30,7 +30,7 @@ export default function CustomerJourneyView() {
     },
     enabled: !!searchLeadId,
     staleTime: 60 * 1000,
-    retry: 3
+    retry: 1
   });
 
   const handleSearch = () => {

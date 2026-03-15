@@ -26,9 +26,9 @@ export default function FunnelVisualization({ dateRange }) {
       });
       return response.data;
     },
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000)
+    staleTime: 2 * 60 * 1000,
+    retry: 1,
+    retryDelay: 1000
   });
 
   // Comparison data for previous period

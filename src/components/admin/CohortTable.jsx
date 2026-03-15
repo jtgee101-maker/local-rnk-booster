@@ -25,7 +25,7 @@ export default function CohortTable() {
       return response.data;
     },
     staleTime: 10 * 60 * 1000,
-    retry: 3
+    retry: 1
   });
 
   const handleExport = () => {

@@ -23,7 +23,7 @@ export default function RevenueAttributionChart({ dateRange }) {
       return response.data;
     },
     staleTime: 5 * 60 * 1000,
-    retry: 3
+    retry: 1
   });
 
   const handleExport = () => {
