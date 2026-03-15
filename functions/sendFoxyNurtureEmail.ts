@@ -212,7 +212,7 @@ function getStep1WOMPTemplate(auditData, lead) {
       <p><strong>Or...</strong> Let me fix everything in 48 hours.</p>
       
       <div style="text-align: center;">
-        <a href="https://yourapp.base44.app/QuizGeeniusV2?email=${lead.email}" class="cta-button">
+        <a href="https://localrank.ai/BridgeGeenius?email=${encodeURIComponent(lead.email)}" class="cta-button">
           ⚡ See My 48-Hour Fix Plan
         </a>
       </div>
@@ -314,7 +314,7 @@ function getStep2WOMPTemplate(auditData, lead) {
       <p>Foxy pays for itself in <strong>${Math.ceil(497 / monthlyLeak * 30)} days</strong>. Everything after that is pure profit recovery.</p>
 
       <div style="text-align: center; margin: 30px 0;">
-        <a href="https://yourapp.base44.app/QuizGeeniusV2?email=${lead.email}" class="cta-button">
+        <a href="https://localrank.ai/BridgeGeenius?email=${encodeURIComponent(lead.email)}" class="cta-button">
           ⚡ Plug These Revenue Leaks Now
         </a>
         <p style="font-size: 12px; color: #666; margin-top: 10px;">✓ No contracts ✓ Cancel anytime ✓ ROI guarantee</p>
@@ -425,7 +425,7 @@ function getStep5WOMPTemplate(auditData, lead) {
       <p><strong>Path 2:</strong> Follow the proven roadmap. Fix the leaks. Dominate your market. See results in 30-60 days.</p>
 
       <div style="text-align: center; margin: 30px 0;">
-        <a href="https://yourapp.base44.app/QuizGeeniusV2?email=${lead.email}" class="cta-button">
+        <a href="https://localrank.ai/BridgeGeenius?email=${encodeURIComponent(lead.email)}" class="cta-button">
           🚀 I Choose Path 2 - Let's Do This
         </a>
       </div>

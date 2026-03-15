@@ -73,14 +73,15 @@ export function OfflineBanner() {
 
   const checkPendingActions = async () => {
     try {
-      // Check IndexedDB for pending sync queue
       const db = await openSyncDB();
+      // Guard: ensure the object store exists before transacting
+      if (!db.objectStoreNames.contains('localrnk-sync-queue')) return;
       const tx = db.transaction('localrnk-sync-queue', 'readonly');
       const store = tx.objectStore('localrnk-sync-queue');
-      const count = await store.count();
-      setPendingCount(count);
-    } catch (error) {
-      console.error('Failed to check pending actions:', error);
+      const countReq = store.count();
+      countReq.onsuccess = () => setPendingCount(countReq.result);
+    } catch (_error) {
+      // Silently ignore — IDB may not be initialized yet on first load
     }
   };
 
