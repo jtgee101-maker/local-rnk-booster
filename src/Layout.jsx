@@ -294,7 +294,7 @@ export default function Layout({ children, currentPageName }) {
                     variant="outline"
                     size="sm"
                     onClick={() => base44.auth.logout()}
-                    style={{ borderColor: colors.border.DEFAULT, color: colors.text.secondary }}
+                    style={{ borderColor: colors.border.DEFAULT, color: colors.text.primary, backgroundColor: 'transparent' }}
                   >
                     Logout
                   </Button>
