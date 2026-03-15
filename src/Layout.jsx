@@ -46,12 +46,12 @@ export default function Layout({ children, currentPageName }) {
   const isFullWidth = fullWidthPages.includes(currentPageName);
 
   // Pages that hide navigation (funnel pages)
-  const noNavPages = ['Quiz', 'QuizV2', 'QuizV3', 'Checkout', 'CheckoutV2', 'Upsell', 'Upsell1', 'BridgeV3', 'ThankYou', 'QuizGeenius', 'ResultsGeenius', 'BridgeGeenius', 'FoxyAuditLanding'];
+  const noNavPages = ['Quiz', 'QuizV2', 'QuizV3', 'Checkout', 'CheckoutV2', 'Upsell', 'Upsell1', 'BridgeV3', 'ThankYou', 'QuizGeenius', 'ResultsGeenius', 'BridgeGeenius', 'FoxyAuditLanding', 'Unsubscribe'];
   const showNav = !noNavPages.includes(currentPageName);
 
   // Check if current page is admin-only
   // Admin pages - all protected routes must be listed here
-  const adminPages = ['GodModeDashboard', 'AdminControlCenter', 'ProductionChecklist', 'SecurityAudit', 'DataCleanup', 'StripeSetupGuide', 'FinalLaunchChecklist', 'FeatureFlags', 'TenantManager', 'SystemHealth', 'APILogs', 'AdminSystem', 'AdminJobs', 'ChaosTestDashboard', 'LaunchCommandCenter'];
+  const adminPages = ['GodModeDashboard', 'AdminControlCenter', 'ProductionChecklist', 'SecurityAudit', 'DataCleanup', 'StripeSetupGuide', 'FinalLaunchChecklist', 'FeatureFlags', 'TenantManager', 'SystemHealth', 'APILogs', 'AdminSystem', 'AdminJobs', 'ChaosTestDashboard', 'LaunchCommandCenter', 'AdminPathwayConfig'];
   const isAdminPage = adminPages.includes(currentPageName);
   const isAdminAuthPage = ['AdminLogin', 'AdminAuthCallback'].includes(currentPageName);
 
@@ -121,7 +121,8 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Final Launch', path: createPageUrl('FinalLaunchChecklist') },
     { name: '🚀 Launch Center', path: createPageUrl('LaunchCommandCenter') },
     { name: '🧨 Chaos Tests', path: createPageUrl('ChaosTestDashboard') },
-    { name: '⚙️ Workflow Console', path: createPageUrl('AdminWorkflowConsole') }
+    { name: '⚙️ Workflow Console', path: createPageUrl('AdminWorkflowConsole') },
+    { name: '🔗 Pathway URLs', path: createPageUrl('AdminPathwayConfig') }
   ];
 
   const systemTools = [

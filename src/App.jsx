@@ -9,6 +9,8 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { initGhostTracker } from '@/lib/ghostTracker.jsx';
+import UnsubscribePage from './pages/Unsubscribe';
+import AdminPathwayConfigPage from './pages/AdminPathwayConfig';
 
 // Loading fallback component
 const PageLoader = () => (
@@ -68,6 +70,8 @@ const AuthenticatedApp = () => {
             }
           />
         ))}
+        <Route path="/Unsubscribe" element={<LayoutWrapper currentPageName="Unsubscribe"><UnsubscribePage /></LayoutWrapper>} />
+        <Route path="/AdminPathwayConfig" element={<LayoutWrapper currentPageName="AdminPathwayConfig"><AdminPathwayConfigPage /></LayoutWrapper>} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </Suspense>
