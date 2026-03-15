@@ -34,10 +34,29 @@ Deno.serve(async (req) => {
     const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
     const revenuePerLead = totalLeads > 0 ? totalRevenue / totalLeads : 0;
 
-    const channelMetrics = [
-      { channel: 'v2', leads: Math.floor(totalLeads * 0.3), orders: Math.floor(totalOrders * 0.3), revenue: totalRevenue * 0.3, conversion_rate: conversionRate },
-      { channel: 'v3', leads: Math.floor(totalLeads * 0.7), orders: Math.floor(totalOrders * 0.7), revenue: totalRevenue * 0.7, conversion_rate: conversionRate }
-    ];
+    // Real channel breakdown by workflow_type on leads
+    const channelMap = {};
+    for (const lead of leads) {
+      const wf = lead.workflow_type || 'geenius_quiz';
+      if (!channelMap[wf]) channelMap[wf] = { leads: 0, orders: 0, revenue: 0 };
+      channelMap[wf].leads++;
+    }
+    // Attribute orders to channels via lead workflow_type
+    for (const order of orders) {
+      if (!order.lead_id) continue;
+      const matchLead = leads.find(l => l.id === order.lead_id);
+      const wf = matchLead?.workflow_type || 'geenius_quiz';
+      if (!channelMap[wf]) channelMap[wf] = { leads: 0, orders: 0, revenue: 0 };
+      channelMap[wf].orders++;
+      channelMap[wf].revenue += order.total_amount || 0;
+    }
+    const channelMetrics = Object.entries(channelMap).map(([channel, data]) => ({
+      channel,
+      leads: data.leads,
+      orders: data.orders,
+      revenue: data.revenue,
+      conversion_rate: data.leads > 0 ? (data.orders / data.leads) * 100 : 0
+    }));
 
     // Category breakdown from real data
     const categoryMap = {};
@@ -56,6 +75,28 @@ Deno.serve(async (req) => {
         avg_order_value: avgOrderValue
       }));
 
+    // Daily trend — bucket orders and leads by day
+    const dailyMap = {};
+    for (const order of orders) {
+      const day = order.created_date?.slice(0, 10);
+      if (!day) continue;
+      if (!dailyMap[day]) dailyMap[day] = { date: day, revenue: 0, orders: 0, leads: 0 };
+      dailyMap[day].revenue += order.total_amount || 0;
+      dailyMap[day].orders++;
+    }
+    for (const lead of leads) {
+      const day = lead.created_date?.slice(0, 10);
+      if (!day) continue;
+      if (!dailyMap[day]) dailyMap[day] = { date: day, revenue: 0, orders: 0, leads: 0 };
+      dailyMap[day].leads++;
+    }
+    const dailyTrend = Object.values(dailyMap).sort((a, b) => a.date.localeCompare(b.date));
+
+    // LTV / CAC
+    const ltv = avgOrderValue * 1.2; // estimated repeat purchase factor
+    const estimatedCac = totalLeads > 0 ? (totalRevenue * 0.15) / Math.max(totalOrders, 1) : 0;
+    const ltvCacRatio = estimatedCac > 0 ? ltv / estimatedCac : 0;
+
     return Response.json({
       success: true,
       date_range: { start: startDate, end: endDate },
@@ -65,9 +106,13 @@ Deno.serve(async (req) => {
         total_leads: totalLeads,
         conversion_rate: Math.round(conversionRate * 10) / 10,
         avg_order_value: Math.round(avgOrderValue * 100) / 100,
-        revenue_per_lead: Math.round(revenuePerLead * 100) / 100
+        revenue_per_lead: Math.round(revenuePerLead * 100) / 100,
+        ltv: Math.round(ltv * 100) / 100,
+        estimated_cac: Math.round(estimatedCac * 100) / 100,
+        ltv_cac_ratio: Math.round(ltvCacRatio * 10) / 10
       },
       by_channel: channelMetrics,
+      daily_trend: dailyTrend,
       top_categories: topCategories
     });
 
