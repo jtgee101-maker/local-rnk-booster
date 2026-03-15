@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  TrendingUp, Users, DollarSign, Target, BarChart3, RefreshCw, Loader2, 
+  TrendingUp, Users, DollarSign, Target, BarChart3, RefreshCw,
   ArrowUpRight, ArrowDownRight, Download, Mail, UserPlus, Send 
 } from 'lucide-react';
 import CustomerJourneyView from '@/components/admin/CustomerJourneyView';
