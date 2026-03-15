@@ -159,7 +159,7 @@ export default function DataBackupTools() {
               onClick={exportCSV}
               disabled={exporting}
               variant="outline"
-              className="border-gray-700 text-white hover:bg-gray-700"
+              className="border-gray-700 text-white bg-transparent hover:bg-gray-700"
             >
               <Download className="w-4 h-4 mr-2" />
               Export CSV
