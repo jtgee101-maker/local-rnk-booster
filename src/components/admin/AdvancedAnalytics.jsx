@@ -85,14 +85,7 @@ export default function AdvancedAnalytics() {
     a.remove();
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-96 space-y-4">
-        <Loader2 className="w-8 h-8 animate-spin text-[#c8ff00]" />
-        <p className="text-sm text-gray-400">Loading analytics data...</p>
-      </div>
-    );
-  }
+  // Don't block rendering — each sub-component handles its own loading state
 
 
 
