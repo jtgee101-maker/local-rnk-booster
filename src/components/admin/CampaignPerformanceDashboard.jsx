@@ -177,7 +177,7 @@ export default function CampaignPerformanceDashboard() {
                         <Badge className={getStatusColor(campaign.status)}>
                           {campaign.status}
                         </Badge>
-                        <Badge variant="outline" className="text-xs capitalize">
+                        <Badge variant="outline" className="text-xs capitalize text-gray-300 border-gray-600">
                           {campaign.type.replace(/_/g, ' ')}
                         </Badge>
                       </div>
